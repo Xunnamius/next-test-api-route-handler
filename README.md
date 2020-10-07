@@ -9,18 +9,15 @@ some unit tests working? Want your handlers to receive actual
 [NextApiRequest](https://github.com/vercel/next.js/blob/241f38eaa8aa2199360dc28d76759c936f16cdd6/packages/next/next-server/lib/utils.ts#L194)
 and
 [NextApiResponse](https://github.com/vercel/next.js/blob/241f38eaa8aa2199360dc28d76759c936f16cdd6/packages/next/next-server/lib/utils.ts#L194)
-objects rather than having to hack something together with express? This package
-allows you to test your Next.js API routes/handlers in an isolated Next.js-like
-environment simply, quickly, and without hassle.
+objects rather than having to hack something together with express? Then look no
+further! This package allows you to test your Next.js API routes/handlers in an
+isolated Next.js-like environment simply, quickly, and without hassle.
 
-One day, Next.js might expose a light API for easily testing our handlers (or at
-least generating proper NextApiRequest and NextApiResponse objects). Until then,
+One day, Next.js might expose an API for testing our handlers (or at least
+generating proper NextApiRequest and NextApiResponse objects). Until then,
 there's `next-test-api-route-handler`! 🎉🎉🎉
 
-This package includes TypeScript types and provides:
-
-+ A UMD/CJS/AMD bundle (no tree-shaking)
-+ ES2015 modules (tree-shaking)
+This package requires Next.js and ES2015/TypeScript.
 
 > This package uses Next.js's internal API resolver to precisely emulate API
 > route handling. Since this is not a public or documented interface, the

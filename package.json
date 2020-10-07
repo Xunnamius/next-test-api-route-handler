@@ -24,7 +24,6 @@
   "license": "Unlicense",
   "author": "Xunnamius",
   "sideEffects": false,
-  "main": "dist/umd.js",
   "module": "dist/modules/index.js",
   "types": "dist/modules/index.d.ts",
   "files": [
@@ -34,7 +33,7 @@
     "/README.md"
   ],
   "scripts": {
-    "build": "npm run clean && tsc --project tsconfig.types.json && NODE_ENV=production webpack -p && babel src --extensions .ts --out-dir dist/modules",
+    "build": "npm run clean && tsc --project tsconfig.types.json && babel src --extensions .ts --out-dir dist/modules",
     "build-docs": "rm -rf docs && npx -p typescript -p typedoc@0.17.0-3 -p typedoc-plugin-markdown typedoc --plugin typedoc-plugin-markdown --out docs --readme none --mode library src/index.ts && find docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find docs -name '*.md' -exec sed -i -e 's/__namedParameters/\\(destructured\\)/g' {} + && find docs -name '*.md' -exec sed -i '/_npx/d' {} + && sed -i -e 1,4d docs/README.md",
     "check-types": "command -v unbuffer >/dev/null && (unbuffer tsc; unbuffer eslint .) | less -R -FX || (tsc; eslint .)",
     "clean": "rm -rf dist",
@@ -67,7 +66,6 @@
     "@types/confusing-browser-globals": "^1.0.0",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.11.2",
-    "@types/webpack": "^4.41.22",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
     "babel-eslint": "^10.1.0",
@@ -85,8 +83,6 @@
     "jest-circus": "^26.4.2",
     "jest-extended": "^0.11.5",
     "source-map-support": "^0.5.19",
-    "typescript": "^4.0.3",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.12"
+    "typescript": "^4.0.3"
   }
 }
