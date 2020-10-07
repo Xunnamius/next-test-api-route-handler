@@ -1,5 +1,3 @@
-const restrictedGlobals = require('confusing-browser-globals');
-
 module.exports = {
     parser: '@typescript-eslint/parser',
     plugins: [
@@ -29,7 +27,7 @@ module.exports = {
         node: true,
         jest: true,
         'jest/globals': true,
-        browser: true,
+        browser: false,
         webextensions: true,
     },
     rules: {
@@ -37,7 +35,6 @@ module.exports = {
         'no-return-await': 'warn',
         'no-await-in-loop': 'warn',
         'import/no-unresolved': ['error', { commonjs: true }],
-        'no-restricted-globals': ['warn'].concat(restrictedGlobals),
         'no-extra-boolean-cast': 'off',
         '@typescript-eslint/camelcase': 'off',
         '@typescript-eslint/explicit-function-return-type': 'off',
