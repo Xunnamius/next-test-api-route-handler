@@ -1,8 +1,6 @@
 // * Every now and then, take best practices from CRA
 // * https://tinyurl.com/yakv4ggx
 
-const targets = '>1% in US and not ie 11';
-
 module.exports = {
     parserOpts: { strictMode: true },
     plugins: [
@@ -24,14 +22,14 @@ module.exports = {
         test: {
             sourceMaps: 'both',
             presets: [
-                ['@babel/preset-env', { targets: targets }],
+                ['@babel/preset-env', { targets: { node: true }}],
                 ['@babel/preset-typescript', { allowDeclareFields: true }]
             ]
         },
         // * Used by `npm run build`
         production: {
             presets: [
-                ['@babel/preset-env', { targets: targets }],
+                ['@babel/preset-env', { targets: { node: true }}],
                 ['@babel/preset-typescript', { allowDeclareFields: true }]
             ]
         },
