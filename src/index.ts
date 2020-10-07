@@ -6,6 +6,8 @@ import { apiResolver } from 'next/dist/next-server/server/api-utils'
 
 import type { TesApiHanParams } from './types'
 
+export * from './types';
+
 /**
  * Uses Next's internal `apiResolver` to execute api route handlers in a
  * Next-like testing environment.
