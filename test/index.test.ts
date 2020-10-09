@@ -1,7 +1,6 @@
 import { testApiHandler } from '../src/index'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
-import type { TestParams } from '../src/types'
 
 const getHandler = (status?: number) => async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(status ?? 200).send({ hello: 'world' });
@@ -14,7 +13,7 @@ describe('next-test-api-route', () => {
 
             await testApiHandler({
                 handler: getHandler(),
-                test: async ({ fetch }: TestParams) => {
+                test: async ({ fetch }) => {
                     expect((await fetch()).status).toBe(200);
                     expect(await (await fetch()).json()).toStrictEqual({ hello: 'world' });
                 }
@@ -22,7 +21,7 @@ describe('next-test-api-route', () => {
 
             await testApiHandler({
                 handler: getHandler(404),
-                test: async ({ fetch }: TestParams) => {
+                test: async ({ fetch }) => {
                     expect((await fetch()).status).toBe(404);
                     expect(await (await fetch()).json()).toStrictEqual({ hello: 'world' });
                 }
@@ -39,7 +38,7 @@ describe('next-test-api-route', () => {
                     res.status(500).send({ data: req.headers.key });
                 },
 
-                test: async ({ fetch }: TestParams) => {
+                test: async ({ fetch }) => {
                     expect((await fetch()).status).toBe(500);
                     expect(await (await fetch()).json()).toStrictEqual({ data: 'secret' });
                 }
@@ -53,7 +52,7 @@ describe('next-test-api-route', () => {
                 responsePatcher: res => res.statusCode = 404,
                 handler: async (req: NextApiRequest, res: NextApiResponse) => res.send({}),
 
-                test: async ({ fetch }: TestParams) => {
+                test: async ({ fetch }) => {
                     expect((await fetch()).status).toBe(404);
                     expect(await (await fetch()).json()).toStrictEqual({});
                 }
@@ -72,7 +71,7 @@ describe('next-test-api-route', () => {
                     res.send({});
                 },
 
-                test: async ({ fetch }: TestParams) => void await fetch()
+                test: async ({ fetch }) => void await fetch()
             });
         });
 
@@ -85,7 +84,7 @@ describe('next-test-api-route', () => {
 
             await testApiHandler({
                 handler,
-                test: async ({ fetch }: TestParams) => {
+                test: async ({ fetch }) => {
                     expect((await fetch()).status).toBe(200);
                     expect((await fetch({ method: 'POST', body: 'more than 1 byte' })).status).toBe(413);
                 }

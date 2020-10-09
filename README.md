@@ -1,4 +1,13 @@
-[![npm version](https://badge.fury.io/js/next-test-api-route-handler.svg)](https://badge.fury.io/js/next-test-api-route-handler)
+[![Join the movement!](https://api.ergodark.com/badges/blm)](https://m4bl.org/take-action)
+[![This package works with Next.js versions up to and including this one](https://api.ergodark.com/badges/is-next-compat)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![This package uses an internal API feature from this specific version of Next.js](https://api.ergodark.com/badges/next-lock-version)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![View this project on GitHub](https://img.shields.io/maintenance/active/2020)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![View this project on GitHub](https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler/develop)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![View this project's open issues on GitHub](https://img.shields.io/github/issues/xunnamius/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![View this project's open pull requests on GitHub](https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![View the status of this project's dependencies on DavidDM](https://img.shields.io/david/xunnamius/next-test-api-route-handler)](https://david-dm.org/xunnamius/next-test-api-route-handler)
+[![View this project on NPM](https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![View this project on NPM](https://img.shields.io/npm/l/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
 
 # next-test-api-route-handler
 
@@ -6,9 +15,9 @@ Trying to unit test your [Next.js API route
 handlers](https://nextjs.org/docs/api-routes/introduction)? Want to avoid
 mucking around with custom servers and writing boring test infra just to get
 some unit tests working? Want your handlers to receive actual
-[NextApiRequest](https://github.com/vercel/next.js/blob/241f38eaa8aa2199360dc28d76759c936f16cdd6/packages/next/next-server/lib/utils.ts#L194)
+[NextApiRequest](https://nextjs.org/docs/basic-features/typescript#api-routes)
 and
-[NextApiResponse](https://github.com/vercel/next.js/blob/241f38eaa8aa2199360dc28d76759c936f16cdd6/packages/next/next-server/lib/utils.ts#L194)
+[NextApiResponse](https://nextjs.org/docs/basic-features/typescript#api-routes)
 objects rather than having to hack something together with express? Then look no
 further! This package allows you to test your Next.js API routes/handlers in an
 isolated Next.js-like environment simply, quickly, and without hassle.
@@ -17,16 +26,19 @@ One day, Next.js might expose an API for testing our handlers (or at least
 generating proper NextApiRequest and NextApiResponse objects). Until then,
 there's `next-test-api-route-handler`! 🎉🎉🎉
 
-This package requires Next.js and ES2015/TypeScript.
-
 > This package uses Next.js's internal API resolver to precisely emulate API
-> route handling. Since this is not a public or documented interface, the
-> version of Next.js this package depends on is locked to `9.5.4-canary.24`.
-> This is to ensure the resolver is always available with the interface we
-> expect. [This is not a problem unless there is a significant change to API
-> route handling in
-> Next.js](https://github.com/vercel/next.js/blame/v9.5.4-canary.24/packages/next/next-server/server/api-utils.ts#L23),
-> in which case this package will be updated to match (issues and PRs welcome).
+> route handling. Since this is not a public or documented interface, the next
+> dependency is locked to [![This package uses an internal API feature from this
+> specific version of
+> Next.js](https://img.shields.io/npm/dependency-version/next-test-api-route-handler/next?label=next)](https://www.npmjs.com/package/next-test-api-route-handler).
+> This package is automatically tested for compatibility with [each full release
+> of Next.js](https://github.com/vercel/next.js/releases): [![This package works
+> with Next.js versions up to and including this
+> one](https://api.ergodark.com/badges/is-next-compat)](https://www.npmjs.com/package/next-test-api-route-handler).
+> Any incompatibilities, albeit rare, will be fixed as they are detected.
+
+If you're looking for a version of `next-test-api-route-handler` that works with
+some long-ago previous version of Next.js, consult [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
@@ -40,23 +52,16 @@ npm install next-test-api-route-handler
 import { testApiHandler } from 'next-test-api-route-handler'
 ```
 
-If you're using TypeScript, [this package's types](src/types.ts) are also
-exported:
-
-```TypeScript
-import type { TestParams } from 'next-test-api-route-handler'
-```
-
 The interface for `testApiHandler` looks like this:
 
 ```TypeScript
-testApiHandler(
+async function testApiHandler({ requestPatcher, responsePatcher, params, handler, test }: {
     requestPatcher?: (req: IncomingMessage) => void,
     responsePatcher?: (res: ServerResponse) => void,
     params?: Record<string, unknown>,
     handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
-    test: (obj: TestParams) => Promise<void>,
-)
+    test: (obj: { fetch: (init?: RequestInit) => ReturnType<typeof fetch> }) => Promise<void>,
+})
 ```
 
 `requestPatcher` is a function that receives an
@@ -72,20 +77,20 @@ resolver.
 `params` is an object representing "processed" dynamic routes, e.g. testing a
 handler that expects `/api/user/:id` requires `params: { id: ...}`. This should
 not be confused with requiring query string parameters, which are parsed out
-automatically from the url.
+from the url and added to the params object automatically.
 
 `handler` is the actual route handler under test (usually imported from
 `pages/api/*`). It should be an async function that accepts
-[NextApiRequest](https://github.com/vercel/next.js/blob/241f38eaa8aa2199360dc28d76759c936f16cdd6/packages/next/next-server/lib/utils.ts#L194)
+[NextApiRequest](https://nextjs.org/docs/basic-features/typescript#api-routes)
 and
-[NextApiResponse](https://github.com/vercel/next.js/blob/241f38eaa8aa2199360dc28d76759c936f16cdd6/packages/next/next-server/lib/utils.ts#L194)
+[NextApiResponse](https://nextjs.org/docs/basic-features/typescript#api-routes)
 objects as its two parameters.
 
 `test` is a function that returns a promise (or async) where test assertions can
 be run. This function receives one parameter: `fetch`, which is a simple
 [unfetch](https://www.npmjs.com/package/isomorphic-unfetch) instance (**note
-that the url parameter (the first parameter) in
-[`fetch(...)`](https://github.com/developit/unfetch#examples--demos) is
+that the *url parameter*, i.e. the first parameter in
+[`fetch(...)`](https://github.com/developit/unfetch#examples--demos), is
 omitted**). Use this to send HTTP requests to the handler under test.
 
 ## Examples
@@ -105,7 +110,6 @@ import { testApiHandler } from 'next-test-endpoint'
 import { shuffle } from 'fast-shuffle'
 
 import type { WithConfig } from '@ergodark/next-types'
-import type { TestParams } from 'next-test-api-route-handler'
 
 // Import the handler under test from the pages/api directory and respect the
 // Next.js config object if it's exported
@@ -129,7 +133,7 @@ it('injects contrived errors at the required rate', async () => {
 
     await testApiHandler({
         handler: unreliableHandler,
-        test: async ({ fetch }: TestParams) => {
+        test: async ({ fetch }) => {
             // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
             // record the results
             const results1 = await Promise.all([
@@ -184,7 +188,6 @@ import { testApiHandler } from 'next-test-endpoint'
 import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend'
 
 import type { WithConfig } from '@ergodark/next-types'
-import type { TestParams } from 'next-test-api-route-handler'
 
 // Import the handler under test from the pages/api directory and respect the
 // Next.js config object if it's exported
@@ -211,22 +214,26 @@ it('returns expected public flights with respect to match', async () => {
         yield `/?match=${encode({ type: 'departure' })}`;
         yield `/?match=${encode({ landingAt: 'F1A' })}`;
         yield `/?match=${encode({ seatPrice: 500 })}`;
-        yield `/?match=${encode({ seatPrice: { $gt: 500 } })}`;
-        yield `/?match=${encode({ seatPrice: { $gte: 500 } })}`;
-        yield `/?match=${encode({ seatPrice: { $lt: 500 } })}`;
-        yield `/?match=${encode({ seatPrice: { $lte: 500 } })}`;
+        yield `/?match=${encode({ seatPrice: { $gt: 500 }})}`;
+        yield `/?match=${encode({ seatPrice: { $gte: 500 }})}`;
+        yield `/?match=${encode({ seatPrice: { $lt: 500 }})}`;
+        yield `/?match=${encode({ seatPrice: { $lte: 500 }})}`;
     }();
 
     await testApiHandler({
-        // Patch the request object to include our dummy API key
-        requestPatcher: req => { req.url = genUrl.next().value || undefined },
+        // Patch the request object to include our dummy URI
+        requestPatcher: req => {
+            req.url = genUrl.next().value || undefined;
+            // Could have done this instead of fetch({ headers: { KEY }}) below:
+            // req.headers = { KEY };
+        },
 
         handler: v3FlightsSearchHandler,
 
         test: async ({ fetch }) => {
             // 8 URLS from genUrl means 8 calls to fetch:
             const responses = await Promise.all([...Array(8)].map(_ => {
-                return fetch({ headers: { KEY } }).then(r => r.ok ? r.json() : r.status);
+                return fetch({ headers: { KEY }}).then(r => r.ok ? r.json() : r.status);
             }));
 
             // We expect all of the responses to be 200
@@ -257,13 +264,13 @@ it('returns expected public flights with respect to match', async () => {
     await testApiHandler({
         handler: v3FlightsSearchHandler,
         requestPatcher: req => { req.url = `/?match=${encode({ ffms: { $eq: 500 }})}` },
-        test: async ({ fetch }) => expect((await fetch({ headers: { KEY } })).status).toBe(400)
+        test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
     });
 
     await testApiHandler({
         handler: v3FlightsSearchHandler,
         requestPatcher: req => { req.url = `/?match=${encode({ bad: 500 })}` },
-        test: async ({ fetch }) => expect((await fetch({ headers: { KEY } })).status).toBe(400)
+        test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
     });
 });
 ```
@@ -277,13 +284,26 @@ Documentation can be found under [`docs/`](docs/README.md) and can be built with
 
 ## Contributing
 
-Issues and pull requests are welcome! In lieu of a formal styleguide, take care
-to maintain the existing coding style.
+**New issues and pull requests are always welcome and greatly appreciated!** If
+you submit a pull request, take care to maintain the existing coding style and
+add unit tests for any new or changed functionality. Please lint and test your
+code, of course!
 
-Add unit tests for any new or changed functionality. Please lint and test your
-code!
+Use `npm run build` to compile `src/` into `dist/`, which is what makes it into
+the published package. Use `npm run build-docs` to re-build the documentation.
+Use `npm test` to run the unit tests, `npm run check-build` to run the e2e
+tests, and `check-types` to run a type check. Use `npm run list-tasks` to list
+all available run scripts.
+
+Note that using the NPM run scripts to build the documentation and
+distributables requires a linux-like development environment. None of the run
+scripts are likely to work on non-POSIX environments. If you're on Windows, use
+[WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+
+This package is published using
+[publish-please](https://www.npmjs.com/package/publish-please) via `npx
+publish-please`.
 
 ## Release History
 
 * 1.0.x Initial release
-

@@ -8,7 +8,7 @@
     "gitTag": true
   },
   "confirm": true,
-  "prePublishScript": false,
+  "prePublishScript": "npm run check-types",
   "postPublishScript": false,
   "publishCommand": "npm publish"
 }

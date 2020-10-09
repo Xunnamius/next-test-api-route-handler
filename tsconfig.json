@@ -25,10 +25,8 @@
         "resolveJsonModule": true,
         "inlineSourceMap": true
     },
-    "exclude": [
-        "node_modules",
-        "dist",
-        "test"
-    ],
-    "include": [ "**/*.ts" ]
+    "include": [
+        "src/**/*.ts",
+        "external-scripts/**/*.ts"
+    ]
 }

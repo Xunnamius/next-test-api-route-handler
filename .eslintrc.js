@@ -87,5 +87,5 @@ module.exports = {
             '.*/node_modules/.*'
         ]
     },
-    ignorePatterns: ['coverage']
+    ignorePatterns: ['coverage', 'dist', 'bin']
 };
