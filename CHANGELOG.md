@@ -1,5 +1,5 @@
 [Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
-[v1.0.4]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.3...v1.0.4
+[v1.0.4]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.3...v1.0.4
 [v1.0.3]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.2...v1.0.3
 [1.0.2]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.0...1.0.1
