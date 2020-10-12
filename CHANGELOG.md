@@ -1,4 +1,5 @@
 [Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
+[v1.0.4]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.3...v1.0.4
 [v1.0.3]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.2...v1.0.3
 [1.0.2]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.0...1.0.1
@@ -26,11 +27,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released
 
+### [![v1.0.4](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.4)][v1.0.4]
+#### Fixed
+- Missing `main` key in package.json breaks several build systems
+
+
 ### [![v1.0.3](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.3)][v1.0.3]
 #### Added
 - Added CHANGELOG.md
 - Added `is-next-compat` external script to monitor compat with `next@latest`
-- webpack, and `.env` configuration support
+- Webpack and `.env` configuration support to compile external scripts
 
 #### Changed
 - Prettier README.md

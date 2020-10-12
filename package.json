@@ -1,6 +1,6 @@
 {
   "name": "next-test-api-route-handler",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Confidently unit test your Next.js API routes/handlers in an isolated Next.js-like environment",
   "keywords": [
     "api",
@@ -24,6 +24,7 @@
   "license": "Unlicense",
   "author": "Xunnamius",
   "sideEffects": false,
+  "main": "dist/modules/index.js",
   "module": "dist/modules/index.js",
   "types": "dist/modules/index.d.ts",
   "files": [
@@ -46,7 +47,7 @@
   },
   "dependencies": {
     "isomorphic-unfetch": "^3.1.0",
-    "next": "^9.5.5",
+    "next": "9.5.5",
     "test-listen": "^1.1.0"
   },
   "devDependencies": {
