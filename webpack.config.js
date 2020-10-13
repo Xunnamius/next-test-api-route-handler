@@ -6,7 +6,26 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 process.env.NODE_ENV = 'external';
 
-module.exports = {
+const umdConfig = {
+    name: 'umd',
+    target: 'node',
+    mode: 'production',
+    entry: `${__dirname}/src/index.ts`,
+
+    output: {
+        filename: 'umd.js',
+        path: `${__dirname}/dist`,
+        globalObject: 'this',
+        libraryTarget: 'umd'
+    },
+
+    resolve: { extensions: ['.ts', '.js'] },
+    module: { rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }] },
+    stats: { warningsFilter: [/critical dependency:/i] }
+};
+
+const externalsConfig = {
+    name: 'externals',
     mode: 'production',
     target: 'node',
     node: false,
@@ -42,8 +61,8 @@ module.exports = {
 
     plugins: [
         new DotenvPlugin(),
-        new CopyWebpackPlugin({
-            patterns: [{ from: './node_modules/shelljs/src/exec-child.js', to: '' }]
-        })
+        new CopyWebpackPlugin({ patterns: [{ from: './node_modules/shelljs/src/exec-child.js', to: '' }]})
     ]
 };
+
+module.exports = [ umdConfig, externalsConfig ];

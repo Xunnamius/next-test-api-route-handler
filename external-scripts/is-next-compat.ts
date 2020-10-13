@@ -20,11 +20,13 @@ const setCompatFlagTo = async (version: string, isCLI: boolean) => {
                 useUnifiedTopology: true
             }));
 
-            await (client.db()).collection('flags').updateOne(
+            await client.db().collection('flags').updateOne(
                 { compat: { $exists: true }},
                 { $set: { compat: version }},
                 { upsert: true }
             );
+
+            await client.close();
 
             isCLI && console.log(`[ updated database ]`);
         }
@@ -41,14 +43,18 @@ const setCompatFlagTo = async (version: string, isCLI: boolean) => {
     }
 };
 
-export default async function main(isCli = false) {
+export async function main(isCli = false) {
     let editPkg: ReturnType<typeof jsonEditor> & { revert?: (updateLastTestedVersion?: boolean) => void } | null = null;
     let error = false;
 
     try {
         isCli && console.log(`[ connecting to GitHub ]`);
 
+        if(!process.env.GITHUB_PAT)
+            isCli && console.warn(`warning: not using a personal access token!`);
+
         const { repos } = new Octokit({
+            auth: process.env.GITHUB_PAT,
             userAgent: 'github.com/Xunnamius/next-test-api-route-handler is-next-compat'
         });
 
@@ -79,7 +85,6 @@ export default async function main(isCli = false) {
 
         let called = false;
         editPkg = jsonEditor(path);
-
 
         isCli && console.log('[ last tested version was ' + (prev ? `"${prev}"` : '(not tested)') + ' ]');
 
@@ -164,6 +169,8 @@ export default async function main(isCli = false) {
         else isCli && console.log(`[ no new release detected ]`);
 
         isCli && console.log('[ execution complete ]');
+
+        return true;
     }
 
     catch(e) {
@@ -172,12 +179,13 @@ export default async function main(isCli = false) {
             error = true;
         }
 
-        else throw e;
+        // ? We either resolve to `true` or reject with e
+        else throw new Error(e);
     }
 
     finally {
         editPkg?.revert?.();
-        process.exit(Number(error));
+        isCli && process.exit(Number(error));
     }
 }
 

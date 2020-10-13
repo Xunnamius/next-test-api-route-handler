@@ -1,6 +1,6 @@
 {
   "name": "next-test-api-route-handler",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Confidently unit test your Next.js API routes/handlers in an isolated Next.js-like environment",
   "keywords": [
     "api",
@@ -24,7 +24,7 @@
   "license": "Unlicense",
   "author": "Xunnamius",
   "sideEffects": false,
-  "main": "dist/modules/index.js",
+  "main": "dist/umd.js",
   "module": "dist/modules/index.js",
   "types": "dist/modules/index.d.ts",
   "files": [
@@ -34,9 +34,9 @@
     "/README.md"
   ],
   "scripts": {
-    "build": "npm run clean && tsc --project tsconfig.types.json && babel src --extensions .ts --out-dir dist/modules",
+    "build": "npm run clean && tsc --project tsconfig.types.json && NODE_ENV=production webpack -p --config-name umd && babel src --extensions .ts --out-dir dist/modules",
     "build-docs": "rm -rf docs && npx -p typescript -p typedoc@0.17.0-3 -p typedoc-plugin-markdown typedoc --plugin typedoc-plugin-markdown --out docs --readme none --mode library src/index.ts && find docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find docs -name '*.md' -exec sed -i -e 's/__namedParameters/\\(destructured\\)/g' {} + && find docs -name '*.md' -exec sed -i '/_npx/d' {} + && sed -i -e 1,4d docs/README.md",
-    "build-externals": "NODE_ENV=production webpack -p",
+    "build-externals": "NODE_ENV=production webpack -p --config-name externals",
     "check-types": "rm -f npm.pipe; touch npm.pipe; command -v unbuffer >/dev/null; X=$?; [ $X -eq 0 ] && unbuffer tsc >> npm.pipe; Y=$?; [ $Y -eq 0 ] && echo >> npm.pipe; unbuffer eslint . >> npm.pipe; Z=$?; [ $X -ne 0 ] && tsc >> npm.pipe && eslint . >> npm.pipe; W=$?; cat npm.pipe | less -R -FX; rm npm.pipe; [ $W -eq 0 ] && [ $X -ne 0 ] || [ $Y -eq 0 ] && [ $Z -eq 0 ]",
     "clean": "rm -rf dist npm.pipe external-scripts/bin",
     "list-tasks": "npm run",
@@ -79,6 +79,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-source-map-support": "^2.1.3",
     "copy-webpack-plugin": "^6.2.1",
+    "dotenv": "^8.2.0",
     "dotenv-webpack": "^2.0.0",
     "edit-json-file": "^1.4.1",
     "eslint": "^7.11.0",
@@ -87,6 +88,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.1.0",
     "eslint-plugin-react": "^7.21.4",
+    "expect": "^26.5.3",
     "find-package-json": "^1.2.0",
     "isomorphic-json-fetch": "^1.0.4",
     "jest": "^26.5.2",

@@ -5,6 +5,7 @@
         ".*.js",
         "external-scripts/**/*.ts",
         "test/**/*.ts",
+        "test/**/*.js",
         "src/**/*.ts",
     ]
 }
