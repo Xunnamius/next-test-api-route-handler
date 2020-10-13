@@ -306,4 +306,4 @@ publish-please`.
 
 ## Release History
 
-* 1.0.x Initial release
+See [CHANGELOG.md](CHANGELOG.md).
