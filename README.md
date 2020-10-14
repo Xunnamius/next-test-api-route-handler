@@ -106,7 +106,7 @@ nine `HTTP 200` responses?
 
 ```TypeScript
 import * as UnreliableHandler from '../pages/api/unreliable'
-import { testApiHandler } from 'next-test-endpoint'
+import { testApiHandler } from 'next-test-api-route-handler'
 import { shuffle } from 'fast-shuffle'
 
 import type { WithConfig } from '@ergodark/next-types'
@@ -184,7 +184,7 @@ expected?
 
 ```TypeScript
 import * as V3FlightsSearchHandler from '../pages/api/v3/flights/search'
-import { testApiHandler } from 'next-test-endpoint'
+import { testApiHandler } from 'next-test-api-route-handler'
 import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend'
 
 import type { WithConfig } from '@ergodark/next-types'
