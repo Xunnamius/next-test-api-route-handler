@@ -6,8 +6,8 @@
 [![View this project's open issues on GitHub](https://img.shields.io/github/issues/xunnamius/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
 [![View this project's open pull requests on GitHub](https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
 [![View the status of this project's dependencies on DavidDM](https://img.shields.io/david/xunnamius/next-test-api-route-handler)](https://david-dm.org/xunnamius/next-test-api-route-handler)
-[![View this project on NPM](https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
 [![View this project on NPM](https://img.shields.io/npm/l/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![View this project on NPM](https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
 
 # next-test-api-route-handler
 
@@ -304,6 +304,6 @@ This package is published using
 [publish-please](https://www.npmjs.com/package/publish-please) via `npx
 publish-please`.
 
-## Release History
+## Release history
 
 See [CHANGELOG.md](CHANGELOG.md).

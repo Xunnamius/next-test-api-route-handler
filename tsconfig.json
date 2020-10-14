@@ -25,8 +25,5 @@
         "resolveJsonModule": true,
         "inlineSourceMap": true
     },
-    "include": [
-        "src/**/*.ts",
-        "external-scripts/**/*.ts"
-    ]
+    "include": [ "src/**/*.ts" ]
 }

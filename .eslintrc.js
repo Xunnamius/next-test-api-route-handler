@@ -51,15 +51,6 @@ module.exports = {
         'no-unused-vars': 'off',
     },
     overrides: [{
-        // ? ... but enable these rules specifically for TypeScript files
-        files: ['*.ts'],
-        rules: {
-            'no-undef': 'error',
-            '@typescript-eslint/no-var-requires': 'error',
-            // ? Already handled by vscode
-            '@typescript-eslint/no-unused-vars': 'off',
-        }
-    }, {
         files: ['*.test.*'],
         extends: [
             'plugin:jest/all',
@@ -71,6 +62,7 @@ module.exports = {
             'jest/require-top-level-describe': 'off',
             'jest/valid-describe': 'off',
             'jest/no-hooks': 'off',
+            'jest/require-to-throw-message': 'off',
             'jest/prefer-called-with': 'off',
             'jest/prefer-spy-on': 'off',
         }

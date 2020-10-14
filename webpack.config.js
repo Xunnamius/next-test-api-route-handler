@@ -1,5 +1,6 @@
 // This webpack config is only used for compiling the scripts under
-// external-scripts/
+// external-scripts/ and transpiling src/ to UMD+ES2015 and depositing bundled
+// output to dist/
 
 const DotenvPlugin = require('dotenv-webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');

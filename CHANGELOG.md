@@ -1,4 +1,5 @@
 [Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
+[v1.0.6]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.5...v1.0.6
 [v1.0.5]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.4...v1.0.5
 [v1.0.4]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.3...v1.0.4
 [v1.0.3]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.2...v1.0.3
@@ -28,15 +29,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released
 
+### [![v1.0.6](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.6)][v1.0.6]
+#### Changed
+- Improved test coverage
+- Improvements to the external script
+- Improvements to the build process (including better minification)
+
+---
+
 ### [![v1.0.5](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.5)][v1.0.5]
 #### Changed
 - Added UMD build step to Webpack for non-ESM CJS/AMD compat (package can now be `required` normally)
 - Finished `externals.test.ts`
 
+---
+
 ### [![v1.0.4](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.4)][v1.0.4]
 #### Fixed
 - Missing `main` key in package.json breaks several build systems
 
+---
 
 ### [![v1.0.3](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.3)][v1.0.3]
 #### Added

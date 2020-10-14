@@ -1,6 +1,8 @@
 // * Every now and then, take best practices from CRA
 // * https://tinyurl.com/yakv4ggx
 
+const targets = { node: true };
+
 module.exports = {
     parserOpts: { strictMode: true },
     plugins: [
@@ -22,15 +24,16 @@ module.exports = {
         test: {
             sourceMaps: 'both',
             presets: [
-                ['@babel/preset-env', { targets: { node: true }}],
-                ['@babel/preset-typescript', { allowDeclareFields: true }]
+                ['@babel/preset-env', { targets }],
+                ['@babel/preset-typescript', { allowDeclareFields: true }],
             ]
         },
         // * Used by `npm run build`
         production: {
             presets: [
-                ['@babel/preset-env', { targets: { node: true }}],
-                ['@babel/preset-typescript', { allowDeclareFields: true }]
+                ['@babel/preset-env', { targets }],
+                ['@babel/preset-typescript', { allowDeclareFields: true }],
+                ['minify'],
             ]
         },
     }

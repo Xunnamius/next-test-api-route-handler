@@ -1,12 +1,11 @@
 module.exports = {
     collectCoverageFrom: [
-        '**/*.{js,ts}',
-        '!**/*.d.ts',
-        '!**/node_modules/**'
+        'src/**/*.ts',
+        'external-scripts/**/*.ts',
     ],
     testEnvironment: 'node',
     testRunner: 'jest-circus/runner',
     verbose: false,
     testPathIgnorePatterns: [ '/node_modules/' ],
-    setupFilesAfterEnv: [ 'jest-extended' ]
+    setupFilesAfterEnv: [ './test/setup.ts' ],
 };

@@ -1,5 +1,10 @@
 /.vscode
 /node_modules
 /dist
+/coverage
+/npm.pipe
+/tmp-docs
+/tmp-docs-diff
+/docs-diff
 /external-scripts/bin
 /.env
