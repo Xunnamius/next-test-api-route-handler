@@ -35,16 +35,19 @@
   ],
   "scripts": {
     "build": "npm run clean && tsc --project tsconfig.types.json && NODE_ENV=production webpack -p --config-name umd && babel src --extensions .ts --out-dir dist/modules",
-    "build-docs": "rm -rf tmp-docs tmp-docs-diff docs-diff && typedoc --plugin typedoc-plugin-markdown --out tmp-docs --readme none --mode library src/index.ts > /dev/null && find tmp-docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find tmp-docs -name '*.md' -exec sed -i -e 's/__namedParameters/\\(destructured\\)/g' {} + && sed -i -e 1,4d tmp-docs/README.md && cp -rf tmp-docs tmp-docs-diff && cp -rf docs docs-diff && find docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} + && find tmp-docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} +; [ $? -ne 0 ] && echo 'build failed (try `npm run check-types`)' && rm -rf tmp-docs tmp-docs-diff docs-diff && exit 1; if [ \"$(find ./docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" = \"$(find ./tmp-docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" ]; then echo 'no rebuild necessary'; else rm -r docs && mv tmp-docs docs && echo 'build successful'; fi; rm -rf tmp-docs tmp-docs-diff docs-diff",
+    "build-docs": "rm -rf tmp-docs tmp-docs-diff docs-diff && typedoc --plugin typedoc-plugin-markdown --out tmp-docs --readme none --mode library src/index.ts && find tmp-docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find tmp-docs -name '*.md' -exec sed -i -e 's/__namedParameters/\\(destructured\\)/g' {} + && sed -i -e 1,4d tmp-docs/README.md && if [ ! -d docs ]; then mv tmp-docs docs; exit $?; fi && cp -rf tmp-docs tmp-docs-diff && cp -rf docs docs-diff && find docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} + && find tmp-docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} +; [ $? -ne 0 ] && echo 'build failed (try `npm run check-types`)' && rm -rf tmp-docs tmp-docs-diff docs-diff && exit 1; if [ \"$(find ./docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" = \"$(find ./tmp-docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" ]; then echo 'no rebuild necessary'; else rm -r docs && mv tmp-docs docs && echo 'build successful'; fi; rm -rf tmp-docs tmp-docs-diff docs-diff",
     "build-externals": "NODE_ENV=production webpack -p --config-name externals",
     "check-types": "rm -f npm.pipe; touch npm.pipe; command -v unbuffer >/dev/null; X=$?; [ $X -eq 0 ] && unbuffer tsc >> npm.pipe; Y=$?; [ $Y -eq 0 ] && echo >> npm.pipe; unbuffer eslint . >> npm.pipe; Z=$?; [ $X -ne 0 ] && tsc >> npm.pipe && eslint . >> npm.pipe; W=$?; cat npm.pipe | less -R -FX; rm npm.pipe; [ $W -eq 0 ] && [ $X -eq 1 ] || [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
-    "clean": "rm -rf dist npm.pipe external-scripts/bin",
+    "clean": "rm -rf dist npm.pipe coverage external-scripts/bin",
     "list-tasks": "npm run",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run clean",
     "publishGuard": "npx sort-package-json && npm run build-docs && npm run check-types && npm run test",
     "repl": "command -v rlwrap >/dev/null && rlwrap npx -p @babel/core -p @babel/node babel-node",
     "test": "BABEL_ENV=test jest --coverage"
+  },
+  "resolutions": {
+    "node-fetch": "2.6.1"
   },
   "dependencies": {
     "isomorphic-unfetch": "^3.1.0",

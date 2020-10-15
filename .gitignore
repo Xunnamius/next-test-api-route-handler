@@ -1,4 +1,8 @@
 /.vscode
+/build
+/.env
+/external-scripts/bin
+/next-env.d.ts
 /node_modules
 /dist
 /coverage
@@ -6,5 +10,3 @@
 /tmp-docs
 /tmp-docs-diff
 /docs-diff
-/external-scripts/bin
-/.env
