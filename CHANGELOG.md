@@ -25,11 +25,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming]
 
+(no notes yet)
+
+## Released
+
+### [![v1.0.6](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.6)][v1.0.6]
+#### Changed
 - Improved test coverage
 - Improvements to the external script
 - Improvements to the build process (including better minification)
+- Bumped deps
+- Added `--runInBand` to `test` npm run-script to fix coverage generation bug
+  with Jest when running `externals.test.ts`
 
-## Released
+---
 
 ### [![v1.0.5](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.5)][v1.0.5]
 #### Changed

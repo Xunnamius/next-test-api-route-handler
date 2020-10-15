@@ -110,7 +110,7 @@ export async function main(isCli = false) {
                     isCli && console.log(`[ package.json restored ]`);
                 }
 
-                catch(e) { throw new Error(`CRITICAL: attempt to restore package.json failed`) }
+                catch { throw new Error(`CRITICAL: attempt to restore package.json failed`) }
             };
 
             if(dist != latest) {

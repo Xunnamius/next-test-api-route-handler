@@ -108,6 +108,7 @@ nine `HTTP 200` responses?
 import * as UnreliableHandler from '../pages/api/unreliable'
 import { testApiHandler } from 'next-test-api-route-handler'
 import { shuffle } from 'fast-shuffle'
+import array from 'array-range'
 
 import type { WithConfig } from '@ergodark/next-types'
 
@@ -137,9 +138,9 @@ it('injects contrived errors at the required rate', async () => {
             // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
             // record the results
             const results1 = await Promise.all([
-                ...[...Array(expectedReqPerError - 1)].map(_ => getStatus(fetch({ method: getMethod() }))),
+                ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
                 getStatus(fetch({ method: getMethod() })),
-                ...[...Array(expectedReqPerError - 1)].map(_ => getStatus(fetch({ method: getMethod() }))),
+                ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
                 getStatus(fetch({ method: getMethod() }))
             ].map(p => p.then(s => s, _ => null)));
 
@@ -148,7 +149,7 @@ it('injects contrived errors at the required rate', async () => {
             // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and
             // record the results
             const results2 = await Promise.all([
-                ...[...Array(expectedReqPerError)].map(_ => getStatus(fetch({ method: getMethod() }))),
+                ...array(expectedReqPerError).map(_ => getStatus(fetch({ method: getMethod() }))),
             ].map(p => p.then(s => s, _ => null)));
 
             // We expect results1 to be an array with eighteen `200`s and two
@@ -157,16 +158,16 @@ it('injects contrived errors at the required rate', async () => {
             // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
             // because responses could be received out of order
             expect(results1).toIncludeSameMembers([
-                ...[...Array(expectedReqPerError - 1)].map(_ => 200),
+                ...array(expectedReqPerError - 1).map(_ => 200),
                 555,
-                ...[...Array(expectedReqPerError - 1)].map(_ => 200),
+                ...array(expectedReqPerError - 1).map(_ => 200),
                 555
             ]);
 
             // We expect results2 to be an array with ten `200`s
 
             expect(results2).toStrictEqual([
-                ...[...Array(expectedReqPerError)].map(_ => 200),
+                ...array(expectedReqPerError).map(_ => 200),
             ]);
         }
     });
@@ -186,6 +187,7 @@ expected?
 import * as V3FlightsSearchHandler from '../pages/api/v3/flights/search'
 import { testApiHandler } from 'next-test-api-route-handler'
 import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend'
+import array from 'array-range'
 
 import type { WithConfig } from '@ergodark/next-types'
 
@@ -232,7 +234,7 @@ it('returns expected public flights with respect to match', async () => {
 
         test: async ({ fetch }) => {
             // 8 URLS from genUrl means 8 calls to fetch:
-            const responses = await Promise.all([...Array(8)].map(_ => {
+            const responses = await Promise.all(array(8).map(_ => {
                 return fetch({ headers: { KEY }}).then(r => r.ok ? r.json() : r.status);
             }));
 

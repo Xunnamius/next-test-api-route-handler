@@ -28,7 +28,7 @@ module.exports = {
         jest: true,
         'jest/globals': true,
         browser: false,
-        webextensions: true,
+        webextensions: false,
     },
     rules: {
         'no-console': 'warn',
@@ -45,10 +45,16 @@ module.exports = {
             'ts-expect-error': 'allow-with-description',
             minimumDescriptionLength: 6,
         }],
-        // ? Disable these rules for all files...
+        '@typescript-eslint/no-unused-vars': ['warn', {
+            argsIgnorePattern: '^_+',
+            varsIgnorePattern: '^_+',
+            caughtErrorsIgnorePattern: '^ignored?\\d*$',
+            caughtErrors: 'all'
+        }],
+        // ? Ever since v4, we will rely on TypeScript to catch these
         'no-undef': 'off',
         '@typescript-eslint/no-var-requires': 'off',
-        'no-unused-vars': 'off',
+        'no-unused-vars': 'off'
     },
     overrides: [{
         files: ['*.test.*'],
@@ -65,6 +71,7 @@ module.exports = {
             'jest/require-to-throw-message': 'off',
             'jest/prefer-called-with': 'off',
             'jest/prefer-spy-on': 'off',
+            'jest/no-if': 'off',
         }
     }],
     settings: {
