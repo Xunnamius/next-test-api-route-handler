@@ -25,7 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming]
 
-(no notes yet)
+- Improved test coverage
+- Improvements to the external script
+- Improvements to the build process (including better minification)
 
 ## Released
 
@@ -33,9 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Changed
 - Added UMD build step to Webpack for non-ESM CJS/AMD compat (package can now be `required` normally)
 - Finished `externals.test.ts`
-- Improved test coverage
-- Improvements to the external script
-- Improvements to the build process (including better minification)
 
 ---
 
