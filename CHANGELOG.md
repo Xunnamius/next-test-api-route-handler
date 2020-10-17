@@ -55,12 +55,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [![v1.0.3](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.3)][v1.0.3]
 #### Added
-- Added CHANGELOG.md
+- Added CHANGELOG
 - Added `is-next-compat` external script to monitor compat with `next@latest`
 - Webpack and `.env` configuration support to compile external scripts
 
 #### Changed
-- Prettier README.md
+- Prettier README
 - Upgraded eslint configuration
 - More robust NPM run scripts, various build system fixes, and upgraded TypeScript configuration
 - Bumped Next lock to `9.5.5`
