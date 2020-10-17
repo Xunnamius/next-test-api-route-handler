@@ -1,13 +1,13 @@
-[![Join the movement!](https://api.ergodark.com/badges/blm)](https://m4bl.org/take-action)
-[![This package works with Next.js versions up to and including this one](https://api.ergodark.com/badges/is-next-compat)](https://www.npmjs.com/package/next-test-api-route-handler)
-[![This package uses an internal API feature from this specific version of Next.js](https://api.ergodark.com/badges/next-lock-version)](https://www.npmjs.com/package/next-test-api-route-handler)
-[![View this project on GitHub](https://img.shields.io/maintenance/active/2020)](https://www.npmjs.com/package/next-test-api-route-handler)
-[![View this project on GitHub](https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler/develop)](https://www.npmjs.com/package/next-test-api-route-handler)
-[![View this project's open issues on GitHub](https://img.shields.io/github/issues/xunnamius/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
-[![View this project's open pull requests on GitHub](https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
-[![View the status of this project's dependencies on DavidDM](https://img.shields.io/david/xunnamius/next-test-api-route-handler)](https://david-dm.org/xunnamius/next-test-api-route-handler)
-[![View this project on NPM](https://img.shields.io/npm/l/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
-[![View this project on NPM](https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler)](https://www.npmjs.com/package/next-test-api-route-handler)
+[![Black Lives Matter!](https://api.ergodark.com/badges/blm "Join the movement!")](https://secure.actblue.com/donate/ms_blm_homepage_2019)
+[![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package works with Next.js up to and including this version")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![Next.js dependency version](https://api.ergodark.com/badges/next-lock-version "This package uses an internal API feature from this specific version of Next.js")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![Maintenance status](https://img.shields.io/maintenance/active/2020 "Is this package maintained?")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![Last commit timestamp](https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler/develop "When was the last commit to the official repo?")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![Open issues](https://img.shields.io/github/issues/xunnamius/next-test-api-route-handler "Number of known issues with this package")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![Pull requests](https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler "Number of open pull requests")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![DavidDM dependencies](https://img.shields.io/david/xunnamius/next-test-api-route-handler "Status of this package's dependencies")](https://david-dm.org/xunnamius/next-test-api-route-handler)
+[![Source license](https://img.shields.io/npm/l/next-test-api-route-handler "This package's source license")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![NPM version](https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler "Install this package using npm or yarn!")](https://www.npmjs.com/package/next-test-api-route-handler)
 
 # next-test-api-route-handler
 
@@ -28,17 +28,14 @@ there's `next-test-api-route-handler`! 🎉🎉🎉
 
 > This package uses Next.js's internal API resolver to precisely emulate API
 > route handling. Since this is not a public or documented interface, the next
-> dependency is locked to [![This package uses an internal API feature from this
-> specific version of
-> Next.js](https://img.shields.io/npm/dependency-version/next-test-api-route-handler/next?label=next)](https://www.npmjs.com/package/next-test-api-route-handler).
-> This package is automatically tested for compatibility with [each full release
-> of Next.js](https://github.com/vercel/next.js/releases): [![This package works
-> with Next.js versions up to and including this
-> one](https://api.ergodark.com/badges/is-next-compat)](https://www.npmjs.com/package/next-test-api-route-handler).
+> dependency is locked to ![Next.js dependency version](https://img.shields.io/npm/dependency-version/next-test-api-route-handler/next?label=next "This package uses an internal API feature from this specific version of Next.js").
+> This package is automatically tested for compatibility with [each
+> full release of Next.js](https://github.com/vercel/next.js/releases):
+> ![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package works with Next.js up to and including this version").
 > Any incompatibilities, albeit rare, will be fixed as they are detected.
 
-If you're looking for a version of `next-test-api-route-handler` that works with
-some long-ago previous version of Next.js, consult [CHANGELOG.md](CHANGELOG.md).
+If you're looking for a version of this package locked to a specific version of
+Next.js, consult [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
