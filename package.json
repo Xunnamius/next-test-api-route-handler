@@ -1,6 +1,6 @@
 {
   "name": "next-test-api-route-handler",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Confidently unit test your Next.js API routes/handlers in an isolated Next.js-like environment",
   "keywords": [
     "api",
@@ -24,9 +24,19 @@
   "license": "Unlicense",
   "author": "Xunnamius",
   "sideEffects": false,
-  "main": "dist/umd.js",
-  "module": "dist/modules/index.js",
-  "types": "dist/modules/index.d.ts",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "import": "./dist/lib/index.js",
+      "require": "./dist/main.js",
+      "default": "./dist/main.js"
+    },
+    "./package": "./package.json",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/main.js",
+  "module": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "files": [
     "/dist",
     "/LICENSE",
@@ -34,7 +44,7 @@
     "/README.md"
   ],
   "scripts": {
-    "build": "npm run clean && tsc --project tsconfig.types.json && NODE_ENV=production webpack -p --config-name umd && babel src --extensions .ts --out-dir dist/modules",
+    "build": "npm run clean && tsc --project tsconfig.types.json && NODE_ENV=production webpack -p --config-name main && NODE_ENV=esm babel src --extensions .ts --out-dir dist/lib && echo '{\"type\": \"module\"}' > dist/lib/package.json",
     "build-docs": "rm -rf tmp-docs tmp-docs-diff docs-diff && typedoc --plugin typedoc-plugin-markdown --out tmp-docs --readme none --mode library src/index.ts && find tmp-docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find tmp-docs -name '*.md' -exec sed -i -e 's/__namedParameters/\\(destructured\\)/g' {} + && sed -i -e 1,4d tmp-docs/README.md && if [ ! -d docs ]; then mv tmp-docs docs; exit $?; fi && cp -rf tmp-docs tmp-docs-diff && cp -rf docs docs-diff && find docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} + && find tmp-docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} +; [ $? -ne 0 ] && echo 'build failed (try `npm run check-types`)' && rm -rf tmp-docs tmp-docs-diff docs-diff && exit 1; if [ \"$(find ./docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" = \"$(find ./tmp-docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" ]; then echo 'no rebuild necessary'; else rm -r docs && mv tmp-docs docs && echo 'build successful'; fi; rm -rf tmp-docs tmp-docs-diff docs-diff",
     "build-externals": "NODE_ENV=production webpack -p --config-name externals",
     "check-types": "rm -f npm.pipe; touch npm.pipe; command -v unbuffer >/dev/null; X=$?; [ $X -eq 0 ] && unbuffer tsc >> npm.pipe; Y=$?; [ $Y -eq 0 ] && echo >> npm.pipe; unbuffer eslint . >> npm.pipe; Z=$?; [ $X -ne 0 ] && tsc >> npm.pipe && eslint . >> npm.pipe; W=$?; cat npm.pipe | less -R -FX; rm npm.pipe; [ $W -eq 0 ] && [ $X -eq 1 ] || [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
@@ -42,7 +52,7 @@
     "list-tasks": "npm run",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run clean",
-    "publishGuard": "npx sort-package-json && npm run build-docs && npm run check-types && npm run test",
+    "publishGuard": "npm run check-types && npm run test && npx npm-force-resolutions && npx Xunnamius/sort-package-json && npm run build-docs && npm audit",
     "repl": "command -v rlwrap >/dev/null && rlwrap npx -p @babel/core -p @babel/node babel-node",
     "test": "BABEL_ENV=test jest --coverage --runInBand"
   },
@@ -57,15 +67,8 @@
   "devDependencies": {
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
-    "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@babel/plugin-proposal-decorators": "^7.12.1",
     "@babel/plugin-proposal-export-default-from": "^7.12.1",
     "@babel/plugin-proposal-function-bind": "^7.12.1",
-    "@babel/plugin-proposal-json-strings": "^7.12.1",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.12.1",
-    "@babel/plugin-proposal-numeric-separator": "^7.12.1",
-    "@babel/plugin-proposal-optional-chaining": "^7.12.1",
-    "@babel/plugin-proposal-throw-expressions": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@octokit/rest": "^18.0.6",
@@ -82,7 +85,6 @@
     "babel-jest": "^26.5.2",
     "babel-loader": "^8.1.0",
     "babel-plugin-source-map-support": "^2.1.3",
-    "copy-webpack-plugin": "^6.2.1",
     "dotenv": "^8.2.0",
     "dotenv-webpack": "^4.0.0",
     "edit-json-file": "^1.5.0",
@@ -94,18 +96,20 @@
     "eslint-plugin-react": "^7.21.4",
     "expect": "^26.5.3",
     "find-package-json": "^1.2.0",
-    "isomorphic-json-fetch": "^1.0.10",
+    "isomorphic-json-fetch": "^1.0.11",
     "jest": "^26.5.3",
     "jest-circus": "^26.5.3",
     "jest-extended": "^0.11.5",
     "mongodb": "^3.6.2",
     "mongodb-client-encryption": "^1.1.0",
+    "npm-force-resolutions": "0.0.3",
     "shelljs": "^0.8.4",
     "source-map-support": "^0.5.19",
     "typedoc": "0.17.0-3",
     "typedoc-plugin-markdown": "^3.0.10",
     "typescript": "^4.0.3",
     "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "webpack-node-externals": "^2.5.2"
   }
 }

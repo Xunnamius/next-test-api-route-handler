@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 import { config as populateEnv } from 'dotenv'
 import sjx from 'shelljs'
 import findPackageJson from 'find-package-json'
@@ -12,17 +13,23 @@ import type { JsonEditor } from 'edit-json-file'
 
 sjx.config.silent = true;
 
-global['mock_tag'] = global['mock_tag'] || '';
-global['mock_updateOneFn'] = global['mock_updateOneFn'] || jest.fn();
-global['mock_closeFn'] = global['mock_closeFn'] || jest.fn();
-global['mock_fetchFn'] = global['mock_fetchFn'] || jest.fn();
+declare global {
+    var mockTag: string;
+    var mockUpdateOneFn: ReturnType<typeof jest.fn>;
+    var mockFetchFn: ReturnType<typeof jest.fn>;
+    var mockCloseFn: ReturnType<typeof jest.fn>;
+}
+
+global.mockTag = '';
+global.mockUpdateOneFn = jest.fn();
+global.mockCloseFn = jest.fn();
 
 jest.mock('@octokit/rest', () => ({
     Octokit: class {
         repos = {
             getLatestRelease: async () => ({
                 data: {
-                    tag_name: global['mock_tag']
+                    tag_name: global.mockTag
                 }
             })
         }
@@ -34,17 +41,18 @@ jest.mock('mongodb', () => ({
         connect: async () => ({
             db: () => ({
                 collection: () => ({
-                    updateOne: global['mock_updateOneFn']
+                    updateOne: global.mockUpdateOneFn
                 })
             }),
-            close: global['mock_closeFn']
+            close: global.mockCloseFn
         })
     }
 }));
 
-jest.mock('isomorphic-json-fetch', () => ({
-    fetch: global['mock_fetchFn'] = global['mock_fetchFn'] || jest.fn()
-}));
+jest.mock('isomorphic-json-fetch', () => {
+    global.mockFetchFn = jest.fn();
+    return { fetch: global.mockFetchFn };
+});
 
 populateEnv();
 
@@ -53,11 +61,15 @@ const { value: realPkg } = findPackageJson(__dirname).next();
 const originalPkg = {
     name: 'fake',
     version: '1.0.0',
-    dependencies: { next: realPkg.dependencies.next }
+    dependencies: { next: realPkg?.dependencies?.next }
 };
 
-let getState = (): { root: string, pkg: JsonEditor } => ({ root: null, pkg: null });
-const setMockLatest = (tag: string) => global['mock_tag'] = tag;
+let getState = (): {
+    root: string,
+    pkg: JsonEditor
+} => ({ root: null as unknown as string, pkg: null as unknown as JsonEditor });
+
+const setMockLatest = (tag: string) => global.mockTag = tag;
 
 beforeEach(async () => {
     const root = `${sjx.tempdir()}/next-test-api-route-handler-${Date.now()}`;
@@ -88,10 +100,10 @@ describe('external-scripts/is-next-compat', () => {
         getState().pkg.unset('scripts').save();
 
         // ? No database updates
-        expect(global['mock_updateOneFn']).not.toHaveBeenCalled()
+        expect(global.mockUpdateOneFn).not.toHaveBeenCalled()
 
         // ? Send email
-        expect(global['mock_fetchFn']).toHaveBeenCalled();
+        expect(global.mockFetchFn).toHaveBeenCalled();
 
         // ? Does not update package.json
         expect(getState().pkg.read()).toStrictEqual(originalPkg);
@@ -100,29 +112,37 @@ describe('external-scripts/is-next-compat', () => {
     it('takes expected actions on success', async () => {
         expect.hasAssertions();
 
-        setMockLatest(realPkg.dependencies.next);
+        const latest = realPkg?.dependencies?.next;
+
+        // ? Satisfy TypeScript with a type guard
+        if(!((o: string | undefined): o is string => typeof o == 'string')(latest)) {
+            expect.fail('jest expects a "next" dependency in package.json');
+            return;
+        }
+
+        setMockLatest(latest);
         expect(await main()).toBe(true);
 
         // ? Update database
-        expect(global['mock_updateOneFn']).toHaveBeenCalledWith(
+        expect(global.mockUpdateOneFn).toHaveBeenCalledWith(
             { compat: { $exists: true }},
-            { $set: { compat: global['mock_tag'] }},
+            { $set: { compat: global.mockTag }},
             { upsert: true }
         );
 
         // ? Close the database
-        expect(global['mock_closeFn']).toHaveBeenCalled();
+        expect(global.mockCloseFn).toHaveBeenCalled();
 
         // ? Updates package.json appropriately
         expect(getState().pkg.read()).toStrictEqual({
             ...originalPkg,
-            config: { nextTestApiRouteHandler: { lastTestedVersion: realPkg.dependencies.next }}
+            config: { nextTestApiRouteHandler: { lastTestedVersion: realPkg?.dependencies?.next }}
         });
 
         // ? Exits early when latest version == last tested version
         expect(await main()).toBe(true);
 
-        expect(global['mock_updateOneFn']).toHaveBeenCalledTimes(1);
-        expect(global['mock_closeFn']).toHaveBeenCalledTimes(1);
+        expect(global.mockUpdateOneFn).toHaveBeenCalledTimes(1);
+        expect(global.mockCloseFn).toHaveBeenCalledTimes(1);
     });
 });

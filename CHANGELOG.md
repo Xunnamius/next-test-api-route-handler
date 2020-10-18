@@ -1,4 +1,5 @@
 [Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
+[v1.0.7]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.6...v1.0.7
 [v1.0.6]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.5...v1.0.6
 [v1.0.5]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.4...v1.0.5
 [v1.0.4]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.3...v1.0.4
@@ -28,6 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (no notes yet)
 
 ## Released
+
+### [![v1.0.7](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.7)][v1.0.7]
+#### Changed
+- Switched to dual CJS2/ES module bundle
+- Properly externalized dependencies (so: much smaller bundle size!)
+- README updates
 
 ### [![v1.0.6](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.6)][v1.0.6]
 #### Changed

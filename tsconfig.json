@@ -1,32 +1,40 @@
 {
-    "compilerOptions": {
-        "target": "esnext",
-        "module": "esnext",
-        "allowJs": true,
-        "checkJs": true,
-        "declaration": true,
-        "isolatedModules": true,
-        "strict": true,
-        "alwaysStrict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "moduleResolution": "node",
-        "baseUrl": ".",
-        "allowSyntheticDefaultImports": true,
-        "forceConsistentCasingInFileNames": true,
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "esnext"
-        ],
-        "skipLibCheck": true,
-        "noEmit": true,
-        "esModuleInterop": true,
-        "resolveJsonModule": true,
-        "inlineSourceMap": true
-    },
-    "include": [
-        "types/**/*.ts",
-        "src/**/*.ts"
-    ]
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "allowJs": true,
+    "checkJs": true,
+    // ? Only for Next.js
+    // "jsx": "preserve",
+    "declaration": true,
+    "isolatedModules": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+    ],
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "inlineSourceMap": true,
+  },
+  "include": [
+    "types/**/*.ts*",
+    "lib/**/*.ts*",
+    "src/**/*.ts*",
+    "external-scripts/**/*.ts*",
+    "test/**/*.ts*",
+  ],
+  "exclude": [
+    "node_modules"
+  ],
 }

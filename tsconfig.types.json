@@ -1,12 +1,13 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "outDir": "dist/modules",
-        "declaration": true,
-        "isolatedModules": false,
-        "noEmit": false,
-        "checkJs": false,
-        "allowJs": false,
-        "emitDeclarationOnly": true
-    }
+  "extends": "./tsconfig.json",
+  "include": [ "src/index.ts" ],
+  "compilerOptions": {
+    "outDir": "dist/lib",
+    "declaration": true,
+    "isolatedModules": false,
+    "noEmit": false,
+    "checkJs": false,
+    "allowJs": false,
+    "emitDeclarationOnly": true
+  }
 }

@@ -34,8 +34,7 @@ there's `next-test-api-route-handler`! 🎉🎉🎉
 > ![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package works with Next.js up to and including this version").
 > Any incompatibilities, albeit rare, will be fixed as they are detected.
 
-If you're looking for a version of this package locked to a specific version of
-Next.js, consult [CHANGELOG.md](CHANGELOG.md).
+
 
 ## Install
 
@@ -43,21 +42,32 @@ Next.js, consult [CHANGELOG.md](CHANGELOG.md).
 npm install next-test-api-route-handler
 ```
 
+> Note: this is a [dual CJS2/ES module](#package-details) package
+
+If you're looking for a version of this package compatible with a very old
+version of Next.js, consult [CHANGELOG.md](CHANGELOG.md).
+
 ## Usage
 
 ```TypeScript
+// ESM
 import { testApiHandler } from 'next-test-api-route-handler'
+```
+
+```JavaScript
+// CJS
+const { testApiHandler } = require('next-test-api-route-handler');
 ```
 
 The interface for `testApiHandler` looks like this:
 
 ```TypeScript
 async function testApiHandler({ requestPatcher, responsePatcher, params, handler, test }: {
-    requestPatcher?: (req: IncomingMessage) => void,
-    responsePatcher?: (res: ServerResponse) => void,
-    params?: Record<string, unknown>,
-    handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
-    test: (obj: { fetch: (init?: RequestInit) => ReturnType<typeof fetch> }) => Promise<void>,
+  requestPatcher?: (req: IncomingMessage) => void,
+  responsePatcher?: (res: ServerResponse) => void,
+  params?: Record<string, unknown>,
+  handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
+  test: (obj: { fetch: (init?: RequestInit) => ReturnType<typeof fetch> }) => Promise<void>,
 })
 ```
 
@@ -92,7 +102,7 @@ omitted**). Use this to send HTTP requests to the handler under test.
 
 ## Examples
 
-### Testing an unreliable API handler @ `pages/api/unreliable`
+### Testing an Unreliable API Handler @ `pages/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
@@ -115,63 +125,63 @@ const unreliableHandler: WithConfig<typeof UnreliableHandler.default> = Unreliab
 unreliableHandler.config = UnreliableHandler.config;
 
 it('injects contrived errors at the required rate', async () => {
-    expect.hasAssertions();
+  expect.hasAssertions();
 
-    // Signal to the endpoint (which is configurable) that there should be 1
-    // error among every 10 requests
-    process.env.REQUESTS_PER_CONTRIVED_ERROR = '10';
+  // Signal to the endpoint (which is configurable) that there should be 1
+  // error among every 10 requests
+  process.env.REQUESTS_PER_CONTRIVED_ERROR = '10';
 
-    const expectedReqPerError = parseInt(process.env.REQUESTS_PER_CONTRIVED_ERROR);
+  const expectedReqPerError = parseInt(process.env.REQUESTS_PER_CONTRIVED_ERROR);
 
-    // Returns one of ['GET', 'POST', 'PUT', 'DELETE'] at random
-    const getMethod = () => shuffle(['GET', 'POST', 'PUT', 'DELETE'])[0];
+  // Returns one of ['GET', 'POST', 'PUT', 'DELETE'] at random
+  const getMethod = () => shuffle(['GET', 'POST', 'PUT', 'DELETE'])[0];
 
-    // Returns the status code from a response object
-    const getStatus = async (res: Promise<Response>) => (await res).status;
+  // Returns the status code from a response object
+  const getStatus = async (res: Promise<Response>) => (await res).status;
 
-    await testApiHandler({
-        handler: unreliableHandler,
-        test: async ({ fetch }) => {
-            // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
-            // record the results
-            const results1 = await Promise.all([
-                ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
-                getStatus(fetch({ method: getMethod() })),
-                ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
-                getStatus(fetch({ method: getMethod() }))
-            ].map(p => p.then(s => s, _ => null)));
+  await testApiHandler({
+    handler: unreliableHandler,
+    test: async ({ fetch }) => {
+      // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
+      // record the results
+      const results1 = await Promise.all([
+        ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
+        getStatus(fetch({ method: getMethod() })),
+        ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
+        getStatus(fetch({ method: getMethod() }))
+      ].map(p => p.then(s => s, _ => null)));
 
-            process.env.REQUESTS_PER_CONTRIVED_ERROR = '0';
+      process.env.REQUESTS_PER_CONTRIVED_ERROR = '0';
 
-            // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and
-            // record the results
-            const results2 = await Promise.all([
-                ...array(expectedReqPerError).map(_ => getStatus(fetch({ method: getMethod() }))),
-            ].map(p => p.then(s => s, _ => null)));
+      // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and
+      // record the results
+      const results2 = await Promise.all([
+        ...array(expectedReqPerError).map(_ => getStatus(fetch({ method: getMethod() }))),
+      ].map(p => p.then(s => s, _ => null)));
 
-            // We expect results1 to be an array with eighteen `200`s and two
-            // `555`s in any order
+      // We expect results1 to be an array with eighteen `200`s and two
+      // `555`s in any order
 
-            // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
-            // because responses could be received out of order
-            expect(results1).toIncludeSameMembers([
-                ...array(expectedReqPerError - 1).map(_ => 200),
-                555,
-                ...array(expectedReqPerError - 1).map(_ => 200),
-                555
-            ]);
+      // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
+      // because responses could be received out of order
+      expect(results1).toIncludeSameMembers([
+        ...array(expectedReqPerError - 1).map(_ => 200),
+        555,
+        ...array(expectedReqPerError - 1).map(_ => 200),
+        555
+      ]);
 
-            // We expect results2 to be an array with ten `200`s
+      // We expect results2 to be an array with ten `200`s
 
-            expect(results2).toStrictEqual([
-                ...array(expectedReqPerError).map(_ => 200),
-            ]);
-        }
-    });
+      expect(results2).toStrictEqual([
+        ...array(expectedReqPerError).map(_ => 200),
+      ]);
+    }
+  });
 });
 ```
 
-### Testing a flight search API handler @ `pages/api/v3/flights/search`
+### Testing a Flight Search API Handler @ `pages/api/v3/flights/search`
 
 Suppose we have an *authenticated* API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
@@ -194,83 +204,83 @@ const v3FlightsSearchHandler: WithConfig<typeof V3FlightsSearchHandler.default> 
 v3FlightsSearchHandler.config = V3FlightsSearchHandler.config;
 
 it('returns expected public flights with respect to match', async () => {
-    expect.hasAssertions();
+  expect.hasAssertions();
 
-    // Get the flight data currently in the test database
-    const flights = getFlightData();
+  // Get the flight data currently in the test database
+  const flights = getFlightData();
 
-    // Take any JSON object and stringify it into a URL-ready string
-    const encode = (o: Record<string, unknown>) => encodeURIComponent(JSON.stringify(o));
+  // Take any JSON object and stringify it into a URL-ready string
+  const encode = (o: Record<string, unknown>) => encodeURIComponent(JSON.stringify(o));
 
-    // This function will return in order the URIs we're interested in testing
-    // against our handler. Query strings are parsed automatically, though we
-    // also could have used `params` or `fetch({ ... })` itself instead.
-    //
-    // Example URI for `https://google.com/search?params=yes` would be
-    // `/search?params=yes`
-    const genUrl = function*() {
-        yield `/?match=${encode({ airline: 'Spirit' })}`; // i.e. we want all the flights matching Spirit airlines!
-        yield `/?match=${encode({ type: 'departure' })}`;
-        yield `/?match=${encode({ landingAt: 'F1A' })}`;
-        yield `/?match=${encode({ seatPrice: 500 })}`;
-        yield `/?match=${encode({ seatPrice: { $gt: 500 }})}`;
-        yield `/?match=${encode({ seatPrice: { $gte: 500 }})}`;
-        yield `/?match=${encode({ seatPrice: { $lt: 500 }})}`;
-        yield `/?match=${encode({ seatPrice: { $lte: 500 }})}`;
-    }();
+  // This function will return in order the URIs we're interested in testing
+  // against our handler. Query strings are parsed automatically, though we
+  // also could have used `params` or `fetch({ ... })` itself instead.
+  //
+  // Example URI for `https://google.com/search?params=yes` would be
+  // `/search?params=yes`
+  const genUrl = function*() {
+    yield `/?match=${encode({ airline: 'Spirit' })}`; // i.e. we want all the flights matching Spirit airlines!
+    yield `/?match=${encode({ type: 'departure' })}`;
+    yield `/?match=${encode({ landingAt: 'F1A' })}`;
+    yield `/?match=${encode({ seatPrice: 500 })}`;
+    yield `/?match=${encode({ seatPrice: { $gt: 500 }})}`;
+    yield `/?match=${encode({ seatPrice: { $gte: 500 }})}`;
+    yield `/?match=${encode({ seatPrice: { $lt: 500 }})}`;
+    yield `/?match=${encode({ seatPrice: { $lte: 500 }})}`;
+  }();
 
-    await testApiHandler({
-        // Patch the request object to include our dummy URI
-        requestPatcher: req => {
-            req.url = genUrl.next().value || undefined;
-            // Could have done this instead of fetch({ headers: { KEY }}) below:
-            // req.headers = { KEY };
-        },
+  await testApiHandler({
+    // Patch the request object to include our dummy URI
+    requestPatcher: req => {
+      req.url = genUrl.next().value || undefined;
+      // Could have done this instead of fetch({ headers: { KEY }}) below:
+      // req.headers = { KEY };
+    },
 
-        handler: v3FlightsSearchHandler,
+    handler: v3FlightsSearchHandler,
 
-        test: async ({ fetch }) => {
-            // 8 URLS from genUrl means 8 calls to fetch:
-            const responses = await Promise.all(array(8).map(_ => {
-                return fetch({ headers: { KEY }}).then(r => r.ok ? r.json() : r.status);
-            }));
+    test: async ({ fetch }) => {
+      // 8 URLS from genUrl means 8 calls to fetch:
+      const responses = await Promise.all(array(8).map(_ => {
+        return fetch({ headers: { KEY }}).then(r => r.ok ? r.json() : r.status);
+      }));
 
-            // We expect all of the responses to be 200
+      // We expect all of the responses to be 200
 
-            expect(responses.some(o => !o?.success)).toBe(false);
+      expect(responses.some(o => !o?.success)).toBe(false);
 
-            // We expect the array of flights returned to match our
-            // expectations given we already know what dummy data will be
-            // returned:
+      // We expect the array of flights returned to match our
+      // expectations given we already know what dummy data will be
+      // returned:
 
-            // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
-            // because responses could be received out of order
-            expect(responses.map(r => r.flights)).toIncludeSameMembers([
-                flights.filter(f => f.airline == 'Spirit').slice(0, RESULT_SIZE),
-                flights.filter(f => f.type == 'departure').slice(0, RESULT_SIZE),
-                flights.filter(f => f.landingAt == 'F1A').slice(0, RESULT_SIZE),
-                flights.filter(f => f.seatPrice == 500).slice(0, RESULT_SIZE),
-                flights.filter(f => f.seatPrice > 500).slice(0, RESULT_SIZE),
-                flights.filter(f => f.seatPrice >= 500).slice(0, RESULT_SIZE),
-                flights.filter(f => f.seatPrice < 500).slice(0, RESULT_SIZE),
-                flights.filter(f => f.seatPrice <= 500).slice(0, RESULT_SIZE),
-            ]);
-        }
-    });
+      // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
+      // because responses could be received out of order
+      expect(responses.map(r => r.flights)).toIncludeSameMembers([
+        flights.filter(f => f.airline == 'Spirit').slice(0, RESULT_SIZE),
+        flights.filter(f => f.type == 'departure').slice(0, RESULT_SIZE),
+        flights.filter(f => f.landingAt == 'F1A').slice(0, RESULT_SIZE),
+        flights.filter(f => f.seatPrice == 500).slice(0, RESULT_SIZE),
+        flights.filter(f => f.seatPrice > 500).slice(0, RESULT_SIZE),
+        flights.filter(f => f.seatPrice >= 500).slice(0, RESULT_SIZE),
+        flights.filter(f => f.seatPrice < 500).slice(0, RESULT_SIZE),
+        flights.filter(f => f.seatPrice <= 500).slice(0, RESULT_SIZE),
+      ]);
+    }
+  });
 
-    // We expect these two to fail with 400 errors
+  // We expect these two to fail with 400 errors
 
-    await testApiHandler({
-        handler: v3FlightsSearchHandler,
-        requestPatcher: req => { req.url = `/?match=${encode({ ffms: { $eq: 500 }})}` },
-        test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
-    });
+  await testApiHandler({
+    handler: v3FlightsSearchHandler,
+    requestPatcher: req => { req.url = `/?match=${encode({ ffms: { $eq: 500 }})}` },
+    test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
+  });
 
-    await testApiHandler({
-        handler: v3FlightsSearchHandler,
-        requestPatcher: req => { req.url = `/?match=${encode({ bad: 500 })}` },
-        test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
-    });
+  await testApiHandler({
+    handler: v3FlightsSearchHandler,
+    requestPatcher: req => { req.url = `/?match=${encode({ bad: 500 })}` },
+    test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
+  });
 });
 ```
 
@@ -303,6 +313,53 @@ This package is published using
 [publish-please](https://www.npmjs.com/package/publish-please) via `npx
 publish-please`.
 
-## Release history
+## Package Details
+
+> You don't need to read this section to use this package, everything should
+"just work"!
+
+This is a [dual CJS2/ES module][dual-module] package. That means this package
+exposes both CJS2 and ESM entry points.
+
+Loading this package via `require(...)` will use the [bundled CJS2
+library][CJS2] entry point. **Loading the package this way [will disable tree
+shaking in Webpack][tree-shaking] and other bundlers!** Alternatively, loading
+this package via `import { ... } from ...` or `import(...)` will use the ESM
+entry point [if your version of Node supports it][node-esm-support].
+
+Using the `import` syntax is the modern, preferred choice, especially when using
+asset bundlers like Webpack. For bundlers and other tools,
+[package.json](package.json) retains the [`module`][module-key] key, which
+points to the ESM entry point, and the [`sideEffects`][side-effects-key] key,
+which is always `false`. Hence, this package supports [tree
+shaking][tree-shaking] 🎉.
+
+To enable dual CJS2/ESM for Node versions >= 14, [package.json](package.json)
+includes the [`exports`][exports-main-key] key. Though this project's root
+`package.json` includes [`{"type": "commonjs" }`][local-pkg], the directory
+containing the ESM entry point (`dist/lib`) also contains a [local package.json
+with `{ "type": "module"}`][local-pkg], ensuring the `dist/lib/**/*.js` files
+are interpreted as ES modules. For backwards compatibility with Node versions <
+14, [package.json](package.json) retains the [`main`][exports-main-key] key,
+meaning older Node versions will always load the CJS2 bundle.
+
+To keep the bundle as small as possible, no external modules (i.e. anything in
+`node_modules`) or Node built-ins are included with the CJS2 bundle.
+
+### [Dual Package Hazard][hazard]
+
+This package does not maintain shared state and so does not exhibit this hazard.
+
+## Release History
 
 See [CHANGELOG.md](CHANGELOG.md).
+
+[module-key]: https://webpack.js.org/guides/author-libraries/#final-steps
+[side-effects-key]: https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free
+[dual-module]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-commonjses-module-packages
+[exports-main-key]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#package-entry-points
+[hazard]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-package-hazard
+[CJS2]: https://webpack.js.org/configuration/output/#module-definition-systems
+[tree-shaking]: https://webpack.js.org/guides/tree-shaking
+[local-pkg]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
+[node-esm-support]: https://medium.com/@nodejs/node-js-version-14-available-now-8170d384567e#2368

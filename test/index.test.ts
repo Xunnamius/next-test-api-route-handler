@@ -2,7 +2,7 @@ import { testApiHandler } from '../src/index'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const getHandler = (status?: number) => async (req: NextApiRequest, res: NextApiResponse) => {
+const getHandler = (status?: number) => async (_: NextApiRequest, res: NextApiResponse) => {
     res.status(status ?? 200).send({ hello: 'world' });
 };
 
@@ -50,7 +50,7 @@ describe('next-test-api-route', () => {
 
             await testApiHandler({
                 responsePatcher: res => res.statusCode = 404,
-                handler: async (req: NextApiRequest, res: NextApiResponse) => res.send({}),
+                handler: async (_: NextApiRequest, res: NextApiResponse) => res.send({}),
 
                 test: async ({ fetch }) => {
                     expect((await fetch()).status).toBe(404);
