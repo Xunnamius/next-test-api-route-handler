@@ -21,9 +21,12 @@ module.exports = {
         // * Used by `npm run build`
         production: {
             presets: [
-                // ? Until Vercel/Next moves on from v10.13.0, we shall not!
-                // ? https://nextjs.org/docs#system-requirements
-                ['@babel/preset-env', { targets: { node: '10.13.0' }}],
+                ['@babel/preset-env', {
+                    // ? https://github.com/babel/babel-loader/issues/521#issuecomment-441466991
+                    //modules: false,
+                    // ? https://nodejs.org/en/about/releases
+                    targets: { node: '10.13.0' }
+                }],
                 ['@babel/preset-typescript', { allowDeclareFields: true }],
                 // ? Webpack will handle minification
             ]

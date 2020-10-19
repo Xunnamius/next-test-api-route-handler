@@ -300,13 +300,13 @@ code, of course!
 
 Use `npm run build` to compile `src/` into `dist/`, which is what makes it into
 the published package. Use `npm run build-docs` to re-build the documentation.
-Use `npm test` to run the unit tests, `npm run check-build` to run the e2e
-tests, and `check-types` to run a type check. Use `npm run list-tasks` to list
-all available run scripts.
+Use `npm test` to run the unit tests, `npm run check-build` to run the
+integration tests, and `check-types` to run a type check. Use `npm run
+list-tasks` to list all available run scripts.
 
-Note that using the NPM run scripts to build the documentation and
-distributables requires a linux-like development environment. None of the run
-scripts are likely to work on non-POSIX environments. If you're on Windows, use
+Note that using the NPM run scripts requires a linux-like development
+environment. None of the run scripts are likely to work on non-POSIX
+environments. If you're on Windows, use
 [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
 
 This package is published using
@@ -321,34 +321,29 @@ publish-please`.
 This is a [dual CJS2/ES module][dual-module] package. That means this package
 exposes both CJS2 and ESM entry points.
 
-Loading this package via `require(...)` will use the [bundled CJS2
-library][CJS2] entry point. **Loading the package this way [will disable tree
-shaking in Webpack][tree-shaking] and other bundlers!** Alternatively, loading
-this package via `import { ... } from ...` or `import(...)` will use the ESM
-entry point [if your version of Node supports it][node-esm-support].
+Loading this package via `require(...)` will cause Node to use the [CJS2
+bundle][CJS2] entry point, disable [tree shaking][tree-shaking] in Webpack 4,
+and lead to larger bundles in Webpack 5. Alternatively, loading this package via
+`import { ... } from ...` or `import(...)` will cause Node to use the ESM entry
+point in [versions that support it][node-esm-support] and in Webpack. Using the
+`import` syntax is the modern, preferred choice.
 
-Using the `import` syntax is the modern, preferred choice, especially when using
-asset bundlers like Webpack. For bundlers and other tools,
-[package.json](package.json) retains the [`module`][module-key] key, which
-points to the ESM entry point, and the [`sideEffects`][side-effects-key] key,
-which is always `false`. Hence, this package supports [tree
-shaking][tree-shaking] 🎉.
+For backwards compatibility with Webpack 4 and Node versions < 14,
+[`package.json`](package.json) retains the [`module`][module-key] key, which
+points to the ESM entry point, and the [`main`][exports-main-key] key, which
+points to both the ESM and CJS2 entry points implicitly (no file extension). For
+Webpack 5 and Node versions >= 14, [`package.json`](package.json) includes the
+[`exports`][exports-main-key] key, which points to both entry points explicitly.
 
-To enable dual CJS2/ESM for Node versions >= 14, [package.json](package.json)
-includes the [`exports`][exports-main-key] key. Though this project's root
-`package.json` includes [`{"type": "commonjs" }`][local-pkg], the directory
-containing the ESM entry point (`dist/lib`) also contains a [local package.json
-with `{ "type": "module"}`][local-pkg], ensuring the `dist/lib/**/*.js` files
-are interpreted as ES modules. For backwards compatibility with Node versions <
-14, [package.json](package.json) retains the [`main`][exports-main-key] key,
-meaning older Node versions will always load the CJS2 bundle.
+Though [`package.json`](package.json) includes [`{ "type":
+"commonjs"}`][local-pkg], the ESM entry points are ES module (`.mjs`) files.
+[This can sometimes cause problems for Webpack configurations with `.mjs` entry
+points][webpack-problems]. [`package.json`](package.json) also includes the
+[`sideEffects`][side-effects-key] key, which is always `false` for [optimal tree
+shaking][tree-shaking].
 
-To keep the bundle as small as possible, no external modules (i.e. anything in
-`node_modules`) or Node built-ins are included with the CJS2 bundle.
-
-### [Dual Package Hazard][hazard]
-
-This package does not maintain shared state and so does not exhibit this hazard.
+> This package does not maintain shared state and so does not exhibit the [dual
+> package hazard][hazard].
 
 ## Release History
 
@@ -363,3 +358,4 @@ See [CHANGELOG.md](CHANGELOG.md).
 [tree-shaking]: https://webpack.js.org/guides/tree-shaking
 [local-pkg]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
 [node-esm-support]: https://medium.com/@nodejs/node-js-version-14-available-now-8170d384567e#2368
+[webpack-problems]: https://github.com/reactioncommerce/reaction-component-library/issues/399#issuecomment-467860022

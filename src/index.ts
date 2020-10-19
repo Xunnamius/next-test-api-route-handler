@@ -1,7 +1,7 @@
 import listen from 'test-listen'
 import fetch from 'isomorphic-unfetch'
 import { createServer } from 'http'
-import { parse as parseUri } from 'url'
+import { parse as parseUrl } from 'url'
 import { apiResolver } from 'next/dist/next-server/server/api-utils.js'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -38,7 +38,7 @@ export async function testApiHandler({ requestPatcher, responsePatcher, params, 
     let server = null;
 
     try {
-        const url = await listen(server = createServer((req, res) => {
+        const localUrl = await listen(server = createServer((req, res) => {
             requestPatcher && requestPatcher(req);
             responsePatcher && responsePatcher(res);
 
@@ -57,7 +57,7 @@ export async function testApiHandler({ requestPatcher, responsePatcher, params, 
             void apiResolver(
                 req,
                 res,
-                { ...parseUri(req.url || '', true).query, ...params },
+                { ...parseUrl(req.url || '', true).query, ...params },
                 handler,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 undefined as any,
@@ -66,7 +66,7 @@ export async function testApiHandler({ requestPatcher, responsePatcher, params, 
                 undefined as any);
         }));
 
-        await test({ fetch: (init?: RequestInit) => fetch(url, init) });
+        await test({ fetch: (init?: RequestInit) => fetch(localUrl, init) });
     }
 
     finally {

@@ -2,7 +2,7 @@
 // external-scripts/ and helping transpile src/ => dist/ as dual CJS2+ES2015
 
 const DotenvPlugin = require('dotenv-webpack');
-const nodeExternals = require('webpack-node-externals')
+const nodeExternals = require('webpack-node-externals');
 
 const mainConfig = {
     name: 'main',
@@ -13,16 +13,23 @@ const mainConfig = {
     entry: `${__dirname}/src/index.ts`,
 
     output: {
-        filename: 'main.js',
-        path: `${__dirname}/dist`,
-        libraryTarget: 'commonjs2'
+        filename: 'index.js',
+        path: `${__dirname}/dist/lib`,
+        libraryTarget: 'commonjs2',
     },
 
     externals: [nodeExternals()],
 
-    resolve: { extensions: ['.ts', '.js'] },
+    stats: {
+        //orphanModules: true,
+        providedExports: true,
+        usedExports: true,
+    },
+
+    resolve: { extensions: ['.ts', '.wasm', '.mjs', '.cjs', '.js', '.json'] },
     module: { rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }] },
-    stats: { warningsFilter: [/critical dependency:/i] }
+    optimization: { usedExports: true },
+    //ignoreWarnings: [/critical dependency:/i], // ? Webpack 5
 };
 
 const externalsConfig = {
@@ -37,16 +44,22 @@ const externalsConfig = {
 
     output: {
         filename: '[name].js',
-        path: `${__dirname}/external-scripts/bin`
+        path: `${__dirname}/external-scripts/bin`,
     },
 
     externals: [nodeExternals()],
 
-    resolve: { extensions: ['.ts', '.js', '.json'] },
-    module: { rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }] },
-    stats: { warningsFilter: [/critical dependency:/i] },
+    stats: {
+        //orphanModules: true,
+        providedExports: true,
+        usedExports: true,
+    },
 
-    plugins: [ new DotenvPlugin() ]
+    resolve: { extensions: ['.ts', '.wasm', '.mjs', '.cjs', '.js', '.json'] },
+    module: { rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }] },
+    optimization: { usedExports: true },
+    //ignoreWarnings: [/critical dependency:/i], // ? Webpack 5
+    plugins: [ new DotenvPlugin() ],
 };
 
 module.exports = [ mainConfig, externalsConfig ];
