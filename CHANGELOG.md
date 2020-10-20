@@ -1,4 +1,4 @@
-[Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
+[v1.0.9]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.8...v1.0.9
 [v1.0.8]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.7...v1.0.8
 [v1.0.7]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.6...v1.0.7
 [v1.0.6]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.5...v1.0.6
@@ -31,6 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released
 
+### [![v1.0.9](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.9)][v1.0.9]
+#### Changed
+- Added [babel-plugin-transform-cjs-imports][plugin] to fix [issues with Webpack
+  importing CJS modules in `.mjs` files][webpack-problems]
+
 ### [![v1.0.8](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.8)][v1.0.8]
 #### Changed
 - Preparing to switch to Webpack 5 (blocked by `dotenv-webpack`)
@@ -57,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [![v1.0.5](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.5)][v1.0.5]
 #### Changed
-- Added UMD build step to Webpack for non-ESM CJS/AMD compat (package can now be `required` normally)
+- Added UMD build step to Webpack for non-ESM CJS/AMD compat (package can now be
+  `required` normally)
 - Finished `externals.test.ts`
 
 ---
@@ -77,7 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Changed
 - Prettier README
 - Upgraded eslint configuration
-- More robust NPM run scripts, various build system fixes, and upgraded TypeScript configuration
+- More robust NPM run scripts, various build system fixes, and upgraded
+  TypeScript configuration
 - Bumped Next lock to `9.5.5`
 
 #### Removed
@@ -100,3 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### [![1.0.0](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/1.0.0)][1.0.0]
 #### Added
 - Initial release
+
+[Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
+[webpack-problems]: https://github.com/reactioncommerce/reaction-component-library/issues/399#issuecomment-467860022
+[plugin]: https://www.npmjs.com/package/babel-plugin-transform-cjs-imports

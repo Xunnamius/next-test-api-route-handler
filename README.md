@@ -336,9 +336,8 @@ Webpack 5 and Node versions >= 14, [`package.json`](package.json) includes the
 [`exports`][exports-main-key] key, which points to both entry points explicitly.
 
 Though [`package.json`](package.json) includes [`{ "type":
-"commonjs"}`][local-pkg], the ESM entry points are ES module (`.mjs`) files.
-[This can sometimes cause problems for Webpack configurations with `.mjs` entry
-points][webpack-problems]. [`package.json`](package.json) also includes the
+"commonjs"}`][local-pkg], note that the ESM entry points are ES module (`.mjs`)
+files. [`package.json`](package.json) also includes the
 [`sideEffects`][side-effects-key] key, which is always `false` for [optimal tree
 shaking][tree-shaking].
 
@@ -358,4 +357,3 @@ See [CHANGELOG.md](CHANGELOG.md).
 [tree-shaking]: https://webpack.js.org/guides/tree-shaking
 [local-pkg]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
 [node-esm-support]: https://medium.com/@nodejs/node-js-version-14-available-now-8170d384567e#2368
-[webpack-problems]: https://github.com/reactioncommerce/reaction-component-library/issues/399#issuecomment-467860022
