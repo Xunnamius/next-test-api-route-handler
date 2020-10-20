@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added [babel-plugin-transform-cjs-imports][plugin] to fix [issues with Webpack
   importing CJS modules in `.mjs` files][webpack-problems]
 
+---
+
 ### [![v1.0.8](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.8)][v1.0.8]
 #### Changed
 - Preparing to switch to Webpack 5 (blocked by `dotenv-webpack`)
@@ -43,11 +45,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `package.json` solution)
 - README updates
 
+---
+
 ### [![v1.0.7](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.7)][v1.0.7]
 #### Changed
 - Switched to dual CJS2 bundle + ES modules configuration
 - Properly externalized dependencies (so: much smaller bundle size!)
 - README updates
+
+---
 
 ### [![v1.0.6](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.6)][v1.0.6]
 #### Changed
