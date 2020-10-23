@@ -6,7 +6,7 @@ module.exports = {
     plugins: [
         '@babel/plugin-proposal-export-default-from',
         '@babel/plugin-proposal-function-bind',
-        '@babel/plugin-transform-typescript',
+        '@babel/plugin-transform-typescript'
     ],
     env: {
         // * Used by Jest and `npm test`
@@ -42,6 +42,10 @@ module.exports = {
                 }],
                 ['@babel/preset-typescript', { allowDeclareFields: true }],
                 // ? The end user will handle minification
+            ],
+            plugins: [
+                // ? Interoperable named CJS imports for free
+                'babel-plugin-transform-mjs-imports',
             ]
         },
     }

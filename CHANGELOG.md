@@ -32,8 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Released
 
 ### [![v1.0.9](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.9)][v1.0.9]
-#### Changed
-- Added [babel-plugin-transform-cjs-imports][plugin] to fix [issues with Webpack
+#### Added
+- Added [babel-plugin-transform-mjs-imports][plugin] to fix [issues with Webpack
   importing CJS modules in `.mjs` files][webpack-problems]
 
 ---
@@ -116,4 +116,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
 [webpack-problems]: https://github.com/reactioncommerce/reaction-component-library/issues/399#issuecomment-467860022
-[plugin]: https://www.npmjs.com/package/babel-plugin-transform-cjs-imports
+[plugin]: https://www.npmjs.com/package/babel-plugin-transform-mjs-imports

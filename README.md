@@ -38,8 +38,8 @@ there's `next-test-api-route-handler`! 🎉🎉🎉
 
 ## Install
 
-```sh
-npm install next-test-api-route-handler
+```Bash
+npm install --save-dev next-test-api-route-handler
 ```
 
 > Note: this is a [dual CJS2/ES module](#package-details) package
@@ -338,8 +338,11 @@ Webpack 5 and Node versions >= 14, [`package.json`](package.json) includes the
 Though [`package.json`](package.json) includes [`{ "type":
 "commonjs"}`][local-pkg], note that the ESM entry points are ES module (`.mjs`)
 files. [`package.json`](package.json) also includes the
-[`sideEffects`][side-effects-key] key, which is always `false` for [optimal tree
-shaking][tree-shaking].
+[`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
+shaking][tree-shaking], and the `types` key, which points to a TypeScript
+declarations file.
+
+
 
 > This package does not maintain shared state and so does not exhibit the [dual
 > package hazard][hazard].
