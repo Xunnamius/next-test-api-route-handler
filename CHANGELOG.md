@@ -1,3 +1,4 @@
+[v1.0.10]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.9...v1.0.10
 [v1.0.9]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.8...v1.0.9
 [v1.0.8]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.7...v1.0.8
 [v1.0.7]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.6...v1.0.7
@@ -31,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released
 
-### [![v1.0.9](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.9)][v1.0.9]
+### [![v1.0.10](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.10)][v1.0.10]
 #### Changed
 - Several quality updates
 - Fixed README typos
