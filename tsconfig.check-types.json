@@ -4,6 +4,7 @@
     "types/**/*.ts*",
     "lib/**/*.ts*",
     "src/**/*.ts*",
+    "test/**/*.ts*",
     "external-scripts/**/*.ts*"
   ]
 }
