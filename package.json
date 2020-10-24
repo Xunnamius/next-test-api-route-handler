@@ -1,6 +1,6 @@
 {
   "name": "next-test-api-route-handler",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Confidently unit test your Next.js API routes/handlers in an isolated Next.js-like environment",
   "keywords": [
     "api",
@@ -50,10 +50,10 @@
     "build-stats": "NODE_ENV=production webpack --config-name main --json > bundle-stats.json",
     "check-types": "rm -f npm.pipe; touch npm.pipe; command -v unbuffer >/dev/null; X=$?; [ $X -eq 0 ] && unbuffer tsc --project tsconfig.check-types.json >> npm.pipe; Y=$?; [ $Y -eq 0 ] && echo >> npm.pipe; unbuffer eslint --parser-options=project:tsconfig.check-types.json src >> npm.pipe; Z=$?; [ $X -ne 0 ] && tsc --project tsconfig.check-types.json >> npm.pipe && eslint --parser-options=project:tsconfig.check-types.json src >> npm.pipe; W=$?; cat npm.pipe | less -R -FX; rm npm.pipe; [ $W -eq 0 ] && [ $X -eq 1 ] || [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
     "clean": "rm -rf dist npm.pipe coverage external-scripts/bin",
+    "fixup": "npm run check-types && npm run test && npx npm-force-resolutions && npx Xunnamius/sort-package-json && npm run build-docs && npm audit",
     "list-tasks": "npm run",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run clean",
-    "fixup": "npm run check-types && npm run test && npx npm-force-resolutions && npx Xunnamius/sort-package-json && npm run build-docs && npm audit",
     "repl": "command -v rlwrap >/dev/null && rlwrap npx -p @babel/core -p @babel/node babel-node",
     "test": "BABEL_ENV=test jest --coverage"
   },
@@ -97,7 +97,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.1.0",
     "find-package-json": "^1.2.0",
-    "isomorphic-json-fetch": "^1.0.11",
+    "isomorphic-json-fetch": "^1.0.13",
     "jest": "^26.6.1",
     "jest-circus": "^26.6.1",
     "jest-extended": "^0.11.5",

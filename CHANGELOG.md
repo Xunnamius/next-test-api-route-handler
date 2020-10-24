@@ -32,6 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Released
 
 ### [![v1.0.9](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.9)][v1.0.9]
+#### Changed
+- Several quality updates
+- Fixed README typos
+
+---
+
+### [![v1.0.9](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.9)][v1.0.9]
 #### Added
 - Added [babel-plugin-transform-mjs-imports][plugin] to fix [issues with Webpack
   importing CJS modules in `.mjs` files][webpack-problems]
