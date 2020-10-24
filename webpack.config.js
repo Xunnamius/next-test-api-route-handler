@@ -1,5 +1,5 @@
-// This webpack config is only used for compiling the scripts under
-// external-scripts/ and helping transpile src/ => dist/ as dual CJS2+ES2015
+// This webpack config is used for compiling the scripts under external-scripts/
+// and helping transpile src/ => dist/ as dual CJS2+ES2015
 
 const DotenvPlugin = require('dotenv-webpack');
 const nodeExternals = require('webpack-node-externals');
@@ -21,7 +21,7 @@ const mainConfig = {
     externals: [nodeExternals()],
 
     stats: {
-        //orphanModules: true,
+        //orphanModules: true, // ? Webpack 5
         providedExports: true,
         usedExports: true,
     },
@@ -50,7 +50,7 @@ const externalsConfig = {
     externals: [nodeExternals()],
 
     stats: {
-        //orphanModules: true,
+        //orphanModules: true, // ? Webpack 5
         providedExports: true,
         usedExports: true,
     },

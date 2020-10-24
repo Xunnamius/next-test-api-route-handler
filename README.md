@@ -22,17 +22,22 @@ objects rather than having to hack something together with express? Then look no
 further! This package allows you to test your Next.js API routes/handlers in an
 isolated Next.js-like environment simply, quickly, and without hassle.
 
-One day, Next.js might expose an API for testing our handlers (or at least
-generating proper NextApiRequest and NextApiResponse objects). Until then,
-there's `next-test-api-route-handler`! 🎉🎉🎉
+This package uses Next.js's internal API resolver to precisely emulate API route
+handling. Since this is not a public or documented interface, the next
+dependency is locked to [![Next.js dependency
+version](https://api.ergodark.com/badges/next-lock-version "This package uses an
+internal API feature from this specific version of
+Next.js")](https://www.npmjs.com/package/next-test-api-route-handler). What this
+means is, barring a major (probably semver-major) change to how Next handles API
+routes, **this package will not break even if the resolver interface changes
+between Next releases**.
 
-> This package uses Next.js's internal API resolver to precisely emulate API
-> route handling. Since this is not a public or documented interface, the next
-> dependency is locked to ![Next.js dependency version](https://img.shields.io/npm/dependency-version/next-test-api-route-handler/next?label=next "This package uses an internal API feature from this specific version of Next.js").
-> This package is automatically tested for compatibility with [each
-> full release of Next.js](https://github.com/vercel/next.js/releases):
-> ![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package works with Next.js up to and including this version").
-> Any incompatibilities, albeit rare, will be fixed as they are detected.
+> Additionally, this package is automatically tested for compatibility with
+> [each full release of Next.js](https://github.com/vercel/next.js/releases)
+> with results visible in badge form: ![Next.js
+> compat](https://api.ergodark.com/badges/is-next-compat "This package works
+> with Next.js up to and including this version"). Any regressions between
+> releases will be addressed as they're detected.
 
 
 
@@ -298,20 +303,53 @@ you submit a pull request, take care to maintain the existing coding style and
 add unit tests for any new or changed functionality. Please lint and test your
 code, of course!
 
-Use `npm run build` to compile `src/` into `dist/`, which is what makes it into
-the published package. Use `npm run build-docs` to re-build the documentation.
-Use `npm test` to run the unit tests, `npm run check-build` to run the
-integration tests, and `check-types` to run a type check. Use `npm run
-list-tasks` to list all available run scripts.
+### NPM Scripts
 
-Note that using the NPM run scripts requires a linux-like development
-environment. None of the run scripts are likely to work on non-POSIX
-environments. If you're on Windows, use
-[WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+Run `npm run list-tasks` to see which of the following scripts are available for
+this project.
 
-This package is published using
-[publish-please](https://www.npmjs.com/package/publish-please) via `npx
-publish-please`.
+> Using these scripts requires a linux-like development environment. None of the
+> scripts are likely to work on non-POSIX environments. If you're on Windows,
+> use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+
+#### Development
+
+- `npm run repl` to run a buffered TypeScript-Babel REPL
+- `npm test` to run the unit tests and gather test coverage data
+  - Look for HTML files under `coverage/`
+- `npm run check-build` to run the integration tests
+- `npm run check-types` to run a project-wide type check
+- `npm run test-repeat` to run the entire test suite 100 times
+  - Good for spotting bad async code and heisenbugs
+  - Uses `__test-repeat` NPM script under the hood
+- `npm run dev` to start a development server or instance
+- `npm run generate` to transpile config files (under `config/`) from scratch
+- `npm run regenerate` to quickly re-transpile config files (under `config/`)
+
+#### Building
+
+- `npm run clean` to delete all build process artifacts
+- `npm run build` to compile `src/` into `dist/`, which is what makes it into
+the published package
+- `npm run build-docs` to re-build the documentation
+- `npm run build-externals` to compile `external-scripts/` into
+  `external-scripts/bin/`
+- `npm run build-stats` to gather statistics about Webpack (look for
+  `bundle-stats.json`)
+
+#### Publishing
+
+- `npm run start` to start a production instance
+- `npm run fixup` to run pre-publication tests, rebuilds (like documentation),
+  and validations
+  - Triggered automatically by
+    [publish-please](https://www.npmjs.com/package/publish-please)
+
+#### NPX
+
+- `npx publish-please` to publish the package
+- `npx sort-package-json` to consistently sort `package.json`
+- `npx npm-force-resolutions` to forcefully patch security audit problems
 
 ## Package Details
 
@@ -341,8 +379,6 @@ files. [`package.json`](package.json) also includes the
 [`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
 shaking][tree-shaking], and the `types` key, which points to a TypeScript
 declarations file.
-
-
 
 > This package does not maintain shared state and so does not exhibit the [dual
 > package hazard][hazard].

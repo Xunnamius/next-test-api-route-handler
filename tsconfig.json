@@ -19,7 +19,7 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext",
+      "esnext"
     ],
     "skipLibCheck": true,
     "noEmit": true,
@@ -32,9 +32,9 @@
     "lib/**/*.ts*",
     "src/**/*.ts*",
     "external-scripts/**/*.ts*",
-    "test/**/*.ts*",
+    "test/**/*.ts*"
   ],
   "exclude": [
     "node_modules"
-  ],
+  ]
 }
