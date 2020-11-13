@@ -63,8 +63,10 @@
   },
   "dependencies": {
     "isomorphic-unfetch": "^3.1.0",
-    "next": "9.5.5",
     "test-listen": "^1.1.0"
+  },
+  "peerDependencies": {
+    "next": "^9.5.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
@@ -101,6 +103,7 @@
     "jest": "^26.6.1",
     "jest-circus": "^26.6.1",
     "jest-extended": "^0.11.5",
+    "next": "^9.5.5",
     "mongodb": "^3.6.2",
     "mongodb-client-encryption": "^1.1.0",
     "npm-force-resolutions": "0.0.3",
