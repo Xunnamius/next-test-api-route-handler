@@ -50,7 +50,7 @@
     "build-stats": "NODE_ENV=production webpack --config-name main --json > bundle-stats.json",
     "check-types": "rm -f npm.pipe; touch npm.pipe; command -v unbuffer >/dev/null; X=$?; [ $X -eq 0 ] && unbuffer tsc --project tsconfig.check-types.json >> npm.pipe; Y=$?; [ $Y -eq 0 ] && echo >> npm.pipe; unbuffer eslint --parser-options=project:tsconfig.check-types.json src >> npm.pipe; Z=$?; [ $X -ne 0 ] && tsc --project tsconfig.check-types.json >> npm.pipe && eslint --parser-options=project:tsconfig.check-types.json src >> npm.pipe; W=$?; cat npm.pipe | less -R -FX; rm npm.pipe; [ $W -eq 0 ] && [ $X -eq 1 ] || [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
     "clean": "rm -rf dist npm.pipe coverage external-scripts/bin",
-    "fixup": "npm run check-types && npm run test && npx npm-force-resolutions && npx Xunnamius/sort-package-json && npm run build-docs && npm audit",
+    "fixup": "npm run check-types && npm run test && npx npm-force-resolutions && npx sort-package-json && npm run build-docs && npm audit",
     "list-tasks": "npm run",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run clean",
