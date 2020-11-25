@@ -28,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming]
 
-(no notes yet)
+Going to switch everything over to a semantic-release based GitHub Actions
+workflow pipeline very soon!
 
 ## Released
 
