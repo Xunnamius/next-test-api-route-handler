@@ -1,11 +1,9 @@
 [![Black Lives Matter!](https://api.ergodark.com/badges/blm "Join the movement!")](https://secure.actblue.com/donate/ms_blm_homepage_2019)
 [![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package works with Next.js up to and including this version")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![Next.js dependency version](https://api.ergodark.com/badges/next-lock-version "This package uses an internal API feature from this specific version of Next.js")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![Maintenance status](https://img.shields.io/maintenance/active/2020 "Is this package maintained?")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![Last commit timestamp](https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler/develop "When was the last commit to the official repo?")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![Open issues](https://img.shields.io/github/issues/xunnamius/next-test-api-route-handler "Number of known issues with this package")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![Pull requests](https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler "Number of open pull requests")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![DavidDM dependencies](https://img.shields.io/david/xunnamius/next-test-api-route-handler "Status of this package's dependencies")](https://david-dm.org/xunnamius/next-test-api-route-handler)
 [![Source license](https://img.shields.io/npm/l/next-test-api-route-handler "This package's source license")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![NPM version](https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler "Install this package using npm or yarn!")](https://www.npmjs.com/package/next-test-api-route-handler)
 
@@ -19,16 +17,15 @@ some unit tests working? Want your handlers to receive actual
 and
 [NextApiResponse](https://nextjs.org/docs/basic-features/typescript#api-routes)
 objects rather than having to hack something together with express? Then look no
-further! This package allows you to test your Next.js API routes/handlers in an
+further! 🤩 This package allows you to test your Next.js API routes/handlers in an
 isolated Next.js-like environment simply, quickly, and without hassle.
 
 This package uses Next.js's internal API resolver to precisely emulate API route
 handling. Therefore, this package is automatically tested for compatibility with
-[each full release of Next.js](https://github.com/vercel/next.js/releases) with
-results visible in badge form: ![Next.js
-compat](https://api.ergodark.com/badges/is-next-compat "This package works with
-Next.js up to and including this version"). Any regressions between releases
-will be addressed as they're detected.
+[each full release of Next.js](https://github.com/vercel/next.js/releases).
+
+![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package
+works with Next.js up to and including this version")
 
 ## Install
 
