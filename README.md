@@ -23,23 +23,12 @@ further! This package allows you to test your Next.js API routes/handlers in an
 isolated Next.js-like environment simply, quickly, and without hassle.
 
 This package uses Next.js's internal API resolver to precisely emulate API route
-handling. Since this is not a public or documented interface, the next
-dependency is locked to [![Next.js dependency
-version](https://api.ergodark.com/badges/next-lock-version "This package uses an
-internal API feature from this specific version of
-Next.js")](https://www.npmjs.com/package/next-test-api-route-handler). What this
-means is, barring a major (probably semver-major) change to how Next handles API
-routes, **this package will not break even if the resolver interface changes
-between Next releases**.
-
-> Additionally, this package is automatically tested for compatibility with
-> [each full release of Next.js](https://github.com/vercel/next.js/releases)
-> with results visible in badge form: ![Next.js
-> compat](https://api.ergodark.com/badges/is-next-compat "This package works
-> with Next.js up to and including this version"). Any regressions between
-> releases will be addressed as they're detected.
-
-
+handling. Therefore, this package is automatically tested for compatibility with
+[each full release of Next.js](https://github.com/vercel/next.js/releases) with
+results visible in badge form: ![Next.js
+compat](https://api.ergodark.com/badges/is-next-compat "This package works with
+Next.js up to and including this version"). Any regressions between releases
+will be addressed as they're detected.
 
 ## Install
 
