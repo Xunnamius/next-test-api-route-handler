@@ -39,7 +39,7 @@ module.exports = {
         // * Used by `npm run build-externals`
         external: {
             presets: [
-                ['@babel/preset-env', { targets: { node: NODE_OLDEST_LTS } }],
+                ['@babel/preset-env', { targets: { node: true } }],
                 ['@babel/preset-typescript', { allowDeclareFields: true }],
                 // ? Webpack will handle minification
             ]
