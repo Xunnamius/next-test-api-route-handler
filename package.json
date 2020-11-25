@@ -97,7 +97,6 @@
     "jest-circus": "^26.6.3",
     "jest-extended": "^0.11.5",
     "mongodb": "^3.6.3",
-    "mongodb-client-encryption": "^1.1.0",
     "npm-force-resolutions": "0.0.3",
     "shelljs": "^0.8.4",
     "source-map-support": "^0.5.19",
