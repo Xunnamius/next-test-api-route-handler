@@ -61,9 +61,6 @@
     "isomorphic-unfetch": "^3.1.0",
     "test-listen": "^1.1.0"
   },
-  "peerDependencies": {
-    "next": "^10.0.3"
-  },
   "devDependencies": {
     "@babel/cli": "^7.12.8",
     "@babel/core": "^7.12.9",
@@ -111,6 +108,9 @@
     "webpack-cli": "^4.2.0",
     "webpack-node-externals": "^2.5.2",
     "webpack-node-module-types": "^1.0.4"
+  },
+  "peerDependencies": {
+    "next": "^10.0.3"
   },
   "engines": {
     "node": ">= 10.x"
