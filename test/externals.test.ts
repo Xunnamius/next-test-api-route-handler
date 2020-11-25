@@ -116,7 +116,7 @@ describe('external-scripts/is-next-compat', () => {
     it('takes expected actions on success', async () => {
         expect.hasAssertions();
 
-        const latest = realPkg?.dependencies?.next;
+        const latest = realPkg.peerDependencies.next;
 
         // ? Satisfy TypeScript with a type guard
         if(!((o: string | undefined): o is string => typeof o == 'string')(latest)) {
@@ -140,7 +140,7 @@ describe('external-scripts/is-next-compat', () => {
         // ? Updates package.json appropriately
         expect(getState().pkg.read()).toStrictEqual({
             ...originalPkg,
-            config: { nextTestApiRouteHandler: { lastTestedVersion: realPkg?.dependencies?.next }}
+            config: { nextTestApiRouteHandler: { lastTestedVersion: realPkg.peerDependencies.next }}
         });
 
         // ? Exits early when latest version == last tested version

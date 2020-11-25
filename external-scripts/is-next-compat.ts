@@ -97,7 +97,7 @@ export async function main(isCli = false) {
                 try {
                     isCli && console.log(`[ restoring package.json ]`);
 
-                    editPkg.set('dependencies.next', dist);
+                    editPkg.set('peerDependencies.next', dist);
                     updateLastTestedVersion && editPkg.set('config.nextTestApiRouteHandler.lastTestedVersion', latest);
                     editPkg.save();
 
@@ -116,7 +116,7 @@ export async function main(isCli = false) {
             if(dist != latest) {
                 isCli && console.log(`[ updating package.json ]`);
 
-                editPkg.set('dependencies.next', latest);
+                editPkg.set('peerDependencies.next', latest);
                 editPkg.save();
 
                 if(sjx.exec('npm install').code !== 0)
