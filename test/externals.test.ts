@@ -20,10 +20,6 @@ declare global {
     var mockCloseFn: ReturnType<typeof jest.fn>;
 }
 
-global.mockTag = '';
-global.mockUpdateOneFn = jest.fn();
-global.mockCloseFn = jest.fn();
-
 jest.mock('@octokit/rest', () => ({
     Octokit: class {
         repos = {
@@ -36,18 +32,23 @@ jest.mock('@octokit/rest', () => ({
     }
 }));
 
-jest.mock('mongodb', () => ({
-    MongoClient: {
-        connect: async () => ({
-            db: () => ({
-                collection: () => ({
-                    updateOne: global.mockUpdateOneFn
-                })
-            }),
-            close: global.mockCloseFn
-        })
-    }
-}));
+jest.mock('mongodb', () => {
+    global.mockCloseFn = jest.fn();
+    global.mockUpdateOneFn = jest.fn();
+
+    return {
+        MongoClient: {
+            connect: async () => ({
+                db: () => ({
+                    collection: () => ({
+                        updateOne: global.mockUpdateOneFn
+                    })
+                }),
+                close: global.mockCloseFn
+            })
+        }
+    };
+});
 
 jest.mock('isomorphic-json-fetch', () => {
     global.mockFetchFn = jest.fn();
@@ -58,10 +59,13 @@ populateEnv();
 
 const { value: realPkg } = findPackageJson(__dirname).next();
 
+if(typeof realPkg?.peerDependencies?.next != 'string')
+    throw new Error('could not find Next.js peer dependency in package.json');
+
 const originalPkg = {
     name: 'fake',
     version: '1.0.0',
-    dependencies: { next: realPkg?.dependencies?.next }
+    peerDependencies: { next: realPkg.peerDependencies.next }
 };
 
 let getState = (): {

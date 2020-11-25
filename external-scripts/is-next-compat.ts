@@ -78,10 +78,10 @@ export async function main(isCli = false) {
             throw new Error('cd failed');
 
         const prev: string = pkg.config?.nextTestApiRouteHandler?.lastTestedVersion ?? '';
-        const dist: string = pkg.dependencies?.next ?? '';
+        const dist: string = pkg.peerDependencies?.next ?? '';
 
         if(!dist)
-            throw new Error('could not find Next.js production dependency in package.json')
+            throw new Error('could not find Next.js peer dependency in package.json')
 
         let called = false;
         editPkg = jsonEditor(path);
