@@ -36,7 +36,7 @@ version of Next.js, consult [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
-For `npm@>=7`:
+**For `npm@>=7`:**
 
 ```bash
 npm install --force --save-dev next-test-api-route-handler
@@ -45,10 +45,17 @@ npm install --force --save-dev next-test-api-route-handler
 > Note: `--force` is required to resolve peer dependency conflicts until
 > `typedoc@0.20.0` comes out of beta
 
-For `npm@<7`:
+**For `npm@<7`:**
 
 ```bash
 npm install --save-dev next-test-api-route-handler
+```
+
+If you haven't yet installed [next](https://www.npmjs.com/package/next), you'll
+need it as well:
+
+```bash
+npm install next
 ```
 
 <details><summary><strong>[additional details]</strong></summary>
