@@ -1,7 +1,6 @@
 /* eslint-disable no-var */
 import { config as populateEnv } from 'dotenv'
 import sjx from 'shelljs'
-import findPackageJson from 'find-package-json'
 import jsonEditor from 'edit-json-file'
 import { main } from '../external-scripts/is-next-compat'
 
@@ -57,15 +56,16 @@ jest.mock('isomorphic-json-fetch', () => {
 
 populateEnv();
 
-const { value: realPkg } = findPackageJson(__dirname).next();
+const current = sjx.exec("npm list --depth=0 | grep -oP '(?<= next@).*$'").stdout;
 
-if(typeof realPkg?.peerDependencies?.next != 'string')
-    throw new Error('could not find Next.js peer dependency in package.json');
+if(!/\d+\.\d+\.[0-9a-z\-.]+/.test(current))
+    throw new Error(`could not resolve current Next.js version (saw "${current}")`);
 
 const originalPkg = {
     name: 'fake',
     version: '1.0.0',
-    peerDependencies: { next: realPkg.peerDependencies.next }
+    peerDependencies: { next: current },
+    scripts: { test: 'true' }
 };
 
 let getState = (): {
@@ -80,28 +80,25 @@ beforeEach(async () => {
     const pkgJson = `${root}/package.json`;
 
     sjx.mkdir('-p', root);
+    const cd = sjx.cd(root);
 
-    if(sjx.cd(root).code !== 0) {
+    if(cd.code != 0) {
         sjx.rm('-rf', root);
-        throw new Error(`failed to mkdir/cd into ${root}`);
+        throw new Error(`failed to mkdir/cd into ${root}: ${cd.stderr} ${cd.stdout}`);
     }
 
     (new sjx.ShellString(JSON.stringify(originalPkg))).to(pkgJson);
     getState = () => ({ root, pkg: jsonEditor(pkgJson) });
 });
 
-afterEach(async () => {
-    sjx.rm('-rf', getState().root);
-});
-
 describe('external-scripts/is-next-compat', () => {
-    it('takes expected actions on failure', async () => {
+     it('takes expected actions on failure', async () => {
         expect.hasAssertions();
 
         setMockLatest('8.1.0');
         getState().pkg.set('scripts.test', 'false').save();
         await expect(main()).rejects.toBeInstanceOf(Error);
-        getState().pkg.unset('scripts').save();
+        getState().pkg.set('scripts.test', originalPkg.scripts.test).save();
 
         // ? No database updates
         expect(global.mockUpdateOneFn).not.toHaveBeenCalled()
@@ -116,31 +113,25 @@ describe('external-scripts/is-next-compat', () => {
     it('takes expected actions on success', async () => {
         expect.hasAssertions();
 
-        const latest = realPkg.peerDependencies.next;
-
-        // ? Satisfy TypeScript with a type guard
-        if(!((o: string | undefined): o is string => typeof o == 'string')(latest)) {
-            expect.fail('jest expects a "next" dependency in package.json');
-            return;
-        }
+        const latest = current;
 
         setMockLatest(latest);
         expect(await main()).toBe(true);
 
-        // ? Update database
+        // ? Updates the database
         expect(global.mockUpdateOneFn).toHaveBeenCalledWith(
             { compat: { $exists: true }},
             { $set: { compat: global.mockTag }},
             { upsert: true }
         );
 
-        // ? Close the database
+        // ? Closes the database
         expect(global.mockCloseFn).toHaveBeenCalled();
 
         // ? Updates package.json appropriately
         expect(getState().pkg.read()).toStrictEqual({
             ...originalPkg,
-            config: { nextTestApiRouteHandler: { lastTestedVersion: realPkg.peerDependencies.next }}
+            config: { nextTestApiRouteHandler: { lastTestedVersion: latest }}
         });
 
         // ? Exits early when latest version == last tested version
@@ -149,4 +140,4 @@ describe('external-scripts/is-next-compat', () => {
         expect(global.mockUpdateOneFn).toHaveBeenCalledTimes(1);
         expect(global.mockCloseFn).toHaveBeenCalledTimes(1);
     });
-});
+ });

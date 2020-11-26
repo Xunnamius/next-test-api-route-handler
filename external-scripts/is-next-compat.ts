@@ -44,7 +44,7 @@ const setCompatFlagTo = async (version: string, isCLI: boolean) => {
 };
 
 export async function main(isCli = false) {
-    let editPkg: ReturnType<typeof jsonEditor> & { revert?: (updateLastTestedVersion?: boolean) => void } | null = null;
+    let editPkg: ReturnType<typeof jsonEditor> | null = null;
     let error = false;
 
     try {
@@ -55,7 +55,7 @@ export async function main(isCli = false) {
 
         const { repos } = new Octokit({
             auth: process.env.GITHUB_PAT,
-            userAgent: 'github.com/Xunnamius/next-test-api-route-handler is-next-compat'
+            userAgent: 'Xunnamius/next-test-api-route-handler/external-scripts/is-next-compat'
         });
 
         const { data: { tag_name: vlatest }} = await repos.getLatestRelease({
@@ -74,61 +74,39 @@ export async function main(isCli = false) {
 
         isCli && console.log(`[ using package.json @ "${path}" ]`);
 
-        if(sjx.cd(dirname(path)).code !== 0)
-            throw new Error('cd failed');
+        const cd = sjx.cd(dirname(path));
+
+        if(cd.code != 0)
+            throw new Error(`cd failed: ${cd.stderr} ${cd.stdout}`);
 
         const prev: string = pkg.config?.nextTestApiRouteHandler?.lastTestedVersion ?? '';
         const dist: string = pkg.peerDependencies?.next ?? '';
 
         if(!dist)
-            throw new Error('could not find Next.js peer dependency in package.json')
+            throw new Error('could not find Next.js peer dependency in package.json');
 
-        let called = false;
         editPkg = jsonEditor(path);
 
         isCli && console.log('[ last tested version was ' + (prev ? `"${prev}"` : '(not tested)') + ' ]');
 
         if(latest != prev) {
-            editPkg.revert = (updateLastTestedVersion = false) => {
-                if(called || !editPkg) return;
-
-                called = true;
-
-                try {
-                    isCli && console.log(`[ restoring package.json ]`);
-
-                    editPkg.set('peerDependencies.next', dist);
-                    updateLastTestedVersion && editPkg.set('config.nextTestApiRouteHandler.lastTestedVersion', latest);
-                    editPkg.save();
-
-                    if(sjx.exec('npm install').code !== 0)
-                        throw new Error('restorative npm install failed');
-
-                    if(sjx.exec('npx sort-package-json').code !== 0)
-                        throw new Error('package.json sort failed');
-
-                    isCli && console.log(`[ package.json restored ]`);
-                }
-
-                catch { throw new Error(`CRITICAL: attempt to restore package.json failed`) }
-            };
-
             if(dist != latest) {
-                isCli && console.log(`[ updating package.json ]`);
+                isCli && console.log(`[ installing next@${latest} ]`);
 
-                editPkg.set('peerDependencies.next', latest);
-                editPkg.save();
+                const npmi = sjx.exec(`npm install --no-save next@${latest}`);
 
-                if(sjx.exec('npm install').code !== 0)
-                    throw new Error('initial npm install failed');
+                if(npmi.code != 0)
+                    throw new Error(`initial npm install failed: ${npmi.stderr} ${npmi.stdout}`);
             }
 
             else if(isCli)
-                console.log(`[ no changes to package.json are necessary ]`);
+                console.log(`[ no additional installation necessary ]`);
 
             isCli && console.log(`[ running compatibility test ]`);
 
-            if(sjx.exec('npm test').code !== 0) {
+            const test = sjx.exec('npm test');
+
+            if(test.code != 0) {
                 isCli && console.warn(`[ npm test failed! The latest Next.js is incompatible with this package ]`);
 
                 try {
@@ -158,12 +136,14 @@ export async function main(isCli = false) {
                     }
                 }
 
-                throw new Error('npm test failed');
+                throw new Error(`npm test failed: ${test.stderr} ${test.stdout}`);
             }
 
             isCli && console.log(`[ test succeeded ]`);
+
             await setCompatFlagTo(latest, isCli);
-            editPkg.revert(true);
+            editPkg.set('config.nextTestApiRouteHandler.lastTestedVersion', latest);
+            editPkg.save();
         }
 
         else isCli && console.log(`[ no new release detected ]`);
@@ -184,7 +164,6 @@ export async function main(isCli = false) {
     }
 
     finally {
-        editPkg?.revert?.();
         isCli && process.exit(Number(error));
     }
 }
