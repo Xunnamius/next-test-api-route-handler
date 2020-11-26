@@ -22,7 +22,7 @@ an isolated Next.js-like environment simply, quickly, and without hassle.
 
 `next-test-api-route-handler` uses Next.js's internal API resolver to precisely
 emulate API route handling. To guarantee stability, this package is
-automatically tested for compatibility with [each full release of
+automatically tested against [each release of
 Next.js](https://github.com/vercel/next.js/releases). Go forth and test
 confidently!
 
