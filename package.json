@@ -44,18 +44,21 @@
     "/README.md"
   ],
   "scripts": {
-    "build": "npm run clean && NODE_ENV=production tsc --project tsconfig.types.json && NODE_ENV=production webpack --config-name main && NODE_ENV=esm babel src --extensions .ts --out-dir dist/lib --out-file-extension .mjs",
-    "build-docs": "rm -rf tmp-docs tmp-docs-diff docs-diff && typedoc --plugin typedoc-plugin-markdown --out tmp-docs --readme none --mode library src/index.ts && find tmp-docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find tmp-docs -name '*.md' -exec sed -i -e 's/__namedParameters/\\(destructured\\)/g' {} + && sed -i -e 1,4d tmp-docs/README.md && if [ ! -d docs ]; then mv tmp-docs docs; exit $?; fi && cp -rf tmp-docs tmp-docs-diff && cp -rf docs docs-diff && find docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} + && find tmp-docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} +; [ $? -ne 0 ] && echo 'build failed (try `npm run check-types`)' && rm -rf tmp-docs tmp-docs-diff docs-diff && exit 1; if [ \"$(find ./docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" = \"$(find ./tmp-docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" ]; then echo 'no rebuild necessary'; else rm -r docs && mv tmp-docs docs && echo 'build successful'; fi; rm -rf tmp-docs tmp-docs-diff docs-diff",
+    "build": "npm run build-dist --",
+    "build-dist": "npm run clean && NODE_ENV=production tsc --project tsconfig.types.json && NODE_ENV=production webpack --config-name main && NODE_ENV=esm babel src --extensions .ts --out-dir dist/lib --out-file-extension .mjs",
+    "build-docs": "rm -rf tmp-docs tmp-docs-diff docs-diff && typedoc --plugin typedoc-plugin-markdown --out tmp-docs --readme none --mode library src/index.ts && find tmp-docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find tmp-docs -name '*.md' -exec sed -i -e 's/__namedParameters/\\(destructured\\)/g' {} + && sed -i -e 1,4d tmp-docs/README.md && if [ ! -d docs ]; then mv tmp-docs docs; exit $?; fi && cp -rf tmp-docs tmp-docs-diff && cp -rf docs docs-diff && find docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} + && find tmp-docs-diff -name '*.md' -exec sed -i '/^\\*Defined in \\[.*\\]\\(.*\\)\\*$/d' {} +; [ $? -ne 0 ] && echo 'build failed (try `npm run lint`)' && rm -rf tmp-docs tmp-docs-diff docs-diff && exit 1; if [ \"$(find ./docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" = \"$(find ./tmp-docs-diff -type f -print0 | xargs -0 sha1sum | awk '{print $1}' | sha1sum)\" ]; then echo 'no rebuild necessary'; else rm -r docs && mv tmp-docs docs && echo 'build successful'; fi; rm -rf tmp-docs tmp-docs-diff docs-diff",
     "build-externals": "NODE_ENV=external webpack --config-name externals",
     "build-stats": "NODE_ENV=production webpack --config-name main --json > bundle-stats.json",
-    "check-types": "rm -f npm.pipe; touch npm.pipe; command -v unbuffer >/dev/null; X=$?; [ $X -eq 0 ] && unbuffer tsc --project tsconfig.check-types.json >> npm.pipe; Y=$?; [ $Y -eq 0 ] && echo >> npm.pipe; unbuffer eslint --parser-options=project:tsconfig.check-types.json src >> npm.pipe; Z=$?; [ $X -ne 0 ] && tsc --project tsconfig.check-types.json >> npm.pipe && eslint --parser-options=project:tsconfig.check-types.json src >> npm.pipe; W=$?; cat npm.pipe | less -R -FX; rm npm.pipe; [ $W -eq 0 ] && [ $X -eq 1 ] || [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
     "clean": "rm -rf dist npm.pipe coverage external-scripts/bin",
-    "fixup": "npm run check-types && npm run test && npx npm-force-resolutions && npx sort-package-json && npm run build-docs && npm audit",
-    "list-tasks": "npm run",
+    "lint": "rm -f npm.pipe; touch npm.pipe; command -v unbuffer >/dev/null; X=$?; [ $X -eq 0 ] && unbuffer tsc --project tsconfig.lint.json >> npm.pipe; Y=$?; [ $Y -eq 0 ] && echo >> npm.pipe; unbuffer eslint --parser-options=project:tsconfig.lint.json src >> npm.pipe; Z=$?; [ $X -ne 0 ] && tsc --project tsconfig.lint.json >> npm.pipe && eslint --parser-options=project:tsconfig.lint.json src >> npm.pipe; W=$?; cat npm.pipe | less -R -FX; rm npm.pipe; [ $W -eq 0 ] && [ $X -eq 1 ] || [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
+    "list-tasks": "node -e 'console.log(Object.keys(require(\"./package.json\").scripts).join(\"\\n\"))'",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run clean",
     "repl": "command -v rlwrap >/dev/null && rlwrap npx -p @babel/core -p @babel/node babel-node",
-    "test": "BABEL_ENV=test jest --coverage"
+    "test": "npm run test-unit --",
+    "test-integration": "npm run list-tasks | grep -e '^test-integration-' | xargs -n1 npm run",
+    "test-integration-externals": "BABEL_ENV=test jest --coverage --collectCoverageFrom 'external-scripts/**/*.ts' test/integration-externals*.test.ts",
+    "test-unit": "BABEL_ENV=test jest --coverage --collectCoverageFrom 'src/**/*.ts' --collectCoverageFrom 'lib/**/*.ts' --testPathIgnorePatterns test/integration-*.test.ts"
   },
   "dependencies": {
     "isomorphic-unfetch": "^3.1.0",
