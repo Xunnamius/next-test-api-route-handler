@@ -104,7 +104,7 @@ export async function main(isCli = false) {
                     if(sjx.exec('npm install').code !== 0)
                         throw new Error('restorative npm install failed');
 
-                    if(sjx.exec('npx Xunnamius/sort-package-json').code !== 0)
+                    if(sjx.exec('npx sort-package-json').code !== 0)
                         throw new Error('package.json sort failed');
 
                     isCli && console.log(`[ package.json restored ]`);
