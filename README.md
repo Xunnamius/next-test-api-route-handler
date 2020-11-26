@@ -17,26 +17,78 @@ some unit tests working? Want your handlers to receive actual
 and
 [NextApiResponse](https://nextjs.org/docs/basic-features/typescript#api-routes)
 objects rather than having to hack something together with express? Then look no
-further! 🤩 This package allows you to test your Next.js API routes/handlers in an
-isolated Next.js-like environment simply, quickly, and without hassle.
+further! 🤩 This package allows you to test your Next.js API routes/handlers in
+an isolated Next.js-like environment simply, quickly, and without hassle.
 
-This package uses Next.js's internal API resolver to precisely emulate API route
-handling. Therefore, this package is automatically tested for compatibility with
-[each full release of Next.js](https://github.com/vercel/next.js/releases).
+`next-test-api-route-handler` uses Next.js's internal API resolver to precisely
+emulate API route handling. To guarantee stability, this package is
+automatically tested for compatibility with [each full release of
+Next.js](https://github.com/vercel/next.js/releases). Go forth and test
+confidently!
 
-![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package
-works with Next.js up to and including this version")
+<div align="center">
+
+🎉 <img src="https://api.ergodark.com/badges/is-next-compat" /> 🎉
+</div>
+
+> If you're looking for a version of this package compatible with an ancient
+version of Next.js, consult [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
-```Bash
+For `npm@>=7`:
+
+```bash
+npm install --force --save-dev next-test-api-route-handler
+```
+
+> Note: `--force` is required to resolve peer dependency conflicts until
+> `typedoc@0.20.0` comes out of beta
+
+For `npm@<7`:
+
+```bash
 npm install --save-dev next-test-api-route-handler
 ```
 
-> Note: this is a [dual CJS2/ES module](#package-details) package
+<details><summary><strong>[additional details]</strong></summary>
 
-If you're looking for a version of this package compatible with a very old
-version of Next.js, consult [CHANGELOG.md](CHANGELOG.md).
+> Note: **typical users don't need to read through this!** This information is
+> primarily useful for those attempting to bundle this package or for those who
+> have an opinion on ESM versus CJS.
+
+This is a [dual UMD (CJS2)/ES module][dual-module] package. That means this
+package exposes both UMD+CJS2 and ESM entry points and can be used in most
+JavaScript environments (browsers, any current or LTS Node version, etc).
+
+Loading this package via `require(...)` will cause Node and modern browsers to
+use the [CJS2 bundle][CJS2] entry point, disable [tree shaking][tree-shaking] in
+Webpack 4, and lead to larger bundles in Webpack 5. Alternatively, loading this
+package via `import { ... } from ...` or `import(...)` will cause Node and
+modern browsers to use the ESM entry point in [versions that support
+it][node-esm-support], in Webpack, and in the browser. Using the `import` syntax
+is the modern, preferred choice.
+
+For backwards compatibility with Webpack 4 and Node versions < 14,
+[`package.json`](package.json) retains the [`module`][module-key] key, which
+points to the ESM entry point, and the [`main`][exports-main-key] key, which
+points to both the ESM and CJS2 entry points implicitly (no file extension). For
+Webpack 5 and Node versions >= 14, [`package.json`](package.json) includes the
+[`exports`][exports-main-key] key, which points to both entry points explicitly.
+
+Though [`package.json`](package.json) includes [`{ "type":
+"commonjs"}`][local-pkg], note that the ESM entry points are ES module (`.mjs`)
+files. [`package.json`](package.json) also includes the
+[`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
+shaking][tree-shaking], and the `types` key, which points to a TypeScript
+declarations file.
+
+Additionally, this package does not maintain shared state and so does not
+exhibit the [dual package hazard][hazard]. However, setting global configuration
+may not actually be "globally" recognized by third-party code importing this
+package.
+
+</details>
 
 ## Usage
 
@@ -279,99 +331,20 @@ See [test/index.test.ts](test/index.test.ts) for more examples.
 
 ## Documentation
 
-Documentation can be found under [`docs/`](docs/README.md) and can be built with
-`npm run build-docs`.
+Project documentation can be found under [`docs/`](docs/README.md).
 
-## Contributing
+## Contributing and Support
 
-**New issues and pull requests are always welcome and greatly appreciated!** If
-you submit a pull request, take care to maintain the existing coding style and
-add unit tests for any new or changed functionality. Please lint and test your
-code, of course!
+**[New
+issues](https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose)
+and [pull
+requests](https://github.com/Xunnamius/next-test-api-route-handler/compare) are
+always welcome and greatly appreciated! 🤩** But that's not the only way to
+contribute! Just as well, you can star 🌟 this project to let me know you found
+it useful! ✊🏿 Thank you!
 
-### NPM Scripts
-
-Run `npm run list-tasks` to see which of the following scripts are available for
-this project.
-
-> Using these scripts requires a linux-like development environment. None of the
-> scripts are likely to work on non-POSIX environments. If you're on Windows,
-> use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
-
-#### Development
-
-- `npm run repl` to run a buffered TypeScript-Babel REPL
-- `npm test` to run the unit tests and gather test coverage data
-  - Look for HTML files under `coverage/`
-- `npm run check-build` to run the integration tests
-- `npm run check-types` to run a project-wide type check
-- `npm run test-repeat` to run the entire test suite 100 times
-  - Good for spotting bad async code and heisenbugs
-  - Uses `__test-repeat` NPM script under the hood
-- `npm run dev` to start a development server or instance
-- `npm run generate` to transpile config files (under `config/`) from scratch
-- `npm run regenerate` to quickly re-transpile config files (under `config/`)
-
-#### Building
-
-- `npm run clean` to delete all build process artifacts
-- `npm run build` to compile `src/` into `dist/`, which is what makes it into
-the published package
-- `npm run build-docs` to re-build the documentation
-- `npm run build-externals` to compile `external-scripts/` into
-  `external-scripts/bin/`
-- `npm run build-stats` to gather statistics about Webpack (look for
-  `bundle-stats.json`)
-
-#### Publishing
-
-- `npm run start` to start a production instance
-- `npm run fixup` to run pre-publication tests, rebuilds (like documentation),
-  and validations
-  - Triggered automatically by
-    [publish-please](https://www.npmjs.com/package/publish-please)
-
-#### NPX
-
-- `npx publish-please` to publish the package
-- `npx sort-package-json` to consistently sort `package.json`
-- `npx npm-force-resolutions` to forcefully patch security audit problems
-
-## Package Details
-
-> You don't need to read this section to use this package, everything should
-"just work"!
-
-This is a [dual CJS2/ES module][dual-module] package. That means this package
-exposes both CJS2 and ESM entry points.
-
-Loading this package via `require(...)` will cause Node to use the [CJS2
-bundle][CJS2] entry point, disable [tree shaking][tree-shaking] in Webpack 4,
-and lead to larger bundles in Webpack 5. Alternatively, loading this package via
-`import { ... } from ...` or `import(...)` will cause Node to use the ESM entry
-point in [versions that support it][node-esm-support] and in Webpack. Using the
-`import` syntax is the modern, preferred choice.
-
-For backwards compatibility with Webpack 4 and Node versions < 14,
-[`package.json`](package.json) retains the [`module`][module-key] key, which
-points to the ESM entry point, and the [`main`][exports-main-key] key, which
-points to both the ESM and CJS2 entry points implicitly (no file extension). For
-Webpack 5 and Node versions >= 14, [`package.json`](package.json) includes the
-[`exports`][exports-main-key] key, which points to both entry points explicitly.
-
-Though [`package.json`](package.json) includes [`{ "type":
-"commonjs"}`][local-pkg], note that the ESM entry points are ES module (`.mjs`)
-files. [`package.json`](package.json) also includes the
-[`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
-shaking][tree-shaking], and the `types` key, which points to a TypeScript
-declarations file.
-
-> This package does not maintain shared state and so does not exhibit the [dual
-> package hazard][hazard].
-
-## Release History
-
-See [CHANGELOG.md](CHANGELOG.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SUPPORT.md](.github/SUPPORT.md) for
+more information.
 
 [module-key]: https://webpack.js.org/guides/author-libraries/#final-steps
 [side-effects-key]: https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free
