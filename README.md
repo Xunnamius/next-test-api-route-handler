@@ -64,17 +64,15 @@ npm install next
 > primarily useful for those attempting to bundle this package or for those who
 > have an opinion on ESM versus CJS.
 
-This is a [dual UMD (CJS2)/ES module][dual-module] package. That means this
-package exposes both UMD+CJS2 and ESM entry points and can be used in most
-JavaScript environments (browsers, any current or LTS Node version, etc).
+This is a [dual CJS2/ES module][dual-module] package. That means this package
+exposes both CJS2 and ESM entry points.
 
-Loading this package via `require(...)` will cause Node and modern browsers to
-use the [CJS2 bundle][CJS2] entry point, disable [tree shaking][tree-shaking] in
-Webpack 4, and lead to larger bundles in Webpack 5. Alternatively, loading this
-package via `import { ... } from ...` or `import(...)` will cause Node and
-modern browsers to use the ESM entry point in [versions that support
-it][node-esm-support], in Webpack, and in the browser. Using the `import` syntax
-is the modern, preferred choice.
+Loading this package via `require(...)` will cause Node to use the [CJS2
+bundle][CJS2] entry point, disable [tree shaking][tree-shaking] in Webpack 4,
+and lead to larger bundles in Webpack 5. Alternatively, loading this package via
+`import { ... } from ...` or `import(...)` will cause Node to use the ESM entry
+point in [versions that support it][node-esm-support] and in Webpack. Using the
+`import` syntax is the modern, preferred choice.
 
 For backwards compatibility with Webpack 4 and Node versions < 14,
 [`package.json`](package.json) retains the [`module`][module-key] key, which
@@ -91,9 +89,7 @@ shaking][tree-shaking], and the `types` key, which points to a TypeScript
 declarations file.
 
 Additionally, this package does not maintain shared state and so does not
-exhibit the [dual package hazard][hazard]. However, setting global configuration
-may not actually be "globally" recognized by third-party code importing this
-package.
+exhibit the [dual package hazard][hazard].
 
 </details>
 
