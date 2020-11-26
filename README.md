@@ -17,8 +17,8 @@ some unit tests working? Want your handlers to receive actual
 and
 [NextApiResponse](https://nextjs.org/docs/basic-features/typescript#api-routes)
 objects rather than having to hack something together with express? Then look no
-further! 🤩 This package allows you to test your Next.js API routes/handlers in
-an isolated Next.js-like environment simply, quickly, and without hassle.
+further! 🤩 This package allows you to test your Next.js API routes/handlers
+quickly and hassle-free in an isolated Next.js-like context.
 
 `next-test-api-route-handler` uses Next.js's internal API resolver to precisely
 emulate API route handling. To guarantee stability, this package is
