@@ -36,26 +36,12 @@ Next.js? See [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
-**For `npm@>=7`:**
-
-```bash
-npm install --force --save-dev next-test-api-route-handler
-```
-
-> Note: `--force` is required to resolve peer dependency conflicts until
-> `typedoc@0.20.0` comes out of beta
-
-**For `npm@<7`:**
+> Note: NPM versions >=7 may need `npm install --force` until [upstream peer
+> dependency problems are
+> resolved](https://github.blog/2020-10-13-presenting-v7-0-0-of-the-npm-cli/#user-content-breaking-changes).
 
 ```bash
 npm install --save-dev next-test-api-route-handler
-```
-
-If you haven't yet installed [next](https://www.npmjs.com/package/next), you'll
-need it as well:
-
-```bash
-npm install next
 ```
 
 <details><summary><strong>[additional details]</strong></summary>
