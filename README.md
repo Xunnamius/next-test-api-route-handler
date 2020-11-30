@@ -108,13 +108,13 @@ async function testApiHandler({ requestPatcher, responsePatcher, params, handler
 Use this function to modify the request before it's injected into Next.js's
 resolver.
 
-`responsePatcher` is a function that receives an
+`responsePatcher` is a function that receives a
 [ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse).
 Use this function to modify the response before it's injected into Next.js's
 resolver.
 
 `params` is an object representing "processed" dynamic routes, e.g. testing a
-handler that expects `/api/user/:id` requires `params: { id: ...}`. This should
+handler that expects `/api/user/:id` requires `params: { id: ... }`. This should
 not be confused with requiring query string parameters, which are parsed out
 from the url and added to the params object automatically.
 
@@ -316,11 +316,11 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
-See [test/index.test.ts](test/index.test.ts) for more examples.
+Check out [the tests](test) for more examples.
 
 ## Documentation
 
-Project documentation can be found under [`docs/`](docs/README.md).
+Project documentation can be found under [`docs/`](docs).
 
 ## Contributing and Support
 
@@ -328,9 +328,8 @@ Project documentation can be found under [`docs/`](docs/README.md).
 issues](https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose)
 and [pull
 requests](https://github.com/Xunnamius/next-test-api-route-handler/compare) are
-always welcome and greatly appreciated! 🤩** But that's not the only way to
-contribute! Just as well, you can star 🌟 this project to let me know you found
-it useful! ✊🏿 Thank you!
+always welcome and greatly appreciated! 🤩** Just as well, you can star 🌟 this
+project to let me know you found it useful! ✊🏿 Thank you!
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [SUPPORT.md](.github/SUPPORT.md) for
 more information.
