@@ -31,8 +31,8 @@ confidently!
 🎉 <img src="https://api.ergodark.com/badges/is-next-compat" /> 🎉
 </div>
 
-> Looking for a version of this package compatible with an ancient version of
-Next.js? See [CHANGELOG.md](CHANGELOG.md).
+> Looking for a version of this package compatible with an earlier major release
+of Next.js? Breaking changes are documented in [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
