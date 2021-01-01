@@ -1,6 +1,6 @@
 [![Black Lives Matter!](https://api.ergodark.com/badges/blm "Join the movement!")](https://secure.actblue.com/donate/ms_blm_homepage_2019)
 [![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package works with Next.js up to and including this version")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![Maintenance status](https://img.shields.io/maintenance/active/2020 "Is this package maintained?")](https://www.npmjs.com/package/next-test-api-route-handler)
+[![Maintenance status](https://img.shields.io/maintenance/active/2021 "Is this package maintained?")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![Last commit timestamp](https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler "When was the last commit to the official repo?")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![Open issues](https://img.shields.io/github/issues/xunnamius/next-test-api-route-handler "Number of known issues with this package")](https://www.npmjs.com/package/next-test-api-route-handler)
 [![Pull requests](https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler "Number of open pull requests")](https://www.npmjs.com/package/next-test-api-route-handler)
