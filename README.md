@@ -28,11 +28,12 @@ confidently!
 
 <div align="center">
 
-🎉 <img src="https://api.ergodark.com/badges/is-next-compat" /> 🎉
+✨ <a href="https://github.com/vercel/next.js"><img src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
+
 </div>
 
 > Looking for a version of this package compatible with an earlier major release
-of Next.js? Breaking changes are documented in [CHANGELOG.md](CHANGELOG.md).
+> of Next.js? Breaking changes are documented in [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
@@ -40,7 +41,7 @@ of Next.js? Breaking changes are documented in [CHANGELOG.md](CHANGELOG.md).
 > dependency problems are
 > resolved](https://github.blog/2020-10-13-presenting-v7-0-0-of-the-npm-cli/#user-content-breaking-changes).
 
-```bash
+```shell
 npm install --save-dev next-test-api-route-handler
 ```
 
@@ -54,7 +55,7 @@ This is a [dual CJS2/ES module][dual-module] package. That means this package
 exposes both CJS2 and ESM entry points.
 
 Loading this package via `require(...)` will cause Node to use the [CJS2
-bundle][CJS2] entry point, disable [tree shaking][tree-shaking] in Webpack 4,
+bundle][cjs2] entry point, disable [tree shaking][tree-shaking] in Webpack 4,
 and lead to larger bundles in Webpack 5. Alternatively, loading this package via
 `import { ... } from ...` or `import(...)` will cause Node to use the ESM entry
 point in [versions that support it][node-esm-support] and in Webpack. Using the
@@ -67,8 +68,7 @@ points to both the ESM and CJS2 entry points implicitly (no file extension). For
 Webpack 5 and Node versions >= 14, [`package.json`](package.json) includes the
 [`exports`][exports-main-key] key, which points to both entry points explicitly.
 
-Though [`package.json`](package.json) includes [`{ "type":
-"commonjs"}`][local-pkg], note that the ESM entry points are ES module (`.mjs`)
+Though [`package.json`](package.json) includes [`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES module (`.mjs`)
 files. [`package.json`](package.json) also includes the
 [`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
 shaking][tree-shaking], and the `types` key, which points to a TypeScript
@@ -128,7 +128,7 @@ objects as its two parameters.
 `test` is a function that returns a promise (or async) where test assertions can
 be run. This function receives one parameter: `fetch`, which is a simple
 [unfetch](https://www.npmjs.com/package/isomorphic-unfetch) instance (**note
-that the *url parameter*, i.e. the first parameter in
+that the _url parameter_, i.e. the first parameter in
 [`fetch(...)`](https://github.com/developit/unfetch#examples--demos), is
 omitted**). Use this to send HTTP requests to the handler under test.
 
@@ -215,7 +215,7 @@ it('injects contrived errors at the required rate', async () => {
 
 ### Testing a Flight Search API Handler @ `pages/api/v3/flights/search`
 
-Suppose we have an *authenticated* API endpoint our application uses to search
+Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
 query.
 
@@ -339,7 +339,7 @@ more information.
 [dual-module]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-commonjses-module-packages
 [exports-main-key]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#package-entry-points
 [hazard]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-package-hazard
-[CJS2]: https://webpack.js.org/configuration/output/#module-definition-systems
+[cjs2]: https://webpack.js.org/configuration/output/#module-definition-systems
 [tree-shaking]: https://webpack.js.org/guides/tree-shaking
 [local-pkg]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
 [node-esm-support]: https://medium.com/@nodejs/node-js-version-14-available-now-8170d384567e#2368
