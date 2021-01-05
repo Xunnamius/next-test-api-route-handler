@@ -1,6 +1,6 @@
 {
   "name": "next-test-api-route-handler",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Confidently unit test your Next.js API routes/handlers in an isolated Next.js-like environment",
   "keywords": [
     "api",
