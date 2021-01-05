@@ -206,7 +206,7 @@
     "mongodb": "^3.6.3",
     "npm-force-resolutions": "0.0.3",
     "prettier": "^2.2.1",
-    "puppeteer": "5.4.0",
+    "puppeteer": "5.5.0",
     "remark-cli": "^9.0.0",
     "remark-frontmatter": "^3.0.0",
     "remark-gfm": "^1.0.0",
