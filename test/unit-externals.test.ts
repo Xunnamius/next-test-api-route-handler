@@ -1,4 +1,6 @@
 /* eslint-disable no-var */
+process.env.MONGODB_URI = 'fake://fake/fake';
+
 import { basename } from 'path';
 import { name as pkgName } from '../package.json';
 import { main as isNextCompat } from '../external-scripts/is-next-compat';
