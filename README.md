@@ -323,8 +323,8 @@ Project documentation can be found under [`docs/`][docs].
 ## Contributing and Support
 
 **[New issues][choose-new-issue] and [pull requests][pr-compare] are always
-welcome and greatly appreciated! 🤩** Just as well, you can star 🌟 this project
-to let me know you found it useful! ✊🏿 Thank you!
+welcome and greatly appreciated! 🤩** Just as well, you can [star 🌟 this
+project][link-repo] to let me know you found it useful! ✊🏿 Thank you!
 
 See [CONTRIBUTING.md][contributing] and [SUPPORT.md][support] for more
 information.
