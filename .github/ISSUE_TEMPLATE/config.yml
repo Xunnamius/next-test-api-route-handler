@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security Channel
+    url: 'mailto:security@ergodark.com?subject=SECURITY%20INCIDENT%3A%20%28five%20word%20summary%29'
+    about: Report security-related issues here!

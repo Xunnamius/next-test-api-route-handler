@@ -1,45 +1,50 @@
-[![Black Lives Matter!](https://api.ergodark.com/badges/blm "Join the movement!")](https://secure.actblue.com/donate/ms_blm_homepage_2019)
-[![Next.js compat](https://api.ergodark.com/badges/is-next-compat "This package works with Next.js up to and including this version")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![Maintenance status](https://img.shields.io/maintenance/active/2021 "Is this package maintained?")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![Last commit timestamp](https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler "When was the last commit to the official repo?")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![Open issues](https://img.shields.io/github/issues/xunnamius/next-test-api-route-handler "Number of known issues with this package")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![Pull requests](https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler "Number of open pull requests")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![Source license](https://img.shields.io/npm/l/next-test-api-route-handler "This package's source license")](https://www.npmjs.com/package/next-test-api-route-handler)
-[![NPM version](https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler "Install this package using npm or yarn!")](https://www.npmjs.com/package/next-test-api-route-handler)
+<!-- prettier-ignore-start -->
+
+<!-- badges-start -->
+
+[![Black Lives Matter!][badge-blm]][link-blm]
+[![Maintenance status][badge-maintenance]][link-repo]
+[![Last commit timestamp][badge-last-commit]][link-repo]
+[![Open issues][badge-issues]][link-issues]
+[![Pull requests][badge-pulls]][link-pulls]
+[![codecov][badge-codecov]][link-codecov]
+[![Source license][badge-license]][link-license]
+[![NPM version][badge-npm]][link-npm]
+[![semantic-release][badge-semantic-release]][link-semantic-release]
+
+<!-- badges-end -->
+
+<!-- prettier-ignore-end -->
 
 # next-test-api-route-handler
 
-Trying to unit test your [Next.js API route
-handlers](https://nextjs.org/docs/api-routes/introduction)? Want to avoid
-mucking around with custom servers and writing boring test infra just to get
-some unit tests working? Want your handlers to receive actual
-[NextApiRequest](https://nextjs.org/docs/basic-features/typescript#api-routes)
-and
-[NextApiResponse](https://nextjs.org/docs/basic-features/typescript#api-routes)
-objects rather than having to hack something together with express? Then look no
-further! 🤩 This package allows you to quickly test your Next.js API
-routes/handlers in an isolated Next.js-like context.
+Trying to unit test your [Next.js API route handlers][1]? Want to avoid mucking
+around with custom servers and writing boring test infra just to get some unit
+tests working? Want your handlers to receive actual [NextApiRequest][2] and
+[NextApiResponse][2] objects rather than having to hack something together with
+express? Then look no further! 🤩 This package allows you to quickly test your
+Next.js API routes/handlers in an isolated Next.js-like context.
 
 `next-test-api-route-handler` uses Next.js's internal API resolver to precisely
 emulate API route handling. To guarantee stability, this package is
-automatically tested against [each release of
-Next.js](https://github.com/vercel/next.js/releases). Go forth and test
+automatically tested against [each release of Next.js][3]. Go forth and test
 confidently!
 
 <div align="center">
 
-✨ <a href="https://github.com/vercel/next.js"><img src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
+✨
+<a href="https://github.com/vercel/next.js"><img src="https://api.ergodark.com/badges/is-next-compat" /></a>
+✨
 
 </div>
 
 > Looking for a version of this package compatible with an earlier major release
-> of Next.js? Breaking changes are documented in [CHANGELOG.md](CHANGELOG.md).
+> of Next.js? Breaking changes are documented in [CHANGELOG.md][4].
 
 ## Install
 
-> Note: NPM versions >=7 may need `npm install --force` until [upstream peer
-> dependency problems are
-> resolved](https://github.blog/2020-10-13-presenting-v7-0-0-of-the-npm-cli/#user-content-breaking-changes).
+> Note: NPM versions >=7 may need `npm install --legacy-peer-deps` until
+> [upstream peer dependency problems are resolved][npm-v7-bc].
 
 ```shell
 npm install --save-dev next-test-api-route-handler
@@ -62,14 +67,15 @@ point in [versions that support it][node-esm-support] and in Webpack. Using the
 `import` syntax is the modern, preferred choice.
 
 For backwards compatibility with Webpack 4 and Node versions < 14,
-[`package.json`](package.json) retains the [`module`][module-key] key, which
+[`package.json`][package-json] retains the [`module`][module-key] key, which
 points to the ESM entry point, and the [`main`][exports-main-key] key, which
 points to both the ESM and CJS2 entry points implicitly (no file extension). For
-Webpack 5 and Node versions >= 14, [`package.json`](package.json) includes the
+Webpack 5 and Node versions >= 14, [`package.json`][package-json] includes the
 [`exports`][exports-main-key] key, which points to both entry points explicitly.
 
-Though [`package.json`](package.json) includes [`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES module (`.mjs`)
-files. [`package.json`](package.json) also includes the
+Though [`package.json`][package-json] includes
+[`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
+module (`.mjs`) files. [`package.json`][package-json] also includes the
 [`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
 shaking][tree-shaking], and the `types` key, which points to a TypeScript
 declarations file.
@@ -103,15 +109,11 @@ async function testApiHandler({ requestPatcher, responsePatcher, params, handler
 })
 ```
 
-`requestPatcher` is a function that receives an
-[IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage).
-Use this function to modify the request before it's injected into Next.js's
-resolver.
+`requestPatcher` is a function that receives an [IncomingMessage][5]. Use this
+function to modify the request before it's injected into Next.js's resolver.
 
-`responsePatcher` is a function that receives a
-[ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse).
-Use this function to modify the response before it's injected into Next.js's
-resolver.
+`responsePatcher` is a function that receives a [ServerResponse][6]. Use this
+function to modify the response before it's injected into Next.js's resolver.
 
 `params` is an object representing "processed" dynamic routes, e.g. testing a
 handler that expects `/api/user/:id` requires `params: { id: ... }`. This should
@@ -119,18 +121,14 @@ not be confused with requiring query string parameters, which are parsed out
 from the url and added to the params object automatically.
 
 `handler` is the actual route handler under test (usually imported from
-`pages/api/*`). It should be an async function that accepts
-[NextApiRequest](https://nextjs.org/docs/basic-features/typescript#api-routes)
-and
-[NextApiResponse](https://nextjs.org/docs/basic-features/typescript#api-routes)
-objects as its two parameters.
+`pages/api/*`). It should be an async function that accepts [NextApiRequest][2]
+and [NextApiResponse][2] objects as its two parameters.
 
 `test` is a function that returns a promise (or async) where test assertions can
 be run. This function receives one parameter: `fetch`, which is a simple
-[unfetch](https://www.npmjs.com/package/isomorphic-unfetch) instance (**note
-that the _url parameter_, i.e. the first parameter in
-[`fetch(...)`](https://github.com/developit/unfetch#examples--demos), is
-omitted**). Use this to send HTTP requests to the handler under test.
+[unfetch][7] instance (**note that the _url parameter_, i.e. the first parameter
+in [`fetch(...)`][8], is omitted**). Use this to send HTTP requests to the
+handler under test.
 
 ## Examples
 
@@ -316,30 +314,86 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
-Check out [the tests](test) for more examples.
+Check out [the tests][9] for more examples.
 
 ## Documentation
 
-Project documentation can be found under [`docs/`](docs).
+Project documentation can be found under [`docs/`][docs].
 
 ## Contributing and Support
 
-**[New
-issues](https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose)
-and [pull
-requests](https://github.com/Xunnamius/next-test-api-route-handler/compare) are
-always welcome and greatly appreciated! 🤩** Just as well, you can star 🌟 this
-project to let me know you found it useful! ✊🏿 Thank you!
+**[New issues][choose-new-issue] and [pull requests][pr-compare] are always
+welcome and greatly appreciated! 🤩** Just as well, you can star 🌟 this project
+to let me know you found it useful! ✊🏿 Thank you!
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [SUPPORT.md](.github/SUPPORT.md) for
-more information.
+See [CONTRIBUTING.md][contributing] and [SUPPORT.md][support] for more
+information.
 
-[module-key]: https://webpack.js.org/guides/author-libraries/#final-steps
-[side-effects-key]: https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free
-[dual-module]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-commonjses-module-packages
-[exports-main-key]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#package-entry-points
-[hazard]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-package-hazard
+[badge-blm]: https://api.ergodark.com/badges/blm 'Join the movement!'
+[link-blm]: https://secure.actblue.com/donate/ms_blm_homepage_2019
+[badge-maintenance]:
+  https://img.shields.io/maintenance/active/2021
+  'Is this package maintained?'
+[link-repo]: https://github.com/xunnamius/next-test-api-route-handler
+[badge-last-commit]:
+  https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler
+  'When was the last commit to the official repo?'
+[badge-issues]:
+  https://isitmaintained.com/badge/open/Xunnamius/next-test-api-route-handler.svg
+  'Number of known issues with this package'
+[link-issues]:
+  https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
+[badge-pulls]:
+  https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler
+  'Number of open pull requests'
+[link-pulls]: https://github.com/xunnamius/next-test-api-route-handler/pulls
+[badge-codecov]:
+  https://codecov.io/gh/Xunnamius/next-test-api-route-handler/branch/main/graph/badge.svg?token=HWRIOBAAPW
+  'Is this package well-tested?'
+[link-codecov]: https://codecov.io/gh/Xunnamius/next-test-api-route-handler
+[badge-license]:
+  https://img.shields.io/npm/l/next-test-api-route-handler
+  "This package's source license"
+[link-license]:
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/LICENSE
+[badge-npm]:
+  https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler
+  'Install this package using npm or yarn!'
+[link-npm]: https://www.npmjs.com/package/next-test-api-route-handler
+[badge-semantic-release]:
+  https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
+  'This repo practices continuous integration and deployment!'
+[link-semantic-release]: https://github.com/semantic-release/semantic-release
+[package-json]: package.json
+[docs]: docs
+[choose-new-issue]:
+  https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose
+[pr-compare]: https://github.com/Xunnamius/next-test-api-route-handler/compare
+[contributing]: CONTRIBUTING.md
+[support]: .github/SUPPORT.md
 [cjs2]: https://webpack.js.org/configuration/output/#module-definition-systems
+[dual-module]:
+  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-commonjses-module-packages
+[exports-main-key]:
+  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#package-entry-points
+[hazard]:
+  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-package-hazard
+[local-pkg]:
+  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
+[module-key]: https://webpack.js.org/guides/author-libraries/#final-steps
+[node-esm-support]:
+  https://medium.com/%40nodejs/node-js-version-14-available-now-8170d384567e#2368
+[side-effects-key]:
+  https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free
 [tree-shaking]: https://webpack.js.org/guides/tree-shaking
-[local-pkg]: https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
-[node-esm-support]: https://medium.com/@nodejs/node-js-version-14-available-now-8170d384567e#2368
+[1]: https://nextjs.org/docs/api-routes/introduction
+[2]: https://nextjs.org/docs/basic-features/typescript#api-routes
+[3]: https://github.com/vercel/next.js/releases
+[4]: CHANGELOG.md
+[npm-v7-bc]:
+  https://github.blog/2020-10-13-presenting-v7-0-0-of-the-npm-cli/#user-content-breaking-changes
+[5]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
+[6]: https://nodejs.org/api/http.html#http_class_http_serverresponse
+[7]: https://www.npmjs.com/package/isomorphic-unfetch
+[8]: https://github.com/developit/unfetch#examples--demos
+[9]: test

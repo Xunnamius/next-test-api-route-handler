@@ -1,128 +1,59 @@
-[v1.0.10]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.9...v1.0.10
-[v1.0.9]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.8...v1.0.9
-[v1.0.8]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.7...v1.0.8
-[v1.0.7]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.6...v1.0.7
-[v1.0.6]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.5...v1.0.6
-[v1.0.5]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.4...v1.0.5
-[v1.0.4]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.3...v1.0.4
-[v1.0.3]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.2...v1.0.3
-[1.0.2]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/Xunnamius/next-test-api-route-handler/releases/tag/1.0.0
-
-[https://keepachangelog.com/en/1.0.0/]::
-
-[types of changes]::
-  [added]:: (for new features)
-  [changed]:: (for changes in existing functionality)
-  [deprecated]:: (for soon-to-be removed features)
-  [removed]:: (for now removed features)
-  [fixed]:: (for any bug fixes)
-  [security]:: (in case of vulnerabilities)
-
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Conventional Commits][1], and this project adheres to
+[Semantic Versioning][2].
 
-## [Upcoming]
+## [1.1.3][3] (2020-12-06)
 
-Going to switch everything over to a semantic-release based GitHub Actions
-workflow pipeline very soon!
+### Build System
 
-## Released
+- **package.json:** audit and update deps ([c82695a][4])
+- **package.json:** manually bump version ([813b21a][5])
 
-### [![v1.0.10](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.10)][v1.0.10]
-#### Changed
-- Several quality updates
-- Fixed README typos
+## [1.1.2][6] (2020-11-26)
 
----
+### Bug Fixes
 
-### [![v1.0.9](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.9)][v1.0.9]
-#### Added
-- Added [babel-plugin-transform-mjs-imports][plugin] to fix [issues with Webpack
-  importing CJS modules in `.mjs` files][webpack-problems]
+- **README:** update install language ([b68c721][7])
 
----
+## [1.1.1][8] (2020-11-26)
 
-### [![v1.0.8](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.8)][v1.0.8]
-#### Changed
-- Preparing to switch to Webpack 5 (blocked by `dotenv-webpack`)
-- ES module files are now `.mjs` in npm package (retired the local
-  `package.json` solution)
-- README updates
+### Bug Fixes
 
----
+- **externals:** revert sort-package-json to maintainer version ([750055b][9])
+- **externals:** rewrite test workflow ([d604dfc][10])
 
-### [![v1.0.7](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.7)][v1.0.7]
-#### Changed
-- Switched to dual CJS2 bundle + ES modules configuration
-- Properly externalized dependencies (so: much smaller bundle size!)
-- README updates
+# [1.1.0][11] (2020-11-25)
 
----
+### Bug Fixes
 
-### [![v1.0.6](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.6)][v1.0.6]
-#### Changed
-- Improved test coverage
-- Improvements to the external script
-- Improvements to the build process (including better minification)
-- Bumped deps
-- Added `--runInBand` to `test` npm run-script to fix coverage generation bug
-  with Jest when running `externals.test.ts`
+- **build:** move Next.js dependency to peer/dev dependencies ([0e7541f][12])
+- **externals:** updated remaining dependency references to peerDependency
+  references ([ccf54fb][13])
 
----
-
-### [![v1.0.5](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.5)][v1.0.5]
-#### Changed
-- Added UMD build step to Webpack for non-ESM CJS/AMD compat (package can now be
-  `required` normally)
-- Finished `externals.test.ts`
-
----
-
-### [![v1.0.4](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.4)][v1.0.4]
-#### Fixed
-- Missing `main` key in package.json breaks several build systems
-
----
-
-### [![v1.0.3](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/v1.0.3)][v1.0.3]
-#### Added
-- Added CHANGELOG
-- Added `is-next-compat` external script to monitor compat with `next@latest`
-- Webpack and `.env` configuration support to compile external scripts
-
-#### Changed
-- Prettier README
-- Upgraded eslint configuration
-- More robust NPM run scripts, various build system fixes, and upgraded
-  TypeScript configuration
-- Bumped Next lock to `9.5.5`
-
-#### Removed
-- Type exports stored separately
-
----
-
-### [![1.0.2](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/1.0.2)][1.0.2]
-#### Added
-- Explicit types export for TypeScript support
-
----
-
-### [![1.0.1](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/1.0.1)][1.0.1]
-#### Fixed
-- Changed Babel transpilation target to `node: true`
-
----
-
-### [![1.0.0](https://api.ergodark.com/badges/github-tag-date/xunnamius/next-test-api-route-handler/1.0.0)][1.0.0]
-#### Added
-- Initial release
-
-[Upcoming]: https://github.com/Xunnamius/next-test-api-route-handler/compare/main...develop
-[webpack-problems]: https://github.com/reactioncommerce/reaction-component-library/issues/399#issuecomment-467860022
-[plugin]: https://www.npmjs.com/package/babel-plugin-transform-mjs-imports
+[1]: https://conventionalcommits.org
+[2]: https://semver.org
+[3]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.1.2...v1.1.3
+[4]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/c82695a8816b6cd5f0e11d09cc2f948a30a416e9
+[5]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/813b21ad1e2c78594903b3a8f504f4460d8e506e
+[6]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.1.1...v1.1.2
+[7]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/b68c721e5100baa883c7096e5cc4e81c1c60ed00
+[8]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.1.0...v1.1.1
+[9]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/750055b92699fc7f1c06349ccdb0ddc0179f891a
+[10]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/d604dfc39d2e77cbe1234b8349a2ecef81a9e54a
+[11]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.10...v1.1.0
+[12]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/0e7541fbecd2e3bacc124f624bfca2b56ceeb89f
+[13]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/ccf54fb480e35961647900d345149d3cd1cf60d8

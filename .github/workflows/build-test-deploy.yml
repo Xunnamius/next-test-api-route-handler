@@ -1,0 +1,647 @@
+name: build-test-deploy
+
+# * Note: feel free to run this workflow in forks (e.g. for testing your PR)
+# * without worrying about this workflow attempting to deploy a package 🚀
+
+# ! If you want to use the CD pipeline, the following secrets must be defined:
+# !   CODECOV_TOKEN (optional for public repos)
+# !   GPG_PRIVATE_KEY
+# !   GPG_PASSPHRASE
+# !   GH_TOKEN
+# !   NPM_TOKEN
+
+on:
+  workflow_dispatch: # * Treated like a `push` event with a user-defined ref
+
+  push:
+    tags-ignore: ['**']
+    branches-ignore: ['dependabot/**', 'snyk-**', 'no-ci/**']
+
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main, canary]
+
+env:
+  # * Selectively enable debugger verbose output in the pipeline
+  # ? See also: https://www.npmjs.com/package/debug#wildcards
+  # DEBUG: 'next-test-api-route-handler:*'
+  NODE_CURRENT_VERSION: 15.x
+  NODE_TEST_VERSIONS: '"10.x", "12.x", "14.x"' # * NODE_CURRENT_VERSION included automatically
+  WEBPACK_TEST_VERSIONS: '"4.x", "5.x"'
+  CI_COMMITTER_NAME: xunn-bot
+  CI_COMMITTER_EMAIL: bot@xunn.io
+  # ! These also have to be updated in .changelogrc.js and cleanup.yml
+  CI_SKIP_REGEX: '\[skip ci\]|\[ci skip\]'
+  CD_SKIP_REGEX: '\[skip cd\]|\[cd skip\]'
+  # ? Add your GitHub user/org to enable CD pipeline
+  # ? (you'll need to provide your own secrets or the pipeline will error)
+  REPO_OWNER_WHITELIST: xunnamius, ergodark, nhscc
+  NPM_AUDIT_FAIL_LEVEL: high
+  UPLOAD_CODE_COVERAGE: true
+
+jobs:
+  metadata:
+    name: 'gather-metadata'
+    runs-on: ubuntu-latest
+    outputs:
+      current-branch: ${{ steps.branch.outputs.current-branch }}
+      has-proper-owner: ${{ steps.owner.outputs.is-whitelisted }}
+      should-skip-ci: ${{ steps.skip.outputs.should-skip-ci == 'true' }}
+      should-skip-cd: ${{ steps.skip.outputs.should-skip-cd == 'true' }}
+      node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
+      webpack-matrix: ${{ steps.set-matrix.outputs.webpack-matrix }}
+      has-deploy: ${{ steps.data.outputs.has-deploy == 'true' }}
+      has-release-config: ${{ steps.data.outputs.has-release-config == 'true' }}
+      has-docs: ${{ steps.data.outputs.has-docs == 'true' }}
+      has-externals: ${{ steps.data.outputs.has-externals == 'true' }}
+      has-integration-node:
+        ${{ steps.data.outputs.has-integration-node == 'true' }}
+      has-integration-externals:
+        ${{ steps.data.outputs.has-integration-externals == 'true' }}
+      has-integration-browser:
+        ${{ steps.data.outputs.has-integration-browser == 'true' }}
+      has-integration-webpack:
+        ${{ steps.data.outputs.has-integration-webpack == 'true' }}
+    steps:
+      - name: Report DEBUG mode status
+        run: |
+          if ! [ -z "$DEBUG" ]; then
+            echo 'PIPELINE IS RUNNING IN DEBUG MODE!'
+          else
+            echo '(pipeline is not running in debug mode)'
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1 # ! We only skip if the tippy top commit says so!
+
+      - name: Determine should-skip
+        id: skip
+        run: |
+          set +e
+          LAST_COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          ! [ -z "$DEBUG" ] && echo "LAST_COMMIT_MSG=$LAST_COMMIT_MSG" || true
+
+          echo "$LAST_COMMIT_MSG" | grep -qE "$CI_SKIP_REGEX"
+          [ $? -ne 0 ] && CI_SKIP=false || CI_SKIP=true
+          ! [ -z "$DEBUG" ] && echo "CI_SKIP=$CI_SKIP" || true
+
+          [ "$CI_SKIP" = 'true' ] || echo "$LAST_COMMIT_MSG" | grep -qE "$CD_SKIP_REGEX"
+          [ $? -ne 0 ] && CD_SKIP=false || CD_SKIP=true
+          ! [ -z "$DEBUG" ] && echo "CD_SKIP=$CD_SKIP" || true
+
+          echo "::set-output name=should-skip-ci::$CI_SKIP"
+          ! [ -z "$DEBUG" ] && echo "set-output name=should-skip-ci::$CI_SKIP" || true
+
+          echo "::set-output name=should-skip-cd::$CD_SKIP"
+          ! [ -z "$DEBUG" ] && echo "set-output name=should-skip-cd::$CD_SKIP" || true
+
+      - name: Determine matrixes
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: set-matrix
+        run: |
+          echo "::set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
+          echo "::set-output name=webpack-matrix::{\"webpack\":[$WEBPACK_TEST_VERSIONS]}"
+          ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=webpack-matrix::{\"webpack\":[$WEBPACK_TEST_VERSIONS]}" || true
+
+      - name: Gather branch metadata
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        uses: nelonoel/branch-name@v1.0.1
+
+      - name: Determine current-branch
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: branch
+        run: |
+          echo "::set-output name=current-branch::$BRANCH_NAME"
+          ! [ -z "$DEBUG" ] && echo "set-output name=current-branch::$BRANCH_NAME" || true
+
+      - name: Verify repository owner against whitelist
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: owner
+        run: |
+          set +e
+          WL='${{ env.REPO_OWNER_WHITELIST }}'
+          REPO='${{ github.repository }}'
+          node -e "process.exit('$WL'.toLowerCase().split(',').some(o => '$REPO'.toLowerCase().startsWith(o.trim() + '/')) ? 0 : 1)"
+          echo "::set-output name=is-whitelisted::$([ $? -eq 0 ] && echo 'true' || echo 'false')"
+          ! [ -z "$DEBUG" ] && echo "set-output name=is-whitelisted::$([ $? -eq 0 ] && echo 'true' || echo 'false')" || true
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Gather remaining metadata
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: data
+        run: |
+          set +e
+          NPMR=`npm run list-tasks`
+
+          ! [ -z "$DEBUG" ] && echo 'NPMR=' $NPMR || true
+
+          if [ $? -ne 0 ]; then
+            echo '::error::`npm run list-tasks` failed'
+            exit 1
+          fi
+
+          if [ -r release.config.js ]; then HAS_RCNF=true; else HAS_RCNF=false; fi
+          echo $NPMR | grep -qe '\sbuild-docs\s'
+          if [ $? -eq 0 ]; then HAS_DOCS=true; else HAS_DOCS=false; fi
+          echo $NPMR | grep -qe '\sbuild-externals\s'
+          if [ $? -eq 0 ]; then HAS_EXTS=true; else HAS_EXTS=false; fi
+          echo $NPMR | grep -qe '\stest-integration-node\s'
+          if [ $? -eq 0 ]; then HAS_NODE=true; else HAS_NODE=false; fi
+          echo $NPMR | grep -qe '\stest-integration-externals\s'
+          if [ $? -eq 0 ]; then HAS_IEXT=true; else HAS_IEXT=false; fi
+          echo $NPMR | grep -qe '\stest-integration-browser\s'
+          if [ $? -eq 0 ]; then HAS_BWSR=true; else HAS_BWSR=false; fi
+          echo $NPMR | grep -qe '\stest-integration-webpack\s'
+          if [ $? -eq 0 ]; then HAS_WEBP=true; else HAS_WEBP=false; fi
+          echo $NPMR | grep -qe '\sdeploy\s'
+          if [ $? -eq 0 ]; then HAS_DPLY=true; else HAS_DPLY=false; fi
+
+          echo "::set-output name=has-release-config::$HAS_RCNF"
+          echo "::set-output name=has-docs::$HAS_DOCS"
+          echo "::set-output name=has-externals::$HAS_EXTS"
+          echo "::set-output name=has-integration-node::$HAS_NODE"
+          echo "::set-output name=has-integration-externals::$HAS_IEXT"
+          echo "::set-output name=has-integration-browser::$HAS_BWSR"
+          echo "::set-output name=has-integration-webpack::$HAS_WEBP"
+          echo "::set-output name=has-deploy::$HAS_DPLY"
+
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-release-config::$HAS_RCNF" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-docs::$HAS_DOCS" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-externals::$HAS_EXTS" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-node::$HAS_NODE" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-externals::$HAS_IEXT" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-browser::$HAS_BWSR" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-webpack::$HAS_WEBP" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-deploy::$HAS_DPLY" || true
+
+          if [ "$HAS_EXTS" != "$HAS_IEXT" ]; then
+            echo '::error::expected both 1) `build-externals` and 2) `test-integration-externals` scripts to be defined in package.json'
+            exit 2
+          fi
+
+          if [ "$HAS_DOCS" = 'false' ]; then
+            echo '::warning::no `build-docs` script defined in package.json'
+          fi
+
+  check-audit:
+    name: '[CI] check-audit'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: needs.metadata.outputs.should-skip-ci != 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Npm audit
+        run: npm audit --audit-level=${{ env.NPM_AUDIT_FAIL_LEVEL }}
+
+  lint:
+    name: '[CI] lint'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: needs.metadata.outputs.should-skip-ci != 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Lint
+        run: npm run lint
+
+  test-unit:
+    name: '[CI] test-unit'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: needs.metadata.outputs.should-skip-ci != 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # ? codecov-action requires access to git history
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Test unit
+        run: INCLUDE_EXTERNALS=true npm run test-unit
+
+      - name: Attempt to upload coverage data to codecov
+        if: env.UPLOAD_CODE_COVERAGE == 'true'
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          fail_ci_if_error: true
+
+      - name: Issue any codecov-related warnings
+        if: env.UPLOAD_CODE_COVERAGE != 'true'
+        run: echo '::warning::no code coverage data uploaded for this run'
+
+  test-integration-node:
+    name: '[CI] test-integration-node'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-ci != 'true'
+      && needs.metadata.outputs.has-integration-node == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ matrix.node }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Build distributables
+        run: npm run build-dist
+
+      - name: Test integration
+        env:
+          MATRIX_NODE_VERSION: ${{ matrix.node }}
+        run: npm run test-integration-node
+
+  test-integration-externals:
+    name: '[CI] test-integration-externals'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-ci != 'true'
+      && needs.metadata.outputs.has-integration-externals == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ matrix.node }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Build externals
+        run: npm run build-externals
+
+      - name: Test integration
+        env:
+          MATRIX_NODE_VERSION: ${{ matrix.node }}
+        run: npm run test-integration-externals
+
+  test-integration-browser:
+    name: '[CI] test-integration-browser'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-ci != 'true'
+      && needs.metadata.outputs.has-integration-browser == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Build distributables
+        run: npm run build-dist
+
+      - name: Test integration
+        run: npm run test-integration-browser
+
+  test-integration-webpack:
+    name: '[CI] test-integration-webpack'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-ci != 'true'
+      && needs.metadata.outputs.has-integration-webpack == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.webpack-matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Build distributables
+        run: npm run build-dist
+
+      - name: Test integration
+        env:
+          MATRIX_WEBPACK_VERSION: ${{ matrix.webpack }}
+        run: npm run test-integration-webpack
+
+  # * === The end of CI (build and test) and the beginning of CD (deploy) === *
+
+  # ? Skip this job:
+  # ? 1. When CI is skipped globally
+  # ? 2. On PRs
+  # ? 3. In repo forks
+  # ? 4. If no semantic-release configuration
+  # ? 5. On pushes to branches (other than main/canary)
+  build:
+    name: '[CD] build'
+    runs-on: ubuntu-latest
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-cd != 'true'
+      && github.event_name != 'pull_request'
+      && needs.metadata.outputs.has-proper-owner == 'true'
+      && needs.metadata.outputs.has-release-config == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Pre source formatting
+        run: npm run format
+
+      - name: Build distributables
+        run: npm run build-dist
+
+      - name: Build documentation
+        if: needs.metadata.outputs.has-docs == 'true'
+        run: npm run build-docs
+
+      - name: Run formatting
+        run: npm run format
+
+      - name: Cache build
+        uses: actions/cache@v2
+        id: cache-build
+        with:
+          key: build-${{ runner.os }}-${{ github.sha }}
+          path: ./*
+
+  # ? This job always runs except:
+  # ? 1. if CD pipeline failed/was skipped
+  # ? 2. if CI pipeline didn't complete successfully
+  release:
+    name: '[CD] release'
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - check-audit
+      - lint
+      - test-unit
+      - metadata
+      - test-integration-node
+      - test-integration-externals
+      - test-integration-browser
+      - test-integration-webpack
+    if: |
+      always()
+      && needs.build.result == 'success'
+      && needs.check-audit.result == 'success'
+      && needs.lint.result == 'success'
+      && needs.test-unit.result == 'success'
+      && (needs.metadata.outputs.has-integration-node != 'true' || needs.test-integration-node.result == 'success')
+      && (needs.metadata.outputs.has-integration-externals != 'true' || needs.test-integration-externals.result == 'success')
+      && (needs.metadata.outputs.has-integration-browser != 'true' || needs.test-integration-browser.result == 'success')
+      && (needs.metadata.outputs.has-integration-webpack != 'true' || needs.test-integration-webpack.result == 'success')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Restore build
+        uses: actions/cache@v2
+        id: restore-build
+        with:
+          key: build-${{ runner.os }}-${{ github.sha }}
+          path: ./*
+
+      - name: Fail if build not restored
+        if: steps.restore-build.outputs.cache-hit != 'true'
+        run: |
+          echo '::error::release job failed to restore build ${{ github.sha }}'
+          exit 1
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Import gpg key
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git-user-signingkey: true
+          git-commit-gpgsign: true
+          git-tag-gpgsign: true
+          git-committer-name: ${{ env.CI_COMMITTER_NAME }}
+          git-committer-email: ${{ env.CI_COMMITTER_EMAIL }}
+
+      - name: Perform semantic release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          SHOULD_UPDATE_CHANGELOG:
+            ${{ needs.metadata.outputs.current-branch == 'main' }}
+          SHOULD_DEPLOY: ${{ needs.metadata.outputs.has-deploy == 'true' }}
+          GIT_AUTHOR_NAME: ${{ env.CI_COMMITTER_NAME }}
+          GIT_AUTHOR_EMAIL: ${{ env.CI_COMMITTER_EMAIL }}
+          GIT_COMMITTER_NAME: ${{ env.CI_COMMITTER_NAME }}
+          GIT_COMMITTER_EMAIL: ${{ env.CI_COMMITTER_EMAIL }}
+        run: npx semantic-release

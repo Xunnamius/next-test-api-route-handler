@@ -1,65 +1,77 @@
-// This webpack config is used for compiling the scripts under external-scripts/
-// and helping transpile src/ => dist/ as dual CJS2+ES2015
+// This webpack config is used to transpile src to dist, compile externals, etc
 
 const DotenvPlugin = require('dotenv-webpack');
+const { config: populateEnv } = require('dotenv');
 const nodeExternals = require('webpack-node-externals');
+const { verifyEnvironment } = require('./env-expect');
+const debug = require('debug')(`${require('./package.json').name}:webpack-config`);
+
+populateEnv();
+verifyEnvironment();
 
 const mainConfig = {
-    name: 'main',
-    mode: 'production',
-    target: 'node',
-    node: false,
+  name: 'main',
+  mode: 'production',
+  target: 'node',
+  node: false,
 
-    entry: `${__dirname}/src/index.ts`,
+  entry: `${__dirname}/src/index.ts`,
 
-    output: {
-        filename: 'index.js',
-        path: `${__dirname}/dist/lib`,
-        libraryTarget: 'commonjs2',
-    },
+  output: {
+    filename: 'index.js',
+    path: `${__dirname}/dist/lib`,
+    libraryTarget: 'commonjs2'
+  },
 
-    externals: [nodeExternals()],
+  externals: [nodeExternals()],
+  externalsPresets: { node: true },
 
-    stats: {
-        //orphanModules: true, // ? Webpack 5
-        providedExports: true,
-        usedExports: true,
-    },
+  stats: {
+    orphanModules: true,
+    providedExports: true,
+    usedExports: true
+  },
 
-    resolve: { extensions: ['.ts', '.wasm', '.mjs', '.cjs', '.js', '.json'] },
-    module: { rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }] },
-    optimization: { usedExports: true },
-    //ignoreWarnings: [/critical dependency:/i], // ? Webpack 5
+  resolve: { extensions: ['.ts', '.wasm', '.mjs', '.cjs', '.js', '.json'] },
+  module: {
+    rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }]
+  },
+  optimization: { usedExports: true },
+  ignoreWarnings: [/critical dependency:/i]
 };
 
 const externalsConfig = {
-    name: 'externals',
-    mode: 'production',
-    target: 'node',
-    node: false,
+  name: 'externals',
+  mode: 'production',
+  target: 'node',
+  node: false,
 
-    entry: {
-        'is-next-compat': `${__dirname}/external-scripts/is-next-compat.ts`,
-    },
+  entry: {
+    'is-next-compat': `${__dirname}/external-scripts/is-next-compat.ts`
+  },
 
-    output: {
-        filename: '[name].js',
-        path: `${__dirname}/external-scripts/bin`,
-    },
+  output: {
+    filename: '[name].js',
+    path: `${__dirname}/external-scripts/bin`
+  },
 
-    externals: [nodeExternals()],
+  externals: [nodeExternals()],
+  externalsPresets: { node: true },
 
-    stats: {
-        //orphanModules: true, // ? Webpack 5
-        providedExports: true,
-        usedExports: true,
-    },
+  stats: {
+    orphanModules: true,
+    providedExports: true,
+    usedExports: true
+  },
 
-    resolve: { extensions: ['.ts', '.wasm', '.mjs', '.cjs', '.js', '.json'] },
-    module: { rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }] },
-    optimization: { usedExports: true },
-    //ignoreWarnings: [/critical dependency:/i], // ? Webpack 5
-    plugins: [ new DotenvPlugin() ],
+  resolve: { extensions: ['.ts', '.wasm', '.mjs', '.cjs', '.js', '.json'] },
+  module: {
+    rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }]
+  },
+  optimization: { usedExports: true },
+  ignoreWarnings: [/critical dependency:/i],
+  plugins: [new DotenvPlugin()]
 };
 
-module.exports = [ mainConfig, externalsConfig ];
+module.exports = [mainConfig, externalsConfig];
+debug('exports = %O', module.exports);

@@ -1,143 +1,65 @@
-/* eslint-disable no-var */
-import { config as populateEnv } from 'dotenv'
-import sjx from 'shelljs'
-import jsonEditor from 'edit-json-file'
-import { main } from '../external-scripts/is-next-compat'
+import { resolve, basename } from 'path';
+import sjx from 'shelljs';
+import Debug from 'debug';
+import uniqueFilename from 'unique-filename';
+import del from 'del';
 
-import _ from '@octokit/rest'
-import __ from 'mongodb'
-import ___ from 'isomorphic-json-fetch'
+import {
+  name as pkgName,
+  version as pkgVersion,
+  peerDependencies
+} from '../package.json';
 
-import type { JsonEditor } from 'edit-json-file'
+const debug = Debug(`${pkgName}:${basename(__filename).split('.').find(Boolean)}`);
+
+debug(`pkgName = "${pkgName}"`);
+debug(`pkgVersion = "${pkgVersion}"`);
 
 sjx.config.silent = true;
 
-declare global {
-    var mockTag: string;
-    var mockUpdateOneFn: ReturnType<typeof jest.fn>;
-    var mockFetchFn: ReturnType<typeof jest.fn>;
-    var mockCloseFn: ReturnType<typeof jest.fn>;
-}
+let deleteRoot: () => Promise<void>;
 
-jest.mock('@octokit/rest', () => ({
-    Octokit: class {
-        repos = {
-            getLatestRelease: async () => ({
-                data: {
-                    tag_name: global.mockTag
-                }
-            })
-        }
-    }
-}));
+afterAll(() => deleteRoot());
 
-jest.mock('mongodb', () => {
-    global.mockCloseFn = jest.fn();
-    global.mockUpdateOneFn = jest.fn();
+describe('next-test-api-route-handler [INTEGRATION-EXTERNALS]', () => {
+  describe('/is-next-compat', () => {
+    it('runs as expected', async () => {
+      expect.hasAssertions();
 
-    return {
-        MongoClient: {
-            connect: async () => ({
-                db: () => ({
-                    collection: () => ({
-                        updateOne: global.mockUpdateOneFn
-                    })
-                }),
-                close: global.mockCloseFn
-            })
-        }
-    };
-});
+      const root = uniqueFilename(sjx.tempdir(), 'integration-externals');
+      const pkgJson = `${root}/package.json`;
 
-jest.mock('isomorphic-json-fetch', () => {
-    global.mockFetchFn = jest.fn();
-    return { fetch: global.mockFetchFn };
-});
+      deleteRoot = async () => {
+        sjx.cd('..');
+        debug(`forcibly removing dir ${root}`);
+        await del(root);
+      };
 
-populateEnv();
+      sjx.mkdir('-p', root);
+      sjx.mkdir('-p', `${root}/node_modules`);
+      const cd = sjx.cd(root);
 
-const current = sjx.exec("npm list --depth=0 | grep -oP '(?<= next@).*$'").stdout;
-
-if(!/\d+\.\d+\.[0-9a-z\-.]+/.test(current))
-    throw new Error(`could not resolve current Next.js version (saw "${current}")`);
-
-const originalPkg = {
-    name: 'fake',
-    version: '1.0.0',
-    peerDependencies: { next: current },
-    scripts: { test: 'true' }
-};
-
-let getState = (): {
-    root: string,
-    pkg: JsonEditor
-} => ({ root: null as unknown as string, pkg: null as unknown as JsonEditor });
-
-const setMockLatest = (tag: string) => global.mockTag = tag;
-
-beforeEach(async () => {
-    const root = `${sjx.tempdir()}/next-test-api-route-handler-${Date.now()}`;
-    const pkgJson = `${root}/package.json`;
-
-    sjx.mkdir('-p', root);
-    const cd = sjx.cd(root);
-
-    if(cd.code != 0) {
-        sjx.rm('-rf', root);
+      if (cd.code != 0) {
+        await deleteRoot();
         throw new Error(`failed to mkdir/cd into ${root}: ${cd.stderr} ${cd.stdout}`);
-    }
+      } else debug(`created temp root dir: ${root}`);
 
-    (new sjx.ShellString(JSON.stringify(originalPkg))).to(pkgJson);
-    getState = () => ({ root, pkg: jsonEditor(pkgJson) });
+      new sjx.ShellString(
+        '{"name":"dummy-pkg","scripts":{"test-unit":"true","test-integration":"true"},' +
+          `"peerDependencies":{"next":"${peerDependencies.next}"}}`
+      ).to(pkgJson);
+
+      debug(`package.json contents => ${sjx.cat('package.json').stdout}`);
+
+      const result = sjx.exec(
+        `NO_DB_UPDATE=true node "${resolve(
+          __dirname,
+          '../external-scripts/bin/is-next-compat.js'
+        )}"`
+      );
+
+      debug(`cmd "${result}" => (${result.code})\n${result.stderr}\n${result.stdout}`);
+      expect(result.code).toBe(0);
+    });
+  });
 });
-
-describe('external-scripts/is-next-compat', () => {
-     it('takes expected actions on failure', async () => {
-        expect.hasAssertions();
-
-        setMockLatest('8.1.0');
-        getState().pkg.set('scripts.test', 'false').save();
-        await expect(main()).rejects.toBeInstanceOf(Error);
-        getState().pkg.set('scripts.test', originalPkg.scripts.test).save();
-
-        // ? No database updates
-        expect(global.mockUpdateOneFn).not.toHaveBeenCalled()
-
-        // ? Send email
-        expect(global.mockFetchFn).toHaveBeenCalled();
-
-        // ? Does not update package.json
-        expect(getState().pkg.read()).toStrictEqual(originalPkg);
-    });
-
-    it('takes expected actions on success', async () => {
-        expect.hasAssertions();
-
-        const latest = current;
-
-        setMockLatest(latest);
-        expect(await main()).toBe(true);
-
-        // ? Updates the database
-        expect(global.mockUpdateOneFn).toHaveBeenCalledWith(
-            { compat: { $exists: true }},
-            { $set: { compat: global.mockTag }},
-            { upsert: true }
-        );
-
-        // ? Closes the database
-        expect(global.mockCloseFn).toHaveBeenCalled();
-
-        // ? Updates package.json appropriately
-        expect(getState().pkg.read()).toStrictEqual({
-            ...originalPkg,
-            config: { nextTestApiRouteHandler: { lastTestedVersion: latest }}
-        });
-
-        // ? Exits early when latest version == last tested version
-        expect(await main()).toBe(true);
-
-        expect(global.mockUpdateOneFn).toHaveBeenCalledTimes(1);
-        expect(global.mockCloseFn).toHaveBeenCalledTimes(1);
-    });
- });
