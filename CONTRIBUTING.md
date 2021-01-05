@@ -41,7 +41,7 @@ The ideal contributor flow is as follows:
     commit it; any problems will abort the commit attempt
 6.  Push your commits to your fork and, when you're ready, [_fearlessly_ submit
     your PR][15]! Your changes will be tested in our CI pipeline
-7.  Pat your self on the back! Your hard work is well on its way to being
+7.  Pat yourself on the back! Your hard work is well on its way to being
     reviewed and, if everything looks good, merged and released 🚀
 
 Additionally, there are a few things you can do to increase the likelihood your
