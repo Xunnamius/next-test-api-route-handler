@@ -77,7 +77,7 @@
     "test-integration-externals": "BABEL_ENV=test jest test/integration-externals*.test.ts",
     "test-integration-node": "BABEL_ENV=test jest test/integration-node*.test.ts",
     "test-integration-webpack": "BABEL_ENV=test jest test/integration-webpack*.test.ts",
-    "test-unit": "if ! [ -z \"$INCLUDE_EXTERNALS\" ]; then X=; Y='--collectCoverageFrom'; Z='external-scripts/**/*.ts'; else X='test/unit-externals*.test.ts'; Y=; Z=; fi; BABEL_ENV=test jest --coverage --collectCoverageFrom 'src/**/*.ts' --collectCoverageFrom 'lib/**/*.ts' $Y $Z --testPathIgnorePatterns test/integration-*.test.ts $X"
+    "test-unit": "if ! [ -z \"$INCLUDE_EXTERNALS\" ]; then X=; Y='--collectCoverageFrom'; Z='external-scripts/**/*.ts'; else X='test/unit-external*.test.ts'; Y=; Z=; fi; BABEL_ENV=test jest --coverage --collectCoverageFrom 'src/**/*.ts' --collectCoverageFrom 'lib/**/*.ts' $Y $Z --testPathIgnorePatterns test/integration-*.test.ts $X"
   },
   "commitlint": {
     "extends": [
