@@ -117,13 +117,13 @@ jobs:
           npm install --no-save micromatch
           git remote prune origin
           BRANCHES=`git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin`
-          ! [ -z "$DEBUG" ] && echo 'BRANCHES=' "$BRANCHES" || true
+          ! [ -z "$DEBUG" ] && echo "BRANCHES=$BRANCHES" || true
           export BRANCHES
           PKG_NAME=`node -e 'console.log(require("./package.json").name)'`
-          ! [ -z "$DEBUG" ] && echo 'PKG_NAME=' "$PKG_NAME" || true
+          ! [ -z "$DEBUG" ] && echo "PKG_NAME=$PKG_NAME" || true
           DIST_TAGS=`npm dist-tag list "$PKG_NAME"`
-          ! [ -z "$DEBUG" ] && echo 'DIST_TAGS=' "$DIST_TAGS" || true
+          ! [ -z "$DEBUG" ] && echo "DIST_TAGS=$DIST_TAGS" || true
           export DIST_TAGS
           MATCHED_TAGS=$(node -e 'const match = require("micromatch"); const tags = process.env.DIST_TAGS.split("\n").map(t => t.split(":")[0]); const branches = match(process.env.BRANCHES.split("\n"), require("./release.config.js").branches.reduce((a,b) => [...a, b.name || b.toString()], [])); const ignoreTags = process.env.IGNORE_TAGS.split(", "); console.log(tags.reduce((a,t) => branches.some(b => ignoreTags.includes(t) || t == b || t == `release-${b}`) ? a : [...a, t], []).join(" ").trim())')
-          ! [ -z "$DEBUG" ] && echo 'MATCHED_TAGS=' "$MATCHED_TAGS" || true
+          ! [ -z "$DEBUG" ] && echo "MATCHED_TAGS=$MATCHED_TAGS" || true
           if ! [ -z "$MATCHED_TAGS" ]; then echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc; echo $MATCHED_TAGS | xargs -n1 npm dist-tag rm "$PKG_NAME"; else echo "dist tags OK!"; fi
