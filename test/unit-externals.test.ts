@@ -1,6 +1,4 @@
 /* eslint-disable no-var */
-process.env.MONGODB_URI = 'fake://fake/fake';
-
 import { basename } from 'path';
 import { name as pkgName } from '../package.json';
 import { main as isNextCompat } from '../external-scripts/is-next-compat';
@@ -22,7 +20,9 @@ sjx.config.silent = true;
 
 declare global {
   var mockTag: string;
+  var mockPrevious: string;
   var mockUpdateOneFn: ReturnType<typeof jest.fn>;
+  var mockFindOneFn: ReturnType<typeof jest.fn>;
   var mockCloseFn: ReturnType<typeof jest.fn>;
 }
 
@@ -41,13 +41,15 @@ jest.mock('@octokit/rest', () => ({
 jest.mock('mongodb', () => {
   global.mockCloseFn = jest.fn();
   global.mockUpdateOneFn = jest.fn();
+  global.mockFindOneFn = jest.fn(() => ({ compat: global.mockPrevious || '' }));
 
   return {
     MongoClient: {
       connect: async () => ({
         db: () => ({
           collection: () => ({
-            updateOne: global.mockUpdateOneFn
+            updateOne: global.mockUpdateOneFn,
+            findOne: global.mockFindOneFn
           })
         }),
         close: global.mockCloseFn
@@ -77,6 +79,7 @@ let getState = (): {
 
 let deleteRoot: () => Promise<void>;
 const setMockLatest = (tag: string) => (global.mockTag = tag);
+const setMockPrevious = (prev: string) => (global.mockPrevious = prev);
 
 beforeEach(async () => {
   const root = uniqueFilename(sjx.tempdir(), 'unit-externals');
@@ -100,7 +103,10 @@ beforeEach(async () => {
   getState = () => ({ root, pkg: jsonEditor(pkgJson) });
 });
 
-afterEach(() => deleteRoot());
+afterEach(async () => {
+  jest.clearAllMocks();
+  await deleteRoot();
+});
 
 describe('next-test-api-route-handler [UNIT-EXTERNALS]', () => {
   describe('/is-next-compat', () => {
@@ -121,9 +127,6 @@ describe('next-test-api-route-handler [UNIT-EXTERNALS]', () => {
 
       // ? No database updates
       expect(global.mockUpdateOneFn).not.toHaveBeenCalled();
-
-      // ? Does not update package.json
-      expect(getState().pkg.read()).toStrictEqual(originalPkg);
     });
 
     it('takes expected actions on success', async () => {
@@ -134,6 +137,8 @@ describe('next-test-api-route-handler [UNIT-EXTERNALS]', () => {
       setMockLatest(latest);
       expect(await isNextCompat()).toBe(true);
 
+      expect(global.mockFindOneFn).toHaveBeenCalled();
+
       // ? Updates the database
       expect(global.mockUpdateOneFn).toHaveBeenCalledWith(
         { compat: { $exists: true } },
@@ -142,19 +147,15 @@ describe('next-test-api-route-handler [UNIT-EXTERNALS]', () => {
       );
 
       // ? Closes the database
-      expect(global.mockCloseFn).toHaveBeenCalled();
-
-      // ? Updates package.json appropriately
-      expect(getState().pkg.read()).toStrictEqual({
-        ...originalPkg,
-        config: { nextTestApiRouteHandler: { lastTestedVersion: latest } }
-      });
+      expect(global.mockCloseFn).toHaveBeenCalledTimes(2);
 
       // ? Exits early when latest version == last tested version
+      setMockPrevious(latest);
       expect(await isNextCompat()).toBe(true);
 
+      expect(global.mockFindOneFn).toHaveBeenCalledTimes(2);
       expect(global.mockUpdateOneFn).toHaveBeenCalledTimes(1);
-      expect(global.mockCloseFn).toHaveBeenCalledTimes(1);
+      expect(global.mockCloseFn).toHaveBeenCalledTimes(3);
     });
   });
 });

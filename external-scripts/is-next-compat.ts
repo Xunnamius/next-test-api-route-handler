@@ -1,11 +1,9 @@
-/* eslint-disable no-console */
 import { basename, dirname } from 'path';
 import { name as pkgName } from '../package.json';
 import { Octokit } from '@octokit/rest';
 import { MongoClient } from 'mongodb';
 import sjx from 'shelljs';
 import findPackageJson from 'find-package-json';
-import jsonEditor from 'edit-json-file';
 import Debug from 'debug';
 
 const mode = `${pkgName}:${basename(__filename).split('.').find(Boolean)}`;
@@ -15,6 +13,7 @@ sjx.config.silent = true;
 export async function main(isCli = false) {
   const debug = Debug(mode);
   // ? Print debug messages to stdout if isCli == true
+  // eslint-disable-next-line no-console
   debug.log = (...args) => void console[isCli ? 'log' : 'error'](...args);
 
   if (isCli && !process.env.DEBUG) Debug.enable(mode);
@@ -43,22 +42,50 @@ export async function main(isCli = false) {
           await client.close();
         } else debug('(NO_DB_UPDATE in effect)');
 
-        debug('updated database');
-      } else debug('skipped updating database');
+        debug(`updated database compat: "${version}"`);
+      } else debug('skipped updating database (no MONGODB_URI)');
     } catch (e: unknown) {
       debug('additionally, an attempt to update the database failed');
-      debug(e);
+      throw e;
     }
   };
 
-  let editPkg: ReturnType<typeof jsonEditor> | null = null;
+  const getLastTestedVersion = async () => {
+    let version = '';
+
+    try {
+      // ? Update database
+      if (process.env.MONGODB_URI) {
+        const client = await MongoClient.connect(process.env.MONGODB_URI, {
+          useUnifiedTopology: true
+        });
+
+        version =
+          (
+            await client
+              .db()
+              .collection('flags')
+              .findOne<{ compat: string }>({ compat: { $exists: true } })
+          )?.compat || '';
+
+        await client.close();
+      } else debug('skipped database last tested version check (no MONGODB_URI)');
+    } catch (e: unknown) {
+      debug('database access failed');
+      throw e;
+    }
+
+    debug(`latest tested version: "${version}"`);
+    return version;
+  };
+
   let error = false;
 
   try {
     debug('connecting to GitHub');
 
     if (!process.env.GH_TOKEN)
-      isCli && console.warn('warning: not using a personal access token!');
+      isCli && debug('warning: not using a personal access token!');
 
     const { repos } = new Octokit({
       auth: process.env.GH_TOKEN,
@@ -86,12 +113,10 @@ export async function main(isCli = false) {
 
     if (cd.code != 0) throw new Error(`cd failed: ${cd.stderr} ${cd.stdout}`);
 
-    const prev: string = pkg.config?.nextTestApiRouteHandler?.lastTestedVersion ?? '';
+    const prev: string = await getLastTestedVersion();
     const dist: string = pkg.peerDependencies?.next ?? '';
 
     if (!dist) throw new Error('could not find Next.js peer dependency in package.json');
-
-    editPkg = jsonEditor(path);
 
     debug('last tested version was ' + (prev ? `"${prev}"` : '(not tested)') + '');
 
@@ -117,11 +142,6 @@ export async function main(isCli = false) {
       debug('test succeeded');
 
       await setCompatFlagTo(latest);
-      debug(
-        `setting pkg::config.nextTestApiRouteHandler.lastTestedVersion to "${latest}"`
-      );
-      editPkg.set('config.nextTestApiRouteHandler.lastTestedVersion', latest);
-      editPkg.save();
     } else debug('no new release detected');
 
     debug('execution complete');
