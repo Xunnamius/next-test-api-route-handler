@@ -57,11 +57,11 @@ export async function main(isCli = false) {
   try {
     debug('connecting to GitHub');
 
-    if (!process.env.GITHUB_PAT)
+    if (!process.env.GH_TOKEN)
       isCli && console.warn('warning: not using a personal access token!');
 
     const { repos } = new Octokit({
-      auth: process.env.GITHUB_PAT,
+      auth: process.env.GH_TOKEN,
       userAgent: 'Xunnamius/next-test-api-route-handler/external-scripts/is-next-compat'
     });
 

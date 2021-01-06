@@ -1,0 +1,58 @@
+name: cleanup
+
+on:
+  workflow_dispatch: # * Treated like a `release` event
+  release:
+    types: [published]
+
+env:
+  # * Selectively enable debugger verbose output in the pipeline
+  # ? See also: https://www.npmjs.com/package/debug#wildcards
+  # DEBUG: 'next-test-api-route-handler:*'
+  NODE_CURRENT_VERSION: 15.x
+  NODE_TEST_VERSIONS: '"10.x", "12.x", "14.x"' # * NODE_CURRENT_VERSION included automatically
+
+jobs:
+  metadata:
+    name: 'gather-metadata'
+    runs-on: ubuntu-latest
+    outputs:
+      node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
+      is-private-pkg: ${{ steps.pkg.outputs.is-private }}
+    steps:
+      - name: Report DEBUG mode status
+        run: |
+          if ! [ -z "$DEBUG" ]; then
+            echo 'PIPELINE IS RUNNING IN DEBUG MODE!'
+          else
+            echo '(pipeline is not running in debug mode)'
+          fi
+
+      - name: Determine matrix
+        id: set-matrix
+        run: |
+          echo "::set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
+          ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
+
+  check-compat:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+    steps:
+      - name: Use node ${{ matrix.node }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Test install package
+        run: |
+          PKG_PRIVATE=`node -e 'console.log(require("./package.json").private || 'false')'`
+          PKG_NAME=`node -e 'console.log(require("./package.json").name)'`
+          PKG_VERSION=`node -e 'console.log(require("./package.json").version)'`
+
+          ! [ -z "$DEBUG" ] && echo "PKG_PRIVATE=$PKG_PRIVATE" || true
+          ! [ -z "$DEBUG" ] && echo "PKG_NAME=$PKG_NAME" || true
+          ! [ -z "$DEBUG" ] && echo "PKG_VERSION=$PKG_VERSION" || true
+
+          if ! [ -z "$PKG_PRIVATE" = "false" ]; then npm install "${PKG_NAME}@${PKG_VERSION}"; fi;
