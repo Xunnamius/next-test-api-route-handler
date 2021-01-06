@@ -1,4 +1,4 @@
-name: cleanup
+name: is-next-compat
 
 # ! If you want to use this workflow, the following secrets must be defined:
 # ! - MONGODB_URI
@@ -19,6 +19,14 @@ jobs:
   check-compat:
     runs-on: ubuntu-latest
     steps:
+      - name: Report DEBUG mode status
+        run: |
+          if ! [ -z "$DEBUG" ]; then
+            echo 'PIPELINE IS RUNNING IN DEBUG MODE!'
+          else
+            echo '(pipeline is not running in debug mode)'
+          fi
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
