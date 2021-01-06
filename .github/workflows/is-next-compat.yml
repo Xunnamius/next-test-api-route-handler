@@ -1,0 +1,59 @@
+name: cleanup
+
+# ! If you want to use this workflow, the following secrets must be defined:
+# ! - MONGODB_URI
+# ! - GH_TOKEN
+
+on:
+  workflow_dispatch: # * Treated like a scheduled run
+  schedule:
+    - cron: '0 12 */1 * *'
+
+env:
+  # * Selectively enable debugger verbose output in the pipeline
+  # ? See also: https://www.npmjs.com/package/debug#wildcards
+  # DEBUG: 'next-test-api-route-handler:*'
+  NODE_CURRENT_VERSION: 15.x
+
+jobs:
+  check-compat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+
+      - name: Build externals
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: npm run build-externals
+
+      - name: Run is-next-compat
+        run: node external-scripts/bin/is-next-compat.js
