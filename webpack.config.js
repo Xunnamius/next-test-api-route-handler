@@ -13,13 +13,10 @@ debug('got env => %O', env);
 verifyEnvironment();
 
 const plugins = [
-  // ? Load our .env results as the defaults
-  new EnvironmentPlugin(env),
-  // ? Create a shim for process.env (sorry but I like using it everywhere!)
-  new DefinePlugin({
-    ...(process.env.DEBUG ? { 'process.env.DEBUG': `"${process.env.DEBUG}"` } : {}),
-    'process.env': '{}'
-  })
+  // ? Load our .env results as the defaults (overridden by process.env)
+  new EnvironmentPlugin({ ...env, ...process.env }),
+  // ? Create shim for process.env (per my tastes!)
+  new DefinePlugin({ 'process.env': '{}' })
 ];
 
 const mainConfig = {
