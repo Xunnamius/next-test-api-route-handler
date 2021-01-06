@@ -8,7 +8,7 @@
 
 ### testApiHandler
 
-▸ **testApiHandler**({ `handler`: (`req`: *NextApiRequest*, `res`: *NextApiResponse*<*any*>) => *Promise*<*void*> ; `params?`: *undefined* | *Record*<*string*, *unknown*> ; `requestPatcher?`: *undefined* | (`req`: *IncomingMessage*) => *void* ; `responsePatcher?`: *undefined* | (`res`: *ServerResponse*) => *void* ; `test`: (`obj`: { `fetch`: (`init?`: RequestInit) => *Promise*\<Response>  }) => *Promise*<*void*>  }): *Promise*<*void*>
+▸ **testApiHandler**({ `handler`: (`req`: NextApiRequest, `res`: NextApiResponse) => *Promise*<*void*> ; `params?`: *Record*<*string*, *unknown*> ; `requestPatcher?`: (`req`: IncomingMessage) => *void* ; `responsePatcher?`: (`res`: ServerResponse) => *void* ; `test`: (`obj`: { `fetch`: (`init?`: RequestInit) => *ReturnType*<*typeof* fetch>  }) => *Promise*<*void*>  }): *Promise*<*void*>
 
 Uses Next's internal `apiResolver` to execute api route handlers in a
 Next-like testing environment.
@@ -32,9 +32,9 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 #### Parameters:
 
-| Name             | Type                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `(destructured)` | { `handler`: (`req`: *NextApiRequest*, `res`: *NextApiResponse*<*any*>) => *Promise*<*void*> ; `params?`: *undefined* \| *Record*<*string*, *unknown*> ; `requestPatcher?`: *undefined* \| (`req`: *IncomingMessage*) => *void* ; `responsePatcher?`: *undefined* \| (`res`: *ServerResponse*) => *void* ; `test`: (`obj`: { `fetch`: (`init?`: RequestInit) => *Promise*<Response>  }) => *Promise*<*void*>  } |
+| Name             | Type                                                                                                                                                                                                                                                                                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `(destructured)` | { `handler`: (`req`: NextApiRequest, `res`: NextApiResponse) => *Promise*<*void*> ; `params?`: *Record*<*string*, *unknown*> ; `requestPatcher?`: (`req`: IncomingMessage) => *void* ; `responsePatcher?`: (`res`: ServerResponse) => *void* ; `test`: (`obj`: { `fetch`: (`init?`: RequestInit) => *ReturnType*<*typeof* fetch>  }) => *Promise*<*void*>  } |
 
 **Returns:** *Promise*<*void*>
 
@@ -42,4 +42,4 @@ Defined in: [index.ts:31][2]
 
 [1]: README.md#testapihandler
 
-[2]: https://github.com/Xunnamius/next-test-api-route-handler/blob/4e5e12c/src/index.ts#L31
+[2]: https://github.com/Xunnamius/next-test-api-route-handler/blob/d8868ab/src/index.ts#L31
