@@ -1,3 +1,5 @@
+process.env.MONGODB_URI = 'fake://fake/fake';
+
 import { resolve, basename } from 'path';
 import sjx from 'shelljs';
 import Debug from 'debug';
