@@ -32,11 +32,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
-
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         uses: actions/setup-node@v2.1.4
         with:
@@ -56,6 +51,9 @@ jobs:
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
+
+      - name: Build distributables
+        run: npm run build-dist
 
       - name: Build externals
         env:
