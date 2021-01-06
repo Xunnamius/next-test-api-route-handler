@@ -97,6 +97,29 @@ import { testApiHandler } from 'next-test-api-route-handler'
 const { testApiHandler } = require('next-test-api-route-handler');
 ```
 
+Quick start:
+
+```TypeScript
+// File: test/unit.test.js
+import * as endpoint from '../pages/api/your-endpoint'
+import { testApiHandler } from 'next-test-api-route-handler'
+
+import type { WithConfig } from '@ergodark/next-types'
+
+// Import the handler under test from the pages/api directory and respect the
+// Next.js config object if it's exported
+const endpoint: WithConfig<typeof Endpoint.default> = Endpoint.default;
+endpoint.config = Endpoint.config;
+
+await testApiHandler({
+  requestPatcher: req => req.headers = { key: SPECIAL_API_KEY },
+  handler: endpoint,
+  test: async ({ fetch }) => {
+    expect(await fetch({ method: 'GET', body: 'data'  })).toStrictEqual({ json: 'response' });
+  }
+});
+```
+
 The interface for `testApiHandler` looks like this:
 
 ```TypeScript
@@ -130,7 +153,7 @@ be run. This function receives one parameter: `fetch`, which is a simple
 in [`fetch(...)`][8], is omitted**). Use this to send HTTP requests to the
 handler under test.
 
-## Examples
+## Real-World Examples
 
 ### Testing an Unreliable API Handler @ `pages/api/unreliable`
 
