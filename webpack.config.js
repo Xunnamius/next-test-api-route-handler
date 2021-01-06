@@ -1,13 +1,26 @@
 // This webpack config is used to transpile src to dist, compile externals, etc
 
-const DotenvPlugin = require('dotenv-webpack');
+const { EnvironmentPlugin, DefinePlugin } = require('webpack');
 const { config: populateEnv } = require('dotenv');
-const nodeExternals = require('webpack-node-externals');
 const { verifyEnvironment } = require('./env-expect');
+const nodeExternals = require('webpack-node-externals');
 const debug = require('debug')(`${require('./package.json').name}:webpack-config`);
 
-populateEnv();
+const dotenv = populateEnv();
+debug('saw dotenv result => %O', dotenv);
+const env = dotenv.parsed || {};
+debug('got env => %O', env);
 verifyEnvironment();
+
+const plugins = [
+  // ? Load our .env results as the defaults
+  new EnvironmentPlugin(env),
+  // ? Create a shim for process.env (sorry but I like using it everywhere!)
+  new DefinePlugin({
+    ...(process.env.DEBUG ? { 'process.env.DEBUG': `"${process.env.DEBUG}"` } : {}),
+    'process.env': '{}'
+  })
+];
 
 const mainConfig = {
   name: 'main',
@@ -37,7 +50,8 @@ const mainConfig = {
     rules: [{ test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ }]
   },
   optimization: { usedExports: true },
-  ignoreWarnings: [/critical dependency:/i]
+  ignoreWarnings: [/critical dependency:/i],
+  plugins
 };
 
 const externalsConfig = {
@@ -70,7 +84,7 @@ const externalsConfig = {
   },
   optimization: { usedExports: true },
   ignoreWarnings: [/critical dependency:/i],
-  plugins: [new DotenvPlugin()]
+  plugins
 };
 
 module.exports = [mainConfig, externalsConfig];
