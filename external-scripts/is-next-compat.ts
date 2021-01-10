@@ -75,7 +75,7 @@ export async function main(isCli = false) {
       throw e;
     }
 
-    debug(`latest tested version: "${version}"`);
+    debug('last tested version was ' + (version ? `"${version}"` : '(not tested)') + '');
     return version;
   };
 
@@ -117,8 +117,6 @@ export async function main(isCli = false) {
     const dist: string = pkg.peerDependencies?.next ?? '';
 
     if (!dist) throw new Error('could not find Next.js peer dependency in package.json');
-
-    debug('last tested version was ' + (prev ? `"${prev}"` : '(not tested)') + '');
 
     if (latest != prev) {
       if (dist != latest) {
