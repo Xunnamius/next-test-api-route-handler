@@ -58,8 +58,8 @@ jobs:
         ${{ steps.data.outputs.has-integration-node == 'true' }}
       has-integration-externals:
         ${{ steps.data.outputs.has-integration-externals == 'true' }}
-      has-integration-browser:
-        ${{ steps.data.outputs.has-integration-browser == 'true' }}
+      has-integration-client:
+        ${{ steps.data.outputs.has-integration-client == 'true' }}
       has-integration-webpack:
         ${{ steps.data.outputs.has-integration-webpack == 'true' }}
     steps:
@@ -157,7 +157,7 @@ jobs:
           if [ $? -eq 0 ]; then HAS_NODE=true; else HAS_NODE=false; fi
           echo $NPMR | grep -qe '\stest-integration-externals\s'
           if [ $? -eq 0 ]; then HAS_IEXT=true; else HAS_IEXT=false; fi
-          echo $NPMR | grep -qe '\stest-integration-browser\s'
+          echo $NPMR | grep -qe '\stest-integration-client\s'
           if [ $? -eq 0 ]; then HAS_BWSR=true; else HAS_BWSR=false; fi
           echo $NPMR | grep -qe '\stest-integration-webpack\s'
           if [ $? -eq 0 ]; then HAS_WEBP=true; else HAS_WEBP=false; fi
@@ -169,7 +169,7 @@ jobs:
           echo "::set-output name=has-externals::$HAS_EXTS"
           echo "::set-output name=has-integration-node::$HAS_NODE"
           echo "::set-output name=has-integration-externals::$HAS_IEXT"
-          echo "::set-output name=has-integration-browser::$HAS_BWSR"
+          echo "::set-output name=has-integration-client::$HAS_BWSR"
           echo "::set-output name=has-integration-webpack::$HAS_WEBP"
           echo "::set-output name=has-deploy::$HAS_DPLY"
 
@@ -178,7 +178,7 @@ jobs:
           ! [ -z "$DEBUG" ] && echo "set-output name=has-externals::$HAS_EXTS" || true
           ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-node::$HAS_NODE" || true
           ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-externals::$HAS_IEXT" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-browser::$HAS_BWSR" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-client::$HAS_BWSR" || true
           ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-webpack::$HAS_WEBP" || true
           ! [ -z "$DEBUG" ] && echo "set-output name=has-deploy::$HAS_DPLY" || true
 
@@ -404,13 +404,13 @@ jobs:
           MATRIX_NODE_VERSION: ${{ matrix.node }}
         run: npm run test-integration-externals
 
-  test-integration-browser:
-    name: '[CI] test-integration-browser'
+  test-integration-client:
+    name: '[CI] test-integration-client'
     runs-on: ubuntu-latest
     needs: metadata
     if: |
       needs.metadata.outputs.should-skip-ci != 'true'
-      && needs.metadata.outputs.has-integration-browser == 'true'
+      && needs.metadata.outputs.has-integration-client == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -446,7 +446,7 @@ jobs:
         run: npm run build-dist
 
       - name: Test integration
-        run: npm run test-integration-browser
+        run: npm run test-integration-client
 
   test-integration-webpack:
     name: '[CI] test-integration-webpack'
@@ -579,7 +579,7 @@ jobs:
       - metadata
       - test-integration-node
       - test-integration-externals
-      - test-integration-browser
+      - test-integration-client
       - test-integration-webpack
     if: |
       always()
@@ -589,7 +589,7 @@ jobs:
       && needs.test-unit.result == 'success'
       && (needs.metadata.outputs.has-integration-node != 'true' || needs.test-integration-node.result == 'success')
       && (needs.metadata.outputs.has-integration-externals != 'true' || needs.test-integration-externals.result == 'success')
-      && (needs.metadata.outputs.has-integration-browser != 'true' || needs.test-integration-browser.result == 'success')
+      && (needs.metadata.outputs.has-integration-client != 'true' || needs.test-integration-client.result == 'success')
       && (needs.metadata.outputs.has-integration-webpack != 'true' || needs.test-integration-webpack.result == 'success')
     steps:
       - name: Checkout

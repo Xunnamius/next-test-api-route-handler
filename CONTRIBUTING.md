@@ -262,10 +262,11 @@ Jobs in the same column are executed concurrently. A job failing in one column
 prevents the pipeline from proceeding to the next column.
 
 This pipeline supports four suites of integration tests: _node_, _externals_,
-_browser_, and _webpack_. The presence of these test suites is picked up by
-`grep`-ing the output of `npm run list-tasks` to search for the presence of the
-script keys `test-integration-node`, `test-integration-externals`,
-`test-integration-browser`, or `test-integration-webpack` respectively.
+_client_ (for browsers/cli/etc), and _webpack_. The presence of these test
+suites is picked up by `grep`-ing the output of `npm run list-tasks` to search
+for the presence of the script keys `test-integration-node`,
+`test-integration-externals`, `test-integration-client`, or
+`test-integration-webpack` respectively.
 
 This pipeline also supports an optional documentation build step via the
 `build-docs` key. A warning will be generated for projects that lack this key.
@@ -313,8 +314,8 @@ which of the following scripts are available for this project.
   - Can also run `npm run test-integration` to run all the integration tests
 - `npm run test-integration-node` to run integration tests on the last three LTS
   Node versions (handled by CI)
-- `npm run test-integration-browser` to run browser integration tests with
-  [puppeteer][52] (handled by CI)
+- `npm run test-integration-client` to run client (browser/cli/etc) integration
+  tests with [puppeteer][52] (handled by CI)
 - `npm run test-integration-webpack` to run tests verifying the distributable
   can be bundled with Webpack 4 and 5 (as ESM, CJS, or both) (handled by CI)
 - `npm run test-integration-externals` to run tests on compiled external
