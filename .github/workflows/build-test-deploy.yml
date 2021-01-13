@@ -43,6 +43,7 @@ jobs:
   metadata:
     name: 'gather-metadata'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       current-branch: ${{ steps.branch.outputs.current-branch }}
       has-proper-owner: ${{ steps.owner.outputs.is-whitelisted }}
@@ -194,6 +195,7 @@ jobs:
   check-audit:
     name: '[CI] check-audit'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: needs.metadata.outputs.should-skip-ci != 'true'
     steps:
@@ -218,6 +220,7 @@ jobs:
   lint:
     name: '[CI] lint'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: needs.metadata.outputs.should-skip-ci != 'true'
     steps:
@@ -257,6 +260,7 @@ jobs:
   test-unit:
     name: '[CI] test-unit'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: needs.metadata.outputs.should-skip-ci != 'true'
     steps:
@@ -309,6 +313,7 @@ jobs:
   test-integration-node:
     name: '[CI] test-integration-node'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: |
       needs.metadata.outputs.should-skip-ci != 'true'
@@ -358,6 +363,7 @@ jobs:
   test-integration-externals:
     name: '[CI] test-integration-externals'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: |
       needs.metadata.outputs.should-skip-ci != 'true'
@@ -407,6 +413,7 @@ jobs:
   test-integration-client:
     name: '[CI] test-integration-client'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: |
       needs.metadata.outputs.should-skip-ci != 'true'
@@ -451,6 +458,7 @@ jobs:
   test-integration-webpack:
     name: '[CI] test-integration-webpack'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: |
       needs.metadata.outputs.should-skip-ci != 'true'
@@ -508,6 +516,7 @@ jobs:
   build:
     name: '[CD] build'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: |
       needs.metadata.outputs.should-skip-cd != 'true'
@@ -571,6 +580,7 @@ jobs:
   release:
     name: '[CD] release'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs:
       - build
       - check-audit

@@ -22,6 +22,7 @@ jobs:
   metadata:
     name: 'gather-metadata'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       should-skip-ci: ${{ steps.skip-ci.outputs.should-skip == 'true' }}
       has-proper-owner: ${{ steps.owner.outputs.is-whitelisted }}
@@ -81,6 +82,7 @@ jobs:
 
   cleanup-npm-dist-tags:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: metadata
     if: |
       needs.metadata.outputs.should-skip-ci != 'true'
