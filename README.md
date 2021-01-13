@@ -101,10 +101,10 @@ Quick start:
 
 ```TypeScript
 // File: test/unit.test.js
-import * as endpoint from '../pages/api/your-endpoint'
-import { testApiHandler } from 'next-test-api-route-handler'
+import * as endpoint from '../pages/api/your-endpoint';
+import { testApiHandler } from 'next-test-api-route-handler';
 
-import type { WithConfig } from '@ergodark/next-types'
+import type { WithConfig } from '@ergodark/next-types';
 
 // Import the handler under test from the pages/api directory and respect the
 // Next.js config object if it's exported
@@ -112,10 +112,11 @@ const endpoint: WithConfig<typeof Endpoint.default> = Endpoint.default;
 endpoint.config = Endpoint.config;
 
 await testApiHandler({
-  requestPatcher: req => req.headers = { key: SPECIAL_API_KEY },
+  requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
   handler: endpoint,
   test: async ({ fetch }) => {
-    expect(await fetch({ method: 'GET', body: 'data'  })).toStrictEqual({ json: 'response' });
+    const res = await fetch({ method: 'POST', body: 'data' });
+    console.log(await res.json()); // ◄ outputs: '{hello: 'world'}'
   }
 });
 ```
