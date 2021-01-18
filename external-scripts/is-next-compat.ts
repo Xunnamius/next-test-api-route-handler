@@ -1,4 +1,4 @@
-import { basename, dirname } from 'path';
+import { relative, resolve, dirname } from 'path';
 import { name as pkgName } from '../package.json';
 import { Octokit } from '@octokit/rest';
 import { MongoClient } from 'mongodb';
@@ -6,7 +6,7 @@ import sjx from 'shelljs';
 import findPackageJson from 'find-package-json';
 import Debug from 'debug';
 
-const mode = `${pkgName}:${basename(__filename).split('.').find(Boolean)}`;
+const mode = `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`;
 
 sjx.config.silent = true;
 

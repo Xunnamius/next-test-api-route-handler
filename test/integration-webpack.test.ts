@@ -1,11 +1,13 @@
 import { name as pkgName, version as pkgVersion } from '../package.json';
-import { resolve, basename } from 'path';
+import { relative, resolve } from 'path';
 import sjx from 'shelljs';
 import Debug from 'debug';
 import uniqueFilename from 'unique-filename';
 import del from 'del';
 
-const debug = Debug(`${pkgName}:${basename(__filename).split('.').find(Boolean)}`);
+const debug = Debug(
+  `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
+);
 
 debug(`pkgName = "${pkgName}"`);
 debug(`pkgVersion = "${pkgVersion}"`);

@@ -1,7 +1,7 @@
 /* eslint-disable no-var */
 process.env.MONGODB_URI = 'fake://fake/fake';
 
-import { basename } from 'path';
+import { relative, resolve } from 'path';
 import { name as pkgName } from '../package.json';
 import { main as isNextCompat } from '../external-scripts/is-next-compat';
 import { config as populateEnv } from 'dotenv';
@@ -11,7 +11,9 @@ import Debug from 'debug';
 import uniqueFilename from 'unique-filename';
 import del from 'del';
 
-const debug = Debug(`${pkgName}:${basename(__filename).split('.').find(Boolean)}`);
+const debug = Debug(
+  `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
+);
 
 import _ from '@octokit/rest';
 import __ from 'mongodb';
