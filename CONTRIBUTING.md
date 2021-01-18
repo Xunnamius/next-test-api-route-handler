@@ -321,6 +321,10 @@ which of the following scripts are available for this project.
 - `npm run test-integration-externals` to run tests on compiled external
   executables (under `external-scripts/bin/`) (handled by CI)
 
+> Note: `npm test` and all the `npm run test*` commands accept an optional
+> `JEST_CLI` environment variable, the contents of which will be passed directly
+> to Jest. For example: `JEST_CLI='--verbose' npm test` to get verbose output.
+
 #### Other Development Scripts
 
 - `npm run test-repeat` to run the entire test suite 100 times
