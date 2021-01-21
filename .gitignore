@@ -1,5 +1,6 @@
 *.ignore
 *.ignore.*
+ignore.*
 /dist
 /build
 /.vscode
