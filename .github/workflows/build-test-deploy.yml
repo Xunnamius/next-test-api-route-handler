@@ -252,7 +252,7 @@ jobs:
           npm ci
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Lint
         run: npm run lint
@@ -294,7 +294,7 @@ jobs:
           npm ci
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Test unit
         run: INCLUDE_EXTERNALS=true npm run test-unit
@@ -350,7 +350,7 @@ jobs:
           npm ci
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Build distributables
         run: npm run build-dist
@@ -400,7 +400,7 @@ jobs:
           npm ci
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Build externals
         run: npm run build-externals
@@ -447,7 +447,7 @@ jobs:
           npm ci
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Build distributables
         run: npm run build-dist
@@ -495,7 +495,7 @@ jobs:
           npm ci
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Build distributables
         run: npm run build-dist
@@ -552,7 +552,7 @@ jobs:
           npm ci
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS"] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Pre source formatting
         run: npm run format
