@@ -80,7 +80,8 @@ module.exports = {
         'jest/prefer-spy-on': 'off',
         'jest/no-if': 'off',
         'jest/no-disabled-tests': 'warn',
-        'jest/no-commented-out-tests': 'warn'
+        'jest/no-commented-out-tests': 'warn',
+        'jest/no-alias-methods': 'off'
       }
     }
   ],
