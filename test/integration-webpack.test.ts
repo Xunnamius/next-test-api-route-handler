@@ -9,11 +9,11 @@ const debug = Debug(
   `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
 );
 
-debug(`pkgName = "${pkgName}"`);
-debug(`pkgVersion = "${pkgVersion}"`);
+debug(`pkgName: "${pkgName}"`);
+debug(`pkgVersion: "${pkgVersion}"`);
 
 const webpackVersion = process.env.MATRIX_WEBPACK_VERSION || 'latest';
-debug(`webpackVersion = "${webpackVersion}"`);
+debug(`webpackVersion: "${webpackVersion}"`);
 
 if (!webpackVersion) throw new Error('bad MATRIX_WEBPACK_VERSION encountered');
 
@@ -84,19 +84,19 @@ const createIndexAndRunTest = (root: string) => ({
   debug(`echoing string ${cmd2} to ${root}/webpack.config.js`);
   cmd2.to(`${root}/webpack.config.js`);
 
-  debug(`directory at this point => ${sjx.exec('tree').stdout}`);
+  debug(`directory at this point: ${sjx.exec('tree').stdout}`);
 
   sjx.exec(`npm install webpack@${webpackVersion} webpack-cli`);
 
-  debug(`package.json contents => ${sjx.cat('package.json').stdout}`);
+  debug(`package.json contents: ${sjx.cat('package.json').stdout}`);
 
   const webpack = sjx.exec('npx webpack');
 
-  debug(`webpack run => (${webpack.code})\n${webpack.stderr}\n${webpack.stdout}`);
+  debug(`webpack run: (${webpack.code})\n${webpack.stderr}\n${webpack.stdout}`);
   expect(webpack.code).toBe(0);
 
   const result = sjx.exec('node dist/index.js').stdout.trim();
-  debug(`result = "${result}" (expected "working")`);
+  debug(`result: "${result}" (expected "working")`);
   expect(result).toBe('working');
 };
 

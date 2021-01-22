@@ -10,11 +10,11 @@ const debug = Debug(
   `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
 );
 
-debug(`pkgName = "${pkgName}"`);
-debug(`pkgVersion = "${pkgVersion}"`);
+debug(`pkgName: "${pkgName}"`);
+debug(`pkgVersion: "${pkgVersion}"`);
 
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
-debug(`nodeVersion = "${nodeVersion}"`);
+debug(`nodeVersion: "${nodeVersion}"`);
 
 if (!nodeVersion) throw new Error('bad MATRIX_NODE_VERSION encountered');
 
@@ -43,10 +43,10 @@ const createIndexAndRunTest = (root: string) => ({ esm }: { esm: boolean }) => {
   debug(`echoing string ${cmd1} to ${root}/index.${ext}`);
   cmd1.to(`${root}/index.${ext}`);
 
-  debug(`package.json contents => ${sjx.cat('package.json').stdout}`);
+  debug(`package.json contents: ${sjx.cat('package.json').stdout}`);
   const result = sjx.exec(`node index.${ext}`).stdout.trim();
 
-  debug(`result = "${result}" (expected "working")`);
+  debug(`result: "${result}" (expected "working")`);
   expect(result).toBe('working');
 };
 

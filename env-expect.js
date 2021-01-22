@@ -73,7 +73,7 @@ module.exports = {
       let normalizedRule;
       const makeErrorMessage = (reason) => `missing dep: ${reason}`;
 
-      debug('::normalize (not normalized) = %O', rule);
+      debug('::normalize (not normalized): %O', rule);
 
       if (typeof rule == 'string' || rule instanceof RegExp) {
         if (typeof rule == 'string') {
@@ -156,7 +156,7 @@ module.exports = {
           )
         };
       } else {
-        debug('::normalize BAD RULE ENCOUNTERED = %O', rule);
+        debug('::normalize BAD RULE ENCOUNTERED: %O', rule);
         throw new IllegalEnvironmentError(
           `bad rule encountered${
             fromPkg ? ' in ./package.json "env-expect"' : ''
@@ -164,7 +164,7 @@ module.exports = {
         );
       }
 
-      debug('::normalize (normalized) = %O', normalizedRule);
+      debug('::normalize (normalized): %O', normalizedRule);
       return normalizedRule;
     };
 
@@ -177,8 +177,8 @@ module.exports = {
       } catch (ignored) {}
     }
 
-    debug('rules = %O', rules);
-    debug('errorMessage = %O', errorMessage);
+    debug('rules: %O', rules);
+    debug('errorMessage: %O', errorMessage);
 
     if (typeof rules == 'undefined') return [];
 
@@ -251,7 +251,7 @@ module.exports = {
         !errorMessage ? 'environment verification failed' : errorMessage
       );
 
-    debug('violated rules = %O', violations);
+    debug('violated rules: %O', violations);
     return violations;
   }
 };

@@ -16,8 +16,8 @@ const debug = Debug(
   `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
 );
 
-debug(`pkgName = "${pkgName}"`);
-debug(`pkgVersion = "${pkgVersion}"`);
+debug(`pkgName: "${pkgName}"`);
+debug(`pkgVersion: "${pkgVersion}"`);
 
 sjx.config.silent = true;
 
@@ -53,7 +53,7 @@ describe('next-test-api-route-handler [INTEGRATION-EXTERNALS]', () => {
           `"peerDependencies":{"next":"${peerDependencies.next}"}}`
       ).to(pkgJson);
 
-      debug(`package.json contents => ${sjx.cat('package.json').stdout}`);
+      debug(`package.json contents: ${sjx.cat('package.json').stdout}`);
 
       const result = sjx.exec(
         `NO_DB_UPDATE=true node "${resolve(
@@ -62,7 +62,7 @@ describe('next-test-api-route-handler [INTEGRATION-EXTERNALS]', () => {
         )}"`
       );
 
-      debug(`cmd "${result}" => (${result.code})\n${result.stderr}\n${result.stdout}`);
+      debug(`cmd "${result}": (${result.code})\n${result.stderr}\n${result.stdout}`);
       expect(result.code).toBe(0);
     });
   });

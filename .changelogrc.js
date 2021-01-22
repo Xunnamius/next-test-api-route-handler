@@ -29,7 +29,7 @@ const changelogTitle =
 // ! These also have to be updated in build-test-deploy.yml and cleanup.yml
 const SKIP_COMMANDS = '[skip ci], [ci skip], [skip cd], [cd skip]'.split(', ');
 
-debug('SKIP_COMMANDS=', SKIP_COMMANDS);
+debug('SKIP_COMMANDS:', SKIP_COMMANDS);
 
 sjx.config.silent = true;
 
@@ -49,8 +49,8 @@ const allReleaseTriggerCommitTypes = [
   extraReleaseTriggerCommitTypes
 ].flat();
 
-debug('extra types that trigger releases = %O', extraReleaseTriggerCommitTypes);
-debug('all types that trigger releases = %O', allReleaseTriggerCommitTypes);
+debug('extra types that trigger releases: %O', extraReleaseTriggerCommitTypes);
+debug('all types that trigger releases: %O', allReleaseTriggerCommitTypes);
 
 // ? Releases made before this repo adopted semantic-release. They will be
 // ? collected together under a single header
@@ -74,7 +74,7 @@ module.exports = {
         (shouldGenerate &&
           !!semver.valid(commit.version) &&
           !semver.prerelease(commit.version));
-      debug(`::generateOn shouldGenerate=${shouldGenerate} decision=${decision}`);
+      debug(`::generateOn shouldGenerate:${shouldGenerate} decision:${decision}`);
       shouldGenerate = true;
       return decision;
     },
@@ -82,9 +82,9 @@ module.exports = {
       const version = commit.version || null;
       const firstRelease = version === context.gitSemverTags?.slice(-1)[0].slice(1);
 
-      debug('::transform encountered commit = %O', commit);
-      debug(`::transform commit version = ${version}`);
-      debug(`::transform commit firstRelease = ${firstRelease}`);
+      debug('::transform encountered commit: %O', commit);
+      debug(`::transform commit version: ${version}`);
+      debug(`::transform commit firstRelease: ${firstRelease}`);
 
       if (commit.revert) {
         debug('::transform coercing to type "revert"');
@@ -115,7 +115,7 @@ module.exports = {
 
           commit = transform(commit, context);
 
-          debug('::transform angular transformed commit = %O', commit);
+          debug('::transform angular transformed commit: %O', commit);
 
           if (commit) {
             if (fakeFix) {
@@ -203,10 +203,10 @@ module.exports = {
         };
       }
 
-      debug('::transform final commit = %O', commit);
+      debug('::transform final commit: %O', commit);
       return commit;
     }
   }
 };
 
-debug('exports = %O', module.exports);
+debug('exports: %O', module.exports);

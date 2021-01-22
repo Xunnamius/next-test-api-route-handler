@@ -5,8 +5,8 @@ const debug = require('debug')(
 const SHOULD_UPDATE_CHANGELOG = process.env.SHOULD_UPDATE_CHANGELOG === 'true';
 const SHOULD_DEPLOY = process.env.SHOULD_DEPLOY === 'true';
 
-debug(`SHOULD_UPDATE_CHANGELOG=${SHOULD_UPDATE_CHANGELOG}`);
-debug(`SHOULD_DEPLOY=${SHOULD_DEPLOY}`);
+debug(`SHOULD_UPDATE_CHANGELOG:${SHOULD_UPDATE_CHANGELOG}`);
+debug(`SHOULD_DEPLOY:${SHOULD_DEPLOY}`);
 
 const {
   changelogTitle,
@@ -94,4 +94,4 @@ module.exports = {
   ]
 };
 
-debug('exports = %O', module.exports);
+debug('exports: %O', module.exports);

@@ -100,4 +100,4 @@ module.exports = {
   ignorePatterns: ['coverage', 'dist', 'bin']
 };
 
-debug('exports = %O', module.exports);
+debug('exports: %O', module.exports);

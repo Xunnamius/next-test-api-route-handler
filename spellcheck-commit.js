@@ -49,8 +49,8 @@ const keys = (obj) => Object.keys(obj).map(splitOutWords);
   const lastCommitMsg = (await read('./.git/COMMIT_EDITMSG')).toString('utf-8');
   const homeDir = require('os').homedir();
 
-  debug(`lastCommitMsg = ${lastCommitMsg}`);
-  debug(`homeDir = ${homeDir}`);
+  debug(`lastCommitMsg: ${lastCommitMsg}`);
+  debug(`homeDir: ${homeDir}`);
 
   const ignoreWords = Array.from(
     new Set(
@@ -90,7 +90,7 @@ const keys = (obj) => Object.keys(obj).map(splitOutWords);
     )
   );
 
-  debug('typos = %O', typos);
+  debug('typos: %O', typos);
 
   if (typos.length) {
     console.warn('WARNING: there may be misspelled words in your commit message!');

@@ -7,9 +7,9 @@ const nodeExternals = require('webpack-node-externals');
 const debug = require('debug')(`${require('./package.json').name}:webpack-config`);
 
 const dotenv = populateEnv();
-debug('saw dotenv result => %O', dotenv);
+debug('saw dotenv result: %O', dotenv);
 const env = dotenv.parsed || {};
-debug('got env => %O', env);
+debug('saw env: %O', env);
 verifyEnvironment();
 
 const plugins = [
@@ -85,4 +85,4 @@ const externalsConfig = {
 };
 
 module.exports = [mainConfig, externalsConfig];
-debug('exports = %O', module.exports);
+debug('exports: %O', module.exports);

@@ -71,4 +71,4 @@ module.exports = {
   }
 };
 
-debug('exports = %O', module.exports);
+debug('exports: %O', module.exports);
