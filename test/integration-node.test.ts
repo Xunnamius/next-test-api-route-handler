@@ -1,4 +1,4 @@
-import { name as pkgName, version as pkgVersion } from '../package.json';
+import { name as pkgName, version as pkgVersion, main } from '../package.json';
 import { relative, resolve } from 'path';
 import sjx from 'shelljs';
 import Debug from 'debug';
@@ -19,6 +19,11 @@ debug(`nodeVersion: "${nodeVersion}"`);
 if (!nodeVersion) throw new Error('bad MATRIX_NODE_VERSION encountered');
 
 sjx.config.silent = true;
+
+if (!sjx.test('-e', `${__dirname}/../${main}.js`))
+  throw new Error(
+    'must build distributables before running this test suite (try `npm run build-dist`)'
+  );
 
 const createIndexAndRunTest = (root: string) => ({ esm }: { esm: boolean }) => {
   const ext = `${esm ? 'm' : ''}js`;

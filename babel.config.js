@@ -49,7 +49,7 @@ module.exports = {
         // ? Webpack will handle minification
       ]
     },
-    // * Used for compiling ESM code into ./dist/lib/
+    // * Used for compiling ESM code output somewhere in ./dist
     esm: {
       presets: [
         [

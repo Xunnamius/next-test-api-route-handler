@@ -27,8 +27,8 @@
     "types/**/*.ts*",
     "lib/**/*.ts*",
     "src/**/*.ts*",
-    "external-scripts/**/*.ts*",
-    "test/**/*.ts*"
+    "test/**/*.ts*",
+    "external-scripts/**/*.ts*"
   ],
   "exclude": ["node_modules"]
 }

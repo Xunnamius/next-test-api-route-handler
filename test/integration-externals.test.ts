@@ -21,6 +21,11 @@ debug(`pkgVersion: "${pkgVersion}"`);
 
 sjx.config.silent = true;
 
+if (!sjx.test('-d', `${__dirname}/../external-scripts/bin`))
+  throw new Error(
+    'must build externals before running this test suite (try `npm run build-externals`)'
+  );
+
 let deleteRoot: () => Promise<void>;
 
 afterAll(() => deleteRoot());
