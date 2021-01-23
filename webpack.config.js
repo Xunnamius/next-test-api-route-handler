@@ -16,8 +16,6 @@ const plugins = [
   // ? Load our .env results as the defaults (overridden by process.env)
   new EnvironmentPlugin({ ...env, ...process.env }),
   // ? Create shim for process.env (per my tastes!)
-  new DefinePlugin({ 'process.env': '{}' }),
-  // ? Create shim process.env for undefined vars (per my tastes!)
   new DefinePlugin({ 'process.env': '{}' })
   // ? Add text to the top of the entry file (if necessary)
   // * ▼ For bundled CLI applications
