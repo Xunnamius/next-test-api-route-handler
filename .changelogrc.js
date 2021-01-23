@@ -74,13 +74,13 @@ module.exports = {
         (shouldGenerate &&
           !!semver.valid(commit.version) &&
           !semver.prerelease(commit.version));
-      debug(`::generateOn shouldGenerate:${shouldGenerate} decision:${decision}`);
+      debug(`::generateOn shouldGenerate: ${shouldGenerate} [decision: ${decision}]`);
       shouldGenerate = true;
       return decision;
     },
     transform: (commit, context) => {
       const version = commit.version || null;
-      const firstRelease = version === context.gitSemverTags?.slice(-1)[0].slice(1);
+      const firstRelease = version === context.gitSemverTags?.slice(-1)[0]?.slice(1);
 
       debug('::transform encountered commit: %O', commit);
       debug(`::transform commit version: ${version}`);
