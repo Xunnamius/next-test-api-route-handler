@@ -9,4 +9,3 @@ ignore.*
 /next-env.d.ts
 /node_modules
 /coverage
-/bundle-stats.json

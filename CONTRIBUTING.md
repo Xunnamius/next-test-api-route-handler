@@ -355,7 +355,7 @@ which of the following scripts are available for this project.
 - `npm run build-externals` to compile `external-scripts/` into
   `external-scripts/bin/`
 - `npm run build-stats` to gather statistics about Webpack (look for
-  `bundle-stats.json`)
+  `bundle-stats.ignore.json`)
 
 ### NPX Scripts
 
