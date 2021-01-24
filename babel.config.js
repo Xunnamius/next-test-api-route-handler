@@ -65,7 +65,9 @@ module.exports = {
       ],
       plugins: [
         // ? Interoperable named CJS imports for free
-        'babel-plugin-transform-mjs-imports'
+        'babel-plugin-transform-mjs-imports',
+        // ? Ensure all local imports end in .mjs
+        ['babel-plugin-add-import-extension', { extension: 'mjs' }]
       ]
     }
   }
