@@ -297,7 +297,7 @@ jobs:
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Test unit
-        run: INCLUDE_EXTERNALS=true npm run test-unit
+        run: npm run test-unit
 
       - name: Attempt to upload coverage data to codecov
         if: env.UPLOAD_CODE_COVERAGE == 'true'
