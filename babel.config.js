@@ -13,7 +13,12 @@ module.exports = {
     '@babel/plugin-proposal-function-bind',
     '@babel/plugin-transform-typescript',
     // ? Interoperable named CJS imports for free
-    'transform-default-named-imports'
+    [
+      'transform-default-named-imports',
+      {
+        exclude: [/^next([/?#].+)?/]
+      }
+    ]
   ],
   // ? Sub-keys under the "env" config key will augment the above
   // ? configuration depending on the value of NODE_ENV and friends. Default
