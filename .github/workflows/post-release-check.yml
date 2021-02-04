@@ -34,10 +34,22 @@ jobs:
           echo "::set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
           ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
 
+  sleep:
+    name: 'five-minute-sleep'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Give result of npm publish time to propagate
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '5m'
+
   check-compat:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: metadata
+    needs:
+      - metadata
+      - sleep
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
