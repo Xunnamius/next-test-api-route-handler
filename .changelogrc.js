@@ -31,7 +31,7 @@ const SKIP_COMMANDS = '[skip ci], [ci skip], [skip cd], [cd skip]'.split(', ');
 
 debug('SKIP_COMMANDS:', SKIP_COMMANDS);
 
-sjx.config.silent = true;
+sjx.config.silent = !process.env.DEBUG;
 
 // ! XXX: dark magic to synchronously deal with this async package
 const wait = sjx.exec(

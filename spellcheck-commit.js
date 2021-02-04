@@ -6,7 +6,7 @@ const sjx = require('shelljs');
 
 const debug = require('debug')(`${require('./package.json').name}:spellcheck-commit`);
 
-sjx.config.silent = true;
+sjx.config.silent = !process.env.DEBUG;
 
 const tryToRead = async (path) => {
   try {

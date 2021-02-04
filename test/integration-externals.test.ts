@@ -18,8 +18,7 @@ const debug = Debug(
 
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
-
-sjx.config.silent = true;
+sjx.config.silent = !process.env.DEBUG;
 
 if (!sjx.test('-d', `${__dirname}/../external-scripts/bin`))
   throw new Error(

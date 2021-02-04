@@ -9,6 +9,8 @@ const debug = Debug(
   `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
 );
 
+sjx.config.silent = !process.env.DEBUG;
+
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
 
@@ -16,8 +18,6 @@ const webpackVersion = process.env.MATRIX_WEBPACK_VERSION || 'latest';
 debug(`webpackVersion: "${webpackVersion}"`);
 
 if (!webpackVersion) throw new Error('bad MATRIX_WEBPACK_VERSION encountered');
-
-sjx.config.silent = true;
 
 if (!sjx.test('-e', `${__dirname}/../${main}.js`))
   throw new Error(

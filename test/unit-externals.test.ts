@@ -20,8 +20,6 @@ import __ from 'mongodb';
 
 import type { JsonEditor } from 'edit-json-file';
 
-sjx.config.silent = true;
-
 declare global {
   var mockTag: string;
   var mockPrevious: string;
@@ -29,6 +27,8 @@ declare global {
   var mockFindOneFn: ReturnType<typeof jest.fn>;
   var mockCloseFn: ReturnType<typeof jest.fn>;
 }
+
+sjx.config.silent = !process.env.DEBUG;
 
 jest.mock('@octokit/rest', () => ({
   Octokit: class {

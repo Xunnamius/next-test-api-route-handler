@@ -10,6 +10,8 @@ const debug = Debug(
   `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
 );
 
+sjx.config.silent = !process.env.DEBUG;
+
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
 
@@ -17,8 +19,6 @@ const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 debug(`nodeVersion: "${nodeVersion}"`);
 
 if (!nodeVersion) throw new Error('bad MATRIX_NODE_VERSION encountered');
-
-sjx.config.silent = true;
 
 if (!sjx.test('-e', `${__dirname}/../${main}.js`))
   throw new Error(
