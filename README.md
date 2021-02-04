@@ -50,26 +50,33 @@ confidently!
 npm install --save-dev next-test-api-route-handler
 ```
 
+If you don't have Next.js available, ensure it is installed as it is a required
+peer dependency of this package.
+
+```shell
+npm install --save-dev next
+```
+
 <details><summary><strong>[additional details]</strong></summary>
 
-> Note: **typical users don't need to read through this!** This information is
-> primarily useful for those attempting to bundle this package or for those who
+> Note: **you probably don't need to read through this!** This information is
+> primarily useful for those attempting to bundle this package or for people who
 > have an opinion on ESM versus CJS.
 
 This is a [dual CJS2/ES module][dual-module] package. That means this package
 exposes both CJS2 and ESM entry points.
 
-Loading this package via `require(...)` will cause Node to use the [CJS2
-bundle][cjs2] entry point, disable [tree shaking][tree-shaking] in Webpack 4,
-and lead to larger bundles in Webpack 5. Alternatively, loading this package via
-`import { ... } from ...` or `import(...)` will cause Node to use the ESM entry
-point in [versions that support it][node-esm-support] and in Webpack. Using the
-`import` syntax is the modern, preferred choice.
+Loading this package via `require(...)` will cause Node and Webpack to use the
+[CJS2 bundle][cjs2] entry point, disable [tree shaking][tree-shaking] in Webpack
+4, and lead to larger bundles in Webpack 5. Alternatively, loading this package
+via `import { ... } from ...` or `import(...)` will cause Node to use the ESM
+entry point in [versions that support it][node-esm-support], as will Webpack.
+Using the `import` syntax is the modern, preferred choice.
 
 For backwards compatibility with Webpack 4 and Node versions < 14,
 [`package.json`][package-json] retains the [`module`][module-key] key, which
 points to the ESM entry point, and the [`main`][exports-main-key] key, which
-points to both the ESM and CJS2 entry points implicitly (no file extension). For
+points to the CJS2 entry point explicitly (using the .js file extension). For
 Webpack 5 and Node versions >= 14, [`package.json`][package-json] includes the
 [`exports`][exports-main-key] key, which points to both entry points explicitly.
 
@@ -100,10 +107,12 @@ const { testApiHandler } = require('next-test-api-route-handler');
 Quick start:
 
 ```TypeScript
-// File: test/unit.test.js
+/* File: test/unit.test.js */
 import * as endpoint from '../pages/api/your-endpoint';
 import { testApiHandler } from 'next-test-api-route-handler';
 
+// This is a simple sugar type for the default export, giving it a `config`
+// property. You DO NOT need this package to use next-test-api-route-handler!
 import type { WithConfig } from '@ergodark/next-types';
 
 // Import the handler under test from the pages/api directory and respect the
@@ -410,12 +419,12 @@ information.
 [side-effects-key]:
   https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free
 [tree-shaking]: https://webpack.js.org/guides/tree-shaking
+[npm-v7-bc]:
+  https://github.blog/2020-10-13-presenting-v7-0-0-of-the-npm-cli/#user-content-breaking-changes
 [1]: https://nextjs.org/docs/api-routes/introduction
 [2]: https://nextjs.org/docs/basic-features/typescript#api-routes
 [3]: https://github.com/vercel/next.js/releases
 [4]: CHANGELOG.md
-[npm-v7-bc]:
-  https://github.blog/2020-10-13-presenting-v7-0-0-of-the-npm-cli/#user-content-breaking-changes
 [5]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
 [6]: https://nodejs.org/api/http.html#http_class_http_serverresponse
 [7]: https://www.npmjs.com/package/isomorphic-unfetch

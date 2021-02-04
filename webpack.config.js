@@ -24,6 +24,13 @@ const plugins = [
   //new BannerPlugin({ banner: '"undefined"!=typeof window&&(window.global=window);', raw: true, entryOnly: true })
 ];
 
+const externals = [
+  nodeExternals(),
+  ({ request }, cb) =>
+    // ? Externalize all .json imports (required as commonjs modules)
+    /\.json$/.test(request) ? cb(null, `commonjs ${request}`) : cb()
+];
+
 debug('(no dotenv support)');
 
 const mainConfig = {
@@ -44,7 +51,7 @@ const mainConfig = {
     //globalObject: 'this',
   },
 
-  externals: [nodeExternals()],
+  externals,
   externalsPresets: { node: true },
 
   stats: {
@@ -77,7 +84,7 @@ const externalsConfig = {
     path: `${__dirname}/external-scripts/bin`
   },
 
-  externals: [nodeExternals()],
+  externals,
   externalsPresets: { node: true },
 
   stats: {
