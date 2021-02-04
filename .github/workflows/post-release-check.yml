@@ -69,9 +69,17 @@ jobs:
           PKG_PRIVATE=`node -e 'console.log(require("./package.json").private || "false")'`
           PKG_NAME=`node -e 'console.log(require("./package.json").name)'`
           PKG_VERSION=`node -e 'console.log(require("./package.json").version)'`
+          PKG_BIN=`node -e 'const bin = require("./package.json").bin; bin && console.log(Object.entries(bin)[0][0])'`
 
           ! [ -z "$DEBUG" ] && echo "PKG_PRIVATE=$PKG_PRIVATE" || true
           ! [ -z "$DEBUG" ] && echo "PKG_NAME=$PKG_NAME" || true
           ! [ -z "$DEBUG" ] && echo "PKG_VERSION=$PKG_VERSION" || true
+          ! [ -z "$DEBUG" ] && echo "PKG_BIN=$PKG_BIN" || true
 
-          if ! [ "$PKG_PRIVATE" = "false" ]; then npm install "${PKG_NAME}@${PKG_VERSION}"; fi
+          if [ "$PKG_PRIVATE" = "false" ]; then
+            export NODE_ENV=production
+            mkdir /tmp/post-release-check
+            cd /tmp/post-release-check
+            npm install "${PKG_NAME}@${PKG_VERSION}"
+            ! [ -z "$PKG_BIN" ] && npx --no-install $PKG_BIN --help
+          fi
