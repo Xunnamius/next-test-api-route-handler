@@ -34,7 +34,7 @@
     "./package": "./package.json",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index",
+  "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/types/src/index.d.ts",
   "files": [
@@ -64,7 +64,7 @@
     "build": "npm run build-dist --",
     "build-changelog": "conventional-changelog --outfile CHANGELOG.md --preset angular --config .changelogrc.js --release-count 0 --skip-unstable && (if [ \"$CHANGELOG_SKIP_TITLE\" != 'true' ]; then { node -e 'console.log(require(\"./.changelogrc.js\").changelogTitle)'; cat CHANGELOG.md; } > CHANGELOG.md.ignore && mv CHANGELOG.md.ignore CHANGELOG.md; fi) && remark -o --use reference-links --use gfm --use frontmatter CHANGELOG.md && prettier --write CHANGELOG.md",
     "build-dist": "npm run clean && NODE_ENV=production tsc --project tsconfig.types.json && NODE_ENV=production webpack --config-name main && NODE_ENV=esm babel src --extensions .ts --out-dir dist --out-file-extension .mjs",
-    "build-docs": "ENTRY=`node -e 'console.log((x => typeof x==\"string\"?x:x.default)(require(\"./package.json\").exports[\".\"]).replace(/\\.\\/dist\\/(.+)\\.[a-zA-Z0-9]+$/, \"./src/$1.ts\"))'` && echo $ENTRY && typedoc --plugin typedoc-plugin-markdown --out docs --readme none $ENTRY && find docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find docs -name '*.md' -exec sed -i -E 's/^.\\s*(\\*\\*)?__namedParameters(\\*\\*)?/**\\({ destructured }\\)**/gm' {} + && find docs -name '*.md' -exec sed -i -e 's/Project: //g' {} + && sed -i -e 1,4d docs/README.md",
+    "build-docs": "ENTRY=`node -e 'console.log((x => typeof x==\"string\"?x:x.default)(require(\"./package.json\").exports[\".\"]).replace(/\\.\\/dist\\/(.+)\\.[a-zA-Z0-9]+$/, \"./src/$1.ts\"))'` && echo 'Entry file:' \"$ENTRY\" && typedoc --plugin typedoc-plugin-markdown --out docs --readme none $ENTRY && find docs -name '*.md' -exec sed -i -e 's/`__namedParameters`: //g' {} + && find docs -name '*.md' -exec sed -i -E 's/^.\\s*(\\*\\*)?__namedParameters(\\*\\*)?/**\\({ destructured }\\)**/gm' {} + && find docs -name '*.md' -exec sed -i -e 's/Project: //g' {} + && sed -i -e 1,4d docs/README.md",
     "build-externals": "NODE_ENV=external webpack --config-name externals",
     "build-stats": "NODE_ENV=production webpack --config-name main --json > bundle-stats.ignore.json",
     "clean": "rm -rf dist coverage external-scripts/bin bundle-stats.ignore.json",
@@ -73,11 +73,11 @@
     "list-tasks": "node -e 'console.log(Object.keys(require(\"./package.json\").scripts).join(\"\\n\"))'",
     "prepare": "if [ -z \"$CI\" ]; then npx husky install; else echo 'skipped installing husky git hooks'; fi",
     "test": "npm run test-unit --",
-    "test-integration": "npm run list-tasks | grep -e '^test-integration-' | xargs -n1 npm run",
+    "test-integration": "BABEL_ENV=test jest $JEST_CLI --testPathIgnorePatterns test/unit-*.test.ts",
     "test-integration-externals": "BABEL_ENV=test jest $JEST_CLI test/integration-externals*.test.ts",
     "test-integration-node": "BABEL_ENV=test jest $JEST_CLI test/integration-node*.test.ts",
     "test-integration-webpack": "BABEL_ENV=test jest $JEST_CLI test/integration-webpack*.test.ts",
-    "test-unit": "if ! [ -z \"$INCLUDE_EXTERNALS\" ]; then X=; Y='--collectCoverageFrom'; Z='external-scripts/**/*.ts'; else X='test/unit-external*.test.ts'; Y=; Z=; fi; BABEL_ENV=test jest $JEST_CLI --coverage --collectCoverageFrom 'src/**/*.ts' --collectCoverageFrom 'lib/**/*.ts' $Y $Z --testPathIgnorePatterns test/integration-*.test.ts $X"
+    "test-unit": "BABEL_ENV=test jest $JEST_CLI --coverage --collectCoverageFrom 'src/**/*.ts' --collectCoverageFrom 'lib/**/*.ts' --collectCoverageFrom 'external-scripts/**/*.ts' --testPathIgnorePatterns test/integration-*.test.ts"
   },
   "commitlint": {
     "extends": [
@@ -150,16 +150,16 @@
     "test-listen": "^1.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.12.10",
-    "@babel/core": "^7.12.10",
-    "@babel/plugin-proposal-export-default-from": "^7.12.1",
-    "@babel/plugin-proposal-function-bind": "^7.12.1",
-    "@babel/preset-env": "^7.12.11",
-    "@babel/preset-typescript": "^7.12.7",
+    "@babel/cli": "^7.12.13",
+    "@babel/core": "^7.12.13",
+    "@babel/plugin-proposal-export-default-from": "^7.12.13",
+    "@babel/plugin-proposal-function-bind": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "@babel/preset-typescript": "^7.12.13",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
     "@ergodark/types": "^1.0.16",
-    "@octokit/rest": "^18.0.14",
+    "@octokit/rest": "^18.1.0",
     "@semantic-release/changelog": "^5.0.1",
     "@semantic-release/exec": "^5.0.0",
     "@semantic-release/git": "^9.0.0",
@@ -174,8 +174,8 @@
     "@types/shelljs": "^0.8.8",
     "@types/test-listen": "^1.1.0",
     "@types/webpack": "^4.41.26",
-    "@typescript-eslint/eslint-plugin": "^4.14.0",
-    "@typescript-eslint/parser": "^4.14.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.2",
+    "@typescript-eslint/parser": "^4.14.2",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
@@ -191,7 +191,7 @@
     "dotenv": "^8.2.0",
     "edit-json-file": "^1.5.0",
     "escape-string-regexp": "^4.0.0",
-    "eslint": "^7.18.0",
+    "eslint": "^7.19.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-typescript": "^2.3.0",
     "eslint-plugin-import": "^2.22.1",
@@ -202,7 +202,7 @@
     "jest-circus": "^26.6.3",
     "jest-extended": "^0.11.5",
     "lint-staged": "^10.5.3",
-    "mongodb": "^3.6.3",
+    "mongodb": "^3.6.4",
     "prettier": "^2.2.1",
     "remark-cli": "^9.0.0",
     "remark-frontmatter": "^3.0.0",
@@ -225,19 +225,20 @@
     "source-map-support": "^0.5.19",
     "spellchecker": "^3.7.1",
     "text-extensions": "^2.4.0",
-    "typedoc": "^0.20.16",
-    "typedoc-plugin-markdown": "^3.4.3",
+    "typedoc": "^0.20.20",
+    "typedoc-plugin-markdown": "^3.4.5",
     "typescript": "^4.1.3",
     "unique-filename": "^1.1.1",
     "webpack": "^5.20.1",
     "webpack-cli": "^4.5.0",
-    "webpack-node-externals": "^2.5.2"
+    "webpack-node-externals": "^2.5.2",
+    "webpack-node-module-types": "^1.0.5"
   },
   "peerDependencies": {
     "next": ">=9.5.x"
   },
   "engines": {
-    "node": ">=10.x"
+    "node": ">=12.x"
   },
   "publishConfig": {
     "access": "public"

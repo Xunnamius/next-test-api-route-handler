@@ -10,7 +10,7 @@ env:
   # ? See also: https://www.npmjs.com/package/debug#wildcards
   # DEBUG: 'next-test-api-route-handler:*'
   NODE_CURRENT_VERSION: 15.x
-  NODE_TEST_VERSIONS: '"10.x", "12.x", "14.x"' # * NODE_CURRENT_VERSION included automatically
+  NODE_TEST_VERSIONS: '"12.x", "14.x"' # * NODE_CURRENT_VERSION included automatically
 
 jobs:
   metadata:
