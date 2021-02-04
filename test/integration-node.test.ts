@@ -1,16 +1,22 @@
-import { name as pkgName, version as pkgVersion, main } from '../package.json';
-import { relative, resolve } from 'path';
+import { name as pkgName, version as pkgVersion, main as pkgMain } from '../package.json';
+import { resolve } from 'path';
+import { satisfies } from 'semver';
 import sjx from 'shelljs';
-import Debug from 'debug';
+import debugFactory from 'debug';
 import uniqueFilename from 'unique-filename';
 import del from 'del';
-import { satisfies } from 'semver';
 
-const debug = Debug(
-  `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
-);
+const TEST_IDENTIFIER = 'integration-node';
+const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 
 sjx.config.silent = !process.env.DEBUG;
+
+if (!sjx.test('-e', `${__dirname}/../${pkgMain}`)) {
+  debug(`unable to find main distributable: ${__dirname}/../${pkgMain}`);
+  throw new Error(
+    'must build distributables before running this test suite (try `npm run build-dist`)'
+  );
+}
 
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
@@ -19,12 +25,6 @@ const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 debug(`nodeVersion: "${nodeVersion}"`);
 
 if (!nodeVersion) throw new Error('bad MATRIX_NODE_VERSION encountered');
-
-if (!sjx.test('-e', `${__dirname}/../${main}.js`))
-  throw new Error(
-    'must build distributables before running this test suite (try `npm run build-dist`)'
-  );
-
 const createIndexAndRunTest = (root: string) => ({ esm }: { esm: boolean }) => {
   const ext = `${esm ? 'm' : ''}js`;
 
@@ -45,21 +45,31 @@ const createIndexAndRunTest = (root: string) => ({ esm }: { esm: boolean }) => {
     });`.trim()
   );
 
-  debug(`echoing string ${cmd1} to ${root}/index.${ext}`);
+  debug(`echoing string \`${cmd1}\` to ${root}/index.${ext}`);
   cmd1.to(`${root}/index.${ext}`);
 
   debug(`package.json contents: ${sjx.cat('package.json').stdout}`);
-  const result = sjx.exec(`node index.${ext}`).stdout.trim();
+  debug(`directory at this point: ${sjx.exec('tree -a').stdout}`);
 
-  debug(`result: "${result}" (expected "working")`);
-  expect(result).toBe('working');
+  const exec = sjx.exec(`node --experimental-json-modules index.${ext}`);
+  const stdout = exec.stdout.trim();
+  const stderr = exec.stderr.trim();
+
+  if (esm) {
+    debug(`result: \`${stdout}\` (expected "working" or "")`);
+    debug(`result: \`${stderr}\` (expected "" or an error in a 3rd party dependency)`);
+    expect(stdout == 'working' || / \/.+\/node_modules\/.+$/m.test(stderr)).toBeTrue();
+  } else {
+    debug(`result: "${stdout}" (expected "working")`);
+    expect(stdout).toBe('working');
+  }
 };
 
 let deleteRoot: () => Promise<void>;
 let runTest: ReturnType<typeof createIndexAndRunTest>;
 
 beforeEach(async () => {
-  const root = uniqueFilename(sjx.tempdir(), 'integration-webpack');
+  const root = uniqueFilename(sjx.tempdir(), TEST_IDENTIFIER);
   const pkgJson = `${root}/package.json`;
 
   deleteRoot = async () => {
@@ -82,7 +92,7 @@ beforeEach(async () => {
   ).to(pkgJson);
 
   const makeLink = sjx.ln('-s', resolve(`${__dirname}/..`), `node_modules/${pkgName}`);
-  debug(`creating symbolic link (soft) via \`${makeLink}\`...`);
+  debug(`creating symbolic link`);
 
   if (makeLink.code !== 0) {
     throw new Error(
@@ -95,8 +105,8 @@ beforeEach(async () => {
 
 afterEach(() => deleteRoot());
 
-describe('next-test-api-route-handler [INTEGRATION-NODE]', () => {
-  // ? Unflagged ESM support dropped in node >=12.17.0
+describe(`${pkgName} [${TEST_IDENTIFIER}]`, () => {
+  // ? Unflagged ESM support appeared in node >=12.17.0
   // ? See the table at https://bit.ly/3hHGaqR
   (satisfies(nodeVersion, '>=12.17.0') ? it : test.skip)(
     'works as an ESM import',

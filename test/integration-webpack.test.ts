@@ -1,15 +1,21 @@
-import { name as pkgName, version as pkgVersion, main } from '../package.json';
-import { relative, resolve } from 'path';
+import { name as pkgName, version as pkgVersion, main as pkgMain } from '../package.json';
+import { resolve } from 'path';
 import sjx from 'shelljs';
-import Debug from 'debug';
+import debugFactory from 'debug';
 import uniqueFilename from 'unique-filename';
 import del from 'del';
 
-const debug = Debug(
-  `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
-);
+const TEST_IDENTIFIER = 'integration-webpack';
+const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 
 sjx.config.silent = !process.env.DEBUG;
+
+if (!sjx.test('-e', `${__dirname}/../${pkgMain}`)) {
+  debug(`unable to find main distributable: ${__dirname}/../${pkgMain}`);
+  throw new Error(
+    'must build distributables before running this test suite (try `npm run build-dist`)'
+  );
+}
 
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
@@ -18,11 +24,6 @@ const webpackVersion = process.env.MATRIX_WEBPACK_VERSION || 'latest';
 debug(`webpackVersion: "${webpackVersion}"`);
 
 if (!webpackVersion) throw new Error('bad MATRIX_WEBPACK_VERSION encountered');
-
-if (!sjx.test('-e', `${__dirname}/../${main}.js`))
-  throw new Error(
-    'must build distributables before running this test suite (try `npm run build-dist`)'
-  );
 
 enum SourceType {
   CJS = 'cjs',
@@ -45,12 +46,10 @@ const createIndexAndRunTest = (root: string) => ({
   const ext = `${source == SourceType.ESM ? 'm' : ''}js`;
 
   const cmd1 = new sjx.ShellString(
-    `${
-      source == SourceType.ESM
-        ? "import { testApiHandler } from 'next-test-api-route-handler';"
-        : "const { testApiHandler } = require('next-test-api-route-handler');"
-    }
-
+    (source == SourceType.ESM
+      ? `import { testApiHandler } from '${pkgName}';`
+      : `const { testApiHandler } = require('${pkgName}');`) +
+      `
     const getHandler = (status) => async (_, res) => {
       res.status(status || 200).send({ works: 'working' });
     };
@@ -89,7 +88,7 @@ const createIndexAndRunTest = (root: string) => ({
   debug(`echoing string ${cmd2} to ${root}/webpack.config.js`);
   cmd2.to(`${root}/webpack.config.js`);
 
-  debug(`directory at this point: ${sjx.exec('tree').stdout}`);
+  debug(`directory at this point: ${sjx.exec('tree -a').stdout}`);
 
   sjx.exec(`npm install webpack@${webpackVersion} webpack-cli`);
 
@@ -100,7 +99,7 @@ const createIndexAndRunTest = (root: string) => ({
   debug(`webpack run: (${webpack.code})\n${webpack.stderr}\n${webpack.stdout}`);
   expect(webpack.code).toBe(0);
 
-  const result = sjx.exec('node dist/index.js').stdout.trim();
+  const result = sjx.exec(`node ${__dirname}/../${pkgMain}`).stdout.trim();
   debug(`result: "${result}" (expected "working")`);
   expect(result).toBe('working');
 };
@@ -109,7 +108,7 @@ let deleteRoot: () => Promise<void>;
 let runTest: ReturnType<typeof createIndexAndRunTest>;
 
 beforeEach(async () => {
-  const root = uniqueFilename(sjx.tempdir(), 'integration-webpack');
+  const root = uniqueFilename(sjx.tempdir(), TEST_IDENTIFIER);
   const pkgJson = `${root}/package.json`;
 
   deleteRoot = async () => {
@@ -132,8 +131,8 @@ beforeEach(async () => {
     `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
   ).to(pkgJson);
 
+  debug(`creating symbolic link`);
   const makeLink = sjx.ln('-s', resolve(`${__dirname}/..`), `node_modules/${pkgName}`);
-  debug(`creating symbolic link (soft) via \`${makeLink}\`...`);
 
   if (makeLink.code !== 0) {
     throw new Error(
@@ -146,7 +145,7 @@ beforeEach(async () => {
 
 afterEach(() => deleteRoot());
 
-describe('next-test-api-route-handler [INTEGRATION-WEBPACK]', () => {
+describe(`${pkgName} [${TEST_IDENTIFIER}]`, () => {
   // eslint-disable-next-line jest/lowercase-name
   it('CJS source can be bundled into CJS app by webpack', async () => {
     expect.hasAssertions();

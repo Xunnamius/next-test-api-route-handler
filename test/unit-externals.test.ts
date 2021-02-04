@@ -1,24 +1,17 @@
 /* eslint-disable no-var */
 process.env.MONGODB_URI = 'fake://fake/fake';
 
-import { relative, resolve } from 'path';
 import { name as pkgName } from '../package.json';
 import { main as isNextCompat } from '../external-scripts/is-next-compat';
 import { config as populateEnv } from 'dotenv';
+import type { JsonEditor } from 'edit-json-file';
 import sjx from 'shelljs';
 import jsonEditor from 'edit-json-file';
-import Debug from 'debug';
+import debugFactory from 'debug';
 import uniqueFilename from 'unique-filename';
 import del from 'del';
-
-const debug = Debug(
-  `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
-);
-
 import _ from '@octokit/rest';
 import __ from 'mongodb';
-
-import type { JsonEditor } from 'edit-json-file';
 
 declare global {
   var mockTag: string;
@@ -28,6 +21,8 @@ declare global {
   var mockCloseFn: ReturnType<typeof jest.fn>;
 }
 
+const TEST_IDENTIFIER = 'unit-externals';
+const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 sjx.config.silent = !process.env.DEBUG;
 
 jest.mock('@octokit/rest', () => ({
@@ -86,7 +81,7 @@ const setMockLatest = (tag: string) => (global.mockTag = tag);
 const setMockPrevious = (prev: string) => (global.mockPrevious = prev);
 
 beforeEach(async () => {
-  const root = uniqueFilename(sjx.tempdir(), 'unit-externals');
+  const root = uniqueFilename(sjx.tempdir(), TEST_IDENTIFIER);
   const pkgJson = `${root}/package.json`;
 
   deleteRoot = async () => {
@@ -112,7 +107,7 @@ afterEach(async () => {
   await deleteRoot();
 });
 
-describe('next-test-api-route-handler [UNIT-EXTERNALS]', () => {
+describe(`${pkgName} [${TEST_IDENTIFIER}]`, () => {
   describe('/is-next-compat', () => {
     it('takes expected actions on failure', async () => {
       expect.hasAssertions();

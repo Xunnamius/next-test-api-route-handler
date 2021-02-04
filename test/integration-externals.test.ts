@@ -1,8 +1,8 @@
 process.env.MONGODB_URI = 'fake://fake/fake';
 
-import { relative, resolve } from 'path';
+import { resolve } from 'path';
 import sjx from 'shelljs';
-import Debug from 'debug';
+import debugFactory from 'debug';
 import uniqueFilename from 'unique-filename';
 import del from 'del';
 
@@ -12,29 +12,29 @@ import {
   peerDependencies
 } from '../package.json';
 
-const debug = Debug(
-  `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`
-);
+const TEST_IDENTIFIER = 'integration-externals';
+const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 
-debug(`pkgName: "${pkgName}"`);
-debug(`pkgVersion: "${pkgVersion}"`);
 sjx.config.silent = !process.env.DEBUG;
 
-if (!sjx.test('-d', `${__dirname}/../external-scripts/bin`))
+if (!sjx.test('-d', `${__dirname}/../external-scripts/bin`)) {
+  debug(`unable to find external bin dir: ${__dirname}/../external-scripts/bin`);
   throw new Error(
     'must build externals before running this test suite (try `npm run build-externals`)'
   );
-
-let deleteRoot: () => Promise<void>;
+}
+debug(`pkgName: "${pkgName}"`);
+debug(`pkgVersion: "${pkgVersion}"`);
 
 afterAll(() => deleteRoot());
+let deleteRoot: () => Promise<void>;
 
-describe('next-test-api-route-handler [INTEGRATION-EXTERNALS]', () => {
+describe(`${pkgName} [${TEST_IDENTIFIER}]`, () => {
   describe('/is-next-compat', () => {
     it('runs as expected', async () => {
       expect.hasAssertions();
 
-      const root = uniqueFilename(sjx.tempdir(), 'integration-externals');
+      const root = uniqueFilename(sjx.tempdir(), TEST_IDENTIFIER);
       const pkgJson = `${root}/package.json`;
 
       deleteRoot = async () => {
@@ -58,6 +58,7 @@ describe('next-test-api-route-handler [INTEGRATION-EXTERNALS]', () => {
       ).to(pkgJson);
 
       debug(`package.json contents: ${sjx.cat('package.json').stdout}`);
+      debug(`directory at this point: ${sjx.exec('tree -a').stdout}`);
 
       const result = sjx.exec(
         `NO_DB_UPDATE=true node "${resolve(
