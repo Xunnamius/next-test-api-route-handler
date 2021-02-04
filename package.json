@@ -231,8 +231,7 @@
     "unique-filename": "^1.1.1",
     "webpack": "^5.20.1",
     "webpack-cli": "^4.5.0",
-    "webpack-node-externals": "^2.5.2",
-    "webpack-node-module-types": "^1.0.5"
+    "webpack-node-externals": "^2.5.2"
   },
   "peerDependencies": {
     "next": ">=9.5.x"
