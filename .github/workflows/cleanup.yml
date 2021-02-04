@@ -13,7 +13,7 @@ env:
   NODE_CURRENT_VERSION: 15.x
   IGNORE_TAGS: 'latest' # example: IGNORE_TAGS: 'tag1, tag2, tag-3'
   # ! These also have to be updated in .changelogrc.js and build-test-deploy.yml
-  CI_SKIP_COMMANDS: '[skip ci], [ci skip]'
+  CI_SKIP_REGEX: '\[skip ci\]|\[ci skip\]'
   # ? Add your GitHub user/org to enable this pipeline workflow
   # ? (you'll need to provide your own secrets or the pipeline will error)
   REPO_OWNER_WHITELIST: xunnamius, ergodark, nhscc
@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 1 # ! We only skip if the tippy top commit says so!
 
       - name: Determine should-skip
-        id: skip
+        id: skip-ci
         run: |
           set +e
           LAST_COMMIT_MSG=$(git log -1 --pretty=format:"%s")
@@ -52,12 +52,6 @@ jobs:
           [ $? -ne 0 ] && CI_SKIP=false || CI_SKIP=true
           ! [ -z "$DEBUG" ] && echo "CI_SKIP=$CI_SKIP" || true
 
-          echo "::set-output name=should-skip-ci::$CI_SKIP"
-          ! [ -z "$DEBUG" ] && echo "set-output name=should-skip-ci::$CI_SKIP" || true
-
-      - name: Determine should-skip
-        id: skip-ci
-        run: |
           echo "::set-output name=should-skip::$CI_SKIP"
           ! [ -z "$DEBUG" ] && echo "set-output name=should-skip::$CI_SKIP" || true
 
@@ -116,6 +110,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          set +e
           npm install --no-save micromatch
           git remote prune origin
           BRANCHES=`git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin`
@@ -123,7 +118,7 @@ jobs:
           export BRANCHES
           PKG_NAME=`node -e 'console.log(require("./package.json").name)'`
           ! [ -z "$DEBUG" ] && echo "PKG_NAME=$PKG_NAME" || true
-          DIST_TAGS=`npm dist-tag list "$PKG_NAME"`
+          DIST_TAGS=`npm dist-tag list "$PKG_NAME" 2>/dev/null`
           ! [ -z "$DEBUG" ] && echo "DIST_TAGS=$DIST_TAGS" || true
           export DIST_TAGS
           MATCHED_TAGS=$(node -e 'const match = require("micromatch"); const tags = process.env.DIST_TAGS.split("\n").map(t => t.split(":")[0]); const branches = match(process.env.BRANCHES.split("\n"), require("./release.config.js").branches.reduce((a,b) => [...a, b.name || b.toString()], [])); const ignoreTags = process.env.IGNORE_TAGS.split(", "); console.log(tags.reduce((a,t) => branches.some(b => ignoreTags.includes(t) || t == b || t == `release-${b}`) ? a : [...a, t], []).join(" ").trim())')
