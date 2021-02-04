@@ -1,22 +1,22 @@
-import { relative, resolve, dirname } from 'path';
+import { dirname } from 'path';
 import { name as pkgName } from '../package.json';
 import { Octokit } from '@octokit/rest';
 import { MongoClient } from 'mongodb';
 import sjx from 'shelljs';
 import findPackageJson from 'find-package-json';
-import Debug from 'debug';
+import debugFactory from 'debug';
 
-const mode = `${pkgName}:${relative(resolve('.'), __filename).split('.').find(Boolean)}`;
+const TEST_IDENTIFIER = `${pkgName}:is-next-compat`;
 
-sjx.config.silent = true;
+sjx.config.silent = !process.env.DEBUG;
 
 export async function main(isCli = false) {
-  const debug = Debug(mode);
+  const debug = debugFactory(TEST_IDENTIFIER);
   // ? Print debug messages to stdout if isCli == true
   // eslint-disable-next-line no-console
   debug.log = (...args) => void console[isCli ? 'log' : 'error'](...args);
 
-  if (isCli && !process.env.DEBUG) Debug.enable(mode);
+  if (isCli && !process.env.DEBUG) debugFactory.enable(TEST_IDENTIFIER);
 
   /**
    * Update the cluster with the new information so that the badge stays current
@@ -64,8 +64,8 @@ export async function main(isCli = false) {
           (
             await client
               .db()
-              .collection('flags')
-              .findOne<{ compat: string }>({ compat: { $exists: true } })
+              .collection<{ compat: string }>('flags')
+              .findOne({ compat: { $exists: true } })
           )?.compat || '';
 
         await client.close();
