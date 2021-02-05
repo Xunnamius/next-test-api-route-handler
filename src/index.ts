@@ -4,7 +4,7 @@ import { createServer } from 'http';
 import { parse as parseUrl } from 'url';
 import { apiResolver } from 'next/dist/next-server/server/api-utils.js';
 
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiHandler } from 'next';
 import type { IncomingMessage, ServerResponse } from 'http';
 
 /**
@@ -38,7 +38,7 @@ export async function testApiHandler({
   requestPatcher?: (req: IncomingMessage) => void;
   responsePatcher?: (res: ServerResponse) => void;
   params?: Record<string, unknown>;
-  handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
+  handler: NextApiHandler;
   test: (obj: {
     fetch: (init?: RequestInit) => ReturnType<typeof fetch>;
   }) => Promise<void>;
