@@ -103,30 +103,26 @@ export async function main(isCli = false) {
 
     debug(`saw latest release version "${latest}"`);
 
-    const { value: pkg, filename: path } = findPackageJson(process.cwd()).next();
+    const { filename: path } = findPackageJson(process.cwd()).next();
 
-    if (!path || !pkg) throw new Error('could not find package.json');
+    if (!path) throw new Error('could not find package.json');
 
-    debug(`using package.json @ "${path}"`);
+    const dir = dirname(path);
+    debug(`using path: ${dir}`);
 
-    const cd = sjx.cd(dirname(path));
+    const cd = sjx.cd(dir);
 
     if (cd.code != 0) throw new Error(`cd failed: ${cd.stderr} ${cd.stdout}`);
 
     const prev: string = await getLastTestedVersion();
-    const dist: string = pkg.peerDependencies?.next ?? '';
-
-    if (!dist) throw new Error('could not find Next.js peer dependency in package.json');
 
     if (latest != prev) {
-      if (dist != latest) {
-        debug(`installing next@${latest}`);
+      debug(`installing next@${latest}`);
 
-        const npmi = sjx.exec(`npm install --no-save next@${latest}`);
+      const npmi = sjx.exec(`npm install --no-save next@${latest}`);
 
-        if (npmi.code != 0)
-          throw new Error(`initial npm install failed: ${npmi.stderr} ${npmi.stdout}`);
-      } else debug(`no additional installation necessary`);
+      if (npmi.code != 0)
+        throw new Error(`initial npm install failed: ${npmi.stderr} ${npmi.stdout}`);
 
       debug('running compatibility test');
 
