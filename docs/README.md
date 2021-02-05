@@ -32,7 +32,7 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 #### Parameters:
 
-• **(destructured)**: *object*
+**({ destructured })**: *object*
 
 | Name               | Type                                                                                               |
 | ------------------ | -------------------------------------------------------------------------------------------------- |
@@ -48,4 +48,4 @@ Defined in: [index.ts:31][2]
 
 [1]: README.md#testapihandler
 
-[2]: https://github.com/Xunnamius/next-test-api-route-handler/blob/6d21119/src/index.ts#L31
+[2]: https://github.com/Xunnamius/next-test-api-route-handler/blob/f87a717/src/index.ts#L31
