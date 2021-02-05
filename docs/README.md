@@ -8,7 +8,7 @@
 
 ### testApiHandler
 
-▸ **testApiHandler**({ `handler`: (`req`: NextApiRequest, `res`: NextApiResponse) => *Promise*<*void*> ; `params?`: *Record*<*string*, *unknown*> ; `requestPatcher?`: (`req`: IncomingMessage) => *void* ; `responsePatcher?`: (`res`: ServerResponse) => *void* ; `test`: (`obj`: { `fetch`: (`init?`: RequestInit) => *ReturnType*<*typeof* fetch>  }) => *Promise*<*void*>  }): *Promise*<*void*>
+▸ **testApiHandler**({ `handler`: NextApiHandler ; `params?`: *Record*<*string*, *unknown*> ; `requestPatcher?`: (`req`: IncomingMessage) => *void* ; `responsePatcher?`: (`res`: ServerResponse) => *void* ; `test`: (`obj`: { `fetch`: (`init?`: RequestInit) => *ReturnType*<*typeof* fetch>  }) => *Promise*<*void*>  }): *Promise*<*void*>
 
 Uses Next's internal `apiResolver` to execute api route handlers in a
 Next-like testing environment.
@@ -36,7 +36,7 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 | Name               | Type                                                                                               |
 | ------------------ | -------------------------------------------------------------------------------------------------- |
-| `handler`          | (`req`: NextApiRequest, `res`: NextApiResponse) => *Promise*<*void*>                               |
+| `handler`          | NextApiHandler                                                                                     |
 | `params?`          | *Record*<*string*, *unknown*>                                                                      |
 | `requestPatcher?`  | (`req`: IncomingMessage) => *void*                                                                 |
 | `responsePatcher?` | (`res`: ServerResponse) => *void*                                                                  |
@@ -48,4 +48,4 @@ Defined in: [index.ts:31][2]
 
 [1]: README.md#testapihandler
 
-[2]: https://github.com/Xunnamius/next-test-api-route-handler/blob/f87a717/src/index.ts#L31
+[2]: https://github.com/Xunnamius/next-test-api-route-handler/blob/473ff50/src/index.ts#L31
