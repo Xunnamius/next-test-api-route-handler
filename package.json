@@ -181,7 +181,7 @@
     "babel-loader": "^8.2.2",
     "babel-plugin-add-import-extension": "^1.4.4",
     "babel-plugin-source-map-support": "^2.1.3",
-    "babel-plugin-transform-default-named-imports": "^1.0.7",
+    "babel-plugin-transform-default-named-imports": "^1.0.9",
     "babel-plugin-transform-rename-import": "^2.3.0",
     "confusing-browser-globals": "^1.0.10",
     "conventional-changelog-angular": "^5.0.12",
