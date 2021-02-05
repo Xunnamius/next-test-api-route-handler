@@ -99,7 +99,7 @@ const createIndexAndRunTest = (root: string) => ({
   debug(`webpack run: (${webpack.code})\n${webpack.stderr}\n${webpack.stdout}`);
   expect(webpack.code).toBe(0);
 
-  const result = sjx.exec(`node ${__dirname}/../${pkgMain}`).stdout.trim();
+  const result = sjx.exec(`node ${root}/dist/index.js`).stdout.trim();
   debug(`result: "${result}" (expected "working")`);
   expect(result).toBe('working');
 };
