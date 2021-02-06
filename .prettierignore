@@ -3,8 +3,4 @@
 /node_modules
 /dist
 /coverage
-/docs
-/docs-diff
-/tmp-docs
-/tmp-docs-diff
 /package-lock.json
