@@ -1,7 +1,7 @@
 ---
 name: 🤩 Feature request
 about: Tell us about your awesome idea
-labels: 🤩 feature
+labels: enhancement
 ---
 
 <!--
@@ -12,18 +12,18 @@ If you've encountered a bug, please report it as a bug instead of a feature
 request.
 -->
 
-### Describe the solution you'd like to see
+### The solution
 
 <!--
 Include a clear and concise description of what you want to happen. If
 applicable, add screenshots to help explain your solution.
 -->
 
-### Describe alternatives you've considered
+### Alternatives considered
 
 <!--
 Include a clear and concise description of any alternative solutions or features
-you've encountered and/or considered.
+you've encountered and/or considered or N/A if there are none.
 -->
 
 <details><summary><strong>Additional context</strong></summary>
