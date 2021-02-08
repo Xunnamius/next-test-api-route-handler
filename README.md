@@ -187,7 +187,7 @@ finally running `npx jest`.
 > [crucial][12] when testing Apollo endpoints!**
 
 ```javascript
-// <repo>/examples/api-routes-apollo-server-and-client/tests/my.test.js
+/* File: <repo>/examples/api-routes-apollo-server-and-client/tests/my.test.js */
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the pages/api directory
 import handler, { config } from '../pages/api/graphql';
