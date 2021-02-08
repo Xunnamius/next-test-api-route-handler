@@ -25,7 +25,7 @@ tests working? Want your handlers to receive actual [NextApiRequest][2] and
 express? Then look no further! 🤩 This package allows you to quickly test your
 Next.js API routes/handlers in an isolated Next.js-like context.
 
-`next-test-api-route-handler` uses Next.js's internal API resolver to precisely
+`next-test-api-route-handler` (NTARH) uses Next.js's internal API resolver to precisely
 emulate API route handling. To guarantee stability, this package is
 automatically tested against [each release of Next.js][3]. Go forth and test
 confidently!
@@ -94,19 +94,19 @@ exhibit the [dual package hazard][hazard].
 
 ## Usage
 
-```TypeScript
+```typescript
 // ESM
 import { testApiHandler } from 'next-test-api-route-handler'
 ```
 
-```JavaScript
+```javascript
 // CJS
 const { testApiHandler } = require('next-test-api-route-handler');
 ```
 
 Quick start:
 
-```TypeScript
+```typescript
 /* File: test/unit.test.js */
 import * as endpoint from '../pages/api/your-endpoint';
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -132,7 +132,7 @@ await testApiHandler({
 
 The interface for `testApiHandler` looks like this:
 
-```TypeScript
+```typescript
 async function testApiHandler({ requestPatcher, responsePatcher, params, handler, test }: {
   requestPatcher?: (req: IncomingMessage) => void,
   responsePatcher?: (res: ServerResponse) => void,
@@ -165,6 +165,54 @@ handler under test.
 
 ## Real-World Examples
 
+### Testing the Official Apollo Example @ `examples/api-routes-apollo-server-and-client`
+
+You can run this example yourself by cloning [the Next.js repository](https://github.com/vercel/next.js), navigating to `examples/api-routes-apollo-server-and-client`, running `npm install` followed by `npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env`, copying and pasting the following source (perhaps at `tests/my.test.js`), and finally running `npx jest`.
+
+> **Note that passing the [route configuration object](https://nextjs.org/docs/api-routes/api-middlewares#custom-config) (imported below as `config`) through to NTARH and setting `request.url` to the proper value is [crucial](https://github.com/Xunnamius/next-test-api-route-handler/issues/56) when testing Apollo endpoints!**
+
+```typescript
+// <repo>/examples/api-routes-apollo-server-and-client/tests/my.test.js
+import { testApiHandler } from 'next-test-api-route-handler';
+import handler, { config } from '../pages/api/graphql';
+
+handler.config = config;
+
+describe('my-test', () => {
+  it('does what I want', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      requestPatcher: (req) => (req.url = '/api/graphql'),
+      handler,
+      test: async ({ fetch }) => {
+        const query = `query ViewerQuery {
+          viewer {
+            id
+            name
+            status
+          }
+        }`;
+
+        const res = await fetch({
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            query
+          })
+        });
+
+        expect(await res.json()).toStrictEqual({
+          data: { viewer: { id: '1', name: 'John Smith', status: 'cached' } }
+        });
+      }
+    });
+  });
+});
+```
+
 ### Testing an Unreliable API Handler @ `pages/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
@@ -174,7 +222,7 @@ The endpoint responds with status code `HTTP 200` for every request except the
 How might we test that this endpoint responds with `HTTP 555` once for every
 nine `HTTP 200` responses?
 
-```TypeScript
+```typescript
 import * as UnreliableHandler from '../pages/api/unreliable'
 import { testApiHandler } from 'next-test-api-route-handler'
 import { shuffle } from 'fast-shuffle'
@@ -253,7 +301,7 @@ query.
 How might we test that this endpoint returns flights in our database as
 expected?
 
-```TypeScript
+```typescript
 import * as V3FlightsSearchHandler from '../pages/api/v3/flights/search'
 import { testApiHandler } from 'next-test-api-route-handler'
 import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend'
