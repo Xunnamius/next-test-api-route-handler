@@ -25,8 +25,8 @@ tests working? Want your handlers to receive actual [NextApiRequest][2] and
 express? Then look no further! 🤩 This package allows you to quickly test your
 Next.js API routes/handlers in an isolated Next.js-like context.
 
-`next-test-api-route-handler` (NTARH) uses Next.js's internal API resolver to precisely
-emulate API route handling. To guarantee stability, this package is
+`next-test-api-route-handler` (NTARH) uses Next.js's internal API resolver to
+precisely emulate API route handling. To guarantee stability, this package is
 automatically tested against [each release of Next.js][3]. Go forth and test
 confidently!
 
@@ -96,7 +96,7 @@ exhibit the [dual package hazard][hazard].
 
 ```typescript
 // ESM
-import { testApiHandler } from 'next-test-api-route-handler'
+import { testApiHandler } from 'next-test-api-route-handler';
 ```
 
 ```javascript
@@ -133,13 +133,21 @@ await testApiHandler({
 The interface for `testApiHandler` looks like this:
 
 ```typescript
-async function testApiHandler({ requestPatcher, responsePatcher, params, handler, test }: {
-  requestPatcher?: (req: IncomingMessage) => void,
-  responsePatcher?: (res: ServerResponse) => void,
-  params?: Record<string, unknown>,
-  handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
-  test: (obj: { fetch: (init?: RequestInit) => ReturnType<typeof fetch> }) => Promise<void>,
-})
+async function testApiHandler({
+  requestPatcher,
+  responsePatcher,
+  params,
+  handler,
+  test
+}: {
+  requestPatcher?: (req: IncomingMessage) => void;
+  responsePatcher?: (res: ServerResponse) => void;
+  params?: Record<string, unknown>;
+  handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
+  test: (obj: {
+    fetch: (init?: RequestInit) => ReturnType<typeof fetch>;
+  }) => Promise<void>;
+});
 ```
 
 `requestPatcher` is a function that receives an [IncomingMessage][5]. Use this
@@ -167,9 +175,16 @@ handler under test.
 
 ### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-You can run this example yourself by cloning [the Next.js repository](https://github.com/vercel/next.js), navigating to `examples/api-routes-apollo-server-and-client`, running `npm install` followed by `npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env`, copying and pasting the following source (perhaps at `tests/my.test.js`), and finally running `npx jest`.
+You can run this example yourself by cloning [the Next.js repository][10],
+navigating to `examples/api-routes-apollo-server-and-client`, running
+`npm install` followed by
+`npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env`,
+copying and pasting the following source (perhaps at `tests/my.test.js`), and
+finally running `npx jest`.
 
-> **Note that passing the [route configuration object](https://nextjs.org/docs/api-routes/api-middlewares#custom-config) (imported below as `config`) through to NTARH and setting `request.url` to the proper value is [crucial](https://github.com/Xunnamius/next-test-api-route-handler/issues/56) when testing Apollo endpoints!**
+> **Note that passing the [route configuration object][11] (imported below as
+> `config`) through to NTARH and setting `request.url` to the proper value is
+> [crucial][12] when testing Apollo endpoints!**
 
 ```typescript
 // <repo>/examples/api-routes-apollo-server-and-client/tests/my.test.js
@@ -223,16 +238,17 @@ How might we test that this endpoint responds with `HTTP 555` once for every
 nine `HTTP 200` responses?
 
 ```typescript
-import * as UnreliableHandler from '../pages/api/unreliable'
-import { testApiHandler } from 'next-test-api-route-handler'
-import { shuffle } from 'fast-shuffle'
-import array from 'array-range'
+import * as UnreliableHandler from '../pages/api/unreliable';
+import { testApiHandler } from 'next-test-api-route-handler';
+import { shuffle } from 'fast-shuffle';
+import array from 'array-range';
 
-import type { WithConfig } from '@ergodark/next-types'
+import type { WithConfig } from '@ergodark/next-types';
 
 // Import the handler under test from the pages/api directory and respect the
 // Next.js config object if it's exported
-const unreliableHandler: WithConfig<typeof UnreliableHandler.default> = UnreliableHandler.default;
+const unreliableHandler: WithConfig<typeof UnreliableHandler.default> =
+  UnreliableHandler.default;
 unreliableHandler.config = UnreliableHandler.config;
 
 it('injects contrived errors at the required rate', async () => {
@@ -242,7 +258,9 @@ it('injects contrived errors at the required rate', async () => {
   // error among every 10 requests
   process.env.REQUESTS_PER_CONTRIVED_ERROR = '10';
 
-  const expectedReqPerError = parseInt(process.env.REQUESTS_PER_CONTRIVED_ERROR);
+  const expectedReqPerError = parseInt(
+    process.env.REQUESTS_PER_CONTRIVED_ERROR
+  );
 
   // Returns one of ['GET', 'POST', 'PUT', 'DELETE'] at random
   const getMethod = () => shuffle(['GET', 'POST', 'PUT', 'DELETE'])[0];
@@ -255,20 +273,40 @@ it('injects contrived errors at the required rate', async () => {
     test: async ({ fetch }) => {
       // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
       // record the results
-      const results1 = await Promise.all([
-        ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
-        getStatus(fetch({ method: getMethod() })),
-        ...array(expectedReqPerError - 1).map(_ => getStatus(fetch({ method: getMethod() }))),
-        getStatus(fetch({ method: getMethod() }))
-      ].map(p => p.then(s => s, _ => null)));
+      const results1 = await Promise.all(
+        [
+          ...array(expectedReqPerError - 1).map((_) =>
+            getStatus(fetch({ method: getMethod() }))
+          ),
+          getStatus(fetch({ method: getMethod() })),
+          ...array(expectedReqPerError - 1).map((_) =>
+            getStatus(fetch({ method: getMethod() }))
+          ),
+          getStatus(fetch({ method: getMethod() }))
+        ].map((p) =>
+          p.then(
+            (s) => s,
+            (_) => null
+          )
+        )
+      );
 
       process.env.REQUESTS_PER_CONTRIVED_ERROR = '0';
 
       // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and
       // record the results
-      const results2 = await Promise.all([
-        ...array(expectedReqPerError).map(_ => getStatus(fetch({ method: getMethod() }))),
-      ].map(p => p.then(s => s, _ => null)));
+      const results2 = await Promise.all(
+        [
+          ...array(expectedReqPerError).map((_) =>
+            getStatus(fetch({ method: getMethod() }))
+          )
+        ].map((p) =>
+          p.then(
+            (s) => s,
+            (_) => null
+          )
+        )
+      );
 
       // We expect results1 to be an array with eighteen `200`s and two
       // `555`s in any order
@@ -276,16 +314,16 @@ it('injects contrived errors at the required rate', async () => {
       // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
       // because responses could be received out of order
       expect(results1).toIncludeSameMembers([
-        ...array(expectedReqPerError - 1).map(_ => 200),
+        ...array(expectedReqPerError - 1).map((_) => 200),
         555,
-        ...array(expectedReqPerError - 1).map(_ => 200),
+        ...array(expectedReqPerError - 1).map((_) => 200),
         555
       ]);
 
       // We expect results2 to be an array with ten `200`s
 
       expect(results2).toStrictEqual([
-        ...array(expectedReqPerError).map(_ => 200),
+        ...array(expectedReqPerError).map((_) => 200)
       ]);
     }
   });
@@ -302,16 +340,18 @@ How might we test that this endpoint returns flights in our database as
 expected?
 
 ```typescript
-import * as V3FlightsSearchHandler from '../pages/api/v3/flights/search'
-import { testApiHandler } from 'next-test-api-route-handler'
-import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend'
-import array from 'array-range'
+import * as V3FlightsSearchHandler from '../pages/api/v3/flights/search';
+import { testApiHandler } from 'next-test-api-route-handler';
+import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend';
+import array from 'array-range';
 
-import type { WithConfig } from '@ergodark/next-types'
+import type { WithConfig } from '@ergodark/next-types';
 
 // Import the handler under test from the pages/api directory and respect the
 // Next.js config object if it's exported
-const v3FlightsSearchHandler: WithConfig<typeof V3FlightsSearchHandler.default> = V3FlightsSearchHandler.default;
+const v3FlightsSearchHandler: WithConfig<
+  typeof V3FlightsSearchHandler.default
+> = V3FlightsSearchHandler.default;
 v3FlightsSearchHandler.config = V3FlightsSearchHandler.config;
 
 it('returns expected public flights with respect to match', async () => {
@@ -321,7 +361,8 @@ it('returns expected public flights with respect to match', async () => {
   const flights = getFlightData();
 
   // Take any JSON object and stringify it into a URL-ready string
-  const encode = (o: Record<string, unknown>) => encodeURIComponent(JSON.stringify(o));
+  const encode = (o: Record<string, unknown>) =>
+    encodeURIComponent(JSON.stringify(o));
 
   // This function will return in order the URIs we're interested in testing
   // against our handler. Query strings are parsed automatically, though we
@@ -329,20 +370,20 @@ it('returns expected public flights with respect to match', async () => {
   //
   // Example URI for `https://google.com/search?params=yes` would be
   // `/search?params=yes`
-  const genUrl = function*() {
+  const genUrl = (function* () {
     yield `/?match=${encode({ airline: 'Spirit' })}`; // i.e. we want all the flights matching Spirit airlines!
     yield `/?match=${encode({ type: 'departure' })}`;
     yield `/?match=${encode({ landingAt: 'F1A' })}`;
     yield `/?match=${encode({ seatPrice: 500 })}`;
-    yield `/?match=${encode({ seatPrice: { $gt: 500 }})}`;
-    yield `/?match=${encode({ seatPrice: { $gte: 500 }})}`;
-    yield `/?match=${encode({ seatPrice: { $lt: 500 }})}`;
-    yield `/?match=${encode({ seatPrice: { $lte: 500 }})}`;
-  }();
+    yield `/?match=${encode({ seatPrice: { $gt: 500 } })}`;
+    yield `/?match=${encode({ seatPrice: { $gte: 500 } })}`;
+    yield `/?match=${encode({ seatPrice: { $lt: 500 } })}`;
+    yield `/?match=${encode({ seatPrice: { $lte: 500 } })}`;
+  })();
 
   await testApiHandler({
     // Patch the request object to include our dummy URI
-    requestPatcher: req => {
+    requestPatcher: (req) => {
       req.url = genUrl.next().value || undefined;
       // Could have done this instead of fetch({ headers: { KEY }}) below:
       // req.headers = { KEY };
@@ -352,13 +393,17 @@ it('returns expected public flights with respect to match', async () => {
 
     test: async ({ fetch }) => {
       // 8 URLS from genUrl means 8 calls to fetch:
-      const responses = await Promise.all(array(8).map(_ => {
-        return fetch({ headers: { KEY }}).then(r => r.ok ? r.json() : r.status);
-      }));
+      const responses = await Promise.all(
+        array(8).map((_) => {
+          return fetch({ headers: { KEY } }).then((r) =>
+            r.ok ? r.json() : r.status
+          );
+        })
+      );
 
       // We expect all of the responses to be 200
 
-      expect(responses.some(o => !o?.success)).toBe(false);
+      expect(responses.some((o) => !o?.success)).toBe(false);
 
       // We expect the array of flights returned to match our
       // expectations given we already know what dummy data will be
@@ -366,15 +411,15 @@ it('returns expected public flights with respect to match', async () => {
 
       // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
       // because responses could be received out of order
-      expect(responses.map(r => r.flights)).toIncludeSameMembers([
-        flights.filter(f => f.airline == 'Spirit').slice(0, RESULT_SIZE),
-        flights.filter(f => f.type == 'departure').slice(0, RESULT_SIZE),
-        flights.filter(f => f.landingAt == 'F1A').slice(0, RESULT_SIZE),
-        flights.filter(f => f.seatPrice == 500).slice(0, RESULT_SIZE),
-        flights.filter(f => f.seatPrice > 500).slice(0, RESULT_SIZE),
-        flights.filter(f => f.seatPrice >= 500).slice(0, RESULT_SIZE),
-        flights.filter(f => f.seatPrice < 500).slice(0, RESULT_SIZE),
-        flights.filter(f => f.seatPrice <= 500).slice(0, RESULT_SIZE),
+      expect(responses.map((r) => r.flights)).toIncludeSameMembers([
+        flights.filter((f) => f.airline == 'Spirit').slice(0, RESULT_SIZE),
+        flights.filter((f) => f.type == 'departure').slice(0, RESULT_SIZE),
+        flights.filter((f) => f.landingAt == 'F1A').slice(0, RESULT_SIZE),
+        flights.filter((f) => f.seatPrice == 500).slice(0, RESULT_SIZE),
+        flights.filter((f) => f.seatPrice > 500).slice(0, RESULT_SIZE),
+        flights.filter((f) => f.seatPrice >= 500).slice(0, RESULT_SIZE),
+        flights.filter((f) => f.seatPrice < 500).slice(0, RESULT_SIZE),
+        flights.filter((f) => f.seatPrice <= 500).slice(0, RESULT_SIZE)
       ]);
     }
   });
@@ -383,14 +428,20 @@ it('returns expected public flights with respect to match', async () => {
 
   await testApiHandler({
     handler: v3FlightsSearchHandler,
-    requestPatcher: req => { req.url = `/?match=${encode({ ffms: { $eq: 500 }})}` },
-    test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
+    requestPatcher: (req) => {
+      req.url = `/?match=${encode({ ffms: { $eq: 500 } })}`;
+    },
+    test: async ({ fetch }) =>
+      expect((await fetch({ headers: { KEY } })).status).toBe(400)
   });
 
   await testApiHandler({
     handler: v3FlightsSearchHandler,
-    requestPatcher: req => { req.url = `/?match=${encode({ bad: 500 })}` },
-    test: async ({ fetch }) => expect((await fetch({ headers: { KEY }})).status).toBe(400)
+    requestPatcher: (req) => {
+      req.url = `/?match=${encode({ bad: 500 })}`;
+    },
+    test: async ({ fetch }) =>
+      expect((await fetch({ headers: { KEY } })).status).toBe(400)
   });
 });
 ```
@@ -478,3 +529,6 @@ information.
 [7]: https://www.npmjs.com/package/isomorphic-unfetch
 [8]: https://github.com/developit/unfetch#examples--demos
 [9]: test
+[10]: https://github.com/vercel/next.js
+[11]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[12]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
