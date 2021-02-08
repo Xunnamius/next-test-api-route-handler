@@ -107,26 +107,24 @@ const { testApiHandler } = require('next-test-api-route-handler');
 Quick start:
 
 ```typescript
-/* File: test/unit.test.js */
+/* File: test/unit.test.ts */
 
-import * as endpoint from '../pages/api/your-endpoint';
 import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the pages/api directory
+import endpoint, { config } from '../pages/api/your-endpoint';
 
-// This is a simple sugar type for the default export to give it a `config`
-// property. You DO NOT need this package to use next-test-api-route-handler!
-import type { WithConfig } from '@ergodark/next-types';
+import type { PageConfig } from 'next';
 
-// Import the handler under test from the pages/api directory and respect the
-// Next.js config object if it's exported
-const endpoint: WithConfig<typeof Endpoint.default> = Endpoint.default;
-endpoint.config = Endpoint.config;
+// Respect the Next.js config object if it's exported
+const handler: typeof endpoint & { config?: PageConfig } = endpoint;
+handler.config = config;
 
 await testApiHandler({
+  handler,
   requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
-  handler: endpoint,
   test: async ({ fetch }) => {
     const res = await fetch({ method: 'POST', body: 'data' });
-    console.log(await res.json()); // ◄ outputs: '{hello: 'world'}'
+    console.log(await res.json()); // ◄ outputs: "{hello: 'world'}"
   }
 });
 ```
@@ -145,7 +143,7 @@ async function testApiHandler({
   responsePatcher?: (res: ServerResponse) => void;
   params?: Record<string, unknown>;
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
-  test: (obj: {
+  test: ({
     fetch: (init?: RequestInit) => ReturnType<typeof fetch>;
   }) => Promise<void>;
 });
@@ -180,8 +178,8 @@ You can run this example yourself by cloning [the Next.js repository][10],
 navigating to `examples/api-routes-apollo-server-and-client`, running
 `npm install` followed by
 `npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env`,
-copying and pasting the following source (perhaps at `tests/my.test.js`), and
-finally running `npx jest`.
+copying and pasting the following JavaScript source (perhaps at
+`tests/my.test.js`), and finally running `npx jest`.
 
 > **Note that passing the [route configuration object][11] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
@@ -243,18 +241,19 @@ How might we test that this endpoint responds with `HTTP 555` once for every
 nine `HTTP 200` responses?
 
 ```typescript
-import * as UnreliableHandler from '../pages/api/unreliable';
+/* File: test/unit.test.ts */
+
+// Import the handler under test from the pages/api directory
+import endpoint, { config } from '../pages/api/unreliable';
 import { testApiHandler } from 'next-test-api-route-handler';
 import { shuffle } from 'fast-shuffle';
 import array from 'array-range';
 
-import type { WithConfig } from '@ergodark/next-types';
+import type { PageConfig } from 'next';
 
-// Import the handler under test from the pages/api directory and respect the
-// Next.js config object if it's exported
-const unreliableHandler: WithConfig<typeof UnreliableHandler.default> =
-  UnreliableHandler.default;
-unreliableHandler.config = UnreliableHandler.config;
+// Respect the Next.js config object if it's exported
+const handler: typeof endpoint & { config?: PageConfig } = endpoint;
+handler.config = config;
 
 it('injects contrived errors at the required rate', async () => {
   expect.hasAssertions();
@@ -274,7 +273,7 @@ it('injects contrived errors at the required rate', async () => {
   const getStatus = async (res: Promise<Response>) => (await res).status;
 
   await testApiHandler({
-    handler: unreliableHandler,
+    handler,
     test: async ({ fetch }) => {
       // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
       // record the results
@@ -345,19 +344,18 @@ How might we test that this endpoint returns flights in our database as
 expected?
 
 ```typescript
-import * as V3FlightsSearchHandler from '../pages/api/v3/flights/search';
+/* File: test/unit.test.ts */
+
+import endpoint, { config } from '../pages/api/v3/flights/search';
 import { testApiHandler } from 'next-test-api-route-handler';
 import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend';
 import array from 'array-range';
 
-import type { WithConfig } from '@ergodark/next-types';
+import type { PageConfig } from 'next';
 
-// Import the handler under test from the pages/api directory and respect the
-// Next.js config object if it's exported
-const v3FlightsSearchHandler: WithConfig<
-  typeof V3FlightsSearchHandler.default
-> = V3FlightsSearchHandler.default;
-v3FlightsSearchHandler.config = V3FlightsSearchHandler.config;
+// Respect the Next.js config object if it's exported
+const handler: typeof endpoint & { config?: PageConfig } = endpoint;
+handler.config = config;
 
 it('returns expected public flights with respect to match', async () => {
   expect.hasAssertions();
@@ -376,7 +374,8 @@ it('returns expected public flights with respect to match', async () => {
   // Example URI for `https://google.com/search?params=yes` would be
   // `/search?params=yes`
   const genUrl = (function* () {
-    yield `/?match=${encode({ airline: 'Spirit' })}`; // i.e. we want all the flights matching Spirit airlines!
+    // For example, the first should match all the flights from Spirit airlines!
+    yield `/?match=${encode({ airline: 'Spirit' })}`;
     yield `/?match=${encode({ type: 'departure' })}`;
     yield `/?match=${encode({ landingAt: 'F1A' })}`;
     yield `/?match=${encode({ seatPrice: 500 })}`;
@@ -394,7 +393,7 @@ it('returns expected public flights with respect to match', async () => {
       // req.headers = { KEY };
     },
 
-    handler: v3FlightsSearchHandler,
+    handler,
 
     test: async ({ fetch }) => {
       // 8 URLS from genUrl means 8 calls to fetch:
@@ -432,7 +431,7 @@ it('returns expected public flights with respect to match', async () => {
   // We expect these two to fail with 400 errors
 
   await testApiHandler({
-    handler: v3FlightsSearchHandler,
+    handler,
     requestPatcher: (req) => {
       req.url = `/?match=${encode({ ffms: { $eq: 500 } })}`;
     },
@@ -441,7 +440,7 @@ it('returns expected public flights with respect to match', async () => {
   });
 
   await testApiHandler({
-    handler: v3FlightsSearchHandler,
+    handler,
     requestPatcher: (req) => {
       req.url = `/?match=${encode({ bad: 500 })}`;
     },
