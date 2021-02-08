@@ -33,7 +33,7 @@ explain here how to use it to reproduce your bug. For example:
 
 </details>
 
-<details open><summary><strong>Expected behavior</strong></summary>
+<details><summary><strong>Expected behavior</strong></summary>
 
 <!--
 Optional: include a clear and concise description of what you expected to
