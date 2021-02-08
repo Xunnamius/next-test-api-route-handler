@@ -100,7 +100,7 @@ jobs:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
       - name: Cache npm
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.4
         id: cache-npm-clean
         with:
           key: npm-clean-${{ runner.os }}
