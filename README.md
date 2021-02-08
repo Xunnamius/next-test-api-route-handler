@@ -108,10 +108,11 @@ Quick start:
 
 ```typescript
 /* File: test/unit.test.js */
+
 import * as endpoint from '../pages/api/your-endpoint';
 import { testApiHandler } from 'next-test-api-route-handler';
 
-// This is a simple sugar type for the default export, giving it a `config`
+// This is a simple sugar type for the default export to give it a `config`
 // property. You DO NOT need this package to use next-test-api-route-handler!
 import type { WithConfig } from '@ergodark/next-types';
 
@@ -187,7 +188,8 @@ finally running `npx jest`.
 > [crucial][12] when testing Apollo endpoints!**
 
 ```javascript
-/* File: <repo>/examples/api-routes-apollo-server-and-client/tests/my.test.js */
+/* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
+
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the pages/api directory
 import handler, { config } from '../pages/api/graphql';
