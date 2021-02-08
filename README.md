@@ -165,7 +165,7 @@ handler under test.
 
 ## Real-World Examples
 
-### Testing the Official Apollo Example @ `examples/api-routes-apollo-server-and-client`
+### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
 You can run this example yourself by cloning [the Next.js repository](https://github.com/vercel/next.js), navigating to `examples/api-routes-apollo-server-and-client`, running `npm install` followed by `npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env`, copying and pasting the following source (perhaps at `tests/my.test.js`), and finally running `npx jest`.
 
