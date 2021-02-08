@@ -186,11 +186,12 @@ finally running `npx jest`.
 > `config`) through to NTARH and setting `request.url` to the proper value is
 > [crucial][12] when testing Apollo endpoints!**
 
-```typescript
+```javascript
 // <repo>/examples/api-routes-apollo-server-and-client/tests/my.test.js
 import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the pages/api directory
 import handler, { config } from '../pages/api/graphql';
-
+// Respect the Next.js config object if it's exported
 handler.config = config;
 
 describe('my-test', () => {
@@ -198,6 +199,7 @@ describe('my-test', () => {
     expect.hasAssertions();
 
     await testApiHandler({
+      // Set the request url to the path the graphql handler expects
       requestPatcher: (req) => (req.url = '/api/graphql'),
       handler,
       test: async ({ fetch }) => {
@@ -212,6 +214,7 @@ describe('my-test', () => {
         const res = await fetch({
           method: 'POST',
           headers: {
+            // Must have the correct content type too
             'content-type': 'application/json'
           },
           body: JSON.stringify({
