@@ -20,8 +20,10 @@ debug(
     ? ['saw dotenv result: %O', dotenv]
     : ['(dotenv support disabled)'])
 );
-const env = dotenv?.parsed || {};
+
+const env = (dotenv && dotenv.parsed) || {};
 debug('saw env: %O', env);
+
 verifyEnvironment();
 
 const envPlugins = [
