@@ -51,4 +51,4 @@ Defined in: [index.ts:31][2]
 
 [1]: README.md#testapihandler
 [2]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/aeef7a9/src/index.ts#L31
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/5ed6dbd/src/index.ts#L31
