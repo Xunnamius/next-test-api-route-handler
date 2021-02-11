@@ -5,7 +5,7 @@ Hi there! First off, we're thrilled 🤩 you want contribute to this project!
 First time contributor to a GitHub project? If you could use some help getting
 started, [take a look at this quick and easy guide][1]. 💜
 
-## Submitting a Pull Request (PR)
+## Briefly: Submitting a Pull Request (PR)
 
 > See also: [CODE_OF_CONDUCT.md][2]
 
