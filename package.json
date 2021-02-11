@@ -146,6 +146,7 @@
     "verbose": false
   },
   "dependencies": {
+    "debug": "^4.3.1",
     "isomorphic-unfetch": "^3.1.0",
     "test-listen": "^1.1.0"
   },
@@ -186,7 +187,6 @@
     "confusing-browser-globals": "^1.0.10",
     "conventional-changelog-angular": "^5.0.12",
     "conventional-changelog-cli": "^2.1.1",
-    "debug": "^4.3.1",
     "del": "^6.0.0",
     "dotenv": "^8.2.0",
     "edit-json-file": "^1.5.0",
