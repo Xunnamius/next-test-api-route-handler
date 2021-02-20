@@ -27,8 +27,8 @@ Next.js API routes/handlers in an isolated Next.js-like context.
 
 `next-test-api-route-handler` (NTARH) uses Next.js's internal API resolver to
 precisely emulate API route handling. To guarantee stability, this package is
-automatically tested against [each release of Next.js][3]. Go forth and test
-confidently!
+[automatically tested][13] against [each release of Next.js][3]. Go forth and
+test confidently!
 
 <div align="center">
 
@@ -536,3 +536,5 @@ information.
 [10]: https://github.com/vercel/next.js
 [11]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
 [12]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
+[13]:
+  https://github.com/Xunnamius/next-test-api-route-handler/actions/workflows/is-next-compat.yml
