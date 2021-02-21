@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-const debug = require('debug')(`${require('./package.json').name}:env-expect`);
+const debug = require('debug')(`${require('./package.json').name}:expect-env`);
 
 const DEFAULT_VALUE_REGEX = [/^.*$/, /.*/];
 
@@ -10,7 +10,7 @@ module.exports = {
   /**
    * This function accepts a single object parameter with a list of `rules` used
    * to verify `env`. If `env` is not defined, `process.env` is used instead. If
-   * `rules` is not defined, the "rules" defined under the "env-expect" key in
+   * `rules` is not defined, the "rules" defined under the "expect-env" key in
    * ./package.json are used instead.
    *
    * Below, "name" is the name of an environment variable and "value" is its
@@ -159,7 +159,7 @@ module.exports = {
         debug('::normalize BAD RULE ENCOUNTERED: %O', rule);
         throw new IllegalEnvironmentError(
           `bad rule encountered${
-            fromPkg ? ' in ./package.json "env-expect"' : ''
+            fromPkg ? ' in ./package.json "expect-env"' : ''
           }: ${JSON.stringify(rule, undefined, 2)}`
         );
       }
@@ -171,7 +171,7 @@ module.exports = {
     if (!rules) {
       try {
         ({
-          'env-expect': { rules, errorMessage }
+          'expect-env': { rules, errorMessage }
         } = require('./package.json'));
         fromPkg = true;
       } catch (ignored) {}

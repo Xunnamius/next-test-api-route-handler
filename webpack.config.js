@@ -3,7 +3,7 @@
 
 const { EnvironmentPlugin, DefinePlugin, BannerPlugin } = require('webpack');
 const { config: populateEnv } = require('dotenv');
-const { verifyEnvironment } = require('./env-expect');
+const { verifyEnvironment } = require('./expect-env');
 const nodeExternals = require('webpack-node-externals');
 const debug = require('debug')(`${require('./package.json').name}:webpack-config`);
 

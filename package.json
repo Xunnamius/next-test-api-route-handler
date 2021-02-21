@@ -43,23 +43,6 @@
     "/package.json",
     "/README.md"
   ],
-  "env-expect": {
-    "errorMessage": "\nCopy the \".env.example\" file to \".env\" or define the appropriate repository secrets",
-    "rules": [
-      {
-        "name": "^MONGODB_URI$",
-        "value": "^.+:\\/\\/.+\\/.+$",
-        "required": false,
-        "errorMessage": "expected MONGODB_URI to be a valid Mongo connect URI with database name"
-      },
-      {
-        "name": "^GH_TOKEN$",
-        "value": "^[a-f0-9]+$",
-        "required": false,
-        "errorMessage": "expected GH_TOKEN to be undefined or a valid GitHub Personal Access Token"
-      }
-    ]
-  },
   "scripts": {
     "build": "npm run build-dist --",
     "build-changelog": "conventional-changelog --outfile CHANGELOG.md --preset angular --config .changelogrc.js --release-count 0 --skip-unstable && (if [ \"$CHANGELOG_SKIP_TITLE\" != 'true' ]; then { node -e 'console.log(require(\"./.changelogrc.js\").changelogTitle)'; cat CHANGELOG.md; } > CHANGELOG.md.ignore && mv CHANGELOG.md.ignore CHANGELOG.md; fi) && remark -o --use reference-links --use gfm --use frontmatter CHANGELOG.md && prettier --write CHANGELOG.md",
@@ -241,5 +224,22 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "expect-env": {
+    "errorMessage": "\nCopy the \".env.example\" file to \".env\" or define the appropriate repository secrets",
+    "rules": [
+      {
+        "name": "^MONGODB_URI$",
+        "value": "^.+:\\/\\/.+\\/.+$",
+        "required": false,
+        "errorMessage": "expected MONGODB_URI to be a valid Mongo connect URI with database name"
+      },
+      {
+        "name": "^GH_TOKEN$",
+        "value": "^[a-f0-9]+$",
+        "required": false,
+        "errorMessage": "expected GH_TOKEN to be undefined or a valid GitHub Personal Access Token"
+      }
+    ]
   }
 }
