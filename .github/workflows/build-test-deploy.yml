@@ -18,25 +18,58 @@ on:
     branches-ignore: ['dependabot/**', 'snyk-**', 'no-ci/**']
 
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, reopened, synchronize]
     branches: [main, canary]
 
 env:
+  # * The name and email used to author commits and interact with GitHub
+  # ! This should correspond to the identity associated with the GH_TOKEN secret
+  CI_COMMITTER_NAME: xunn-bot
+  CI_COMMITTER_EMAIL: bot@xunn.io
+
   # * Selectively enable debugger verbose output in the pipeline
   # ? See also: https://www.npmjs.com/package/debug#wildcards
   # DEBUG: 'next-test-api-route-handler:*'
+
+  # * The version of node to load into each job. Must NOT be quoted!
   NODE_CURRENT_VERSION: 15.x
-  NODE_TEST_VERSIONS: '"12.x", "14.x"' # * NODE_CURRENT_VERSION included automatically
+
+  # * Node versions to test against (NODE_CURRENT_VERSION included
+  # * automatically). Must be quoted!
+  NODE_TEST_VERSIONS: '"12.x", "14.x"'
+
+  # * Webpack versions to test against. Must be quoted!
   WEBPACK_TEST_VERSIONS: '"5.x"'
-  CI_COMMITTER_NAME: xunn-bot
-  CI_COMMITTER_EMAIL: bot@xunn.io
+
+  # * Regular expressions (w/ proper escaping) for skipping CI/CD
   # ! These also have to be updated in .changelogrc.js and cleanup.yml
   CI_SKIP_REGEX: '\[skip ci\]|\[ci skip\]'
   CD_SKIP_REGEX: '\[skip cd\]|\[cd skip\]'
-  # ? Add your GitHub user/org to enable CD pipeline
-  # ? (you'll need to provide your own secrets or the pipeline will error)
+
+  # * A list of GitHub repo namespaces allowed to trigger the CD pipeline
+  # ? Add your GitHub user/org (github.repository_owner) to enable CD pipeline.
+  # ? Repo owner names are compared to the below in a case insensitive fashion
+  # ! (you'll need to provide your own secrets or the pipeline will error)
   REPO_OWNER_WHITELIST: xunnamius, ergodark, nhscc
+
+  # * A list of exact GitHub logins whose passing PRs will be auto-merged
+  # ? Add your bot user's login name (github.actor) to enable auto-merge
+  # ! WARNING: unlike REPO_OWNER_WHITELIST, matching is case sensitive.
+  # ! WARNING: this allows 3rd party code to be merged and released without
+  # ! any human oversight. Only allow this for trusted actors, like dependabot!
+  AUTOMERGE_ACTOR_WHITELIST: dependabot[bot], xunn-bot
+
+  # * A list of exact GitHub logins whose auto-merge attempts should be retried
+  # * on failure even when the PR is not mergeable.
+  # ? Only add bots that actively synchronize their PRs, like dependabot!
+  # ! WARNING: listing a bot here that creates PRs that are never synchronized
+  # ! could waste hundreds or even thousands of Actions minutes and $$$!
+  AUTOMERGE_RETRY_WHITELIST: dependabot[bot]
+
+  # * Npm audit will fail upon encountering problems of at least this severity:
   NPM_AUDIT_FAIL_LEVEL: high
+
+  # * Attempt to upload project coverage data to codecov
   UPLOAD_CODE_COVERAGE: true
 
 jobs:
@@ -47,6 +80,11 @@ jobs:
     outputs:
       current-branch: ${{ steps.branch.outputs.current-branch }}
       has-proper-owner: ${{ steps.owner.outputs.is-whitelisted }}
+      can-automerge:
+        ${{ steps.automerge.outputs.allowed-to-automerge == 'true' }}
+      can-retry-automerge:
+        ${{ steps.automerge-retry.outputs.allowed-to-retry-automerge == 'true'
+        }}
       should-skip-ci: ${{ steps.skip.outputs.should-skip-ci == 'true' }}
       should-skip-cd: ${{ steps.skip.outputs.should-skip-cd == 'true' }}
       node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
@@ -118,16 +156,35 @@ jobs:
           echo "::set-output name=current-branch::$BRANCH_NAME"
           ! [ -z "$DEBUG" ] && echo "set-output name=current-branch::$BRANCH_NAME" || true
 
-      - name: Verify repository owner against whitelist
+      - name: Verify repository owner against deploy whitelist
         if: steps.skip.outputs.should-skip-ci != 'true'
         id: owner
         run: |
           set +e
-          WL='${{ env.REPO_OWNER_WHITELIST }}'
-          REPO='${{ github.repository }}'
-          node -e "process.exit('$WL'.toLowerCase().split(',').some(o => '$REPO'.toLowerCase().startsWith(o.trim() + '/')) ? 0 : 1)"
-          echo "::set-output name=is-whitelisted::$([ $? -eq 0 ] && echo 'true' || echo 'false')"
-          ! [ -z "$DEBUG" ] && echo "set-output name=is-whitelisted::$([ $? -eq 0 ] && echo 'true' || echo 'false')" || true
+          node -e "process.exit('${{ env.REPO_OWNER_WHITELIST }}'.split(',').some(o => o.trim().toLowerCase() == '${{ github.repository_owner }}'.toLowerCase()) ? 0 : 1)"
+          RESULT=`[ $? -eq 0 ] && echo 'true' || echo 'false'`
+          echo "::set-output name=is-whitelisted::$RESULT"
+          ! [ -z "$DEBUG" ] && echo "set-output name=is-whitelisted::$RESULT" || true
+
+      - name: Verify workflow actor against auto-merge whitelist
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: automerge
+        run: |
+          set +e
+          node -e "process.exit('${{ env.AUTOMERGE_ACTOR_WHITELIST }}'.split(',').some(o => o.trim() == '${{ github.actor }}') ? 0 : 1)"
+          RESULT=`[ $? -eq 0 ] && echo 'true' || echo 'false'`
+          echo "::set-output name=allowed-to-automerge::$RESULT"
+          ! [ -z "$DEBUG" ] && echo "set-output name=allowed-to-automerge::$RESULT" || true
+
+      - name: Verify workflow actor against auto-merge retry whitelist
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: automerge-retry
+        run: |
+          set +e
+          node -e "process.exit('${{ env.AUTOMERGE_RETRY_WHITELIST }}'.split(',').some(o => o.trim() == '${{ github.actor }}') ? 0 : 1)"
+          RESULT=`[ $? -eq 0 ] && echo 'true' || echo 'false'`
+          echo "::set-output name=allowed-to-retry-automerge::$RESULT"
+          ! [ -z "$DEBUG" ] && echo "set-output name=allowed-to-retry-automerge::$RESULT" || true
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         if: steps.skip.outputs.should-skip-ci != 'true'
@@ -141,11 +198,12 @@ jobs:
         run: |
           set +e
           NPMR=`npm run list-tasks`
+          CODE=$?
 
           ! [ -z "$DEBUG" ] && echo 'NPMR=' $NPMR || true
 
-          if [ $? -ne 0 ]; then
-            echo '::error::`npm run list-tasks` failed'
+          if [ $CODE -ne 0 ]; then
+            echo '::error::npm script "list-tasks" failed'
             exit 1
           fi
 
@@ -304,7 +362,7 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
       - name: Issue any codecov-related warnings
         if: env.UPLOAD_CODE_COVERAGE != 'true'
@@ -508,11 +566,10 @@ jobs:
   # * === The end of CI (build and test) and the beginning of CD (deploy) === *
 
   # ? Skip this job:
-  # ? 1. When CI is skipped globally
+  # ? 1. If CI and/or CD are skipped globally
   # ? 2. On PRs
   # ? 3. In repo forks
   # ? 4. If no semantic-release configuration
-  # ? 5. On pushes to branches (other than main/canary)
   build:
     name: '[CD] build'
     runs-on: ubuntu-latest
@@ -575,8 +632,8 @@ jobs:
           path: ./*
 
   # ? This job always runs except:
-  # ? 1. if CD pipeline failed/was skipped
-  # ? 2. if CI pipeline didn't complete successfully
+  # ? 1. If the "build" job failed or was skipped
+  # ? 2. If CI pipeline didn't complete successfully
   release:
     name: '[CD] release'
     runs-on: ubuntu-latest
@@ -655,3 +712,203 @@ jobs:
           GIT_COMMITTER_NAME: ${{ env.CI_COMMITTER_NAME }}
           GIT_COMMITTER_EMAIL: ${{ env.CI_COMMITTER_EMAIL }}
         run: npx semantic-release
+
+  # ? This job always runs except:
+  # ? 1. If CI and/or CD are skipped globally
+  # ? 2. If the "build" or "release" jobs weren't skipped
+  # ? 3. If not a PR
+  # ? 4. If the PR is a draft
+  # ? 5. If CI pipeline didn't complete successfully
+  auto-merge:
+    name: '[CD] auto-merge'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - build
+      - check-audit
+      - lint
+      - release
+      - test-unit
+      - metadata
+      - test-integration-node
+      - test-integration-externals
+      - test-integration-client
+      - test-integration-webpack
+    if: |
+      always()
+      && needs.metadata.outputs.should-skip-cd != 'true'
+      && needs.metadata.outputs.can-automerge == 'true'
+      && github.event_name == 'pull_request'
+      && github.event.pull_request.draft == false
+      && needs.build.result == 'skipped'
+      && needs.release.result == 'skipped'
+      && needs.check-audit.result == 'success'
+      && needs.lint.result == 'success'
+      && needs.test-unit.result == 'success'
+      && (needs.metadata.outputs.has-integration-node != 'true' || needs.test-integration-node.result == 'success')
+      && (needs.metadata.outputs.has-integration-externals != 'true' || needs.test-integration-externals.result == 'success')
+      && (needs.metadata.outputs.has-integration-client != 'true' || needs.test-integration-client.result == 'success')
+      && (needs.metadata.outputs.has-integration-webpack != 'true' || needs.test-integration-webpack.result == 'success')
+    steps:
+      - name: 'Merge pull request'
+        uses: 'actions/github-script@v2'
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            const MAX_RETRIES = 6;
+            const MINIMUM_SECONDS = 10;
+            const JITTER_SECONDS = 10;
+
+            let success = false;
+            let errors = [];
+            let jitter = 0;
+
+            const pullRequest = context.payload.pull_request;
+            const repository = context.repo;
+            const debugging = !!'${{ env.DEBUG }}';
+            const canRetryMerge =
+              '${{ needs.metadata.outputs.can-retry-automerge }}' == 'true';
+
+            const delay = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const withErrorHandling = (promise, failData = {}) => {
+              return promise.catch((e) =>
+                Promise.resolve({
+                  status: e.status || 0,
+                  data: { message: e.message, ...failData }
+                })
+              );
+            };
+
+            if (debugging) {
+              console.log('MAX_RETRIES:', MAX_RETRIES);
+              console.log('MINIMUM_SECONDS:', MINIMUM_SECONDS);
+              console.log('JITTER_SECONDS:', JITTER_SECONDS);
+              console.log('repository:', repository);
+              console.log(
+                'canRetryMerge:',
+                canRetryMerge,
+                ' ("${{ needs.metadata.outputs.can-retry-automerge }}")'
+              );
+              console.log('pullRequest.number:', pullRequest.number);
+              console.log(`head_ref (sha): ${pullRequest.head.sha}`);
+            }
+
+            for (let tries = 0; !success && tries < MAX_RETRIES; ++tries) {
+              const failSymbol = Symbol('fail');
+
+              try {
+                const latestPullRequest = await withErrorHandling(
+                  github.pulls.get(
+                    {
+                      owner: repository.owner,
+                      repo: repository.repo,
+                      pull_number: pullRequest.number
+                    },
+                    { failed: failSymbol }
+                  )
+                );
+
+                if (debugging) {
+                  console.log('latestPullRequest->status:', latestPullRequest.status);
+                  console.log(
+                    'latestPullRequest->message:',
+                    latestPullRequest.data.message
+                  );
+                  console.log('latestPullRequest->failed:', latestPullRequest.data.failed);
+                  console.log('latestPullRequest->state:', latestPullRequest.data.state);
+                  console.log('latestPullRequest->merged:', latestPullRequest.data.merged);
+                  console.log('latestPullRequest->draft:', latestPullRequest.data.draft);
+                }
+
+                if (latestPullRequest.status == 404) {
+                  core.warning(
+                    `Auto-merge skipped: PR #${pullRequest.number} no longer exists`
+                  );
+                  return;
+                } else if (latestPullRequest.data.failed == failSymbol) {
+                  throw new Error(
+                    latestPullRequest.data.message ||
+                      `failed to get PR #${pullRequest.number}: status code ${status}`
+                  );
+                } else if (latestPullRequest.data.merged) {
+                  core.info(
+                    `Auto-merge skipped: PR #${pullRequest.number} has already been merged`
+                  );
+                  return;
+                } else if (latestPullRequest.data.draft) {
+                  core.warning(
+                    `Auto-merge skipped: PR #${pullRequest.number} was marked as a draft`
+                  );
+                  return;
+                } else if (
+                  latestPullRequest.status < 400 &&
+                  latestPullRequest.data.state != 'open'
+                ) {
+                  core.warning(
+                    `Auto-merge skipped: PR #${pullRequest.number} is no longer open`
+                  );
+                  return;
+                } // ? Mergeability check is the attempt to merge itself (below)
+
+                const {
+                  status,
+                  data: { merged, message }
+                } = await withErrorHandling(
+                  github.pulls.merge({
+                    owner: repository.owner,
+                    repo: repository.repo,
+                    pull_number: pullRequest.number,
+                    sha: pullRequest.head.sha,
+                    merge_method: 'merge'
+                  }),
+                  { merged: false }
+                );
+
+                if (debugging) {
+                  console.log('mergeAttempt->status:', status);
+                  console.log('mergeAttempt->message:', message);
+                  console.log('mergeAttempt->merged:', merged);
+                }
+
+                const defaultError =
+                  message ||
+                  `failed to merge PR #${pullRequest.number}: status code ${status}`;
+
+                if ([403, 404, 422].includes(status)) {
+                  core.setFailed(`Auto-merge failed: ${message}`);
+                  return;
+                } else if (status == 409) {
+                  core.info(
+                    `Auto-merge skipped: current HEAD is out of sync with PR #${pullRequest.number}`
+                  );
+                } else if (status >= 400 && status < 500 && !canRetryMerge) {
+                  core.setFailed(`Auto-merge failed: ${defaultError}`);
+                  return;
+                } else if (!merged) {
+                  throw new Error(defaultError);
+                }
+
+                success = true;
+              } catch (e) {
+                console.error(
+                  'Auto-merge failed:',
+                  e.message || e || 'an unknown error occurred'
+                );
+
+                if (tries + 1 < MAX_RETRIES) {
+                  const nextRetryIn = 2 ** tries * MINIMUM_SECONDS * 1000 + jitter;
+                  jitter += Math.random() * JITTER_SECONDS * 1000;
+                  core.warning(
+                    `Auto-merge attempt ${
+                      tries + 1
+                    }/${MAX_RETRIES} failed, next try in ${Math.round(
+                      nextRetryIn / 1000
+                    )} seconds`
+                  );
+
+                  await delay(nextRetryIn);
+                }
+              }
+            }
+
+            if (!success) core.setFailed(`Auto-merge failed after ${MAX_RETRIES} attempts`);

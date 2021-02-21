@@ -7,13 +7,14 @@ labels: bug
 <details open><summary><strong>Problematic behavior</strong></summary>
 
 <!--
-(1 of 2) Required: Please give a clear and concise description of what actually
-happened. If applicable, add screenshots to help explain the problem.
+(1 of 2) Required: please replace this comment with a clear and concise
+description of what actually happened. If applicable, add screenshots to help
+explain the problem.
 
 If we cannot reproduce the bug, it's unlikely we can fix it! So, if you really
 want this bug fixed in a timely manner, consider providing a Minimal
 Reproducible Example (MRE) (https://bit.ly/3q2fyVo) that demonstrates your
-problem both simply and in as few lines of code as possible!
+problem simply and in as few lines of code as possible!
 -->
 
 </details>
@@ -21,9 +22,10 @@ problem both simply and in as few lines of code as possible!
 <details><summary><strong>Reproduction steps</strong></summary>
 
 <!--
-(2 of 2) Required: Please include the simplest most basic possible steps to
-reproduce the problematic behavior described above. If you included a MRE above,
-explain here how to use it to reproduce your bug. For example:
+(2 of 2) Required: please replace this comment with the simplest most basic
+possible steps to reproduce the problematic behavior described above. If you
+included a MRE above, explain here how to use it to reproduce your bug. For
+example:
 
 1. Go to '...'
 2. Click on '....'
@@ -36,8 +38,9 @@ explain here how to use it to reproduce your bug. For example:
 <details><summary><strong>Expected behavior</strong></summary>
 
 <!--
-Optional: include a clear and concise description of what you expected to
-happen if not included above. If applicable, add screenshots to help explain.
+Optional: replace this comment with a clear and concise description of what you
+expected to happen if not included above. If applicable, add screenshots to help
+explain.
 -->
 
 </details>
@@ -45,10 +48,10 @@ happen if not included above. If applicable, add screenshots to help explain.
 <details><summary><strong>Additional context</strong></summary>
 
 <!--
-Optional: add any other information that might help us figure out what's going
-on. Examples include: details about your development/runtime environment, error
-logs demonstrating the issue, a MRE repository URL, offending YAML files, etc.
-For example:
+Optional: replace this comment with any other information that might help us
+figure out what's going on. Examples include: details about your
+development/runtime environment, error logs demonstrating the issue, a MRE
+repository URL, offending YAML files, etc. For example:
 
 - OS: ubuntu
 - Browser: firefox 71, chrome 90
