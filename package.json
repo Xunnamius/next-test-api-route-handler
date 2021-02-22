@@ -220,6 +220,7 @@
     "remark-reference-links": "^5.0.0",
     "semantic-release": "Xunnamius/semantic-release",
     "semver": "^7.3.4",
+    "simple-git": "^2.35.1",
     "sort-package-json": "Xunnamius/sort-package-json",
     "source-map-support": "^0.5.19",
     "spellchecker": "^3.7.1",
