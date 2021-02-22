@@ -30,13 +30,30 @@ describe('::testApiHandler', () => {
     });
   });
 
+  it('handles empty request.url', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      requestPatcher: (req) => (req.url = undefined),
+
+      handler: async (_, res) => {
+        res.status(350).send({ data: 'secret!' });
+      },
+
+      test: async ({ fetch }) => {
+        expect((await fetch()).status).toBe(350);
+        expect(await (await fetch()).json()).toStrictEqual({ data: 'secret!' });
+      }
+    });
+  });
+
   it('respects changes introduced through request patcher', async () => {
     expect.hasAssertions();
 
     await testApiHandler({
       requestPatcher: (req) => (req.headers.key = 'secret'),
 
-      handler: async (req: NextApiRequest, res: NextApiResponse) => {
+      handler: async (req, res) => {
         res.status(500).send({ data: req.headers.key });
       },
 
@@ -52,7 +69,7 @@ describe('::testApiHandler', () => {
 
     await testApiHandler({
       responsePatcher: (res) => (res.statusCode = 404),
-      handler: async (_: NextApiRequest, res: NextApiResponse) => res.send({}),
+      handler: async (_, res) => res.send({}),
 
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(404);
@@ -68,7 +85,7 @@ describe('::testApiHandler', () => {
       params: { a: '1' },
       requestPatcher: (req) => (req.url = '/api/handler?b=2&c=3'),
 
-      handler: async (req: NextApiRequest, res: NextApiResponse) => {
+      handler: async (req, res) => {
         expect(req.query).toStrictEqual({ a: '1', b: '2', c: '3' });
         res.send({});
       },
