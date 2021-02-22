@@ -33,14 +33,17 @@ debug('SKIP_COMMANDS:', SKIP_COMMANDS);
 
 // ! XXX: dark magic to synchronously deal with this async package
 // TODO: fork this package and offer a sync export instead of this dark magic
-const wait = execa.sync('node', [
-  '-e',
-  'require("conventional-changelog-angular").then(o => console.log(o.writerOpts.transform.toString()));'
-]).stdout;
+let wait;
+try {
+  wait = execa.sync('node', [
+    '-e',
+    'require("conventional-changelog-angular").then(o => console.log(o.writerOpts.transform.toString()));'
+  ]).stdout;
+} catch (e) {
+  throw new Error(`failed to acquire angular transformation: ${e}`);
+}
 
-if (wait.code != 0) throw new Error('failed to acquire angular transformation');
-
-const transform = Function(`"use strict";return (${wait.stdout})`)();
+const transform = Function(`"use strict";return (${wait})`)();
 const sentenceCase = (s) => s.toString().charAt(0).toUpperCase() + s.toString().slice(1);
 
 const extraReleaseTriggerCommitTypes = ADDITIONAL_RELEASE_RULES.map((r) => r.type);
