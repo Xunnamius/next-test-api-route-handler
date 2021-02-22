@@ -1,23 +1,31 @@
-import { name as pkgName } from '../package.json';
-import { main as isNextCompat } from '../external-scripts/is-next-compat';
-import { asMockedFunction } from './setup';
+import { name as pkgName, version as pkgVersion } from '../package.json';
 import { MongoClient } from 'mongodb';
 import { Octokit } from '@octokit/rest';
 import findPackageJson from 'find-package-json';
-import sjx from 'shelljs';
+import execa from 'execa';
+import debugFactory from 'debug';
 
-import type { ShellString } from 'shelljs';
+import { asMockedFunction, protectedImportFactory, withMockedEnv } from './setup';
+
 import type { FoundPackage } from 'find-package-json';
+import type { ExecaChildProcess } from 'execa';
 import type { Collection, Db } from 'mongodb';
+import type { Debugger } from 'debug';
 
-const TEST_IDENTIFIER = 'unit-externals';
+const EXTERNAL_PATH = '../external-scripts/is-next-compat';
 
+jest.mock('debug');
 jest.mock('@octokit/rest');
 jest.mock('mongodb');
 jest.mock('find-package-json');
-jest.mock('shelljs');
+jest.mock('execa');
 
-const mockedSjx = (sjx as unknown) as jest.Mocked<typeof sjx>;
+const protectedImport = protectedImportFactory(EXTERNAL_PATH);
+const mockedExeca = asMockedFunction(execa);
+const mockedDebug = asMockedFunction<Debugger>();
+mockedDebug.extend = asMockedFunction<Debugger['extend']>().mockReturnValue(mockedDebug);
+asMockedFunction(debugFactory).mockReturnValue(mockedDebug);
+
 const mockedFindPackageJson = asMockedFunction(findPackageJson);
 const mockedOctokit = (Octokit as unknown) as jest.Mock<Octokit>;
 const mockedOctokitGetLatestRelease = asMockedFunction<
@@ -33,16 +41,12 @@ const mockedMongoConnectDbCollectionUpdateOne = asMockedFunction<
 >();
 
 let mockLatestRelease: string;
-let mockExecReturnCode: number;
-let mockCdReturnCode: number;
-
-mockedSjx.cd = jest.fn(() => ({ code: mockCdReturnCode } as ShellString));
-// @ts-expect-error force assignment
-mockedSjx.exec = jest.fn(() => ({ code: mockExecReturnCode } as ShellString));
 
 mockedFindPackageJson.mockImplementation(() => ({
   next: () => (({ value: {}, filename: 'fake/package.json' } as unknown) as FoundPackage)
 }));
+
+mockedExeca.mockImplementation(() => Promise.resolve({}) as ExecaChildProcess<Buffer>);
 
 mockedOctokit.mockImplementation(
   () =>
@@ -81,63 +85,240 @@ mockedMongoConnectDbCollection.mockImplementation(
 );
 
 beforeEach(() => {
-  mockCdReturnCode = 0;
-  mockExecReturnCode = 0;
   mockLatestRelease = '';
-  process.env.MONGODB_URI = 'fake://fake/fake';
-  process.env.GH_TOKEN = 'fake-token';
 });
 
 afterEach(() => {
   jest.clearAllMocks();
 });
 
-describe(`${pkgName} [${TEST_IDENTIFIER}]`, () => {
-  describe('/is-next-compat', () => {
-    it('takes expected actions on failure', async () => {
-      expect.hasAssertions();
+it('calls invoker when imported', async () => {
+  expect.hasAssertions();
+  await protectedImport();
+  expect(mockedDebug).toHaveBeenNthCalledWith(3, 'connecting to GitHub');
+});
 
+it('handles thrown error objects', async () => {
+  expect.hasAssertions();
+
+  mockedDebug.mockImplementationOnce(() => undefined);
+  mockedDebug.mockImplementationOnce(() => undefined);
+  mockedDebug.mockImplementationOnce(() => {
+    throw new Error('problems!');
+  });
+
+  await protectedImport({ expectedExitCode: 2 });
+
+  expect(mockedDebug).toHaveBeenNthCalledWith(4, 'problems!');
+});
+
+it('handles thrown string errors', async () => {
+  expect.hasAssertions();
+
+  mockedDebug.mockImplementationOnce(() => undefined);
+  mockedDebug.mockImplementationOnce(() => undefined);
+  mockedDebug.mockImplementationOnce(() => {
+    throw 'problems!';
+  });
+
+  await protectedImport({ expectedExitCode: 2 });
+
+  expect(mockedDebug).toHaveBeenNthCalledWith(4, 'problems!');
+});
+
+it('handles setCompatFlagTo rejection', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
       mockLatestRelease = '100.99.0';
-      mockExecReturnCode = 1;
+      mockedMongoConnectDbCollectionUpdateOne.mockImplementationOnce(() => {
+        throw new Error('problems!');
+      });
 
-      await expect(isNextCompat()).rejects.toBeInstanceOf(Error);
+      await protectedImport({ expectedExitCode: 2 });
 
-      expect(mockedSjx.cd).toBeCalledTimes(1);
-      expect(mockedSjx.exec).toBeCalledTimes(1);
-      expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
-
-      mockExecReturnCode = 0;
-      await expect(isNextCompat()).not.toReject();
-    });
-
-    it('takes expected actions on success', async () => {
-      expect.hasAssertions();
-
-      mockLatestRelease = '100.99.0';
-      // ? Latest tested version is blank
-      expect(await isNextCompat()).toBe(true);
-
-      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalled();
-
-      // ? Updates the database
-      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
+      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
         { compat: { $exists: true } },
         { $set: { compat: mockLatestRelease } },
         { upsert: true }
       );
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
 
-      // ? Closes the database
-      expect(mockedMongoConnectClose).toHaveBeenCalledTimes(2);
+it('handles getLastTestedVersion rejection', async () => {
+  expect.hasAssertions();
 
-      // ? Latest tested version is `mockLatestRelease`
-      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() => ({
-        compat: mockLatestRelease
+  await withMockedEnv(
+    async () => {
+      mockLatestRelease = '100.99.0';
+      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() => {
+        throw new Error('problems!');
+      });
+
+      await protectedImport({ expectedExitCode: 2 });
+
+      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+        compat: { $exists: true }
+      });
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
+
+it('handles missing package.json', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
+      mockedFindPackageJson.mockImplementationOnce(() => ({
+        next: () => (({ value: {}, filename: null } as unknown) as FoundPackage)
       }));
-      expect(await isNextCompat()).toBe(true);
 
-      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledTimes(2);
-      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledTimes(1);
-      expect(mockedMongoConnectClose).toHaveBeenCalledTimes(3);
-    });
-  });
+      await protectedImport({ expectedExitCode: 2 });
+      expect(mockedFindPackageJson).toBeCalled();
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
+
+it('handles compatibility test failure', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
+      mockLatestRelease = '100.99.0';
+
+      mockedExeca.mockImplementationOnce(
+        () => Promise.resolve({}) as ExecaChildProcess<Buffer>
+      );
+      mockedExeca.mockImplementationOnce(
+        () => Promise.resolve({}) as ExecaChildProcess<Buffer>
+      );
+      mockedExeca.mockImplementationOnce(
+        () => Promise.reject({ stderr: 'bad!' }) as ExecaChildProcess<Buffer>
+      );
+
+      await protectedImport({ expectedExitCode: 2 });
+
+      expect(mockedExeca).toBeCalledTimes(3);
+      expect(mockedDebug).toBeCalledWith(expect.stringContaining('failed!'));
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
+
+it('skips running tests if latest version matches last tested version', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
+      mockLatestRelease = '100.99.0';
+
+      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
+        Promise.resolve({ compat: mockLatestRelease })
+      );
+
+      await protectedImport();
+
+      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+        compat: { $exists: true }
+      });
+      expect(mockedExeca).not.toBeCalled();
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
+
+it('runs tests if latest version does not match last tested version', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
+      mockLatestRelease = '100.99.0';
+
+      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
+        Promise.resolve({ compat: '99.100.0' })
+      );
+
+      await protectedImport();
+
+      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+        compat: { $exists: true }
+      });
+      expect(mockedExeca).toBeCalledTimes(3);
+      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+        { compat: { $exists: true } },
+        { $set: { compat: mockLatestRelease } },
+        { upsert: true }
+      );
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
+
+it('runs tests if last tested version is empty', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
+      mockLatestRelease = '100.100.0';
+
+      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
+        Promise.resolve({ compat: '' })
+      );
+
+      await protectedImport();
+
+      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+        compat: { $exists: true }
+      });
+      expect(mockedExeca).toBeCalledTimes(3);
+      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+        { compat: { $exists: true } },
+        { $set: { compat: mockLatestRelease } },
+        { upsert: true }
+      );
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
+
+it('runs without any environment variables', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(async () => {
+    mockLatestRelease = '100.100.0';
+
+    mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
+      Promise.resolve({ compat: '' })
+    );
+
+    await protectedImport();
+
+    expect(mockedExeca).toBeCalledTimes(3);
+    expect(mockedMongoConnectDbCollectionFindOne).not.toBeCalled();
+    expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+  }, {});
+});
+
+it('uses GH_TOKEN environment variable if available', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
+      await protectedImport();
+      expect(mockedOctokit).toBeCalledWith({
+        auth: 'fake-token',
+        userAgent: `${pkgName}@${pkgVersion}`
+      });
+    },
+    { GH_TOKEN: 'fake-token' }
+  );
 });
