@@ -142,7 +142,7 @@
       "/node_modules/"
     ],
     "testRunner": "jest-circus/runner",
-    "testTimeout": 60000,
+    "testTimeout": 300000,
     "verbose": false
   },
   "dependencies": {
