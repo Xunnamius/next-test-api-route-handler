@@ -217,7 +217,7 @@ export async function run(file: string, args?: string[], options?: execa.Options
   result = (await execa(file, args, { reject: false, ...options })) as typeof result;
 
   result.code = result.exitCode;
-  debug('executed command: %O', result.command);
+  debug('executed command result: %O', result);
 
   return result;
 }
