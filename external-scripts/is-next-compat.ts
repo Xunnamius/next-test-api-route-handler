@@ -114,10 +114,8 @@ const invoked = async () => {
         'npm test failed! The latest Next.js is incompatible with this package!';
 
       debug(err);
-      // eslint-disable-next-line no-console
-      console.log('node stdout: ', e.stdout);
-      // eslint-disable-next-line no-console
-      console.log('node stderr: ', e.stderr);
+      debug('node stdout: ', e.stdout);
+      debug('node stderr: ', e.stderr);
 
       throw new Error(err);
     }
