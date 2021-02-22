@@ -751,7 +751,7 @@ jobs:
       && (needs.metadata.outputs.has-integration-webpack != 'true' || needs.test-integration-webpack.result == 'success')
     steps:
       - name: 'Merge pull request'
-        uses: 'actions/github-script@v2'
+        uses: 'actions/github-script@v3.1'
         with:
           github-token: ${{ secrets.GH_TOKEN }}
           script: |
