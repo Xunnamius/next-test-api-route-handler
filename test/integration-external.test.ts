@@ -39,8 +39,8 @@ beforeAll(async () => {
 it(`runs silent by default`, async () => {
   expect.hasAssertions();
 
-  await withMockedFixture(async () => {
-    const { code, stdout, stderr } = await runExternal();
+  await withMockedFixture(async ({ root }) => {
+    const { code, stdout, stderr } = await runExternal(undefined, { cwd: root });
 
     expect(code).toBe(0);
     expect(stdout).toBeEmpty();
@@ -52,23 +52,10 @@ it(`runs silent by default`, async () => {
 it(`is verbose when DEBUG='${debugId}'`, async () => {
   expect.hasAssertions();
 
-  await withMockedFixture(async () => {
+  await withMockedFixture(async ({ root }) => {
     const { code, stdout, stderr } = await runExternal(undefined, {
-      env: { DEBUG: debugId }
-    });
-
-    expect(code).toBe(0);
-    expect(stdout).toBeEmpty();
-    expect(stderr).toStrictEqual(expect.stringContaining('execution complete'));
-  });
-});
-
-it(`is verbose when DEBUG='${debugId}'`, async () => {
-  expect.hasAssertions();
-
-  await withMockedFixture(async () => {
-    const { code, stdout, stderr } = await runExternal(undefined, {
-      env: { DEBUG: debugId }
+      env: { DEBUG: debugId },
+      cwd: root
     });
 
     expect(code).toBe(0);
