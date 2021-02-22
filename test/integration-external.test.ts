@@ -1,74 +1,66 @@
-process.env.MONGODB_URI = 'fake://fake/fake';
-
-import { resolve } from 'path';
-import sjx from 'shelljs';
+import { name as pkgName, peerDependencies } from '../package.json';
+import { run, mockFixtureFactory, dummyNpmPackageFixture, runnerFactory } from './setup';
 import debugFactory from 'debug';
-import uniqueFilename from 'unique-filename';
-import del from 'del';
 
-import {
-  name as pkgName,
-  version as pkgVersion,
-  peerDependencies
-} from '../package.json';
+import type { FixtureOptions } from './setup';
 
 const TEST_IDENTIFIER = 'integration-externals';
+const EXTERNAL_BIN_PATH = `${__dirname}/../external-scripts/bin/is-next-compat.js`;
+
+const debugId = `${pkgName}:*`;
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
+const runExternal = runnerFactory('node', [EXTERNAL_BIN_PATH]);
 
-sjx.config.silent = !process.env.DEBUG;
+// TODO: configure automatically generated test fixtures
+const fixtureOptions = {
+  initialFileContents: {
+    'package.json': `{
+      "name": "dummy-pkg",
+      "scripts": {
+        "test-unit": "true",
+        "test-integration": "true"
+      },
+      "peerDependencies": {
+        "next": "${peerDependencies.next}"
+      }
+    }`
+  } as FixtureOptions['initialFileContents'],
+  use: [dummyNpmPackageFixture()]
+};
 
-if (!sjx.test('-d', `${__dirname}/../external-scripts/bin`)) {
-  debug(`unable to find external bin dir: ${__dirname}/../external-scripts/bin`);
-  throw new Error(
-    'must build externals before running this test suite (try `npm run build-externals`)'
-  );
-}
-debug(`pkgName: "${pkgName}"`);
-debug(`pkgVersion: "${pkgVersion}"`);
+const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, fixtureOptions);
 
-afterAll(() => deleteRoot());
-let deleteRoot: () => Promise<void>;
+beforeAll(async () => {
+  // TODO: test environment to ensure expected files and executables are present
+  if ((await run('test', ['-e', EXTERNAL_BIN_PATH])).code != 0) {
+    debug(`unable to find external executable: ${EXTERNAL_BIN_PATH}`);
+    throw new Error('must build externals first (try `npm run build-externals`)');
+  }
+});
 
-describe(`${pkgName} [${TEST_IDENTIFIER}]`, () => {
-  describe('/is-next-compat', () => {
-    it('runs as expected', async () => {
-      expect.hasAssertions();
+it(`runs silent by default`, async () => {
+  expect.hasAssertions();
 
-      const root = uniqueFilename(sjx.tempdir(), TEST_IDENTIFIER);
-      const pkgJson = `${root}/package.json`;
+  await withMockedFixture(async () => {
+    const { code, stdout, stderr } = await runExternal();
 
-      deleteRoot = async () => {
-        sjx.cd('..');
-        debug(`forcibly removing dir ${root}`);
-        await del(root);
-      };
+    expect(code).toBe(0);
+    expect(stdout).toBeEmpty();
+    // eslint-disable-next-line jest/no-conditional-expect
+    !process.env.DEBUG && expect(stderr).toBeEmpty();
+  });
+});
 
-      sjx.mkdir('-p', root);
-      sjx.mkdir('-p', `${root}/node_modules`);
-      const cd = sjx.cd(root);
+it(`is verbose when DEBUG='${debugId}'`, async () => {
+  expect.hasAssertions();
 
-      if (cd.code != 0) {
-        await deleteRoot();
-        throw new Error(`failed to mkdir/cd into ${root}: ${cd.stderr} ${cd.stdout}`);
-      } else debug(`created temp root dir: ${root}`);
-
-      new sjx.ShellString(
-        '{"name":"dummy-pkg","scripts":{"test-unit":"true","test-integration":"true"},' +
-          `"peerDependencies":{"next":"${peerDependencies.next}"}}`
-      ).to(pkgJson);
-
-      debug(`package.json contents: ${sjx.cat('package.json').stdout}`);
-      debug(`directory at this point: ${sjx.exec('tree -a').stdout}`);
-
-      const result = sjx.exec(
-        `NO_DB_UPDATE=true node "${resolve(
-          __dirname,
-          '../external-scripts/bin/is-next-compat.js'
-        )}"`
-      );
-
-      debug(`cmd "${result}": (${result.code})\n${result.stderr}\n${result.stdout}`);
-      expect(result.code).toBe(0);
+  await withMockedFixture(async () => {
+    const { code, stdout, stderr } = await runExternal(undefined, {
+      env: { DEBUG: debugId }
     });
+
+    expect(code).toBe(0);
+    expect(stdout).toBeEmpty();
+    expect(stderr).toStrictEqual(expect.stringContaining('execution complete'));
   });
 });
