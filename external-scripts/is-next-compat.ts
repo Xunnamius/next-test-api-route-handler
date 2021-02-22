@@ -103,7 +103,7 @@ const invoked = async () => {
 
   if (latestReleaseVersion != lastTestedVersion) {
     debug(`installing next@${latestReleaseVersion}`);
-    await execa('npm', ['install', '--no-save', 'next@${latest}']);
+    await execa('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
 
     try {
       debug('running compatibility tests');
