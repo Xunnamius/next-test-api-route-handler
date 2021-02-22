@@ -6,7 +6,7 @@ const debug = require('debug')(
 
 const escapeRegExpStr = require('escape-string-regexp');
 const semver = require('semver');
-const sjx = require('shelljs');
+const execa = require('execa');
 
 // ? Commit types that trigger releases by default (using angular configuration)
 // ? See https://github.com/semantic-release/commit-analyzer/blob/master/lib/default-release-rules.js
@@ -31,12 +31,12 @@ const SKIP_COMMANDS = '[skip ci], [ci skip], [skip cd], [cd skip]'.split(', ');
 
 debug('SKIP_COMMANDS:', SKIP_COMMANDS);
 
-sjx.config.silent = !process.env.DEBUG;
-
 // ! XXX: dark magic to synchronously deal with this async package
-const wait = sjx.exec(
-  `node -e 'require("conventional-changelog-angular").then(o => console.log(o.writerOpts.transform.toString()));'`
-);
+// TODO: fork this package and offer a sync export instead of this dark magic
+const wait = execa.sync('node', [
+  '-e',
+  'require("conventional-changelog-angular").then(o => console.log(o.writerOpts.transform.toString()));'
+]).stdout;
 
 if (wait.code != 0) throw new Error('failed to acquire angular transformation');
 

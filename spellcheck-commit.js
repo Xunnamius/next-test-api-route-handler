@@ -2,11 +2,9 @@
 const spellcheck = require('spellchecker');
 const pkg = require('./package.json');
 const read = require('fs').promises.readFile;
-const sjx = require('shelljs');
+const execa = require('execa');
 
 const debug = require('debug')(`${require('./package.json').name}:spellcheck-commit`);
-
-sjx.config.silent = !process.env.DEBUG;
 
 const tryToRead = async (path) => {
   try {
@@ -67,7 +65,9 @@ const keys = (obj) => Object.keys(obj).map(splitOutWords);
         ...keys(pkg.dependencies),
         ...keys(pkg.devDependencies),
         ...keys(pkg.scripts),
-        ...splitOutWords(sjx.exec('git log --format="%B" HEAD~1').stdout).slice(0, -1)
+        ...splitOutWords(
+          (await execa('git', ['log', '--format="%B"', 'HEAD~1'])).stdout
+        ).slice(0, -1)
       ]
         .flat()
         .filter(Boolean)
