@@ -158,7 +158,7 @@
     "@babel/preset-env": "^7.12.17",
     "@babel/preset-typescript": "^7.12.17",
     "@commitlint/cli": "^12.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/config-conventional": "^12.0.0",
     "@ergodark/types": "^1.0.17",
     "@octokit/rest": "^18.2.0",
     "@semantic-release/changelog": "^5.0.1",
