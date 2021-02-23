@@ -13,7 +13,7 @@ import type { AnyFunction, AnyVoid } from '@ergodark/types';
 import type { Debugger } from 'debug';
 import type { SimpleGit } from 'simple-git';
 
-const { writeFile } = fs;
+const { writeFile, access: accessFile } = fs;
 const debug = debugFactory(`${pkgName}:jest-setup`);
 
 debug(`pkgName: "${pkgName}"`);
@@ -246,8 +246,7 @@ export function runnerFactory(file: string, args?: string[], options?: RunOption
 export interface FixtureOptions
   extends Partial<WebpackTestFixtureOptions>,
     Partial<GitRepositoryFixtureOptions>,
-    Partial<DummyDirectoriesFixtureOptions>,
-    Partial<DummyFilesFixtureOptions> {
+    Partial<DummyDirectoriesFixtureOptions> {
   performCleanup: boolean;
   use: MockFixture[];
   initialFileContents: { [filePath: string]: string };
@@ -266,11 +265,6 @@ export interface GitRepositoryFixtureOptions {
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface DummyDirectoriesFixtureOptions {
   directoryPaths: string[];
-}
-
-// TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-export interface DummyFilesFixtureOptions {
-  filePaths: Record<string, string>;
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
@@ -324,14 +318,14 @@ export function rootFixture(): MockFixture {
   return {
     name: 'root', // ? If first isn't named root, root used automatically
     description: (ctx) =>
-      `creating a unique temp directory${
+      `creating a unique root directory${
         ctx.options.performCleanup && ' (will be deleted after all tests complete)'
       }`,
     setup: async (ctx) => {
       ctx.root = uniqueFilename(tmpdir(), ctx.testIdentifier);
 
-      await run('mkdir', [ctx.root], { reject: true });
-      await run('mkdir', ['src'], { cwd: ctx.root, reject: true });
+      await run('mkdir', ['-p', ctx.root], { reject: true });
+      await run('mkdir', ['-p', 'src'], { cwd: ctx.root, reject: true });
     },
     teardown: async (ctx) =>
       ctx.options.performCleanup && run('rm', ['-rf', ctx.root], { reject: true })
@@ -342,7 +336,7 @@ export function rootFixture(): MockFixture {
 export function dummyNpmPackageFixture(): MockFixture {
   return {
     name: 'dummy-npm-package',
-    description: 'creating package.json file and initial node_modules directory',
+    description: 'creating package.json file and node_modules subdirectory',
     setup: async (ctx) => {
       await Promise.all([
         writeFile(
@@ -350,11 +344,11 @@ export function dummyNpmPackageFixture(): MockFixture {
           (ctx.fileContents['package.json'] =
             ctx.fileContents['package.json'] || '{"name":"dummy-pkg"}')
         ),
-        run('mkdir', ['node_modules'], { cwd: ctx.root, reject: true })
+        run('mkdir', ['-p', 'node_modules'], { cwd: ctx.root, reject: true })
       ]);
 
       if (pkgName.includes('/')) {
-        await run('mkdir', [pkgName.split('/')[0]], {
+        await run('mkdir', ['-p', pkgName.split('/')[0]], {
           cwd: `${ctx.root}/node_modules`,
           reject: true
         });
@@ -467,7 +461,7 @@ export function nodeImportTestFixture(): MockFixture {
 export function gitRepositoryFixture(): MockFixture {
   return {
     name: 'git-repository',
-    description: 'setting up fixture root to be a git repository',
+    description: 'configuring fixture root to be a git repository',
     setup: async (ctx) => {
       if (ctx.options.setupGit && typeof ctx.options.setupGit != 'function') {
         throw new Error('invalid or missing options.setupGit, expected function');
@@ -489,7 +483,7 @@ export function gitRepositoryFixture(): MockFixture {
 export function dummyDirectoriesFixture(): MockFixture {
   return {
     name: 'dummy-directories',
-    description: 'creating dummy directories',
+    description: 'creating dummy directories under fixture root',
     setup: async (ctx) => {
       if (!Array.isArray(ctx.options.directoryPaths)) {
         throw new Error('invalid or missing options.directoryPaths, expected array');
@@ -497,7 +491,7 @@ export function dummyDirectoriesFixture(): MockFixture {
 
       await Promise.all(
         ctx.options.directoryPaths.map((path) =>
-          run('mkdir', [path], { cwd: ctx.root, reject: true })
+          run('mkdir', ['-p', path], { cwd: ctx.root, reject: true })
         )
       );
     }
@@ -508,16 +502,20 @@ export function dummyDirectoriesFixture(): MockFixture {
 export function dummyFilesFixture(): MockFixture {
   return {
     name: 'dummy-files',
-    description: 'creating dummy files',
+    description: 'creating dummy files under fixture root',
     setup: async (ctx) => {
-      if (!ctx.options.filePaths) {
-        throw new Error('invalid or missing options.filePaths, expected object');
-      }
-
       await Promise.all(
-        Object.entries(ctx.options.filePaths).map(([path, contents]) =>
-          writeFile(`${ctx.root}/${path}`, (ctx.fileContents[path] = contents))
-        )
+        Object.entries(ctx.fileContents).map(async ([path, contents]) => {
+          const fullPath = `${ctx.root}/${path}`;
+          await accessFile(fullPath).then(
+            () => debug(`skipped creating dummy file: file already exists at ${path}`),
+            async () => {
+              debug(`creating dummy file "${path}" with contents:`);
+              debug.extend('contents >')(contents);
+              await writeFile(fullPath, (ctx.fileContents[path] = contents));
+            }
+          );
+        })
       );
     }
   };
@@ -529,7 +527,7 @@ export function dummyFilesFixture(): MockFixture {
 export function describeRootFixture(): MockFixture {
   return {
     name: 'describe-root',
-    description: 'outputting debug information about test environment',
+    description: 'outputting debug information about environment',
     setup: async (ctx) => {
       ctx.debug('test identifier: %O', ctx.testIdentifier);
       ctx.debug('root: %O', ctx.root);
