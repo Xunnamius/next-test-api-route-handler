@@ -60,7 +60,7 @@ jobs:
           persist-credentials: false
 
       - name: Use node ${{ matrix.node }}
-        uses: actions/setup-node@v2.1.4
+        uses: actions/setup-node@v2.1.5
         with:
           node-version: ${{ matrix.node }}
 
