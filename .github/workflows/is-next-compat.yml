@@ -34,7 +34,7 @@ jobs:
           persist-credentials: false
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.4
+        uses: actions/setup-node@v2.1.5
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
