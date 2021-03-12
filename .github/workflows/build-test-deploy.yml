@@ -147,7 +147,7 @@ jobs:
 
       - name: Gather branch metadata
         if: steps.skip.outputs.should-skip-ci != 'true'
-        uses: nelonoel/branch-name@v1.0.1
+        uses: nelonoel/branch-name@v1
 
       - name: Determine current-branch
         if: steps.skip.outputs.should-skip-ci != 'true'
@@ -188,7 +188,7 @@ jobs:
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         if: steps.skip.outputs.should-skip-ci != 'true'
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
@@ -268,7 +268,7 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
@@ -293,12 +293,12 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
       - name: Cache npm
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-npm
         with:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -335,12 +335,12 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
       - name: Cache npm
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-npm
         with:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -391,12 +391,12 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ matrix.node }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
 
       - name: Cache npm
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-npm
         with:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -441,12 +441,12 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ matrix.node }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
 
       - name: Cache npm
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-npm
         with:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -488,12 +488,12 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
       - name: Cache npm
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-npm
         with:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -536,12 +536,12 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
       - name: Cache npm
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-npm
         with:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -592,12 +592,12 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
       - name: Cache npm
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-npm
         with:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -625,7 +625,7 @@ jobs:
         run: npm run format
 
       - name: Cache build
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: cache-build
         with:
           key: build-${{ runner.os }}-${{ github.sha }}
@@ -671,7 +671,7 @@ jobs:
           }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Restore build
-        uses: actions/cache@v2.1.4
+        uses: actions/cache@v2
         id: restore-build
         with:
           key: build-${{ runner.os }}-${{ github.sha }}
@@ -684,7 +684,7 @@ jobs:
           exit 1
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
@@ -751,11 +751,11 @@ jobs:
       && (needs.metadata.outputs.has-integration-webpack != 'true' || needs.test-integration-webpack.result == 'success')
     steps:
       - name: 'Merge pull request'
-        uses: 'actions/github-script@v3.1'
+        uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GH_TOKEN }}
           script: |
-            const MAX_RETRIES = 6;
+            const MAX_RETRIES = 5;
             const MINIMUM_SECONDS = 10;
             const JITTER_SECONDS = 10;
 
