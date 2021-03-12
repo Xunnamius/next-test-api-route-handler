@@ -7,7 +7,6 @@ import debugFactory from 'debug';
 
 import { asMockedFunction, protectedImportFactory, withMockedEnv } from './setup';
 
-import type { FoundPackage } from 'find-package-json';
 import type { ExecaChildProcess } from 'execa';
 import type { Collection, Db } from 'mongodb';
 import type { Debugger } from 'debug';
@@ -42,9 +41,12 @@ const mockedMongoConnectDbCollectionUpdateOne = asMockedFunction<
 
 let mockLatestRelease: string;
 
-mockedFindPackageJson.mockImplementation(() => ({
-  next: () => (({ value: {}, filename: 'fake/package.json' } as unknown) as FoundPackage)
-}));
+mockedFindPackageJson.mockImplementation(
+  () =>
+    (({
+      next: () => ({ value: {}, filename: 'fake/package.json' })
+    } as unknown) as ReturnType<typeof findPackageJson>)
+);
 
 mockedExeca.mockImplementation(() => Promise.resolve({}) as ExecaChildProcess<Buffer>);
 
@@ -174,9 +176,12 @@ it('handles missing package.json', async () => {
 
   await withMockedEnv(
     async () => {
-      mockedFindPackageJson.mockImplementationOnce(() => ({
-        next: () => (({ value: {}, filename: null } as unknown) as FoundPackage)
-      }));
+      mockedFindPackageJson.mockImplementationOnce(
+        () =>
+          (({
+            next: () => ({ value: {}, filename: null })
+          } as unknown) as ReturnType<typeof findPackageJson>)
+      );
 
       await protectedImport({ expectedExitCode: 2 });
       expect(mockedFindPackageJson).toBeCalled();
