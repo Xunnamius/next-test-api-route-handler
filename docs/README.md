@@ -35,14 +35,14 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 #### Parameters:
 
-| Name                                     | Type                                                                                            |
-| :--------------------------------------- | :---------------------------------------------------------------------------------------------- |
-| **({ destructured })**`                  | _object_                                                                                        |
-| **({ destructured })**.handler`          | NextApiHandler                                                                                  |
-| **({ destructured })**.params?`          | _Record_<string, unknown>                                                                       |
-| **({ destructured })**.requestPatcher?`  | (`req`: IncomingMessage) => _void_                                                              |
-| **({ destructured })**.responsePatcher?` | (`res`: ServerResponse) => _void_                                                               |
-| **({ destructured })**.test`             | (`obj`: { `fetch`: (`init?`: RequestInit) => _ReturnType_<_typeof_ fetch> }) => _Promise_<void> |
+| Name                                  | Type                                                                                            |
+| :------------------------------------ | :---------------------------------------------------------------------------------------------- |
+| `({ destructured })`                  | _object_                                                                                        |
+| `({ destructured }).handler`          | NextApiHandler                                                                                  |
+| `({ destructured }).params?`          | _Record_<string, unknown>                                                                       |
+| `({ destructured }).requestPatcher?`  | (`req`: IncomingMessage) => _void_                                                              |
+| `({ destructured }).responsePatcher?` | (`res`: ServerResponse) => _void_                                                               |
+| `({ destructured }).test`             | (`obj`: { `fetch`: (`init?`: RequestInit) => _ReturnType_<_typeof_ fetch> }) => _Promise_<void> |
 
 **Returns:** _Promise_\<void>
 
@@ -50,4 +50,4 @@ Defined in: [index.ts:31][2]
 
 [1]: README.md#testapihandler
 [2]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/5a2d98f/src/index.ts#L31
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/8065757/src/index.ts#L31
