@@ -1,4 +1,4 @@
-# Description
+# TODO: description
 #
 # * Note: feel free to run this workflow in forks (e.g. for testing your PR)
 # * without worrying about this workflow attempting to deploy a package 🚀
@@ -10,155 +10,34 @@
 # !   GH_TOKEN
 # !   NPM_TOKEN
 
-# Gathers information about the current run, storing the results as JSON in an
-# artifact. This is the first stage in the CI/CD pipeline described in
-# CONTRIBUTING.md and ARCHITECTURE.md.
-#
-# * Note: feel free to run this workflow in forks (e.g. for testing your PR)
-# * without worrying about this workflow attempting to deploy a package 🚀
-#
-# The JSON artifact includes the following properties:
-#
-# **`current-branch`** The string value of the `BRANCH_NAME` environment
-# variable.
-#
-# **`can-release`: `true` | `false`** True if the GitHub user that triggered the
-# workflow has permission to trigger the release stage of the CD pipeline.
-# Relies on the `REPO_OWNER_WHITELIST` environment variable.
-#
-# **`can-automerge`: `true` | `false`** True if the GitHub user that triggered
-# the workflow has permission to trigger the automerge stage of the CD pipeline.
-# Only relevant when `scope` (below) is `"untrusted-pr"`. Relies on the
-# `AUTOMERGE_ACTOR_WHITELIST` environment variable.
-#
-# **`can-retry-automerge`: `true` | `false`** True if the GitHub user that
-# triggered the workflow has permission to prolong the runtime of the automerge
-# workflow, sometimes by up to 5 minutes ($$$). Relies on the
-# `AUTOMERGE_RETRY_WHITELIST` environment variable.
-#
-# **`scope`: `"direct"` | `"trusted-pr"` | `"untrusted-pr"`** If this is a
-# *direct* push to branch, a PR by a *trusted* GitHub user, or a PR by an
-# *untrusted* user.
-#
-# **`should-skip-ci`: `true` | `false`** True if the CI pipeline stages should
-# be skipped. This also means CD stages (and so the entire pipeline) will be
-# skipped.
-#
-# **`should-skip-cd`: `true` | `false`** True if the CD pipeline stages should
-# be skipped (e.g. release, automerge). CI pipeline stages will still run
-# regardless of this setting unless 1should-skip-ci` is `true`.
-#
-# **`node-matrix`** A JSON string representing an Actions matrix strategy for
-# jobs involving Node.
-#
-# **`webpack-matrix`** A JSON string representing an Actions matrix strategy for
-# jobs involving Node.
-#
-# **`has-deploy`: `true` | `false`** If a *deploy* script exists in the root
-# `package.json` file.
-#
-# **`has-release-config`: `true` | `false`** If a *release-config* script exists
-# in the root `package.json` file.
-#
-# **`has-docs`: `true` | `false`** If a *docs* script exists in the root
-# `package.json` file.
-#
-# **`has-externals`: `true` | `false`** If a *externals* script exists in the
-# root `package.json` file.
-#
-# **`has-integration-node`: `true` | `false`** If a *integration-node* script
-# exists in the root `package.json` file.
-#
-# **`has-integration-externals`: `true` | `false`** If a *integration-externals*
-# script exists in the root `package.json` file.
-#
-# **`has-integration-client`: `true` | `false`** If a *integration-client*
-# script exists in the root `package.json` file.
-#
-# **`has-integration-webpack`: `true` | `false`** If a *integration-webpack*
-# script exists in the root `package.json` file.
+# TODO: 1. is it "actor" or "sender"?
+# TODO: 2. parse JSON
+# TODO: 3. use passed pr-number and commit-sha
+# TODO: 4. do not git checkout anything
+# TODO: 5. upload codecov artifact and download it based on true/false in meta.json
 
 name: deploy
 
 on:
-  workflow_dispatch: # * Treated like a `push` event with a user-defined ref
-
-  push:
-    tags-ignore: ['**']
-    branches-ignore: ['dependabot/**', 'snyk-**', 'no-ci/**']
-
-  pull_request_target:
-    types: [opened, reopened, synchronize]
+  workflow_run:
+    types: [completed]
     branches: [main, canary]
-
-env:
-  # * The name and email used to author commits and interact with GitHub
-  # ! This should correspond to the identity associated with the GH_TOKEN secret
-  CI_COMMITTER_NAME: xunn-bot
-  CI_COMMITTER_EMAIL: bot@xunn.io
-
-  # * Selectively enable debugger verbose output in the pipeline
-  # ? See also: https://www.npmjs.com/package/debug#wildcards
-  # DEBUG: 'next-test-api-route-handler:*'
-
-  # * The version of node to load into each job. Must NOT be quoted!
-  NODE_CURRENT_VERSION: 15.x
-
-  # * Node versions to test against (NODE_CURRENT_VERSION included
-  # * automatically). Must be quoted!
-  NODE_TEST_VERSIONS: '"12.x", "14.x"'
-
-  # * Webpack versions to test against. Must be quoted!
-  WEBPACK_TEST_VERSIONS: '"5.x"'
-
-  # * Regular expressions (w/ proper escaping) for skipping CI/CD
-  # ! These also have to be updated in .changelogrc.js and cleanup.yml
-  CI_SKIP_REGEX: '\[skip ci\]|\[ci skip\]'
-  CD_SKIP_REGEX: '\[skip cd\]|\[cd skip\]'
-
-  # * A list of GitHub repo namespaces allowed to trigger the CD pipeline
-  # ? Add your GitHub user/org (github.repository_owner) to enable CD pipeline.
-  # ? Repo owner names are compared to the below in a case insensitive fashion
-  # ! (you'll need to provide your own secrets or the pipeline will error)
-  REPO_OWNER_WHITELIST: xunnamius, ergodark, nhscc
-
-  # * A list of exact GitHub logins whose passing PRs will be auto-merged
-  # ? Add your bot user's login name (github.actor) to enable auto-merge
-  # ! WARNING: unlike REPO_OWNER_WHITELIST, matching is case sensitive.
-  # ! WARNING: this allows 3rd party code to be merged and released without
-  # ! any human oversight. Only allow this for trusted actors, like dependabot!
-  AUTOMERGE_ACTOR_WHITELIST: dependabot[bot], xunn-bot
-
-  # * A list of exact GitHub logins whose auto-merge attempts should be retried
-  # * on failure even when the PR is not mergeable.
-  # ? Only add bots that actively synchronize their PRs, like dependabot!
-  # ! WARNING: listing a bot here that creates PRs that are never synchronized
-  # ! could waste hundreds or even thousands of Actions minutes and $$$!
-  AUTOMERGE_RETRY_WHITELIST: dependabot[bot]
-
-  # * Npm audit will fail upon encountering problems of at least this severity:
-  NPM_AUDIT_FAIL_LEVEL: high
-
-  # * Attempt to upload project coverage data to codecov
-  UPLOAD_CODE_COVERAGE: true
 
 jobs:
   metadata:
     name: 'gather-metadata'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     outputs:
-      current-branch: ${{ steps.branch.outputs.current-branch }}
-      has-proper-owner: ${{ steps.owner.outputs.is-whitelisted }}
-      can-automerge:
-        ${{ steps.automerge.outputs.allowed-to-automerge == 'true' }}
-      can-retry-automerge:
-        ${{ steps.automerge-retry.outputs.allowed-to-retry-automerge == 'true'
-        }}
       should-skip-ci: ${{ steps.skip.outputs.should-skip-ci == 'true' }}
       should-skip-cd: ${{ steps.skip.outputs.should-skip-cd == 'true' }}
       node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
       webpack-matrix: ${{ steps.set-matrix.outputs.webpack-matrix }}
+      current-branch: ${{ steps.branch.outputs.current-branch }}
+      can-release: ${{ steps.release.outputs.can-release }}
+      can-automerge: ${{ steps.automerge.outputs.can-automerge == 'true' }}
+      can-retry-automerge: ${{ env.AUTOMERGE_CAN_RETRY == 'true' }}
       has-deploy: ${{ steps.data.outputs.has-deploy == 'true' }}
       has-release-config: ${{ steps.data.outputs.has-release-config == 'true' }}
       has-docs: ${{ steps.data.outputs.has-docs == 'true' }}
@@ -171,151 +50,320 @@ jobs:
         ${{ steps.data.outputs.has-integration-client == 'true' }}
       has-integration-webpack:
         ${{ steps.data.outputs.has-integration-webpack == 'true' }}
-    steps:
-      - name: Report DEBUG mode status
-        run: |
-          if ! [ -z "$DEBUG" ]; then
-            echo 'PIPELINE IS RUNNING IN DEBUG MODE!'
-          else
-            echo '(pipeline is not running in debug mode)'
-          fi
 
+    steps:
+
+  # ? Skip this job:
+  # ? 1. If CI and/or CD are skipped globally
+  # ? 2. On PRs
+  # ? 3. In repo forks
+  # ? 4. If no semantic-release configuration
+  build:
+    name: '[CD] build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip != 'true'
+      && needs.metadata.outputs.can-release == 'true'
+      && needs.metadata.outputs.has-release-config == 'true'
+    steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 1 # ! We only skip if the tippy top commit says so!
+          persist-credentials: false
 
-      - name: Determine should-skip
-        id: skip
-        run: |
-          set +e
-          LAST_COMMIT_MSG=$(git log -1 --pretty=format:"%s")
-          ! [ -z "$DEBUG" ] && echo "LAST_COMMIT_MSG=$LAST_COMMIT_MSG" || true
-
-          echo "$LAST_COMMIT_MSG" | grep -qE "$CI_SKIP_REGEX"
-          [ $? -ne 0 ] && CI_SKIP=false || CI_SKIP=true
-          ! [ -z "$DEBUG" ] && echo "CI_SKIP=$CI_SKIP" || true
-
-          [ "$CI_SKIP" = 'true' ] || echo "$LAST_COMMIT_MSG" | grep -qE "$CD_SKIP_REGEX"
-          [ $? -ne 0 ] && CD_SKIP=false || CD_SKIP=true
-          ! [ -z "$DEBUG" ] && echo "CD_SKIP=$CD_SKIP" || true
-
-          echo "::set-output name=should-skip-ci::$CI_SKIP"
-          ! [ -z "$DEBUG" ] && echo "set-output name=should-skip-ci::$CI_SKIP" || true
-
-          echo "::set-output name=should-skip-cd::$CD_SKIP"
-          ! [ -z "$DEBUG" ] && echo "set-output name=should-skip-cd::$CD_SKIP" || true
-
-      - name: Determine matrixes
-        if: steps.skip.outputs.should-skip-ci != 'true'
-        id: set-matrix
-        run: |
-          echo "::set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
-          echo "::set-output name=webpack-matrix::{\"webpack\":[$WEBPACK_TEST_VERSIONS]}"
-          ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=webpack-matrix::{\"webpack\":[$WEBPACK_TEST_VERSIONS]}" || true
-
-      - name: Gather branch metadata
-        if: steps.skip.outputs.should-skip-ci != 'true'
-        uses: nelonoel/branch-name@v1.0.1
-
-      - name: Determine current-branch
-        if: steps.skip.outputs.should-skip-ci != 'true'
-        id: branch
-        run: |
-          echo "::set-output name=current-branch::$BRANCH_NAME"
-          ! [ -z "$DEBUG" ] && echo "set-output name=current-branch::$BRANCH_NAME" || true
-
-      - name: Verify repository owner against deploy whitelist
-        if: steps.skip.outputs.should-skip-ci != 'true'
-        id: owner
-        run: |
-          set +e
-          node -e "process.exit('${{ env.REPO_OWNER_WHITELIST }}'.split(',').some(o => o.trim().toLowerCase() == '${{ github.repository_owner }}'.toLowerCase()) ? 0 : 1)"
-          RESULT=`[ $? -eq 0 ] && echo 'true' || echo 'false'`
-          echo "::set-output name=is-whitelisted::$RESULT"
-          ! [ -z "$DEBUG" ] && echo "set-output name=is-whitelisted::$RESULT" || true
-
-      - name: Verify workflow actor against auto-merge whitelist
-        if: steps.skip.outputs.should-skip-ci != 'true'
-        id: automerge
-        run: |
-          set +e
-          node -e "process.exit('${{ env.AUTOMERGE_ACTOR_WHITELIST }}'.split(',').some(o => o.trim() == '${{ github.actor }}') ? 0 : 1)"
-          RESULT=`[ $? -eq 0 ] && echo 'true' || echo 'false'`
-          echo "::set-output name=allowed-to-automerge::$RESULT"
-          ! [ -z "$DEBUG" ] && echo "set-output name=allowed-to-automerge::$RESULT" || true
-
-      - name: Verify workflow actor against auto-merge retry whitelist
-        if: steps.skip.outputs.should-skip-ci != 'true'
-        id: automerge-retry
-        run: |
-          set +e
-          node -e "process.exit('${{ env.AUTOMERGE_RETRY_WHITELIST }}'.split(',').some(o => o.trim() == '${{ github.actor }}') ? 0 : 1)"
-          RESULT=`[ $? -eq 0 ] && echo 'true' || echo 'false'`
-          echo "::set-output name=allowed-to-retry-automerge::$RESULT"
-          ! [ -z "$DEBUG" ] && echo "set-output name=allowed-to-retry-automerge::$RESULT" || true
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        if: steps.skip.outputs.should-skip-ci != 'true'
         uses: actions/setup-node@v2.1.5
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
-      - name: Gather remaining metadata
-        if: steps.skip.outputs.should-skip-ci != 'true'
-        id: data
+      - name: Cache npm
+        uses: actions/cache@v2.1.4
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
         run: |
-          set +e
-          NPMR=`npm run list-tasks`
-          CODE=$?
+          npm ci
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
-          ! [ -z "$DEBUG" ] && echo 'NPMR=' $NPMR || true
+      - name: Pre source formatting
+        run: npm run format
 
-          if [ $CODE -ne 0 ]; then
-            echo '::error::npm script "list-tasks" failed'
-            exit 1
-          fi
+      - name: Build distributables
+        run: npm run build-dist
 
-          if [ -r release.config.js ]; then HAS_RCNF=true; else HAS_RCNF=false; fi
-          echo $NPMR | grep -qe '\sbuild-docs\s'
-          if [ $? -eq 0 ]; then HAS_DOCS=true; else HAS_DOCS=false; fi
-          echo $NPMR | grep -qe '\sbuild-externals\s'
-          if [ $? -eq 0 ]; then HAS_EXTS=true; else HAS_EXTS=false; fi
-          echo $NPMR | grep -qe '\stest-integration-node\s'
-          if [ $? -eq 0 ]; then HAS_NODE=true; else HAS_NODE=false; fi
-          echo $NPMR | grep -qe '\stest-integration-externals\s'
-          if [ $? -eq 0 ]; then HAS_IEXT=true; else HAS_IEXT=false; fi
-          echo $NPMR | grep -qe '\stest-integration-client\s'
-          if [ $? -eq 0 ]; then HAS_BWSR=true; else HAS_BWSR=false; fi
-          echo $NPMR | grep -qe '\stest-integration-webpack\s'
-          if [ $? -eq 0 ]; then HAS_WEBP=true; else HAS_WEBP=false; fi
-          echo $NPMR | grep -qe '\sdeploy\s'
-          if [ $? -eq 0 ]; then HAS_DPLY=true; else HAS_DPLY=false; fi
+      - name: Build documentation
+        if: needs.metadata.outputs.has-docs == 'true'
+        run: npm run build-docs
 
-          echo "::set-output name=has-release-config::$HAS_RCNF"
-          echo "::set-output name=has-docs::$HAS_DOCS"
-          echo "::set-output name=has-externals::$HAS_EXTS"
-          echo "::set-output name=has-integration-node::$HAS_NODE"
-          echo "::set-output name=has-integration-externals::$HAS_IEXT"
-          echo "::set-output name=has-integration-client::$HAS_BWSR"
-          echo "::set-output name=has-integration-webpack::$HAS_WEBP"
-          echo "::set-output name=has-deploy::$HAS_DPLY"
+      - name: Run formatting
+        run: npm run format
 
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-release-config::$HAS_RCNF" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-docs::$HAS_DOCS" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-externals::$HAS_EXTS" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-node::$HAS_NODE" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-externals::$HAS_IEXT" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-client::$HAS_BWSR" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-webpack::$HAS_WEBP" || true
-          ! [ -z "$DEBUG" ] && echo "set-output name=has-deploy::$HAS_DPLY" || true
+      - name: Cache build
+        uses: actions/cache@v2.1.4
+        id: cache-build
+        with:
+          key: build-${{ runner.os }}-${{ github.sha }}
+          path: ./*
 
-          if [ "$HAS_EXTS" != "$HAS_IEXT" ]; then
-            echo '::error::expected both 1) `build-externals` and 2) `test-integration-externals` scripts to be defined in package.json'
-            exit 2
-          fi
+  # ? This job always runs except:
+  # ? 1. If the "build" job failed or was skipped
+  # ? 2. If CI pipeline didn't complete successfully
+  release:
+    name: '[CD] release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - metadata
+      - build
+    if: needs.build.result == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-          if [ "$HAS_DOCS" = 'false' ]; then
-            echo '::warning::no `build-docs` script defined in package.json'
-          fi
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN
+          }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Restore build
+        uses: actions/cache@v2.1.4
+        id: restore-build
+        with:
+          key: build-${{ runner.os }}-${{ github.sha }}
+          path: ./*
+
+      - name: Fail if build not restored
+        if: steps.restore-build.outputs.cache-hit != 'true'
+        run: |
+          echo '::error::release job failed to restore build ${{ github.sha }}'
+          exit 1
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Import gpg key
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git-user-signingkey: true
+          git-commit-gpgsign: true
+          git-tag-gpgsign: true
+          git-committer-name: ${{ env.CI_COMMITTER_NAME }}
+          git-committer-email: ${{ env.CI_COMMITTER_EMAIL }}
+
+      - name: Perform semantic release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          SHOULD_UPDATE_CHANGELOG:
+            ${{ needs.metadata.outputs.current-branch == 'main' }}
+          SHOULD_DEPLOY: ${{ needs.metadata.outputs.has-deploy == 'true' }}
+          GIT_AUTHOR_NAME: ${{ env.CI_COMMITTER_NAME }}
+          GIT_AUTHOR_EMAIL: ${{ env.CI_COMMITTER_EMAIL }}
+          GIT_COMMITTER_NAME: ${{ env.CI_COMMITTER_NAME }}
+          GIT_COMMITTER_EMAIL: ${{ env.CI_COMMITTER_EMAIL }}
+        run: npx semantic-release
+
+  # ? This job always runs except:
+  # ? 1. If CI and/or CD are skipped globally
+  # ? 2. If the "build" or "release" jobs weren't skipped
+  # ? 3. If not a PR
+  # ? 4. If the PR is a draft
+  # ? 5. If CI pipeline didn't complete successfully
+  auto-merge:
+    name: '[CD] auto-merge'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - metadata
+      - build
+      - release
+    if: |
+      always()
+      && needs.metadata.outputs.should-skip != 'true'
+      && needs.metadata.outputs.can-automerge == 'true'
+      && needs.build.result == 'skipped'
+      && needs.release.result == 'skipped'
+    steps:
+      - name: 'Merge pull request'
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            const MAX_RETRIES = 2;
+            const MINIMUM_SECONDS = 10;
+            const JITTER_SECONDS = 10;
+
+            let success = false;
+            let errors = [];
+            let jitter = 0;
+
+            const pullRequest = context.payload.pull_request;
+            const repository = context.repo;
+            const debugging = !!'${{ env.DEBUG }}';
+            const canRetryMerge =
+              '${{ needs.metadata.outputs.can-retry-automerge }}' == 'true';
+
+            const delay = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const withErrorHandling = (promise, failData = {}) => {
+              return promise.catch((e) =>
+                Promise.resolve({
+                  status: e.status || 0,
+                  data: { message: e.message, ...failData }
+                })
+              );
+            };
+
+            if (debugging) {
+              console.log('MAX_RETRIES:', MAX_RETRIES);
+              console.log('MINIMUM_SECONDS:', MINIMUM_SECONDS);
+              console.log('JITTER_SECONDS:', JITTER_SECONDS);
+              console.log('repository:', repository);
+              console.log(
+                'canRetryMerge:',
+                canRetryMerge,
+                ' ("${{ needs.metadata.outputs.can-retry-automerge }}")'
+              );
+              console.log('pullRequest.number:', pullRequest.number);
+              console.log(`head_ref (sha): ${pullRequest.head.sha}`);
+            }
+
+            for (let tries = 0; !success && tries < MAX_RETRIES; ++tries) {
+              const failSymbol = Symbol('fail');
+
+              try {
+                const latestPullRequest = await withErrorHandling(
+                  github.pulls.get(
+                    {
+                      owner: repository.owner,
+                      repo: repository.repo,
+                      pull_number: pullRequest.number
+                    },
+                    { failed: failSymbol }
+                  )
+                );
+
+                if (debugging) {
+                  console.log('latestPullRequest->status:', latestPullRequest.status);
+                  console.log(
+                    'latestPullRequest->message:',
+                    latestPullRequest.data.message
+                  );
+                  console.log('latestPullRequest->failed:', latestPullRequest.data.failed);
+                  console.log('latestPullRequest->state:', latestPullRequest.data.state);
+                  console.log('latestPullRequest->merged:', latestPullRequest.data.merged);
+                  console.log('latestPullRequest->draft:', latestPullRequest.data.draft);
+                }
+
+                if (latestPullRequest.status == 404) {
+                  core.warning(
+                    `Auto-merge skipped: PR #${pullRequest.number} no longer exists`
+                  );
+                  return;
+                } else if (latestPullRequest.data.failed == failSymbol) {
+                  throw new Error(
+                    latestPullRequest.data.message ||
+                      `failed to get PR #${pullRequest.number}: status code ${status}`
+                  );
+                } else if (latestPullRequest.data.merged) {
+                  core.info(
+                    `Auto-merge skipped: PR #${pullRequest.number} has already been merged`
+                  );
+                  return;
+                } else if (latestPullRequest.data.draft) {
+                  core.warning(
+                    `Auto-merge skipped: PR #${pullRequest.number} was marked as a draft`
+                  );
+                  return;
+                } else if (
+                  latestPullRequest.status < 400 &&
+                  latestPullRequest.data.state != 'open'
+                ) {
+                  core.warning(
+                    `Auto-merge skipped: PR #${pullRequest.number} is no longer open`
+                  );
+                  return;
+                } // ? Mergeability check is the attempt to merge itself (below)
+
+                const {
+                  status,
+                  data: { merged, message }
+                } = await withErrorHandling(
+                  github.pulls.merge({
+                    owner: repository.owner,
+                    repo: repository.repo,
+                    pull_number: pullRequest.number,
+                    sha: pullRequest.head.sha,
+                    merge_method: 'merge'
+                  }),
+                  { merged: false }
+                );
+
+                if (debugging) {
+                  console.log('mergeAttempt->status:', status);
+                  console.log('mergeAttempt->message:', message);
+                  console.log('mergeAttempt->merged:', merged);
+                }
+
+                const defaultError =
+                  message ||
+                  `failed to merge PR #${pullRequest.number}: status code ${status}`;
+
+                if ([403, 404, 422].includes(status)) {
+                  core.setFailed(`Auto-merge failed: ${message}`);
+                  return;
+                } else if (status == 409) {
+                  core.info(
+                    `Auto-merge skipped: current HEAD is out of sync with PR #${pullRequest.number}`
+                  );
+                } else if (status >= 400 && status < 500 && !canRetryMerge) {
+                  core.setFailed(`Auto-merge failed: ${defaultError}`);
+                  return;
+                } else if (!merged) {
+                  throw new Error(defaultError);
+                }
+
+                success = true;
+              } catch (e) {
+                console.error(
+                  'Auto-merge failed:',
+                  e.message || e || 'an unknown error occurred'
+                );
+
+                if (tries + 1 < MAX_RETRIES) {
+                  const nextRetryIn = 2 ** tries * MINIMUM_SECONDS * 1000 + jitter;
+                  jitter += Math.random() * JITTER_SECONDS * 1000;
+                  core.warning(
+                    `Auto-merge attempt ${
+                      tries + 1
+                    }/${MAX_RETRIES} failed, next try in ${Math.round(
+                      nextRetryIn / 1000
+                    )} seconds`
+                  );
+
+                  await delay(nextRetryIn);
+                }
+              }
+            }
+
+            if (!success) core.setFailed(`Auto-merge failed after ${MAX_RETRIES} attempts`);
