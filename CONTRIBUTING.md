@@ -151,7 +151,7 @@ which of the following scripts are available for this project.
 [2]: /.github/CODE_OF_CONDUCT.md
 [3]: https://github.com/features/actions
 [4]: https://github.com/Xunnamius/next-test-api-route-handler/tree/main/.husky
-[5]: .github/workflows/build-test-deploy.yml
+[5]: .github/workflows/build-test.yml
 [6]: https://github.com/semantic-release/semantic-release#readme
 [7]: https://www.npmjs.com/package/debug
 [8]: https://www.npmjs.com/package/rejoinder
@@ -174,39 +174,6 @@ which of the following scripts are available for this project.
 [22]:
   https://help.github.com/articles/github-terms-of-service/#6-contributions-under-repository-license
 [23]: LICENSE
-[24]: https://trunkbaseddevelopment.com/
-[25]: https://trunkbaseddevelopment.com/#scaled-trunk-based-development
-[26]:
-  https://blog.nelhage.com/post/testing-and-feedback-loops/#invest-in-regression-testing
-[27]: https://github.com/pricing
-[28]: https://en.wikipedia.org/wiki/Continuous_integration
-[29]: https://en.wikipedia.org/wiki/Continuous_deployment
-[30]: https://git-scm.com/docs/git-merge#Documentation/git-merge.txt---no-ff
-[31]: https://git-scm.com/docs/git-rebase
-[32]: https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History#_squashing
-[33]:
-  https://github.com/semantic-release/git#merging-between-semantic-release-branches
-[34]:
-  https://semantic-release.gitbook.io/semantic-release/support/troubleshooting#release-not-found-release-branch-after-git-push-force
-[35]:
-  https://semantic-release.gitbook.io/semantic-release/usage/workflow-configuration#maintenance-branches
-[36]: https://docs.npmjs.com/cli/v6/commands/npm-dist-tag#purpose
-[37]: https://www.npmjs.com/package/semantic-release
-[38]:
-  https://semantic-release.gitbook.io/semantic-release/usage/workflow-configuration#release-branches
-[39]:
-  https://semantic-release.gitbook.io/semantic-release/usage/workflow-configuration#pre-release-branches
-[40]: release.config.js
-[41]: CHANGELOG.md
-[42]: https://github.com/Xunnamius/semantic-release/tree/contrib-holistic
-[43]: https://github.com/semantic-release/semantic-release/pull/1709
-[44]: https://github.com/semantic-release/semantic-release/pull/1710
-[45]: https://github.com/semantic-release/npm#options
-[46]:
-  https://github.com/semantic-release/commit-analyzer/blob/e8c560459d7ef8752180154ed0263ce262aa22a7/lib/default-release-rules.js#L8
-[47]:
-  https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows
-[48]: .github/workflows/cleanup.yml
 [49]: https://docs.npmjs.com/cli/v6/commands/npm-run-script
 [50]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [51]: https://jestjs.io/docs/en/cli.html#--coverageboolean
