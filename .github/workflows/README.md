@@ -1,6 +1,6 @@
 # The GitHub Actions CI/CD Pipeline
 
-Development in this repository adheres to \[Trunk Based Development]\[24]
+Development in this repository adheres to [Trunk Based Development][1]
 principles, specifically leveraging _[short-lived feature branches][25]_ (SLFB)
 and Continuous Linting (CL), Integration (CI), and Deployment (CD).
 
@@ -154,7 +154,7 @@ With direct pushes and merged PRs, if all tests pass and the GitHub user
 responsible for triggering the pipeline (pipeline actor) has the proper
 permissions, the CD stage runs where:
 
-- Commits pushed to `main` are released on the \[default release channel]\[38]
+- Commits pushed to `main` are released on the [default release channel][2]
 - Commits pushed to `canary` are released on the [prerelease channel][39]
 - Commits pushed to `N.x`/`N.x.x` and `N.N.x` maintenance branches are released
   on their respective [maintenance channels][35]
@@ -185,10 +185,10 @@ push will almost certainly corrupt.
 
 **Revert Commits Are Always Released**
 
-\[All reverts are treated as patches and immediately released]\[46] no matter
-the type of the reverted commit. This means **commits that were reverted will
-appear in [CHANGELOG.md][41] even if they didn't trigger an earlier release**.
-This also means **reverting a commit that introduced a breaking change will only
+[All reverts are treated as patches and immediately released][3] no matter the
+type of the reverted commit. This means **commits that were reverted will appear
+in [CHANGELOG.md][41] even if they didn't trigger an earlier release**. This
+also means **reverting a commit that introduced a breaking change will only
 trigger a patch release** unless the revert commit itself also includes
 `BREAKING CHANGE:` in its message body.
 
@@ -197,6 +197,11 @@ is not present in the top commit's message body), **the result is always a patch
 release and a corresponding confusingly-empty (and ugly) entry in
 [CHANGELOG.md][41]!**
 
+[1]: https://trunkbaseddevelopment.com
+[2]:
+  https://semantic-release.gitbook.io/semantic-release/usage/workflow-configuration#release-branches
+[3]:
+  https://github.com/semantic-release/commit-analyzer/blob/506a9cb46f475905e5457e11c63e14e0f329ce83/lib/default-release-rules.js#L8
 [25]: https://trunkbaseddevelopment.com/#scaled-trunk-based-development
 [26]:
   https://blog.nelhage.com/post/testing-and-feedback-loops/#invest-in-regression-testing
