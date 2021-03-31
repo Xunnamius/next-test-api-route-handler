@@ -1,25 +1,28 @@
-# TODO: description
+# Releases and deploys commits, auto-merges PRs, and uploads test coverage info,
+# etc using a privileged runner. To function, this workflow requires the working
+# tree (including coverage info) and metadata artifacts at the following keys:
+#   - `build-${{ runner.os }}-${{ github.sha }}`
+#   - `metadata-${{ runner.os }}-${{ github.sha }}`
 #
 # * Note: feel free to run this workflow in forks (e.g. for testing your PR)
 # * without worrying about this workflow attempting to deploy a package 🚀
 #
-# ! To prevent errors, the following GitHub repository secrets must be defined:
+# ! See also: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+# ! tl;dr: do not build anything or run any code or executables from the repo.
+# ! Also for this reason, installing dependencies cannot happen either. Deps are
+# ! hardcoded (called via `npx -p`) below, rather than taken from `package.json`
+#
+# ! To function, the following GitHub repository secrets must be defined:
 # !   CODECOV_TOKEN (optional for public repos)
 # !   GPG_PRIVATE_KEY
 # !   GPG_PASSPHRASE
 # !   GH_TOKEN
 # !   NPM_TOKEN
 
-# TODO: 1. is it "actor" or "sender"?
-# TODO: 2. parse JSON
-# TODO: 3. use passed pr-number and commit-sha
-# TODO: 4. do not git checkout anything
-# TODO: 5. upload codecov artifact and download it based on true/false in meta.json
-
 name: deploy
 
 on:
-  workflow_run:
+  workflow_run: # ! Privileged trusted code w/ full access tokens and secrets !
     types: [completed]
     branches: [main, canary]
 
@@ -30,134 +33,124 @@ jobs:
     timeout-minutes: 10
 
     outputs:
-      should-skip-ci: ${{ steps.skip.outputs.should-skip-ci == 'true' }}
-      should-skip-cd: ${{ steps.skip.outputs.should-skip-cd == 'true' }}
-      node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
-      webpack-matrix: ${{ steps.set-matrix.outputs.webpack-matrix }}
-      current-branch: ${{ steps.branch.outputs.current-branch }}
-      can-release: ${{ steps.release.outputs.can-release }}
-      can-automerge: ${{ steps.automerge.outputs.can-automerge == 'true' }}
-      can-retry-automerge: ${{ env.AUTOMERGE_CAN_RETRY == 'true' }}
-      has-deploy: ${{ steps.data.outputs.has-deploy == 'true' }}
-      has-release-config: ${{ steps.data.outputs.has-release-config == 'true' }}
-      has-docs: ${{ steps.data.outputs.has-docs == 'true' }}
-      has-externals: ${{ steps.data.outputs.has-externals == 'true' }}
-      has-integration-node:
-        ${{ steps.data.outputs.has-integration-node == 'true' }}
+      should-skip:
+        ${{ github.event.workflow_run.conclusion != 'success' ||
+        steps.metadata.outputs.should-skip == 'true' }},
+      node-version: ${{ steps.metadata.outputs.node-version }},
+      current-branch: ${{ steps.metadata.outputs.current-branch }},
+      commit-sha: ${{ steps.metadata.outputs.commit-sha }},
+      pr-number: ${{ steps.metadata.outputs.pr-number }},
+      can-release: ${{ steps.metadata.outputs.can-release }},
+      can-automerge: ${{ steps.metadata.outputs.can-automerge }},
+      can-retry-automerge: ${{ steps.metadata.outputs.can-retry-automerge }},
+      can-upload-coverage: ${{ steps.metadata.outputs.can-upload-coverage }},
+      has-deploy: ${{ steps.metadata.outputs.has-deploy }},
+      has-release-config: ${{ steps.metadata.outputs.has-release-config }},
+      has-docs: ${{ steps.metadata.outputs.has-docs }},
+      has-externals: ${{ steps.metadata.outputs.has-externals }},
+      has-integration-node: ${{ steps.metadata.outputs.has-integration-node }},
       has-integration-externals:
-        ${{ steps.data.outputs.has-integration-externals == 'true' }}
+        ${{ steps.metadata.outputs.has-integration-externals }},
       has-integration-client:
-        ${{ steps.data.outputs.has-integration-client == 'true' }}
+        ${{ steps.metadata.outputs.has-integration-client }},
       has-integration-webpack:
-        ${{ steps.data.outputs.has-integration-webpack == 'true' }}
+        ${{ steps.metadata.outputs.has-integration-webpack }},
+      debug-string: ${{ steps.metadata.outputs.debug-string }},
+      committer-name: ${{ steps.metadata.outputs.committer-name }},
+      committer-email: ${{ steps.metadata.outputs.committer-email }}
 
     steps:
+      - name: Download metadata artifact
+        if: github.event.workflow_run.conclusion == 'success'
+        uses: actions/download-artifact@v2
+        with:
+          name: metadata-${{ runner.os }}-${{ github.sha }}
+          path: /tmp
 
-  # ? Skip this job:
-  # ? 1. If CI and/or CD are skipped globally
-  # ? 2. On PRs
-  # ? 3. In repo forks
-  # ? 4. If no semantic-release configuration
-  build:
-    name: '[CD] build'
+      - name: Import metadata from artifact
+        id: metadata
+        if: github.event.workflow_run.conclusion == 'success'
+        run: |
+          node -e "$(cat <<'EOF'
+            const readFile = require('fs').readFileSync;
+            Object.keys(JSON.parse(readFile('/tmp/meta.json'))).forEach((key, value) => {
+              console.log(`imported metadata: name=${key} value=${value}`)
+              console.log(`::set-output name=${key}::${value}`)
+            });
+          EOF
+          )"
+
+  upload-coverage:
+    name: '[CD] upload-coverage'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: metadata
+    needs:
+      - metadata
     if: |
       needs.metadata.outputs.should-skip != 'true'
-      && needs.metadata.outputs.can-release == 'true'
-      && needs.metadata.outputs.has-release-config == 'true'
+      && needs.metadata.outputs.can-upload-coverage == 'true'
+    env:
+      DEBUG: ${{ needs.metadata.outputs.debug-string }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          persist-credentials: false
+          fetch-depth: 0 # ? Codecov action needs access to history
+          ref: ${{ needs.metadata.outputs.commit-sha }}
+          token: ${{ secrets.GH_TOKEN }}
 
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
-
-      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: ${{ env.NODE_CURRENT_VERSION }}
-
-      - name: Cache npm
-        uses: actions/cache@v2.1.4
-        id: cache-npm
-        with:
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          path: ~/.npm
-          restore-keys: npm-${{ runner.os }}-
-
-      - name: Install CI dependencies
+      - name: Strip repository bare
         run: |
-          npm ci
-          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
-          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
+          rm -rf {,.!(git)}
 
-      - name: Pre source formatting
-        run: npm run format
-
-      - name: Build distributables
-        run: npm run build-dist
-
-      - name: Build documentation
-        if: needs.metadata.outputs.has-docs == 'true'
-        run: npm run build-docs
-
-      - name: Run formatting
-        run: npm run format
-
-      - name: Cache build
-        uses: actions/cache@v2.1.4
-        id: cache-build
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
         with:
-          key: build-${{ runner.os }}-${{ github.sha }}
-          path: ./*
+          name: build-${{ runner.os }}-${{ github.sha }}
+          path: ./
 
-  # ? This job always runs except:
-  # ? 1. If the "build" job failed or was skipped
-  # ? 2. If CI pipeline didn't complete successfully
+      - name: Attempt to upload coverage data to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          fail_ci_if_error: false
+
+      - name: Issue any codecov-related warnings
+        run: echo '::warning::no code coverage data uploaded for this run'
+
   release:
     name: '[CD] release'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
       - metadata
-      - build
-    if: needs.build.result == 'success'
+    if: needs.metadata.outputs.should-skip != 'true'
+    env:
+      DEBUG: ${{ needs.metadata.outputs.debug-string }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          persist-credentials: false
+          ref: ${{ needs.metadata.outputs.commit-sha }}
+          token: ${{ secrets.GH_TOKEN }}
 
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
-
-      - name: Restore build
-        uses: actions/cache@v2.1.4
-        id: restore-build
-        with:
-          key: build-${{ runner.os }}-${{ github.sha }}
-          path: ./*
-
-      - name: Fail if build not restored
-        if: steps.restore-build.outputs.cache-hit != 'true'
+      - name: Strip repository bare
         run: |
-          echo '::error::release job failed to restore build ${{ github.sha }}'
-          exit 1
+          rm -rf {,.!(git)}
 
-      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build-${{ runner.os }}-${{ github.sha }}
+          path: ./
+
+      - name: Use node ${{ needs.metadata.outputs.node-version }} (for npx only)
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: ${{ env.NODE_CURRENT_VERSION }}
+          node-version: ${{ needs.metadata.outputs.node-version }}
 
       - name: Import gpg key
         id: gpg
@@ -168,8 +161,8 @@ jobs:
           git-user-signingkey: true
           git-commit-gpgsign: true
           git-tag-gpgsign: true
-          git-committer-name: ${{ env.CI_COMMITTER_NAME }}
-          git-committer-email: ${{ env.CI_COMMITTER_EMAIL }}
+          git-committer-name: ${{ needs.metadata.outputs.committer-name }}
+          git-committer-email: ${{ needs.metadata.outputs.committer-email }}
 
       - name: Perform semantic release
         env:
@@ -178,39 +171,48 @@ jobs:
           SHOULD_UPDATE_CHANGELOG:
             ${{ needs.metadata.outputs.current-branch == 'main' }}
           SHOULD_DEPLOY: ${{ needs.metadata.outputs.has-deploy == 'true' }}
-          GIT_AUTHOR_NAME: ${{ env.CI_COMMITTER_NAME }}
-          GIT_AUTHOR_EMAIL: ${{ env.CI_COMMITTER_EMAIL }}
-          GIT_COMMITTER_NAME: ${{ env.CI_COMMITTER_NAME }}
-          GIT_COMMITTER_EMAIL: ${{ env.CI_COMMITTER_EMAIL }}
-        run: npx semantic-release
+          GIT_AUTHOR_NAME: ${{ needs.metadata.outputs.committer-name }}
+          GIT_AUTHOR_EMAIL: ${{ needs.metadata.outputs.committer-email }}
+          GIT_COMMITTER_NAME: ${{ needs.metadata.outputs.committer-name }}
+          GIT_COMMITTER_EMAIL: ${{ needs.metadata.outputs.committer-email }}
+        run: |
+          npx -p debug \
+              -p escape-string-regexp \
+              -p semver \
+              -p execa \
+              -p conventional-changelog-angular \
+              -p @semantic-release/changelog \
+              -p @semantic-release/exec \
+              -p @semantic-release/git \
+              -p semantic-release \
+          semantic-release
 
   # ? This job always runs except:
-  # ? 1. If CI and/or CD are skipped globally
-  # ? 2. If the "build" or "release" jobs weren't skipped
-  # ? 3. If not a PR
-  # ? 4. If the PR is a draft
-  # ? 5. If CI pipeline didn't complete successfully
+  # ? 1. If CI and/or CD are skipped globally or pipeline otherwise failed
+  # ? 2. If the "release" job WAS NOT skipped
+  # ? 3. If we cannot automerge (bad perms, not a PR, PR is a draft, etc)
   auto-merge:
     name: '[CD] auto-merge'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - metadata
-      - build
       - release
     if: |
       always()
       && needs.metadata.outputs.should-skip != 'true'
-      && needs.metadata.outputs.can-automerge == 'true'
-      && needs.build.result == 'skipped'
       && needs.release.result == 'skipped'
+      && needs.metadata.outputs.can-automerge == 'true'
+    env:
+      DEBUG: ${{ needs.metadata.outputs.debug-string }}
+
     steps:
       - name: 'Merge pull request'
         uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GH_TOKEN }}
           script: |
-            const MAX_RETRIES = 2;
+            const MAX_TRIES = 3;
             const MINIMUM_SECONDS = 10;
             const JITTER_SECONDS = 10;
 
@@ -218,9 +220,15 @@ jobs:
             let errors = [];
             let jitter = 0;
 
-            const pullRequest = context.payload.pull_request;
+            const pullRequest = {
+              number: ${{ needs.metadata.outputs.pr-number }}
+              head: {
+                sha: '${{ needs.metadata.outputs.commit-sha }}'
+              }
+            };
+
             const repository = context.repo;
-            const debugging = !!'${{ env.DEBUG }}';
+            const debugging = !!process.env.DEBUG;
             const canRetryMerge =
               '${{ needs.metadata.outputs.can-retry-automerge }}' == 'true';
 
@@ -235,7 +243,7 @@ jobs:
             };
 
             if (debugging) {
-              console.log('MAX_RETRIES:', MAX_RETRIES);
+              console.log('MAX_TRIES:', MAX_TRIES);
               console.log('MINIMUM_SECONDS:', MINIMUM_SECONDS);
               console.log('JITTER_SECONDS:', JITTER_SECONDS);
               console.log('repository:', repository);
@@ -248,7 +256,7 @@ jobs:
               console.log(`head_ref (sha): ${pullRequest.head.sha}`);
             }
 
-            for (let tries = 0; !success && tries < MAX_RETRIES; ++tries) {
+            for (let tries = 0; !success && tries < MAX_TRIES; ++tries) {
               const failSymbol = Symbol('fail');
 
               try {
@@ -350,13 +358,13 @@ jobs:
                   e.message || e || 'an unknown error occurred'
                 );
 
-                if (tries + 1 < MAX_RETRIES) {
+                if (tries + 1 < MAX_TRIES) {
                   const nextRetryIn = 2 ** tries * MINIMUM_SECONDS * 1000 + jitter;
                   jitter += Math.random() * JITTER_SECONDS * 1000;
                   core.warning(
                     `Auto-merge attempt ${
                       tries + 1
-                    }/${MAX_RETRIES} failed, next try in ${Math.round(
+                    }/${MAX_TRIES} failed, next try in ${Math.round(
                       nextRetryIn / 1000
                     )} seconds`
                   );
@@ -366,4 +374,4 @@ jobs:
               }
             }
 
-            if (!success) core.setFailed(`Auto-merge failed after ${MAX_RETRIES} attempts`);
+            if (!success) core.setFailed(`Auto-merge failed after ${MAX_TRIES} attempts`);

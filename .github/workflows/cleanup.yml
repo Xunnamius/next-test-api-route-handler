@@ -87,12 +87,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         uses: actions/setup-node@v2.1.5

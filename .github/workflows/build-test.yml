@@ -1,5 +1,8 @@
-# Builds and tests the commit in an unprivileged runner. The build result,
-# codecov result, and metadata are stored in artifacts.
+# Builds and tests the commit in an unprivileged runner. The build result
+# (including optional documentation), codecov result, and metadata are stored
+# as artifacts at the following keys:
+#   - `metadata-${{ runner.os }}-${{ github.sha }}`
+#   - `build-${{ runner.os }}-${{ github.sha }}`
 #
 # * Note: feel free to run this workflow in forks (e.g. for testing your PR)
 # * without worrying about this workflow attempting to deploy a package 🚀
@@ -49,25 +52,25 @@
 # If a *deploy* script exists in the root `package.json` file.
 #
 # **`has-release-config`: `true` | `false`**
-# If a *release-config* script exists in the root `package.json` file.
+# If a `release-config.js` file exists in the repo root.
 #
 # **`has-docs`: `true` | `false`**
-# If a *docs* script exists in the root `package.json` file.
+# If a *build-docs* script exists in the root `package.json` file.
 #
 # **`has-externals`: `true` | `false`**
-# If a *externals* script exists in the root `package.json` file.
+# If a *build-externals* script exists in the root `package.json` file.
 #
 # **`has-integration-node`: `true` | `false`**
-# If a *integration-node* script exists in the root `package.json` file.
+# If a *test-integration-node* script exists in the root `package.json` file.
 #
 # **`has-integration-externals`: `true` | `false`**
-# If a *integration-externals* script exists in the root `package.json` file.
+# If a *test-integration-externals* script exists in the root `package.json` file.
 #
 # **`has-integration-client`: `true` | `false`**
-# If a *integration-client* script exists in the root `package.json` file.
+# If a *test-integration-client* script exists in the root `package.json` file.
 #
 # **`has-integration-webpack`: `true` | `false`**
-# If a *integration-webpack* script exists in the root `package.json` file.
+# If a *test-integration-webpack* script exists in the root `package.json` file.
 #
 # **`debug-string`**
 # A non-empty string if the pipeline is running in debugging mode. Relies on
@@ -90,7 +93,7 @@ on:
     tags-ignore: ['**']
     branches-ignore: ['dependabot/**', 'snyk-**', 'no-ci/**']
 
-  pull_request: # ! Sandbox untrusted code w/ read only tokens and no secrets
+  pull_request: # ! Sandbox untrusted code w/ read only tokens and NO secrets !
     types: [opened, reopened, synchronize]
     branches: [main, canary]
 
@@ -143,7 +146,8 @@ env:
   UPLOAD_CODE_COVERAGE: true
 
   # * How many days GitHub should keep uploaded artifacts around
-  ARTIFACT_RETENTION_DAYS: 30
+  # * (90 is GitHub's default)
+  ARTIFACT_RETENTION_DAYS: 90
 
 jobs:
   metadata:
@@ -246,6 +250,7 @@ jobs:
           node -e "process.exit('${{ env.AUTOMERGE_ACTOR_WHITELIST }}'.split(',').some(o => o.trim() == '${{ github.actor }}') ? 0 : 1)"
           RESULT=`if [ $? -eq 0 ] && [ "${{ github.event_name }}" = 'pull_request'] && [ "${{ github.event.pull_request.draft }}" = 'false']; then echo 'true'; else echo 'false'; fi`
           echo "::set-output name=can-automerge::$RESULT"
+          ! [ -z "$DEBUG" ] && echo '[ "${{ github.event_name }}" = "pull_request"] && [ "${{ github.event.pull_request.draft }}" = "false"]' || true
           ! [ -z "$DEBUG" ] && echo "set-output name=can-automerge::$RESULT" || true
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
@@ -356,16 +361,10 @@ jobs:
     timeout-minutes: 10
     needs: metadata
     if: needs.metadata.outputs.should-skip-ci != 'true'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         uses: actions/setup-node@v2.1.5
@@ -381,16 +380,10 @@ jobs:
     timeout-minutes: 10
     needs: metadata
     if: needs.metadata.outputs.should-skip-ci != 'true'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         uses: actions/setup-node@v2.1.5
@@ -408,6 +401,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           npm ci
+          # TODO: remove this when runner upgrades to npm@7
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
@@ -421,18 +415,13 @@ jobs:
     timeout-minutes: 10
     needs: metadata
     if: needs.metadata.outputs.should-skip-ci != 'true'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           # ? codecov-action requires access to git history
           fetch-depth: 0
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         uses: actions/setup-node@v2.1.5
@@ -450,6 +439,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           npm ci
+          # TODO: remove this when runner upgrades to npm@7
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
@@ -457,16 +447,12 @@ jobs:
       - name: Test unit
         run: npm run test-unit
 
-      - name: Attempt to upload coverage data to codecov
-        if: env.UPLOAD_CODE_COVERAGE == 'true'
-        uses: codecov/codecov-action@v1
+      - name: Cache coverage
+        uses: actions/cache@v2.1.4
+        id: cache-coverage
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          fail_ci_if_error: false
-
-      - name: Issue any codecov-related warnings
-        if: env.UPLOAD_CODE_COVERAGE != 'true'
-        run: echo '::warning::no code coverage data uploaded for this run'
+          key: coverage-${{ runner.os }}-${{ github.sha }}
+          path: ./coverage
 
   test-integration-node:
     name: '[CI] test-integration-node'
@@ -479,16 +465,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ matrix.node }}
         uses: actions/setup-node@v2.1.5
@@ -506,6 +486,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           npm ci
+          # TODO: remove this when runner upgrades to npm@7
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
@@ -529,16 +510,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ matrix.node }}
         uses: actions/setup-node@v2.1.5
@@ -556,6 +531,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           npm ci
+          # TODO: remove this when runner upgrades to npm@7
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
@@ -576,16 +552,10 @@ jobs:
     if: |
       needs.metadata.outputs.should-skip-ci != 'true'
       && needs.metadata.outputs.has-integration-client == 'true'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         uses: actions/setup-node@v2.1.5
@@ -603,6 +573,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           npm ci
+          # TODO: remove this when runner upgrades to npm@7
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
@@ -624,16 +595,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.metadata.outputs.webpack-matrix) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Reconfigure git auth
-        run:
-          git config --global url."https://${{ secrets.GH_TOKEN
-          }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Use node ${{ env.NODE_CURRENT_VERSION }}
         uses: actions/setup-node@v2.1.5
@@ -651,6 +616,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           npm ci
+          # TODO: remove this when runner upgrades to npm@7
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
           ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
@@ -662,3 +628,71 @@ jobs:
         env:
           MATRIX_WEBPACK_VERSION: ${{ matrix.webpack }}
         run: npm run test-integration-webpack
+
+  # ? Skip this job:
+  # ? 1. If CI and/or CD are skipped globally
+  # ? 2. On PRs
+  # ? 3. In repo forks
+  # ? 4. If no semantic-release configuration file at project root
+  build:
+    name: '[CD] build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-cd != 'true'
+      && needs.metadata.outputs.can-release == 'true'
+      && needs.metadata.outputs.has-release-config == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2.1.4
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: |
+          npm ci
+          # TODO: remove this when runner upgrades to npm@7
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
+
+      - name: Pre source formatting
+        run: npm run format
+
+      - name: Build distributables
+        run: npm run build-dist
+
+      - name: Build documentation
+        if: needs.metadata.outputs.has-docs == 'true'
+        run: npm run build-docs
+
+      - name: Run formatting
+        run: npm run format
+
+      - name: Restore coverage
+        uses: actions/cache@v2.1.4
+        id: cache-coverage
+        with:
+          key: coverage-${{ runner.os }}-${{ github.sha }}
+          path: ./coverage
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ runner.os }}-${{ github.sha }}
+          path: ./ !**/node_modules
+          if-no-files-found: error
+          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
