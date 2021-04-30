@@ -59,8 +59,7 @@ export async function testApiHandler({
          **    query: any,
          **    resolverModule: any,
          **    apiContext: __ApiPreviewProps,
-         **    propagateError: boolean,
-         **    onError?: ({ err }: { err: any }) => Promise<void>
+         **    propagateError: boolean
          ** )
          */
         void apiResolver(
@@ -70,9 +69,7 @@ export async function testApiHandler({
           handler,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           undefined as any,
-          true,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          undefined as any
+          true
         );
       }))
     );
