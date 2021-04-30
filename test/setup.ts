@@ -189,25 +189,33 @@ export async function withMockedOutput(
     warnSpy: jest.SpyInstance;
     errorSpy: jest.SpyInstance;
     infoSpy: jest.SpyInstance;
+    stdoutSpy: jest.SpyInstance;
+    stdErrSpy: jest.SpyInstance;
   }) => AnyVoid
 ) {
   const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
   const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   const infoSpy = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+  const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+  const stdErrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
   try {
     await fn({
       logSpy,
       warnSpy,
       errorSpy,
-      infoSpy
+      infoSpy,
+      stdoutSpy,
+      stdErrSpy
     });
   } finally {
     logSpy.mockRestore();
     warnSpy.mockRestore();
     errorSpy.mockRestore();
     infoSpy.mockRestore();
+    stdoutSpy.mockRestore();
+    stdErrSpy.mockRestore();
   }
 }
 
