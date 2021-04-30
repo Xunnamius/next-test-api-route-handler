@@ -40,6 +40,7 @@ jobs:
     name: 'five-minute-sleep'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     steps:
       - name: Give result of npm publish time to propagate
         uses: kibertoad/wait-action@1.0.1

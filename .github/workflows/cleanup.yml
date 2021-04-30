@@ -27,6 +27,7 @@ jobs:
       should-skip-ci: ${{ steps.skip-ci.outputs.should-skip == 'true' }}
       has-proper-owner: ${{ steps.owner.outputs.is-whitelisted }}
       has-release-config: ${{ steps.data.outputs.has-release-config == 'true' }}
+
     steps:
       - name: Report DEBUG mode status
         run: |
@@ -82,6 +83,7 @@ jobs:
       needs.metadata.outputs.should-skip-ci != 'true'
       && needs.metadata.outputs.has-proper-owner == 'true'
       && needs.metadata.outputs.has-release-config == 'true'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
