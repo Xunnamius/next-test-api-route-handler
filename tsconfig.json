@@ -3,7 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     // ? Only for Next.js
     // "jsx": "preserve",
     "declaration": true,
