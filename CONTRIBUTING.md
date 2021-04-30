@@ -23,24 +23,30 @@ To get debugging output for just this project's components, [export
 
 The ideal contributor flow is as follows:
 
-1.  [Fork][10] this repository and [clone it locally][11]
-2.  Configure and install dependencies: `npm ci`
+1.  [Fork][10] this repository and [clone it locally][11].
+2.  Configure and install dependencies with `npm ci`.
     - You use `npm ci` here instead of `npm install` to [prevent unnecessary
       updates to `package.json` and `package-lock.json`][12], but if it makes
-      more sense to use `npm install` feel free to use that instead
+      more sense to use `npm install` feel free to use that instead.
     - If `.env.example` exists, consider copying it to `.env` and configuring
-      sensible defaults
+      sensible defaults.
     - If you're using `npm@<=6`, you'll need to install any [peer
       dependencies][13] manually. If you're using `npm@>=7`, you may have to
       [forcefully][14] allow peer deps to be satisfied by custom forks of
-      certain packages
-3.  Before making any changes, ensure all unit tests are passing: `npm run test`
-4.  _(optional but recommended)_ Create a new branch, usually off `main`
+      certain packages.
+3.  Before making any changes, ensure all unit tests are passing with
+    `npm run test`.
+4.  _(optional but recommended)_ Create a new branch, usually off `main`.
     - Example: `git checkout -b contrib-feature-1`
 5.  Make your changes and commit. Thanks to CL, your work will be checked as you
     commit it; any problems will abort the commit attempt
+    - Ensure any new tests still pass even when the `DEBUG` environment variable
+      is defined.
+    - Various [import aliases][24] are available in some projects. Check the
+      [tsconfig.json][25] `"paths"` key to see which if any aliases this project
+      supports.
 6.  Push your commits to your fork and, when you're ready, [_fearlessly_ submit
-    your PR][15]! Your changes will be tested in our CI pipeline
+    your PR][15]! Your changes will be tested in our CI pipeline.
 7.  Pat yourself on the back! Your hard work is well on its way to being
     reviewed and, if everything looks good, merged and released 🚀
 
@@ -60,6 +66,8 @@ PR passes review:
 - **Do not** create a PR to introduce [_purely_ cosmetic commits][21]
   - Code de-duplication and other potential optimizations we **do not** consider
     _purely_ cosmetic 🙂
+- **Do** ensure your tests still pass in the presence of the `DEBUG` environment
+  variable
 - **Do** keep your PR as narrow and focused as possible
   - If you ran `npm install` instead of `npm ci` and it updated `package.json`
     or `package-lock.json` and those updates have nothing to do with your PR
@@ -98,19 +106,14 @@ which of the following scripts are available for this project.
 - `npm run test-integration-client` to run client (browser/cli/etc) integration
   tests with [puppeteer][52] (handled by CI)
 - `npm run test-integration-webpack` to run tests verifying the distributable
-  can be bundled with Webpack 4 and 5 (as ESM, CJS, or both) (handled by CI)
+  can be bundled with Webpack 5 (as both ESM and CJS) (handled by CI)
 - `npm run test-integration-externals` to run tests on compiled external
   executables (under `external-scripts/bin/`) (handled by CI)
-
-> Note: `npm test` and all the `npm run test*` commands accept an optional
-> `JEST_CLI` environment variable, the contents of which will be passed directly
-> to Jest. For example: `JEST_CLI='--verbose' npm test` to get verbose output.
 
 #### Other Development Scripts
 
 - `npm run test-repeat` to run the entire test suite 100 times
   - Good for spotting bad async code and heisenbugs
-  - Uses `__test-repeat` NPM script under the hood
 - `npm run generate` to transpile config files (under `config/`) from scratch
 - `npm run regenerate` to quickly re-transpile config files (under `config/`)
 - `npm run postinstall` to (re-)install [Husky Git hooks][53] if not in a CI
@@ -144,6 +147,7 @@ which of the following scripts are available for this project.
 > be run using [`npx X`][54] instead of `npm run X` regardless.
 
 - `npx npm-force-resolutions` to forcefully patch security audit problems
+  (rarely necessary)
 - `npx semantic-release -d` to run the CD pipeline locally (in [dry-run
   mode][55])
 
@@ -182,3 +186,6 @@ which of the following scripts are available for this project.
 [54]: https://www.npmjs.com/package/npx
 [55]:
   https://semantic-release.gitbook.io/semantic-release/usage/configuration#dryrun
+[24]:
+  https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping
+[25]: tsconfig.json

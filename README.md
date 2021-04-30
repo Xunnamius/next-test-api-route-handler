@@ -73,12 +73,13 @@ via `import { ... } from ...` or `import(...)` will cause Node to use the ESM
 entry point in [versions that support it][node-esm-support], as will Webpack.
 Using the `import` syntax is the modern, preferred choice.
 
-For backwards compatibility with Webpack 4 and Node versions < 14,
-[`package.json`][package-json] retains the [`module`][module-key] key, which
-points to the ESM entry point, and the [`main`][exports-main-key] key, which
-points to the CJS2 entry point explicitly (using the .js file extension). For
-Webpack 5 and Node versions >= 14, [`package.json`][package-json] includes the
-[`exports`][exports-main-key] key, which points to both entry points explicitly.
+For backwards compatibility with Webpack 4 (_compat with Webpack 4 is not
+guaranteed!_) and Node versions < 14, [`package.json`][package-json] retains the
+[`module`][module-key] key, which points to the ESM entry point, and the
+[`main`][exports-main-key] key, which points to the CJS2 entry point explicitly
+(using the .js file extension). For Webpack 5 and Node versions >= 14,
+[`package.json`][package-json] includes the [`exports`][exports-main-key] key,
+which points to both entry points explicitly.
 
 Though [`package.json`][package-json] includes
 [`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
@@ -454,7 +455,7 @@ Check out [the tests][9] for more examples.
 
 ## Documentation
 
-Project documentation can be found under [`docs/`][docs].
+Further documentation can be found under [`docs/`][docs].
 
 ## Contributing and Support
 
