@@ -7,12 +7,12 @@
 [![Last commit timestamp][badge-last-commit]][link-repo]
 [![Open issues][badge-issues]][link-issues]
 [![Pull requests][badge-pulls]][link-pulls]
-[![codecov][badge-codecov]][link-codecov]
-[![tree-shaking][badge-tree-shaking]][link-bundlephobia]
+[![Codecov][badge-codecov]][link-codecov]
 [![Source license][badge-license]][link-license]
-[![size][badge-size]][link-bundlephobia]
+[![Tree shaking support][badge-tree-shaking]][link-bundlephobia]
+[![Compressed package size][badge-size]][link-bundlephobia]
 [![NPM version][badge-npm]][link-npm]
-[![semantic-release][badge-semantic-release]][link-semantic-release]
+[![Uses Semantic Release!][badge-semantic-release]][link-semantic-release]
 
 <!-- badges-end -->
 
