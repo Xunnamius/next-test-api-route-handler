@@ -8,7 +8,9 @@
 [![Open issues][badge-issues]][link-issues]
 [![Pull requests][badge-pulls]][link-pulls]
 [![codecov][badge-codecov]][link-codecov]
+[![tree-shaking][badge-tree-shaking]][link-bundlephobia]
 [![Source license][badge-license]][link-license]
+[![size][badge-size]][link-bundlephobia]
 [![NPM version][badge-npm]][link-npm]
 [![semantic-release][badge-semantic-release]][link-semantic-release]
 
@@ -474,15 +476,15 @@ information.
 [link-repo]: https://github.com/xunnamius/next-test-api-route-handler
 [badge-last-commit]:
   https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler
-  'When was the last commit to the official repo?'
+  'Latest commit timestamp'
 [badge-issues]:
   https://isitmaintained.com/badge/open/Xunnamius/next-test-api-route-handler.svg
-  'Number of known issues with this package'
+  'Open issues as a percentage of total issues'
 [link-issues]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
 [badge-pulls]:
   https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler
-  'Number of open pull requests'
+  'Open pull requests'
 [link-pulls]: https://github.com/xunnamius/next-test-api-route-handler/pulls
 [badge-codecov]:
   https://codecov.io/gh/Xunnamius/next-test-api-route-handler/branch/main/graph/badge.svg?token=HWRIOBAAPW
@@ -501,6 +503,13 @@ information.
   https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
   'This repo practices continuous integration and deployment!'
 [link-semantic-release]: https://github.com/semantic-release/semantic-release
+[badge-size]: https://badgen.net/bundlephobia/minzip/next-test-api-route-handler
+[badge-tree-shaking]:
+  https://badgen.net/bundlephobia/tree-shaking/next-test-api-route-handler
+  'Is this package optimized for Webpack?'
+[link-bundlephobia]:
+  https://bundlephobia.com/result?p=next-test-api-route-handler
+  'Package size (minified and gzipped)'
 [package-json]: package.json
 [docs]: docs
 [choose-new-issue]:
