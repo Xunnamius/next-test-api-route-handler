@@ -26,45 +26,45 @@ mockedDebug.extend = asMockedFunction<Debugger['extend']>().mockReturnValue(mock
 asMockedFunction(debugFactory).mockReturnValue(mockedDebug);
 
 const mockedFindPackageJson = asMockedFunction(findPackageJson);
-const mockedOctokit = (Octokit as unknown) as jest.Mock<Octokit>;
-const mockedOctokitGetLatestRelease = asMockedFunction<
-  Octokit['repos']['getLatestRelease']
->();
+const mockedOctokit = Octokit as unknown as jest.Mock<Octokit>;
+const mockedOctokitGetLatestRelease =
+  asMockedFunction<Octokit['repos']['getLatestRelease']>();
+
+// eslint-disable-next-line jest/unbound-method
 const mockedMongoConnect = asMockedFunction(MongoClient.connect);
 const mockedMongoConnectClose = asMockedFunction<MongoClient['close']>();
 const mockedMongoConnectDb = asMockedFunction<MongoClient['db']>();
 const mockedMongoConnectDbCollection = asMockedFunction<Db['collection']>();
 const mockedMongoConnectDbCollectionFindOne = asMockedFunction<Collection['findOne']>();
-const mockedMongoConnectDbCollectionUpdateOne = asMockedFunction<
-  Collection['updateOne']
->();
+const mockedMongoConnectDbCollectionUpdateOne =
+  asMockedFunction<Collection['updateOne']>();
 
 let mockLatestRelease: string;
 
 mockedFindPackageJson.mockImplementation(
   () =>
-    (({
+    ({
       next: () => ({ value: {}, filename: 'fake/package.json' })
-    } as unknown) as ReturnType<typeof findPackageJson>)
+    } as unknown as ReturnType<typeof findPackageJson>)
 );
 
 mockedExeca.mockImplementation(() => Promise.resolve({}) as ExecaChildProcess<Buffer>);
 
 mockedOctokit.mockImplementation(
   () =>
-    (({
+    ({
       repos: {
         getLatestRelease: mockedOctokitGetLatestRelease
       }
-    } as unknown) as Octokit)
+    } as unknown as Octokit)
 );
 
 mockedOctokitGetLatestRelease.mockImplementation(() =>
-  Promise.resolve(({
+  Promise.resolve({
     data: {
       tag_name: mockLatestRelease
     }
-  } as unknown) as ReturnType<typeof mockedOctokitGetLatestRelease>)
+  } as unknown as ReturnType<typeof mockedOctokitGetLatestRelease>)
 );
 
 mockedMongoConnect.mockImplementation(() =>
@@ -75,15 +75,15 @@ mockedMongoConnect.mockImplementation(() =>
 );
 
 mockedMongoConnectDb.mockImplementation(
-  () => (({ collection: mockedMongoConnectDbCollection } as unknown) as Db)
+  () => ({ collection: mockedMongoConnectDbCollection } as unknown as Db)
 );
 
 mockedMongoConnectDbCollection.mockImplementation(
   () =>
-    (({
+    ({
       findOne: mockedMongoConnectDbCollectionFindOne,
       updateOne: mockedMongoConnectDbCollectionUpdateOne
-    } as unknown) as Collection)
+    } as unknown as Collection)
 );
 
 beforeEach(() => {
@@ -178,9 +178,9 @@ it('handles missing package.json', async () => {
     async () => {
       mockedFindPackageJson.mockImplementationOnce(
         () =>
-          (({
+          ({
             next: () => ({ value: {}, filename: null })
-          } as unknown) as ReturnType<typeof findPackageJson>)
+          } as unknown as ReturnType<typeof findPackageJson>)
       );
 
       await protectedImport({ expectedExitCode: 2 });
