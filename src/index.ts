@@ -28,17 +28,21 @@ import type { IncomingMessage, ServerResponse } from 'http';
  * assertions can be run. This function receives one parameter: fetch, which is
  * unfetch's `fetch(...)` function but with the first parameter omitted.
  */
-export async function testApiHandler({
+export async function testApiHandler<NextApiHandlerType = unknown>({
   requestPatcher,
   responsePatcher,
+  paramsPatcher,
   params,
+  url,
   handler,
   test
 }: {
   requestPatcher?: (req: IncomingMessage) => void;
   responsePatcher?: (res: ServerResponse) => void;
-  params?: Record<string, unknown>;
-  handler: NextApiHandler;
+  paramsPatcher?: (params: Record<string, unknown>) => void;
+  params?: Record<string, string | string[]>;
+  url?: string;
+  handler: NextApiHandler<NextApiHandlerType>;
   test: (obj: {
     fetch: (init?: RequestInit) => ReturnType<typeof fetch>;
   }) => Promise<void>;
@@ -48,8 +52,12 @@ export async function testApiHandler({
   try {
     const localUrl = await listen(
       (server = createServer((req, res) => {
+        url && (req.url = url);
         requestPatcher && requestPatcher(req);
         responsePatcher && responsePatcher(res);
+
+        const finalParams = { ...parseUrl(req.url || '', true).query, ...params };
+        paramsPatcher && paramsPatcher(finalParams);
 
         /**
          *? From next internals:
@@ -65,7 +73,7 @@ export async function testApiHandler({
         void apiResolver(
           req,
           res,
-          { ...parseUrl(req.url || '', true).query, ...params },
+          finalParams,
           handler,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           undefined as any,
