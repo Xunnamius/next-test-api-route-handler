@@ -34,9 +34,8 @@ test confidently!
 
 <div align="center">
 
-✨
-<a href="https://github.com/vercel/next.js"><img src="https://api.ergodark.com/badges/is-next-compat" /></a>
-✨
+✨ <a href="https://github.com/vercel/next.js"><img
+src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 </div>
 
@@ -45,17 +44,14 @@ test confidently!
 
 ## Install
 
-> Note: NPM versions >=7 may need `npm install --legacy-peer-deps` until
-> [upstream peer dependency problems are resolved][npm-v7-bc].
-
-```shell
+```Shell
 npm install --save-dev next-test-api-route-handler
 ```
 
 If you don't have Next.js available, ensure it is installed as it is a required
 peer dependency of this package.
 
-```shell
+```Shell
 npm install --save-dev next
 ```
 
@@ -97,19 +93,19 @@ exhibit the [dual package hazard][hazard].
 
 ## Usage
 
-```typescript
+```TypeScript
 // ESM
 import { testApiHandler } from 'next-test-api-route-handler';
 ```
 
-```javascript
+```Javascript
 // CJS
 const { testApiHandler } = require('next-test-api-route-handler');
 ```
 
 Quick start:
 
-```typescript
+```TypeScript
 /* File: test/unit.test.ts */
 
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -134,17 +130,21 @@ await testApiHandler({
 
 The interface for `testApiHandler` looks like this:
 
-```typescript
+```TypeScript
 async function testApiHandler({
   requestPatcher,
   responsePatcher,
+  paramsPatcher,
   params,
+  url,
   handler,
   test
 }: {
   requestPatcher?: (req: IncomingMessage) => void;
   responsePatcher?: (res: ServerResponse) => void;
+  paramsPatcher?: (params: Record<string, unknown>) => void;
   params?: Record<string, unknown>;
+  url?: string;
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
   test: ({
     fetch: (init?: RequestInit) => ReturnType<typeof fetch>;
@@ -153,15 +153,22 @@ async function testApiHandler({
 ```
 
 `requestPatcher` is a function that receives an [IncomingMessage][5]. Use this
-function to modify the request before it's injected into Next.js's resolver.
+function to modify the request before it's injected into Next.js's resolver. To
+just set the request url, e.g.
+`requestPatcher: (req) => (req.url = '/my-url?some=query')`, use the `url`
+shorthand, e.g. `url: '/my-url?some=query'`.
 
 `responsePatcher` is a function that receives a [ServerResponse][6]. Use this
 function to modify the response before it's injected into Next.js's resolver.
 
-`params` is an object representing "processed" dynamic routes, e.g. testing a
-handler that expects `/api/user/:id` requires `params: { id: ... }`. This should
-not be confused with requiring query string parameters, which are parsed out
-from the url and added to the params object automatically.
+`paramsPatcher` is a function that receives an object representing "processed"
+dynamic routes, e.g. testing a handler that expects `/api/user/:id` requires
+`paramPatcher: (params) => (params.id = 'test-id')`. Route parameters can also
+be passed using the `params` shorthand, e.g. `params: { id: 'test-id', ... }`.
+
+> Route parameters should not be confused with [query string parameters][14],
+> which are parsed out from the url and added to the params object
+> automatically.
 
 `handler` is the actual route handler under test (usually imported from
 `pages/api/*`). It should be an async function that accepts [NextApiRequest][2]
@@ -188,7 +195,7 @@ copying and pasting the following JavaScript source (perhaps at
 > `config`) through to NTARH and setting `request.url` to the proper value is
 > [crucial][12] when testing Apollo endpoints!**
 
-```javascript
+```TypeScript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
 
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -202,9 +209,8 @@ describe('my-test', () => {
     expect.hasAssertions();
 
     await testApiHandler({
-      // Set the request url to the path the graphql handler expects
-      requestPatcher: (req) => (req.url = '/api/graphql'),
       handler,
+      url: '/api/graphql', // Set the request url to the path graphql expects
       test: async ({ fetch }) => {
         const query = `query ViewerQuery {
           viewer {
@@ -217,8 +223,7 @@ describe('my-test', () => {
         const res = await fetch({
           method: 'POST',
           headers: {
-            // Must have the correct content type too
-            'content-type': 'application/json'
+            'content-type': 'application/json' // Must use correct content type
           },
           body: JSON.stringify({
             query
@@ -243,16 +248,16 @@ The endpoint responds with status code `HTTP 200` for every request except the
 How might we test that this endpoint responds with `HTTP 555` once for every
 nine `HTTP 200` responses?
 
-```typescript
+```TypeScript
 /* File: test/unit.test.ts */
 
 // Import the handler under test from the pages/api directory
 import endpoint, { config } from '../pages/api/unreliable';
 import { testApiHandler } from 'next-test-api-route-handler';
-import { shuffle } from 'fast-shuffle';
-import array from 'array-range';
 
 import type { PageConfig } from 'next';
+
+const expectedReqPerError = 10;
 
 // Respect the Next.js config object if it's exported
 const handler: typeof endpoint & { config?: PageConfig } = endpoint;
@@ -263,17 +268,7 @@ it('injects contrived errors at the required rate', async () => {
 
   // Signal to the endpoint (which is configurable) that there should be 1
   // error among every 10 requests
-  process.env.REQUESTS_PER_CONTRIVED_ERROR = '10';
-
-  const expectedReqPerError = parseInt(
-    process.env.REQUESTS_PER_CONTRIVED_ERROR
-  );
-
-  // Returns one of ['GET', 'POST', 'PUT', 'DELETE'] at random
-  const getMethod = () => shuffle(['GET', 'POST', 'PUT', 'DELETE'])[0];
-
-  // Returns the status code from a response object
-  const getStatus = async (res: Promise<Response>) => (await res).status;
+  process.env.REQUESTS_PER_CONTRIVED_ERROR = expectedReqPerError.toString();
 
   await testApiHandler({
     handler,
@@ -282,59 +277,47 @@ it('injects contrived errors at the required rate', async () => {
       // record the results
       const results1 = await Promise.all(
         [
-          ...array(expectedReqPerError - 1).map((_) =>
-            getStatus(fetch({ method: getMethod() }))
+          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
+            fetch({ method: 'GET' })
           ),
-          getStatus(fetch({ method: getMethod() })),
-          ...array(expectedReqPerError - 1).map((_) =>
-            getStatus(fetch({ method: getMethod() }))
+          fetch({ method: 'POST' }),
+          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
+            fetch({ method: 'PUT' })
           ),
-          getStatus(fetch({ method: getMethod() }))
-        ].map((p) =>
-          p.then(
-            (s) => s,
-            (_) => null
-          )
-        )
+          fetch({ method: 'DELETE' })
+        ].map((p) => p.then((r) => r.status))
       );
 
       process.env.REQUESTS_PER_CONTRIVED_ERROR = '0';
 
-      // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and
-      // record the results
+      // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and record the
+      // results
       const results2 = await Promise.all(
-        [
-          ...array(expectedReqPerError).map((_) =>
-            getStatus(fetch({ method: getMethod() }))
-          )
-        ].map((p) =>
-          p.then(
-            (s) => s,
-            (_) => null
-          )
+        Array.from({ length: expectedReqPerError }).map(() =>
+          fetch().then((r) => r.status)
         )
       );
 
       // We expect results1 to be an array with eighteen `200`s and two
       // `555`s in any order
-
+      //
       // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
       // because responses could be received out of order
       expect(results1).toIncludeSameMembers([
-        ...array(expectedReqPerError - 1).map((_) => 200),
+        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
         555,
-        ...array(expectedReqPerError - 1).map((_) => 200),
+        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
         555
       ]);
 
       // We expect results2 to be an array with ten `200`s
-
       expect(results2).toStrictEqual([
-        ...array(expectedReqPerError).map((_) => 200)
+        ...Array.from({ length: expectedReqPerError }).map(() => 200)
       ]);
     }
   });
 });
+
 ```
 
 ### Testing a Flight Search API Handler @ `pages/api/v3/flights/search`
@@ -346,13 +329,12 @@ query.
 How might we test that this endpoint returns flights in our database as
 expected?
 
-```typescript
+```TypeScript
 /* File: test/unit.test.ts */
 
 import endpoint, { config } from '../pages/api/v3/flights/search';
 import { testApiHandler } from 'next-test-api-route-handler';
 import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend';
-import array from 'array-range';
 
 import type { PageConfig } from 'next';
 
@@ -364,18 +346,19 @@ it('returns expected public flights with respect to match', async () => {
   expect.hasAssertions();
 
   // Get the flight data currently in the test database
-  const flights = getFlightData();
+  const expectedFlights = getFlightData();
 
   // Take any JSON object and stringify it into a URL-ready string
   const encode = (o: Record<string, unknown>) =>
     encodeURIComponent(JSON.stringify(o));
 
   // This function will return in order the URIs we're interested in testing
-  // against our handler. Query strings are parsed automatically, though we
-  // also could have used `params` or `fetch({ ... })` itself instead.
+  // against our handler. Query strings are parsed by NTARH automatically.
   //
-  // Example URI for `https://google.com/search?params=yes` would be
-  // `/search?params=yes`
+  // Instead of using encode(), we could have used `params` or `paramPatcher` to
+  // do this more easily.
+  //
+  // Example URI for `https://site.io/path?param=yes` would be `/path?param=yes`
   const genUrl = (function* () {
     // For example, the first should match all the flights from Spirit airlines!
     yield `/?match=${encode({ airline: 'Spirit' })}`;
@@ -392,7 +375,7 @@ it('returns expected public flights with respect to match', async () => {
     // Patch the request object to include our dummy URI
     requestPatcher: (req) => {
       req.url = genUrl.next().value || undefined;
-      // Could have done this instead of fetch({ headers: { KEY }}) below:
+      // Could have done this instead of `fetch({ headers: { KEY }})` below:
       // req.headers = { KEY };
     },
 
@@ -401,16 +384,16 @@ it('returns expected public flights with respect to match', async () => {
     test: async ({ fetch }) => {
       // 8 URLS from genUrl means 8 calls to fetch:
       const responses = await Promise.all(
-        array(8).map((_) => {
-          return fetch({ headers: { KEY } }).then((r) =>
-            r.ok ? r.json() : r.status
-          );
-        })
+        Array.from({ length: 8 }).map(() =>
+          fetch({ headers: { KEY } }).then(async (r) => [
+            r.status,
+            await r.json()
+          ])
+        )
       );
 
       // We expect all of the responses to be 200
-
-      expect(responses.some((o) => !o?.success)).toBe(false);
+      expect(responses.some(([status]) => status != 200)).toBe(false);
 
       // We expect the array of flights returned to match our
       // expectations given we already know what dummy data will be
@@ -418,15 +401,21 @@ it('returns expected public flights with respect to match', async () => {
 
       // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
       // because responses could be received out of order
-      expect(responses.map((r) => r.flights)).toIncludeSameMembers([
-        flights.filter((f) => f.airline == 'Spirit').slice(0, RESULT_SIZE),
-        flights.filter((f) => f.type == 'departure').slice(0, RESULT_SIZE),
-        flights.filter((f) => f.landingAt == 'F1A').slice(0, RESULT_SIZE),
-        flights.filter((f) => f.seatPrice == 500).slice(0, RESULT_SIZE),
-        flights.filter((f) => f.seatPrice > 500).slice(0, RESULT_SIZE),
-        flights.filter((f) => f.seatPrice >= 500).slice(0, RESULT_SIZE),
-        flights.filter((f) => f.seatPrice < 500).slice(0, RESULT_SIZE),
-        flights.filter((f) => f.seatPrice <= 500).slice(0, RESULT_SIZE)
+      expect(responses.map(([, r]) => r.flights)).toIncludeSameMembers([
+        expectedFlights
+          .filter((f) => f.airline == 'Spirit')
+          .slice(0, RESULT_SIZE),
+        expectedFlights
+          .filter((f) => f.type == 'departure')
+          .slice(0, RESULT_SIZE),
+        expectedFlights
+          .filter((f) => f.landingAt == 'F1A')
+          .slice(0, RESULT_SIZE),
+        expectedFlights.filter((f) => f.seatPrice == 500).slice(0, RESULT_SIZE),
+        expectedFlights.filter((f) => f.seatPrice > 500).slice(0, RESULT_SIZE),
+        expectedFlights.filter((f) => f.seatPrice >= 500).slice(0, RESULT_SIZE),
+        expectedFlights.filter((f) => f.seatPrice < 500).slice(0, RESULT_SIZE),
+        expectedFlights.filter((f) => f.seatPrice <= 500).slice(0, RESULT_SIZE)
       ]);
     }
   });
@@ -435,18 +424,14 @@ it('returns expected public flights with respect to match', async () => {
 
   await testApiHandler({
     handler,
-    requestPatcher: (req) => {
-      req.url = `/?match=${encode({ ffms: { $eq: 500 } })}`;
-    },
+    url: `/?match=${encode({ ffms: { $eq: 500 } })}`,
     test: async ({ fetch }) =>
       expect((await fetch({ headers: { KEY } })).status).toBe(400)
   });
 
   await testApiHandler({
     handler,
-    requestPatcher: (req) => {
-      req.url = `/?match=${encode({ bad: 500 })}`;
-    },
+    url: `/?match=${encode({ bad: 500 })}`,
     test: async ({ fetch }) =>
       expect((await fetch({ headers: { KEY } })).status).toBe(400)
   });
@@ -532,8 +517,6 @@ information.
 [side-effects-key]:
   https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free
 [tree-shaking]: https://webpack.js.org/guides/tree-shaking
-[npm-v7-bc]:
-  https://github.blog/2020-10-13-presenting-v7-0-0-of-the-npm-cli/#user-content-breaking-changes
 [1]: https://nextjs.org/docs/api-routes/introduction
 [2]: https://nextjs.org/docs/basic-features/typescript#api-routes
 [3]: https://github.com/vercel/next.js/releases
@@ -548,3 +531,4 @@ information.
 [12]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
 [13]:
   https://github.com/Xunnamius/next-test-api-route-handler/actions/workflows/is-next-compat.yml
+[14]: https://en.wikipedia.org/wiki/Query_string
