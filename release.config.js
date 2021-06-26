@@ -87,17 +87,7 @@ module.exports = {
         message: 'release: ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'
       }
     ],
-    ['@semantic-release/github'],
-    ...(SHOULD_DEPLOY
-      ? [
-          [
-            '@semantic-release/exec',
-            {
-              successCmd: 'npm run deploy'
-            }
-          ]
-        ]
-      : [])
+    ['@semantic-release/github']
   ]
 };
 
