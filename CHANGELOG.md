@@ -1,17 +1,16 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Conventional Commits][1], and this project adheres to
+All notable changes to this project will be documented in this auto-generated
+file. The format is based on [Conventional Commits][1]; this project adheres to
 [Semantic Versioning][2].
 
-## [1.2.24][3] (2021-04-30)
+### [1.2.24][3] (2021-05-08)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **index.ts:** next 10.2.0 compat ([af177c5][4])
 
-### Build System
+#### ⚙️ Build system
 
 - **.github:** split BTD workflow into two separate workflows (security)
   ([99ad127][5])
@@ -28,44 +27,44 @@ The format is based on [Conventional Commits][1], and this project adheres to
 - **readme.md:** include architecture description as workflow README.md
   ([1f25e5f][13])
 
-## [1.2.23][14] (2021-03-14)
+### [1.2.23][14] (2021-03-14)
 
-### Build System
+#### ⚙️ Build system
 
 - Better documentation ([0040582][15])
 
-## [1.2.22][16] (2021-03-12)
+### [1.2.22][16] (2021-03-12)
 
-### Build System
+#### ⚙️ Build system
 
 - Update dependencies and fix find-package-json usage ([df9ede3][17])
 
-## [1.2.21][18] (2021-03-12)
+### [1.2.21][18] (2021-03-12)
 
-### Build System
+#### ⚙️ Build system
 
 - **build-test-deploy.yml:** actions version updates ([29aa25a][19])
 - **build-test-deploy.yml:** rollback some pipeline version updates
   ([8065757][20])
-- **package.json:** fix typedoc-markdown-plugin patch ([dd3e7fa][21]), closes
-  [#126][22]
+- **package.json:** fix typedoc-markdown-plugin patch ([dd3e7fa][21])
+  <sup>closes [#126][22]</sup>
 
-## [1.2.20][23] (2021-02-22)
+### [1.2.20][23] (2021-02-22)
 
-### Build System
+#### ⚙️ Build system
 
 - **package-lock.json:** update deps ([5a2d98f][24])
 
-## [1.2.19][25] (2021-02-22)
+### [1.2.19][25] (2021-02-22)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **.changelogrc.js:** fix dark magic ([b4157eb][26])
 - **is-next-compat.ts:** never use console.log ([81533c8][27])
 - **is-next-compat.ts:** use template string instead of literal ([3a4f0f1][28])
 - **unit-index.test.ts:** 100% test coverage ([72189e8][29])
 
-### Build System
+#### ⚙️ Build system
 
 - **.eslintrc.js:** account for node 12 ([cad0fb2][30])
 - **.github:** update workflows and templates ([54e51eb][31])
@@ -82,46 +81,46 @@ The format is based on [Conventional Commits][1], and this project adheres to
 - Backport new webpack config ([b268534][40])
 - Rename env-expect to expect-env ([035e98b][41])
 
-### Reverts
+#### 🔥 Reverted
 
 - _"debug(build-test-deploy.yml): disable debug mode"_ ([6cefa7a][42])
 
-## [1.2.18][43] (2021-02-11)
+### [1.2.18][43] (2021-02-11)
 
-### Build System
+#### ⚙️ Build system
 
 - **package.json:** update to proper forked dependencies ([042291d][44])
 
-## [1.2.17][45] (2021-02-10)
+### [1.2.17][45] (2021-02-10)
 
-### Build System
+#### ⚙️ Build system
 
 - **webpack.config.js:** normalize webpack configuration across repos
   ([65f48a3][46])
 - **webpack.config.js:** remove ES6 syntax from JS file ([5ed6dbd][47])
 
-## [1.2.16][48] (2021-02-10)
+### [1.2.16][48] (2021-02-10)
 
-### Build System
+#### ⚙️ Build system
 
 - **package.json:** update dependencies ([aeef7a9][49])
 
-## [1.2.15][50] (2021-02-08)
+### [1.2.15][50] (2021-02-08)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **readme.md:** simplify all examples with more modern syntax; remove
   @ergodark/types ([964bc47][51])
 
-## [1.2.14][52] (2021-02-08)
+### [1.2.14][52] (2021-02-08)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **readme.md:** add Apollo example and additional guidance ([ed357f5][53])
 
-## [1.2.13][54] (2021-02-05)
+### [1.2.13][54] (2021-02-05)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **config:** use transform-rename-import when building externals
   ([d224f5e][55])
@@ -131,7 +130,7 @@ The format is based on [Conventional Commits][1], and this project adheres to
 - **is-next-compat.ts:** better handling of generics ([d7bc091][59])
 - Next no longer misclassified as CJS ([9ebac01][60])
 
-### Build System
+#### ⚙️ Build system
 
 - Properly mocked unit tests for externals ([b3273df][61])
 - **build-test-deploy.yml:** drop support for webpack 4 ([e508c06][62])
@@ -149,124 +148,146 @@ The format is based on [Conventional Commits][1], and this project adheres to
 - **types:** more precise unique-filename type ([a60793c][74])
 - Drop support for node 10 ([71e9103][75])
 
-## [1.2.12][76] (2021-01-23)
+### [1.2.12][76] (2021-01-23)
 
-### Build System
+#### ⚙️ Build system
 
 - Remove erroneous module import ([6eb2a34][77])
 
-## [1.2.11][78] (2021-01-23)
+### [1.2.11][78] (2021-01-23)
 
-### Build System
+#### ⚙️ Build system
 
 - Backport/normalize across packages ([e589c1d][79])
 
-## [1.2.10][80] (2021-01-22)
+### [1.2.10][80] (2021-01-22)
 
-### Build System
+#### ⚙️ Build system
 
 - Update debug statement syntax ([52a2276][81])
 
-## [1.2.9][82] (2021-01-21)
+### [1.2.9][82] (2021-01-21)
 
-### Build System
+#### ⚙️ Build system
 
 - **.github/workflows/build-test-deploy.yml:** fix peer dependency installation
   ([12e5bbe][83])
 
-## [1.2.8][84] (2021-01-13)
+### [1.2.8][84] (2021-01-13)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **readme.md:** ensure quick start example is functional ([87dc31f][85])
 
-## [1.2.7][86] (2021-01-12)
+### [1.2.7][86] (2021-01-12)
 
-### Build System
+#### ⚙️ Build system
 
 - Rebuild lockfile ([94cfa38][87])
 - Update babel-plugin-transform-mjs-imports ([62089c7][88])
 
-## [1.2.6][89] (2021-01-06)
+### [1.2.6][89] (2021-01-06)
 
-### Build System
+#### ⚙️ Build system
 
 - **package.json:** prune old deps ([2cf1d29][90])
 
-## [1.2.5][91] (2021-01-06)
+### [1.2.5][91] (2021-01-06)
 
-### Build System
+#### ⚙️ Build system
 
 - **.github:** add is-next-compat workflow ([1823c05][92])
 - **.github/workflows/post-release-check.yml:** add new post-release-check
   ([a307efc][93])
 
-## [1.2.4][94] (2021-01-06)
+### [1.2.4][94] (2021-01-06)
 
-### Build System
+#### ⚙️ Build system
 
 - **readme.md:** add quick start example ([4e5e12c][95])
 
-## [1.2.3][96] (2021-01-05)
+### [1.2.3][96] (2021-01-05)
 
-### Build System
+#### ⚙️ Build system
 
 - **package.json:** favor "prepare" over "postinstall" and use npx for dev tools
   ([a111c87][97])
 
-## [1.2.2][98] (2021-01-05)
+### [1.2.2][98] (2021-01-05)
 
-### Build System
+#### ⚙️ Build system
 
 - **readme.md:** cosmetic ([98b65c6][99])
 
-## [1.2.1][100] (2021-01-05)
+### [1.2.1][100] (2021-01-05)
 
-### Build System
+#### ⚙️ Build system
 
 - **package.json:** update dependencies, prune unused dependencies
   ([6ef6cbe][101])
 
-# [1.2.0][102] (2021-01-05)
+## [1.2.0][102] (2021-01-05)
 
-### Build System
-
-- **deps:** bump node-notifier from 8.0.0 to 8.0.1 ([45a79d4][103])
-- **test/unit-externals.test.ts:** add mongo uri env var to test explicitly
-  ([e0e1fd9][104])
-
-### Features
+#### ✨ Features
 
 - **.changelogrc.js:** transfer repository over to semantic-release CI/CD
-  ([b9d2bf0][105])
+  ([b9d2bf0][103])
 
-## [1.1.3][106] (2020-12-06)
+#### ⚙️ Build system
 
-### Build System
+- **deps:** bump node-notifier from 8.0.0 to 8.0.1 ([45a79d4][104])
+- **test/unit-externals.test.ts:** add mongo uri env var to test explicitly
+  ([e0e1fd9][105])
+
+### [1.1.3][106] (2020-12-06)
+
+#### ⚙️ Build system
 
 - **package.json:** audit and update deps ([c82695a][107])
 - **package.json:** manually bump version ([813b21a][108])
 
-## [1.1.2][109] (2020-11-26)
+### [1.1.2][109] (2020-11-26)
 
-### Bug Fixes
+#### 🪄 Fixes
 
-- **README:** update install language ([b68c721][110])
+- **readme:** update install language ([b68c721][110])
 
-## [1.1.1][111] (2020-11-26)
+### [1.1.1][111] (2020-11-26)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **externals:** revert sort-package-json to maintainer version ([750055b][112])
 - **externals:** rewrite test workflow ([d604dfc][113])
 
-# [1.1.0][114] (2020-11-25)
+## [1.1.0][114] (2020-11-25)
 
-### Bug Fixes
+#### 🪄 Fixes
 
 - **build:** move Next.js dependency to peer/dev dependencies ([0e7541f][115])
 - **externals:** updated remaining dependency references to peerDependency
   references ([ccf54fb][116])
+
+### [1.0.10][117] (2020-10-24)
+
+### [1.0.9][118] (2020-10-23)
+
+### [1.0.8][119] (2020-10-20)
+
+### [1.0.7][120] (2020-10-19)
+
+### [1.0.6][121] (2020-10-17)
+
+### [1.0.5][122] (2020-10-13)
+
+### [1.0.4][123] (2020-10-12)
+
+### [1.0.3][124] (2020-10-12)
+
+### [1.0.2][125] (2020-10-07)
+
+### [1.0.1][126] (2020-10-07)
+
+## 1.0.0 (2020-10-07)
 
 [1]: https://conventionalcommits.org
 [2]: https://semver.org
@@ -469,11 +490,11 @@ The format is based on [Conventional Commits][1], and this project adheres to
 [102]:
   https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.1.3...v1.2.0
 [103]:
-  https://github.com/Xunnamius/next-test-api-route-handler/commit/45a79d41835b5146912511f8b583c9128d154cf9
-[104]:
-  https://github.com/Xunnamius/next-test-api-route-handler/commit/e0e1fd951fbe63c04c264ad11ab1fa7a39e1679a
-[105]:
   https://github.com/Xunnamius/next-test-api-route-handler/commit/b9d2bf010fba4b163e1eea0801271292a0e74308
+[104]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/45a79d41835b5146912511f8b583c9128d154cf9
+[105]:
+  https://github.com/Xunnamius/next-test-api-route-handler/commit/e0e1fd951fbe63c04c264ad11ab1fa7a39e1679a
 [106]:
   https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.1.2...v1.1.3
 [107]:
@@ -496,3 +517,23 @@ The format is based on [Conventional Commits][1], and this project adheres to
   https://github.com/Xunnamius/next-test-api-route-handler/commit/0e7541fbecd2e3bacc124f624bfca2b56ceeb89f
 [116]:
   https://github.com/Xunnamius/next-test-api-route-handler/commit/ccf54fb480e35961647900d345149d3cd1cf60d8
+[117]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.9...v1.0.10
+[118]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.8...v1.0.9
+[119]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.7...v1.0.8
+[120]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.6...v1.0.7
+[121]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.5...v1.0.6
+[122]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.4...v1.0.5
+[123]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/v1.0.3...v1.0.4
+[124]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.2...v1.0.3
+[125]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.1...1.0.2
+[126]:
+  https://github.com/Xunnamius/next-test-api-route-handler/compare/1.0.0...1.0.1
