@@ -1,3 +1,4 @@
+'use strict';
 // This webpack config is used to transpile src to dist, compile externals,
 // compile executables, etc
 

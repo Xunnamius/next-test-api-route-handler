@@ -1,3 +1,5 @@
+'use strict';
+
 const debug = require('debug')(
   `${require('./package.json').name}:semantic-release-config`
 );
