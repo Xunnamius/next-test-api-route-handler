@@ -1,0 +1,41 @@
+/* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the pages/api directory
+import handler, { config } from '../pages/api/graphql';
+// Respect the Next.js config object if it's exported
+handler.config = config;
+
+describe('my-test', () => {
+  it('does what I want', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      handler,
+      url: '/api/graphql', // Set the request url to the path graphql expects
+      test: async ({ fetch }) => {
+        const query = `query ViewerQuery {
+          viewer {
+            id
+            name
+            status
+          }
+        }`;
+
+        const res = await fetch({
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json' // Must use correct content type
+          },
+          body: JSON.stringify({
+            query
+          })
+        });
+
+        expect(await res.json()).toStrictEqual({
+          data: { viewer: { id: '1', name: 'John Smith', status: 'cached' } }
+        });
+      }
+    });
+  });
+});

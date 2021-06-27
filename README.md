@@ -111,7 +111,6 @@ Quick start:
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the pages/api directory
 import endpoint, { config } from '../pages/api/your-endpoint';
-
 import type { PageConfig } from 'next';
 
 // Respect the Next.js config object if it's exported
@@ -184,12 +183,23 @@ handler under test.
 
 ### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-You can run this example yourself by cloning [the Next.js repository][10],
-navigating to `examples/api-routes-apollo-server-and-client`, running
-`npm install` followed by
-`npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env`,
-copying and pasting the following JavaScript source (perhaps at
-`tests/my.test.js`), and finally running `npx jest`.
+You can run this example yourself by copying and pasting the following command.
+`curl`, `node`, and `git` must be installed.
+
+```Bash
+git clone https://github.com/vercel/next.js /tmp/ntarh-test
+cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
+npm install
+npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env
+echo 'module.exports={"presets": ["next/babel"] };' > babel.config.js
+mkdir test
+curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
+npx jest
+```
+
+The above script will clone [the Next.js repository][10], install NTARH and
+configure dependencies, download [the following script][15], and run it with
+[jest][16].
 
 > **Note that passing the [route configuration object][11] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
@@ -532,3 +542,5 @@ information.
 [13]:
   https://github.com/Xunnamius/next-test-api-route-handler/actions/workflows/is-next-compat.yml
 [14]: https://en.wikipedia.org/wiki/Query_string
+[15]: ./apollo_test_raw
+[16]: https://www.npmjs.com/package/jest
