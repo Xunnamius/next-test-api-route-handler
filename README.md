@@ -183,8 +183,12 @@ handler under test.
 
 ### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-You can run this example yourself by copying and pasting the following command.
-`curl`, `node`, and `git` must be installed.
+You can easily run this example yourself by copying and pasting the following
+commands into your terminal.
+
+> The following should be run in a nix-like environment. On Windows, that's
+> [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Requires
+> `curl`, `node`, and `git`.
 
 ```Bash
 git clone https://github.com/vercel/next.js /tmp/ntarh-test
