@@ -38,16 +38,16 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 #### Parameters
 
-| Name                                 | Type                                                                                                |
-| :----------------------------------- | :-------------------------------------------------------------------------------------------------- |
-| `__namedParameters`                  | `Object`                                                                                            |
-| `__namedParameters.handler`          | `NextApiHandler`<`NextApiHandlerType`>                                                              |
-| `__namedParameters.params?`          | `Record`<`string`, `string` \| `string`[]>                                                          |
-| `__namedParameters.paramsPatcher?`   | (`params`: `Record`<`string`, `unknown`>) => `void`                                                 |
-| `__namedParameters.requestPatcher?`  | (`req`: `IncomingMessage`) => `void`                                                                |
-| `__namedParameters.responsePatcher?` | (`res`: `ServerResponse`) => `void`                                                                 |
-| `__namedParameters.test`             | (`obj`: { `fetch`: (`init?`: `RequestInit`) => `ReturnType`<typeof `fetch`> }) => `Promise`<`void`> |
-| `__namedParameters.url?`             | `string`                                                                                            |
+| Name                                 | Type                                                                                         |
+| :----------------------------------- | :------------------------------------------------------------------------------------------- |
+| `__namedParameters`                  | `Object`                                                                                     |
+| `__namedParameters.handler`          | `NextApiHandler`<`NextApiHandlerType`>                                                       |
+| `__namedParameters.params?`          | `Record`<`string`, `string` \| `string`[]>                                                   |
+| `__namedParameters.url?`             | `string`                                                                                     |
+| `__namedParameters.paramsPatcher?`   | (`params`: `Record`<`string`, `unknown`>) => `void`                                          |
+| `__namedParameters.requestPatcher?`  | (`req`: `IncomingMessage`) => `void`                                                         |
+| `__namedParameters.responsePatcher?` | (`res`: `ServerResponse`) => `void`                                                          |
+| `__namedParameters.test`             | (`obj`: { `fetch`: (`init?`: `RequestInit`) => `Promise`<`Response`> }) => `Promise`<`void`> |
 
 #### Returns
 
@@ -59,4 +59,4 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 [1]: README.md#testapihandler
 [2]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/ef32668/src/index.ts#L31
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/e5c6a99/src/index.ts#L31
