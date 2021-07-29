@@ -1,3 +1,4 @@
+'use strict';
 const debug = require('debug')(`${require('./package.json').name}:eslint-config`);
 
 module.exports = {

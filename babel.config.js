@@ -1,3 +1,4 @@
+'use strict';
 // * Every now and then, we adopt best practices from CRA
 // * https://tinyurl.com/yakv4ggx
 
