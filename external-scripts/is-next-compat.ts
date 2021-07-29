@@ -21,9 +21,7 @@ const setCompatFlagTo = async (version: string) => {
   try {
     // ? Update database
     if (process.env.MONGODB_URI) {
-      const client = await MongoClient.connect(process.env.MONGODB_URI, {
-        useUnifiedTopology: true
-      });
+      const client = await MongoClient.connect(process.env.MONGODB_URI);
 
       await client
         .db()
@@ -50,9 +48,7 @@ const getLastTestedVersion = async () => {
   try {
     // ? Update database
     if (process.env.MONGODB_URI) {
-      const client = await MongoClient.connect(process.env.MONGODB_URI, {
-        useUnifiedTopology: true
-      });
+      const client = await MongoClient.connect(process.env.MONGODB_URI);
 
       version =
         (
