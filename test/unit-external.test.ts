@@ -22,8 +22,6 @@ jest.mock('execa');
 const protectedImport = protectedImportFactory(EXTERNAL_PATH);
 const mockedExeca = asMockedFunction(execa);
 const mockedDebug = asMockedFunction<Debugger>();
-mockedDebug.extend = asMockedFunction<Debugger['extend']>().mockReturnValue(mockedDebug);
-asMockedFunction(debugFactory).mockReturnValue(mockedDebug);
 
 const mockedFindPackageJson = asMockedFunction(findPackageJson);
 const mockedOctokit = Octokit as unknown as jest.Mock<Octokit>;
@@ -41,57 +39,57 @@ const mockedMongoConnectDbCollectionUpdateOne =
 
 let mockLatestRelease: string;
 
-mockedFindPackageJson.mockImplementation(
-  () =>
-    ({
-      next: () => ({ value: {}, filename: 'fake/package.json' })
-    } as unknown as ReturnType<typeof findPackageJson>)
-);
-
-mockedExeca.mockImplementation(() => Promise.resolve({}) as ExecaChildProcess<Buffer>);
-
-mockedOctokit.mockImplementation(
-  () =>
-    ({
-      repos: {
-        getLatestRelease: mockedOctokitGetLatestRelease
-      }
-    } as unknown as Octokit)
-);
-
-mockedOctokitGetLatestRelease.mockImplementation(() =>
-  Promise.resolve({
-    data: {
-      tag_name: mockLatestRelease
-    }
-  } as unknown as ReturnType<typeof mockedOctokitGetLatestRelease>)
-);
-
-mockedMongoConnect.mockImplementation(() =>
-  Promise.resolve({
-    db: mockedMongoConnectDb,
-    close: mockedMongoConnectClose
-  })
-);
-
-mockedMongoConnectDb.mockImplementation(
-  () => ({ collection: mockedMongoConnectDbCollection } as unknown as Db)
-);
-
-mockedMongoConnectDbCollection.mockImplementation(
-  () =>
-    ({
-      findOne: mockedMongoConnectDbCollectionFindOne,
-      updateOne: mockedMongoConnectDbCollectionUpdateOne
-    } as unknown as Collection)
-);
-
 beforeEach(() => {
   mockLatestRelease = '';
-});
 
-afterEach(() => {
-  jest.clearAllMocks();
+  mockedDebug.extend =
+    asMockedFunction<Debugger['extend']>().mockReturnValue(mockedDebug);
+  asMockedFunction(debugFactory).mockReturnValue(mockedDebug);
+
+  mockedFindPackageJson.mockImplementation(
+    () =>
+      ({
+        next: () => ({ value: {}, filename: 'fake/package.json' })
+      } as unknown as ReturnType<typeof findPackageJson>)
+  );
+
+  mockedExeca.mockImplementation(() => Promise.resolve({}) as ExecaChildProcess<Buffer>);
+
+  mockedOctokit.mockImplementation(
+    () =>
+      ({
+        repos: {
+          getLatestRelease: mockedOctokitGetLatestRelease
+        }
+      } as unknown as Octokit)
+  );
+
+  mockedOctokitGetLatestRelease.mockImplementation(() =>
+    Promise.resolve({
+      data: {
+        tag_name: mockLatestRelease
+      }
+    } as unknown as ReturnType<typeof mockedOctokitGetLatestRelease>)
+  );
+
+  mockedMongoConnect.mockImplementation(() =>
+    Promise.resolve({
+      db: mockedMongoConnectDb,
+      close: mockedMongoConnectClose
+    })
+  );
+
+  mockedMongoConnectDb.mockImplementation(
+    () => ({ collection: mockedMongoConnectDbCollection } as unknown as Db)
+  );
+
+  mockedMongoConnectDbCollection.mockImplementation(
+    () =>
+      ({
+        findOne: mockedMongoConnectDbCollectionFindOne,
+        updateOne: mockedMongoConnectDbCollectionUpdateOne
+      } as unknown as Collection)
+  );
 });
 
 it('calls invoker when imported', async () => {

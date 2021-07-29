@@ -134,6 +134,8 @@
     ]
   },
   "jest": {
+    "resetMocks": true,
+    "restoreMocks": true,
     "setupFilesAfterEnv": [
       "./test/setup.ts"
     ],
