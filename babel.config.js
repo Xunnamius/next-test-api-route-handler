@@ -24,7 +24,7 @@ module.exports = {
     [
       'transform-default-named-imports',
       {
-        exclude: [/^next([/?#].+)?/]
+        exclude: [/^next([/?#].+)?/, /^mongodb([/?#].+)?/]
       }
     ]
   ],
