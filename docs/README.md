@@ -42,7 +42,7 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 | :----------------------------------- | :------------------------------------------------------------------------------------------- |
 | `__namedParameters`                  | `Object`                                                                                     |
 | `__namedParameters.handler`          | `NextApiHandler`<`NextApiHandlerType`>                                                       |
-| `__namedParameters.params?`          | `Record`<`string`, `string` \| `string`[]>                                                   |
+| `__namedParameters.params?`          | `Record`<`string`, `string` \| `string`\[]>                                                  |
 | `__namedParameters.url?`             | `string`                                                                                     |
 | `__namedParameters.paramsPatcher?`   | (`params`: `Record`<`string`, `unknown`>) => `void`                                          |
 | `__namedParameters.requestPatcher?`  | (`req`: `IncomingMessage`) => `void`                                                         |
@@ -55,8 +55,8 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 #### Defined in
 
-[index.ts:31][2]
+[index.ts:30][2]
 
 [1]: README.md#testapihandler
 [2]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/e5c6a99/src/index.ts#L31
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/a7d1be2/src/index.ts#L30
