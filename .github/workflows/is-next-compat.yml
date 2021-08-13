@@ -40,9 +40,10 @@ jobs:
         uses: actions/cache@v2.1.6
         id: cache-npm
         with:
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          # ? Use the number (currently 1) to cache bust borked GitHub Actions
+          key: npm-1-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
           path: ~/.npm
-          restore-keys: npm-${{ runner.os }}-
+          restore-keys: npm-1-${{ runner.os }}-
 
       - name: Install CI dependencies
         run: |
