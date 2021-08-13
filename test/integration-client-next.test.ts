@@ -22,6 +22,7 @@ const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 debug(`NEXT_VERSIONS_TO_TEST: "${NEXT_VERSIONS_TO_TEST}"`);
 
 const fixtureOptions = {
+  performCleanup: true,
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
   } as FixtureOptions['initialFileContents'],
