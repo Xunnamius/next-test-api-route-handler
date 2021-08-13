@@ -51,7 +51,7 @@ jobs:
           # TODO: remove this when runner upgrades to npm@7
           PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
           ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save --production $PEER_DEPS || true
 
       - name: Build distributables
         run: npm run build-dist
