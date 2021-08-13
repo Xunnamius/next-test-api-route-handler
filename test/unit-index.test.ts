@@ -2,10 +2,21 @@ import { testApiHandler } from '../src/index';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+const nextSemverFloor = '>=9';
+
 const getHandler =
   (status?: number) => async (_: NextApiRequest, res: NextApiResponse) => {
     res.status(status ?? 200).send({ hello: 'world' });
   };
+
+describe('sanity checks', () => {
+  test(`peerDependencies.next => "${nextSemverFloor}"`, async () => {
+    expect.hasAssertions();
+    expect(await (await import('../package.json')).peerDependencies.next).toBe(
+      nextSemverFloor
+    );
+  });
+});
 
 describe('::testApiHandler', () => {
   it('can test a handler', async () => {
