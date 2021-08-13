@@ -148,7 +148,7 @@
     "verbose": false
   },
   "dependencies": {
-    "debug": "^4.3.2",
+    "debug": "^4.3.1",
     "isomorphic-unfetch": "^3.1.0",
     "test-listen": "^1.1.0"
   },
@@ -179,9 +179,9 @@
     "@typescript-eslint/parser": "^4.29.1",
     "@xunnamius/conventional-changelog-projector": "^1.0.3",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^27.0.6",
+    "babel-jest": "^27.0.5",
     "babel-loader": "^8.2.2",
-    "babel-plugin-add-import-extension": "^1.6.0",
+    "babel-plugin-add-import-extension": "^1.5.1",
     "babel-plugin-source-map-support": "^2.1.3",
     "babel-plugin-transform-default-named-imports": "^1.0.9",
     "babel-plugin-transform-rename-import": "^2.3.0",
@@ -236,7 +236,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "peerDependencies": {
-    "next": ">=11"
+    "next": ">=10"
   },
   "engines": {
     "node": ">=12"
