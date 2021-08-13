@@ -15,8 +15,9 @@ let { NODE_ENV: nodeEnv, ...sanitizedProcessEnv } = {
 
 try {
   require('fs').accessSync('.env');
-  const { NODE_ENV: forceEnv, ...sanitizedEnv } = require('dotenv').config().parsed;
+  const { NODE_ENV: forceEnv, ...parsedEnv } = require('dotenv').config().parsed;
   nodeEnv = forceEnv || nodeEnv;
+  sanitizedEnv = parsedEnv;
   debug(`NODE_ENV: ${nodeEnv}`);
   debug('sanitized env: %O', sanitizedEnv);
 } catch (e) {
