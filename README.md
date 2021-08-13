@@ -39,8 +39,8 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 </div>
 
-> Looking for a version of this package compatible with an earlier major release
-> of Next.js? Breaking changes are documented in [CHANGELOG.md][4].
+> As of version 2.1.0, NTARH is fully backwards compatible with Next.js going
+> back to `next@9.0` from February 11, 2019.
 
 ## Install
 
@@ -187,8 +187,7 @@ You can easily run this example yourself by copying and pasting the following
 commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Requires
-> `curl`, `node`, and `git`.
+> [WSL][17]. Requires `curl`, `node`, and `git`.
 
 ```Bash
 git clone https://github.com/vercel/next.js /tmp/ntarh-test
@@ -548,3 +547,4 @@ information.
 [14]: https://en.wikipedia.org/wiki/Query_string
 [15]: ./apollo_test_raw
 [16]: https://www.npmjs.com/package/jest
+[17]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
