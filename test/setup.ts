@@ -2,6 +2,7 @@ import { name as pkgName, version as pkgVersion } from '../package.json';
 import { tmpdir } from 'os';
 import { promises as fs } from 'fs';
 import { resolve } from 'path';
+import glob from 'glob';
 import execa from 'execa';
 import uniqueFilename from 'unique-filename';
 import debugFactory from 'debug';
@@ -23,7 +24,7 @@ debug(`pkgVersion: "${pkgVersion}"`);
 export function asMockedFunction<T extends AnyFunction = never>(): jest.MockedFunction<T>;
 export function asMockedFunction<T extends AnyFunction>(fn: T): jest.MockedFunction<T>;
 export function asMockedFunction<T extends AnyFunction>(fn?: T): jest.MockedFunction<T> {
-  return ((fn || jest.fn()) as unknown) as jest.MockedFunction<T>;
+  return (fn || jest.fn()) as unknown as jest.MockedFunction<T>;
 }
 
 // TODO: XXX: make this into a separate (mock-argv) package (along w/ the below)
@@ -254,6 +255,7 @@ export function runnerFactory(file: string, args?: string[], options?: RunOption
 export interface FixtureOptions
   extends Partial<WebpackTestFixtureOptions>,
     Partial<GitRepositoryFixtureOptions>,
+    Partial<NodeImportTestFixtureOptions>,
     Partial<DummyDirectoriesFixtureOptions> {
   performCleanup: boolean;
   use: MockFixture[];
@@ -273,6 +275,11 @@ export interface GitRepositoryFixtureOptions {
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface DummyDirectoriesFixtureOptions {
   directoryPaths: string[];
+}
+
+// TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
+export interface NodeImportTestFixtureOptions {
+  npmInstall?: string | string[];
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
@@ -380,6 +387,54 @@ export function npmLinkSelfFixture(): MockFixture {
   };
 }
 
+// TODO: XXX: easily disable cleanup for easy debugging
+
+// TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
+export function npmCopySelfFixture(): MockFixture {
+  return {
+    name: 'npm-copy-self',
+    description:
+      'copying package.json#files into node_modules to emulate package installation',
+    setup: async (ctx) => {
+      const root = resolve(`${__dirname}/..`);
+
+      const { files: patterns } = await import('../package.json');
+
+      const files = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
+      const dest = `${ctx.root}/node_modules/${pkgName}`;
+
+      ctx.debug(`cp destination: ${dest}`);
+      ctx.debug(`cp sources (cwd: ${root}): %O`, files);
+
+      await run('mkdir', ['-p', dest], { reject: true });
+      await run('cp', ['-r', ...files, dest], { cwd: root, reject: true });
+
+      await run('npm', ['install', '--no-save', '--production'], {
+        cwd: dest,
+        reject: true,
+        env: { CI: 'true' }
+      });
+
+      await run('mv', ['node_modules', 'node_modules_old'], {
+        cwd: ctx.root,
+        reject: true
+      });
+
+      await run('mv', [`node_modules_old/${pkgName}/node_modules`, '.'], {
+        cwd: ctx.root,
+        reject: true
+      });
+
+      await run('mv', [`node_modules_old/${pkgName}`, 'node_modules'], {
+        cwd: ctx.root,
+        reject: true
+      });
+
+      await run('rm', ['-rf', 'node_modules_old'], { cwd: ctx.root, reject: true });
+    }
+  };
+}
+
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export function webpackTestFixture(): MockFixture {
   return {
@@ -409,7 +464,7 @@ export function webpackTestFixture(): MockFixture {
 
       await run(
         'npm',
-        ['install', `webpack@${ctx.options.webpackVersion}`, 'webpack-cli'],
+        ['install', '--no-save', `webpack@${ctx.options.webpackVersion}`, 'webpack-cli'],
         {
           cwd: ctx.root,
           reject: true
@@ -449,6 +504,21 @@ export function nodeImportTestFixture(): MockFixture {
       await writeFile(`${ctx.root}/${indexPath}`, ctx.fileContents[indexPath]);
 
       ctx.treeOutput = await getTreeOutput(ctx);
+
+      const installTargets = [ctx.options.npmInstall]
+        .flat()
+        .filter((r): r is string => Boolean(r));
+
+      if (installTargets.length) {
+        await run(
+          'npm',
+          ['install', '--no-save', '--production', '--force', ...installTargets],
+          {
+            cwd: ctx.root,
+            reject: true
+          }
+        );
+      }
 
       const { code, stdout, stderr } = await run(
         'node',
