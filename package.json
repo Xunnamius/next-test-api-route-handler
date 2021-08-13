@@ -236,7 +236,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "peerDependencies": {
-    "next": ">=10"
+    "next": ">=9"
   },
   "engines": {
     "node": ">=12"
