@@ -59,4 +59,4 @@ unfetch's `fetch(...)` function but with the first parameter omitted.
 
 [1]: README.md#testapihandler
 [2]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/a7d1be2/src/index.ts#L30
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/92e52e8/src/index.ts#L30
