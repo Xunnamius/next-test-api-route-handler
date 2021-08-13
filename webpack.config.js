@@ -40,6 +40,7 @@ const envPlugins = [
 ];
 
 const externals = [
+  'next-server/dist/server/api-utils.js',
   nodeExternals(),
   ({ request }, cb) =>
     // ? Externalize all .json imports (required as commonjs modules)
