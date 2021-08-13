@@ -46,15 +46,17 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 ## Install
 
+If you don't have Next.js available, ensure it is installed as it is a required
+peer dependency of this package:
+
 ```Shell
-npm install --save-dev next-test-api-route-handler
+npm install --save-dev next@latest
 ```
 
-If you don't have Next.js available, ensure it is installed as it is a required
-peer dependency of this package.
+Once `next` is installed, install NTARH:
 
 ```Shell
-npm install --save-dev next
+npm install --save-dev next-test-api-route-handler
 ```
 
 <details><summary><strong>[additional details]</strong></summary>
@@ -192,10 +194,10 @@ commands into your terminal.
 > [WSL][17]. Requires `curl`, `node`, and `git`.
 
 ```Bash
-git clone https://github.com/vercel/next.js /tmp/ntarh-test
+git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
 cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
 npm install
-npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env
+npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env graphql-tools
 echo 'module.exports={"presets": ["next/babel"] };' > babel.config.js
 mkdir test
 curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
