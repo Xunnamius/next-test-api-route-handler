@@ -8,23 +8,28 @@ const nodeExternals = require('webpack-node-externals');
 const debug = require('debug')(`${require('./package.json').name}:webpack-config`);
 
 let sanitizedEnv = {};
-let { NODE_ENV, ...sanitizedProcessEnv } = { ...process.env, NODE_ENV: 'production' };
+let { NODE_ENV: nodeEnv, ...sanitizedProcessEnv } = {
+  ...process.env,
+  NODE_ENV: 'production'
+};
 
 try {
   require('fs').accessSync('.env');
-  ({ NODE_ENV, ...sanitizedEnv } = require('dotenv').config().parsed);
-  debug(`NODE_ENV: ${NODE_ENV}`);
+  const { NODE_ENV: forceEnv, ...sanitizedEnv } = require('dotenv').config().parsed;
+  nodeEnv = forceEnv || nodeEnv;
+  debug(`NODE_ENV: ${nodeEnv}`);
   debug('sanitized env: %O', sanitizedEnv);
 } catch (e) {
   debug(`env support disabled; reason: ${e}`);
 }
 
+debug('sanitized process env: %O', sanitizedProcessEnv);
 verifyEnvironment();
 
 const envPlugins = [
   // ? NODE_ENV is not a "default" (unlike below) but an explicit overwrite
   new DefinePlugin({
-    'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
+    'process.env.NODE_ENV': JSON.stringify(nodeEnv)
   }),
   // ? Load our .env results as the defaults (overridden by process.env)
   new EnvironmentPlugin({ ...sanitizedEnv, ...sanitizedProcessEnv }),
