@@ -6,6 +6,9 @@ import { parse as parseUrl } from 'url';
 
 import type { NextApiHandler } from 'next';
 import type { IncomingMessage, ServerResponse } from 'http';
+import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils';
+
+let apiResolver: typeof NextApiResolver | null = null;
 
 /**
  * The parameters expected by `testApiHandler`.
@@ -76,25 +79,33 @@ export async function testApiHandler<NextApiHandlerType = unknown>({
   let server = null;
 
   try {
-    /* eslint-disable import/no-unresolved, @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
-    // ? The following is for next@>=11.1.0:
-    // @ts-ignore: conditional import for earlier next versions
-    const { apiResolver } = await import('next/dist/server/api-utils.js')
-      // ? The following is for next@<11.1.0 >=10:
+    if (!apiResolver) {
+      /* eslint-disable import/no-unresolved, @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
+      // ? The following is for next@>=11.1.0:
       // @ts-ignore: conditional import for earlier next versions
-      .catch(() => import('next/dist/next-server/server/api-utils.js'))
-      // ? The following is for next@<10:
-      // @ts-ignore: conditional import for earlier next versions
-      .catch(() => import('next-server/dist/server/api-utils.js'))
-      /* eslint-enable import/no-unresolved */
-      .catch(() => {
-        throw new Error(
-          'dependency resolution failed: NTARH and the installed version of Next.js are incompatible'
-        );
-      });
+      ({ apiResolver } = await import('next/dist/server/api-utils.js')
+        // ? The following is for next@<11.1.0 >=10:
+        // @ts-ignore: conditional import for earlier next versions
+        .catch(() => import('next/dist/next-server/server/api-utils.js'))
+        // ? The following is for next@<10:
+        // @ts-ignore: conditional import for earlier next versions
+        .catch(() => import('next-server/dist/server/api-utils.js'))
+        /* eslint-enable import/no-unresolved */
+        .catch(() => {
+          throw new Error(
+            'dependency resolution failed: NTARH and the installed version of Next.js are incompatible'
+          );
+        }));
+    }
 
     const localUrl = await listen(
       (server = createServer((req, res) => {
+        if (!apiResolver) {
+          throw new Error(
+            'dependency resolution failed: NTARH and the installed version of Next.js are incompatible'
+          );
+        }
+
         url && (req.url = url);
         requestPatcher && requestPatcher(req);
         responsePatcher && responsePatcher(res);
