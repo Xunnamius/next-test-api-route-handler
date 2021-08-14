@@ -47,13 +47,13 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 ## Install
 
 If you don't have Next.js available, ensure it is installed as it is a required
-peer dependency of this package:
+peer dependency:
 
 ```Shell
 npm install --save-dev next@latest
 ```
 
-Once `next` is installed, install NTARH:
+Install NTARH:
 
 ```Shell
 npm install --save-dev next-test-api-route-handler
