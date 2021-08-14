@@ -14,7 +14,7 @@ import {
 import type { FixtureOptions } from './setup';
 
 const TEST_IDENTIFIER = 'integration-client-next';
-const NEXT_VERSIONS_TO_TEST = ['9.0.0', '10.0.0', '11.0.0', '11.1.0'];
+const NEXT_VERSIONS_TO_TEST = ['9.0.0', '^9', '10.0.0', '10.2.0', '^10', '11.0.0', '^11'];
 
 const pkgMainPath = `${__dirname}/../${pkgMain}`;
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
@@ -62,7 +62,16 @@ for (const nextVersion of NEXT_VERSIONS_TO_TEST) {
 
       testApiHandler({
         handler: getHandler(),
-        test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+        test: async ({ fetch }) => {
+          if((await (await fetch()).json()).works != 'working') {
+            throw new Error('initial promise assertion failed');
+          }
+
+          await testApiHandler({
+            handler: getHandler(),
+            test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+          })
+        }
       });`;
 
       fixtureOptions.npmInstall = versionStr;
