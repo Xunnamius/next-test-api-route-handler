@@ -222,7 +222,7 @@ import handler, { config } from '../pages/api/graphql';
 handler.config = config;
 
 describe('my-test', () => {
-  it('does what I want', async () => {
+  it('does what I want 1', async () => {
     expect.hasAssertions();
 
     await testApiHandler({
@@ -252,6 +252,15 @@ describe('my-test', () => {
         });
       }
     });
+  });
+
+  it('does what I want 2', async () => {
+
+    // Exactly the same as the above...
+  });
+
+  it('does what I want 3', async () => {
+    // Exactly the same as the above...
   });
 });
 ```
