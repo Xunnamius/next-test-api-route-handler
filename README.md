@@ -198,6 +198,8 @@ git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
 cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
 npm install
 npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env graphql-tools
+# You could install and test with an older version of Next.js if you want, e.g.:
+# npm install next@9.0.0 --force
 echo 'module.exports={"presets": ["next/babel"] };' > babel.config.js
 mkdir test
 curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
