@@ -257,7 +257,6 @@ describe('my-test', () => {
   });
 
   it('does what I want 2', async () => {
-
     // Exactly the same as the above...
   });
 
