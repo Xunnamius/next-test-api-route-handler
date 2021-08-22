@@ -500,8 +500,8 @@ information.
   https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler
   'Latest commit timestamp'
 [badge-issues]:
-  https://isitmaintained.com/badge/open/Xunnamius/next-test-api-route-handler.svg
-  'Open issues as a percentage of total issues'
+  https://img.shields.io/github/issues-raw/Xunnamius/next-test-api-route-handler
+  'Open issues'
 [link-issues]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
 [badge-pulls]:
