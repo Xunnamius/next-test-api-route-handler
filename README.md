@@ -53,7 +53,7 @@ Install NTARH:
 npm install --save-dev next-test-api-route-handler
 ```
 
-<details><summary><strong>[additional details]</strong></summary>
+<details><summary>[additional details]</summary>
 
 > Note: **you probably don't need to read through this!** This information is
 > primarily useful for those attempting to bundle this package or for people who
@@ -162,32 +162,33 @@ async function testApiHandler({
 });
 ```
 
-`requestPatcher` is a function that receives an [IncomingMessage][5]. Use this
-function to modify the request before it's injected into Next.js's resolver. To
-just set the request url, e.g.
+🚩 `requestPatcher` is a function that receives an [IncomingMessage][5]. Use
+this function to modify the request before it's injected into Next.js's
+resolver. To just set the request url, e.g.
 `requestPatcher: (req) => (req.url = '/my-url?some=query')`, use the `url`
 shorthand, e.g. `url: '/my-url?some=query'`.
 
-`responsePatcher` is a function that receives a [ServerResponse][6]. Use this
+🚩 `responsePatcher` is a function that receives a [ServerResponse][6]. Use this
 function to modify the response before it's injected into Next.js's resolver.
 
-`paramsPatcher` is a function that receives an object representing "processed"
-dynamic routes, e.g. testing a handler that expects `/api/user/:id` requires
-`paramPatcher: (params) => (params.id = 'test-id')`. Route parameters can also
-be passed using the `params` shorthand, e.g. `params: { id: 'test-id', ... }`.
-If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
-will receive an object like `{ ...queryStringURLParams, ...params }`.
+🚩 `paramsPatcher` is a function that receives an object representing
+"processed" dynamic routes, e.g. testing a handler that expects `/api/user/:id`
+requires `paramPatcher: (params) => (params.id = 'test-id')`. Route parameters
+can also be passed using the `params` shorthand, e.g.
+`params: { id: 'test-id', ... }`. If both `paramsPatcher` and the `params`
+shorthand are used, `paramsPatcher` will receive an object like
+`{ ...queryStringURLParams, ...params }`.
 
 > Route parameters should not be confused with [query string parameters][14],
 > which are automatically parsed out from the url and added to the params object
 > before `paramsPatcher` is evaluated.
 
-`handler` is the actual route handler under test (usually imported from
+🚩 `handler` is the actual route handler under test (usually imported from
 `pages/api/*`). It should be an async function that accepts [NextApiRequest][2]
 and [NextApiResponse][2] objects as its two parameters.
 
-`test` is a function that returns a promise (or async) where test assertions can
-be run. This function receives one parameter: `fetch`, which is a simple
+🚩 `test` is a function that returns a promise (or async) where test assertions
+can be run. This function receives one parameter: `fetch`, which is a simple
 [unfetch][7] instance (**note that the _url parameter_, i.e. the first parameter
 in [`fetch(...)`][8], is omitted**). Use this to send HTTP requests to the
 handler under test.
