@@ -14,7 +14,7 @@ import type { AnyFunction, AnyVoid } from '@ergodark/types';
 import type { Debugger } from 'debug';
 import type { SimpleGit } from 'simple-git';
 
-const { writeFile, access: accessFile } = fs;
+const { writeFile, readFile, access: accessFile } = fs;
 const debug = debugFactory(`${pkgName}:jest-setup`);
 
 debug(`pkgName: "${pkgName}"`);
@@ -251,6 +251,9 @@ export function runnerFactory(file: string, args?: string[], options?: RunOption
     run(file, args || factoryArgs, { ...factoryOptions, ...options });
 }
 
+// TODO: XXX: need some way to make setting different fixture options for
+// TODO: XXX: different tests much less painful!
+
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface FixtureOptions
   extends Partial<WebpackTestFixtureOptions>,
@@ -280,6 +283,11 @@ export interface DummyDirectoriesFixtureOptions {
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface NodeImportTestFixtureOptions {
   npmInstall?: string | string[];
+  runWith?: {
+    binary?: string;
+    args?: string[];
+    opts?: Record<string, unknown>;
+  };
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
@@ -334,7 +342,7 @@ export function rootFixture(): MockFixture {
     name: 'root', // ? If first isn't named root, root used automatically
     description: (ctx) =>
       `creating a unique root directory${
-        ctx.options.performCleanup && ' (will be deleted after all tests complete)'
+        ctx.options.performCleanup ? ' (will be deleted after all tests complete)' : ''
       }`,
     setup: async (ctx) => {
       ctx.root = uniqueFilename(tmpdir(), ctx.testIdentifier);
@@ -387,8 +395,6 @@ export function npmLinkSelfFixture(): MockFixture {
   };
 }
 
-// TODO: XXX: easily disable cleanup for easy debugging
-
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export function npmCopySelfFixture(): MockFixture {
   return {
@@ -402,6 +408,7 @@ export function npmCopySelfFixture(): MockFixture {
 
       const files = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
       const dest = `${ctx.root}/node_modules/${pkgName}`;
+      const destPkgJson = `${dest}/package.json`;
 
       ctx.debug(`cp destination: ${dest}`);
       ctx.debug(`cp sources (cwd: ${root}): %O`, files);
@@ -409,6 +416,15 @@ export function npmCopySelfFixture(): MockFixture {
       await run('mkdir', ['-p', dest], { reject: true });
       await run('cp', ['-r', ...files, dest], { cwd: root, reject: true });
 
+      if (!destPkgJson) {
+        throw new Error(`expected "${destPkgJson}" to exist`);
+      }
+
+      const { peerDependencies: _, ...dummyPkgJson } = JSON.parse(
+        await readFile(destPkgJson, 'utf-8')
+      );
+
+      await writeFile(destPkgJson, JSON.stringify(dummyPkgJson));
       await run('npm', ['install', '--no-save', '--production'], {
         cwd: dest,
         reject: true,
@@ -485,7 +501,7 @@ export function webpackTestFixture(): MockFixture {
 }
 
 async function getTreeOutput(ctx: FixtureContext) {
-  return (await execa('tree', ['-a'], { cwd: ctx.root })).stdout;
+  return (await execa('tree', ['-a', '-L', '2'], { cwd: ctx.root })).stdout;
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
@@ -495,15 +511,13 @@ export function nodeImportTestFixture(): MockFixture {
     description: 'setting up node import jest integration test',
     setup: async (ctx) => {
       const indexPath = Object.keys(ctx.fileContents).find((path) =>
-        /^src\/index\.(((c|m)?js)|ts)x?$/.test(path)
+        /^src\/index(\.test)?\.(((c|m)?js)|ts)x?$/.test(path)
       );
 
       if (!indexPath)
-        throw new Error('could not find initial contents for src/index file');
+        throw new Error('could not find initial contents for src/index test file');
 
       await writeFile(`${ctx.root}/${indexPath}`, ctx.fileContents[indexPath]);
-
-      ctx.treeOutput = await getTreeOutput(ctx);
 
       const installTargets = [ctx.options.npmInstall]
         .flat()
@@ -520,11 +534,16 @@ export function nodeImportTestFixture(): MockFixture {
         );
       }
 
-      const { code, stdout, stderr } = await run(
-        'node',
-        ['--experimental-json-modules', indexPath],
-        { cwd: ctx.root }
-      );
+      const bin = ctx.options.runWith?.binary || 'node';
+      const args = ctx.options.runWith?.args || ['--experimental-json-modules'];
+      const opts = ctx.options.runWith?.opts || {};
+
+      ctx.treeOutput = await getTreeOutput(ctx);
+
+      const { code, stdout, stderr } = await run(bin, [...args, indexPath], {
+        cwd: ctx.root,
+        ...opts
+      });
 
       ctx.testResult = {
         code,
