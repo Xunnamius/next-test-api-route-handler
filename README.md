@@ -59,6 +59,13 @@ Install NTARH:
 npm install --save-dev next-test-api-route-handler
 ```
 
+If you're working with `next@<9.0.6` ([before `next-server` was merged into
+`next`][18]), you might need to install `next-server` manually:
+
+```Shell
+npm install --save-dev next-server
+```
+
 <details><summary><strong>[additional details]</strong></summary>
 
 > Note: **you probably don't need to read through this!** This information is
@@ -168,10 +175,12 @@ function to modify the response before it's injected into Next.js's resolver.
 dynamic routes, e.g. testing a handler that expects `/api/user/:id` requires
 `paramPatcher: (params) => (params.id = 'test-id')`. Route parameters can also
 be passed using the `params` shorthand, e.g. `params: { id: 'test-id', ... }`.
+If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
+will receive an object like `{ ...queryStringURLParams, ...params }`.
 
 > Route parameters should not be confused with [query string parameters][14],
-> which are parsed out from the url and added to the params object
-> automatically.
+> which are parsed out from the url and added to the params object before
+> `paramsPatcher` is evaluated.
 
 `handler` is the actual route handler under test (usually imported from
 `pages/api/*`). It should be an async function that accepts [NextApiRequest][2]
@@ -198,8 +207,10 @@ git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
 cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
 npm install
 npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env graphql-tools
-# You could install and test with an older version of Next.js if you want, e.g.:
-# npm install next@9.0.0 --force
+# You could test with an older version of Next.js if you want, e.g.:
+# npm install next@9.0.6 --force
+# Or even older:
+# npm install next@9.0.0 next-server --force
 echo 'module.exports={"presets": ["next/babel"] };' > babel.config.js
 mkdir test
 curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
@@ -562,3 +573,4 @@ information.
 [15]: ./apollo_test_raw
 [16]: https://www.npmjs.com/package/jest
 [17]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[18]: https://github.com/vercel/next.js/pull/8613
