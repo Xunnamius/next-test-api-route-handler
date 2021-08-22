@@ -38,11 +38,6 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 </div>
 
-> As of version `2.1.0`, NTARH is fully backwards compatible with Next.js going
-> _allll_ the way back to `next@9.0.0` (when API routes were first introduced).
-> If you encounter a version of Next.js that NTARH is incompatible with, [let me
-> know][choose-new-issue]!
-
 ## Install
 
 If you don't have Next.js available, ensure it is installed as it is a required
@@ -56,13 +51,6 @@ Install NTARH:
 
 ```Shell
 npm install --save-dev next-test-api-route-handler
-```
-
-If you're working with `next@<9.0.6` ([before `next-server` was merged into
-`next`][18]), you might need to install `next-server` manually:
-
-```Shell
-npm install --save-dev next-server
 ```
 
 <details><summary><strong>[additional details]</strong></summary>
@@ -100,6 +88,19 @@ Additionally, this package does not maintain shared state and so does not
 exhibit the [dual package hazard][hazard].
 
 </details>
+
+### Legacy Next.js Support
+
+As of version `2.1.0`, NTARH is fully backwards compatible with Next.js going
+_allll_ the way back to `next@9.0.0` [when API routes were first
+introduced][19]!
+
+If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
+`next`][18]), you might need to install `next-server` manually:
+
+```Shell
+npm install --save-dev next-server
+```
 
 ## Usage
 
@@ -210,7 +211,7 @@ npm install next-test-api-route-handler jest babel-jest @babel/core @babel/prese
 # npm install next@9.0.6 --force
 # Or even older:
 # npm install next@9.0.0 next-server --force
-echo 'module.exports={"presets": ["next/babel"] };' > babel.config.js
+echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
 mkdir test
 curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
 npx jest
@@ -573,3 +574,4 @@ information.
 [16]: https://www.npmjs.com/package/jest
 [17]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [18]: https://github.com/vercel/next.js/pull/8613
+[19]: https://nextjs.org/blog/next-9
