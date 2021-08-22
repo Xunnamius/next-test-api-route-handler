@@ -12,7 +12,7 @@ on:
 env:
   # * Selectively enable debugger verbose output in the pipeline
   # ? See also: https://www.npmjs.com/package/debug#wildcards
-  # DEBUG: 'next-test-api-route-handler:*'
+  DEBUG: 'next-test-api-route-handler:*'
   NODE_CURRENT_VERSION: 15.x
 
 jobs:
@@ -36,22 +36,19 @@ jobs:
         with:
           node-version: ${{ env.NODE_CURRENT_VERSION }}
 
-      - name: Cache npm
-        uses: actions/cache@v2.1.6
-        id: cache-npm
-        with:
-          # ? Use the number (currently 1) to cache bust borked GitHub Actions
-          key: npm-1-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          path: ~/.npm
-          restore-keys: npm-1-${{ runner.os }}-
+      # - name: Cache npm
+      #   uses: actions/cache@v2.1.6
+      #   id: cache-npm
+      #   with:
+      #     # ? Use the number (currently 1) to cache bust borked GitHub Actions
+      #     key: npm-2-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      #     path: ~/.npm
+      #     restore-keys: npm-2-${{ runner.os }}-
 
       - name: Install CI dependencies
         run: |
           npm ci
-          # TODO: remove this when runner upgrades to npm@7
-          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
-          ! [ -z "$DEBUG" ] && echo "(install targets) PEER_DEPS='$PEER_DEPS'" || true
-          ! [ -z "$PEER_DEPS" ] && npm install --no-save --production $PEER_DEPS || true
+          npm --version
 
       - name: Build distributables
         run: npm run build-dist
