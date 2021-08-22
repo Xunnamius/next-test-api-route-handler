@@ -194,9 +194,12 @@ describe('::testApiHandler', () => {
       handler: async (_, res) => {
         // @ts-expect-error: b does not exist (this test "fails" if no TS error)
         res.send({ b: 1 });
-        expect(true).toBeTrue();
       },
-      test: async ({ fetch }) => void (await fetch())
+      test: async ({ fetch }) => {
+        // @ts-expect-error: b does not exist (this test "fails" if no TS error)
+        (await (await fetch()).json()).b;
+        expect(true).toBeTrue();
+      }
     });
   });
 });

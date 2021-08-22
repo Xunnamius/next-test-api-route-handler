@@ -4,16 +4,26 @@ import fetch from 'isomorphic-unfetch';
 import { createServer } from 'http';
 import { parse as parseUrl } from 'url';
 
+import type { PromiseValue } from 'type-fest';
 import type { NextApiHandler } from 'next';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils';
 
 let apiResolver: typeof NextApiResolver | null = null;
 
+type FetchReturnValue = PromiseValue<ReturnType<typeof fetch>>;
+type FetchReturnType<NextResponseJsonType> = Promise<
+  Omit<FetchReturnValue, 'json'> & {
+    json: (
+      ...args: Parameters<FetchReturnValue['json']>
+    ) => Promise<NextResponseJsonType>;
+  }
+>;
+
 /**
  * The parameters expected by `testApiHandler`.
  */
-export type Parameters<NextApiHandlerType = unknown> = {
+export type TestParameters<NextResponseJsonType = unknown> = {
   /**
    * A function that receives an `IncomingMessage` object. Use this function to
    * edit the request before it's injected into the handler.
@@ -51,7 +61,7 @@ export type Parameters<NextApiHandlerType = unknown> = {
    * `NextApiRequest` and `NextApiResult` objects (in that order) as its two
    * parameters.
    */
-  handler: NextApiHandler<NextApiHandlerType>;
+  handler: NextApiHandler<NextResponseJsonType>;
   /**
    * `test` must be a function that runs your test assertions, returning a
    * promise (or async). This function receives one parameter: `fetch`, which is
@@ -59,7 +69,7 @@ export type Parameters<NextApiHandlerType = unknown> = {
    * omitted.
    */
   test: (obj: {
-    fetch: (init?: RequestInit) => ReturnType<typeof fetch>;
+    fetch: (init?: RequestInit) => FetchReturnType<NextResponseJsonType>;
   }) => Promise<void>;
 };
 
@@ -67,7 +77,8 @@ export type Parameters<NextApiHandlerType = unknown> = {
  * Uses Next's internal `apiResolver` to execute api route handlers in a
  * Next-like testing environment.
  */
-export async function testApiHandler<NextApiHandlerType = unknown>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function testApiHandler<NextResponseJsonType = any>({
   requestPatcher,
   responsePatcher,
   paramsPatcher,
@@ -75,7 +86,7 @@ export async function testApiHandler<NextApiHandlerType = unknown>({
   url,
   handler,
   test
-}: Parameters<NextApiHandlerType>) {
+}: TestParameters<NextResponseJsonType>) {
   let server = null;
 
   try {
@@ -137,7 +148,10 @@ export async function testApiHandler<NextApiHandlerType = unknown>({
       }))
     );
 
-    await test({ fetch: (init?: RequestInit) => fetch(localUrl, init) });
+    await test({
+      fetch: (init?: RequestInit) =>
+        fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
+    });
   } finally {
     server?.close();
   }

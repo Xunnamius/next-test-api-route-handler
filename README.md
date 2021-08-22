@@ -136,9 +136,24 @@ await testApiHandler({
     console.log(await res.json()); // ◄ outputs: "{hello: 'world'}"
   }
 });
+
+// NTARH also supports typed response data via TypeScript generics:
+await testApiHandler<{ hello: string }>({
+  // The next line would cause TypeScript to complain:
+  // handler: (_, res) => res.status(200).send({ hello: false }),
+  handler: (_, res) => res.status(200).send({ hello: 'world' }),
+  requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
+  test: async ({ fetch }) => {
+    const res = await fetch({ method: 'POST', body: 'data' });
+    // The next line would cause TypeScript to complain:
+    // const { goodbye } = await res.json();
+    const { hello } = await res.json();
+    console.log(hello); // ◄ outputs: "world"
+  }
+});
 ```
 
-The interface for `testApiHandler` looks like this:
+The interface for `testApiHandler` without generics looks like this:
 
 ```TypeScript
 async function testApiHandler({
