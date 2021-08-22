@@ -104,7 +104,9 @@ const invoked = async () => {
     try {
       debug('running compatibility tests');
       await execa('npm', ['run', 'test-unit']);
-      await execa('npm', ['run', 'test-integration']);
+      await execa('npm', ['run', 'test-integration'], {
+        env: { NEXT_VERSIONS_TO_TEST: latestReleaseVersion }
+      });
     } catch (e) {
       const err =
         'npm test failed! The latest Next.js is incompatible with this package!';

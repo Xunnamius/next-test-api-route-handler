@@ -14,8 +14,14 @@ import {
 import type { FixtureOptions } from './setup';
 
 const TEST_IDENTIFIER = 'integration-client-next';
+
+// ? Looks for a NEXT_VERSIONS_TO_TEST env variable which can override testing
+// ? version targets (mainly useful in CI/CD and automated testing pipelines)
+const rawTestTargets =
+  process.env.NEXT_VERSIONS_TO_TEST?.split(',').map((s) => s.trim()) || null;
+
 /* prettier-ignore */
-const NEXT_VERSIONS_TO_TEST = [
+const NEXT_VERSIONS_TO_TEST = rawTestTargets ? rawTestTargets : [
   '9.0.0',  // ? Earliest compat release
   '^9',     // ? Latest version 9 release
   '10.0.0', // ? First version 10 release

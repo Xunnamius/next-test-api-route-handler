@@ -311,6 +311,28 @@ it('runs without any environment variables', async () => {
   }, {});
 });
 
+it('defines NEXT_VERSIONS_TO_TEST env variable when running integration tests', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(async () => {
+    mockLatestRelease = '199.198.197';
+
+    mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
+      Promise.resolve({ compat: '' })
+    );
+
+    await protectedImport();
+
+    expect(mockedExeca).toBeCalledWith(
+      expect.anything(),
+      expect.arrayContaining(['test-integration']),
+      {
+        env: { NEXT_VERSIONS_TO_TEST: mockLatestRelease }
+      }
+    );
+  }, {});
+});
+
 it('uses GH_TOKEN environment variable if available', async () => {
   expect.hasAssertions();
 
