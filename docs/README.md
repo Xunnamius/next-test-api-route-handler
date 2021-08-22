@@ -70,6 +70,6 @@ testing environment.
 [1]: README.md#parameters
 [2]: README.md#testapihandler
 [3]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/43274c7/src/index.ts#L16
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/631f824/src/index.ts#L16
 [4]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/43274c7/src/index.ts#L70
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/631f824/src/index.ts#L70
