@@ -12,7 +12,7 @@ on:
 env:
   # * Selectively enable debugger verbose output in the pipeline
   # ? See also: https://www.npmjs.com/package/debug#wildcards
-  DEBUG: 'next-test-api-route-handler:*'
+  # DEBUG: 'next-test-api-route-handler:*'
   NODE_CURRENT_VERSION: 15.x
 
 jobs:
@@ -45,9 +45,7 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
 
       - name: Install CI dependencies
-        run: |
-          npm ci
-          npm --version
+        run: npm ci
 
       - name: Build distributables
         run: npm run build-dist
