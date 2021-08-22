@@ -90,20 +90,21 @@ export async function testApiHandler<NextApiHandlerType = unknown>({
         // ? The following is for next@<10:
         // @ts-ignore: conditional import for earlier next versions
         .catch(() => import('next-server/dist/server/api-utils.js'))
-        /* eslint-enable import/no-unresolved */
-        .catch(() => {
-          throw new Error(
-            'dependency resolution failed: NTARH and the installed version of Next.js are incompatible'
-          );
-        }));
+        /* eslint-enable import/no-unresolved, @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
+        .catch(() => ({ apiResolver: null })));
+
+      if (!apiResolver) {
+        throw new Error(
+          'dependency resolution failed: NTARH and the installed version of Next.js are incompatible'
+        );
+      }
     }
 
     const localUrl = await listen(
       (server = createServer((req, res) => {
         if (!apiResolver) {
-          throw new Error(
-            'dependency resolution failed: NTARH and the installed version of Next.js are incompatible'
-          );
+          res.end();
+          throw new Error('missing apiResolver export from next-server/api-utils');
         }
 
         url && (req.url = url);
