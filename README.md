@@ -40,8 +40,8 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 </div>
 
 > As of version `2.1.0`, NTARH is fully backwards compatible with Next.js going
-> _allll_ the way back to `next@9.0` (when API routes were first introduced). If
-> you encounter a version of Next.js that NTARH is incompatible with, [let me
+> _allll_ the way back to `next@9.0.0` (when API routes were first introduced).
+> If you encounter a version of Next.js that NTARH is incompatible with, [let me
 > know][choose-new-issue]!
 
 ## Install
