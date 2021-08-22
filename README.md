@@ -179,8 +179,8 @@ If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
 will receive an object like `{ ...queryStringURLParams, ...params }`.
 
 > Route parameters should not be confused with [query string parameters][14],
-> which are parsed out from the url and added to the params object before
-> `paramsPatcher` is evaluated.
+> which are automatically parsed out from the url and added to the params object
+> before `paramsPatcher` is evaluated.
 
 `handler` is the actual route handler under test (usually imported from
 `pages/api/*`). It should be an async function that accepts [NextApiRequest][2]
