@@ -4,33 +4,23 @@ about: Tell us about your awesome idea
 labels: enhancement
 ---
 
-<!--
-Replace this comment with a clear and concise description of what the problem
-is. If applicable, add screenshots to help explain the problem.
+<!-- THANK YOU for taking a moment to improve this project. 🤘🏿 You rock! 🎸 -->
 
-If you've encountered a bug, please report it as a bug instead of a feature
+<!--
+Replace this comment with a clear and concise description of what you're
+suggesting. Be sure to include sample code, screenshots, related PR/issue
+links, etc.
+
+🚩 If you encountered a bug, please report it as a bug instead of a feature
 request.
 -->
 
-### The solution
-
 <!--
-Replace this comment with a clear and concise description of what you want to
-happen. If applicable, add screenshots to help explain your solution.
--->
+<details><summary><strong>Alternatives and workarounds</strong></summary>
 
-### Alternatives considered
-
-<!--
-Replace this comment with a clear and concise description of any alternative
-solutions or features you've encountered and/or considered or N/A if there are
-none.
--->
-
-<details><summary><strong>Additional context</strong></summary>
-
-<!--
-Replace this comment with any other context or screenshots here.
--->
+For posterity, uncomment this block and replace this text with a clear and
+concise description of any alternative solutions you've encountered or any
+temporary workarounds you've come up with.
 
 </details>
+-->

@@ -4,17 +4,14 @@ about: Alert us about an issue
 labels: bug
 ---
 
-<details open><summary><strong>Problematic behavior</strong></summary>
+<!-- THANK YOU for taking a moment to improve this project. 🤘🏿 You rock! 🎸 -->
+
+<details open><summary><strong>The problem</strong></summary>
 
 <!--
-(1 of 2) Required: please replace this comment with a clear and concise
-description of what actually happened. If applicable, add screenshots to help
-explain the problem.
-
-If we cannot reproduce the bug, it's unlikely we can fix it! So, if you really
-want this bug fixed in a timely manner, consider providing a Minimal
-Reproducible Example (MRE) (https://bit.ly/3q2fyVo) that demonstrates your
-problem simply and in as few lines of code as possible!
+🚩 Required (1 of 2): please replace this comment with a clear and concise
+description of your issue. If applicable, add code samples and relevant error
+log lines to help explain the problem. Favor code samples over code screenshots.
 -->
 
 </details>
@@ -22,43 +19,59 @@ problem simply and in as few lines of code as possible!
 <details><summary><strong>Reproduction steps</strong></summary>
 
 <!--
-(2 of 2) Required: please replace this comment with the simplest most basic
-possible steps to reproduce the problematic behavior described above. If you
-included a MRE above, explain here how to use it to reproduce your bug. For
-example:
+🚩 Required (2 of 2): please replace this comment with a link to a repo
+demonstrating your issue *using as few lines of code as possible*. If we can't
+reproduce the problem on our side, how can we ever hope to fix it for you 🤷🏾?
 
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error xyz
--->
+If your issue is simple enough that it doesn't warrant a demo repo, include
+instead the simplest most basic possible steps to reproduce your problem; e.g.:
+
+1. Clone the dummy repo I made based on the docs example: https://github.com/...
+2. Run `npm install`
+3. Run `npx jest`
+4. See error "xyz" at test 2, which shouldn't be happening
+   -->
 
 </details>
 
+<!--
 <details><summary><strong>Expected behavior</strong></summary>
 
-<!--
-Optional: replace this comment with a clear and concise description of what you
-expected to happen if not included above. If applicable, add screenshots to help
-explain.
--->
+Optional: uncomment this block and replace this text with a clear and concise
+description of what you expected to happen if not included above. If applicable,
+add screenshots and code samples to help explain the problem.
 
 </details>
+-->
 
+<!--
+<details><summary><strong>Suggested solution</strong></summary>
+
+Optional: uncomment this block and replace this text with a clear and concise
+proposal of how your issue might be solved, including any unnoted workarounds.
+If applicable, add code samples and screenshots.
+
+</details>
+-->
+
+<!--
 <details><summary><strong>Additional context</strong></summary>
 
-<!--
-Optional: replace this comment with any other information that might help us
-figure out what's going on. Examples include: details about your
-development/runtime environment, error logs demonstrating the issue, a MRE
-repository URL, offending YAML files, etc. For example:
+Optional: uncomment this block and replace this text with any additional
+information that might help us figure out what's going on. This could be dense
+runtime details, lengthy error logs, assets links, or what have you; e.g.:
 
-- OS: ubuntu
-- Browser: firefox 71, chrome 90
-- Version: v1.2.3
-- Node version: 14
-- Babel: yes, version 7
-- TypeScript project: yes
--->
+- OS: ubuntu 26.04
+- Node version: 20
+- Babel: yes, version 8.1.0
+- TypeScript: yes, version 5.2.0
+- Browser: firefox 171, chrome 190
+- List of installed packages: https://github.com/.../main/package.json
+
+Relevant log lines:
+```
+(super long error log lines pasted here)
+```
 
 </details>
+-->
