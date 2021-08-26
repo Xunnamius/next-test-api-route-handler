@@ -517,7 +517,7 @@ information.
   https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler
   'Latest commit timestamp'
 [badge-issues]:
-  https://img.shields.io/github/issues-raw/Xunnamius/next-test-api-route-handler
+  https://img.shields.io/github/issues/Xunnamius/next-test-api-route-handler
   'Open issues'
 [link-issues]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
