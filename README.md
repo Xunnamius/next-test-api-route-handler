@@ -183,6 +183,10 @@ resolver. To just set the request url, e.g.
 `requestPatcher: (req) => (req.url = '/my-url?some=query')`, use the `url`
 shorthand, e.g. `url: '/my-url?some=query'`.
 
+> More often than not, [manually setting the request url is unnecessary][20].
+> Only set the url if [your handler expects it][21] or [you want to use
+> automatic query string parsing instead of `params`/`paramsPatcher`][22].
+
 🚩 `responsePatcher` is a function that receives a [ServerResponse][6]. Use this
 function to modify the response before it's injected into Next.js's resolver.
 
@@ -409,8 +413,9 @@ it('returns expected public flights with respect to match', async () => {
   // This function will return in order the URIs we're interested in testing
   // against our handler. Query strings are parsed by NTARH automatically.
   //
-  // Instead of using encode(), we could have used `params` or `paramPatcher` to
-  // do this more easily.
+  // DO NOTE: setting the request url manually using encode(), while valid, is
+  // unnecessary here; we could have used `params` or `paramPatcher` to do this
+  // more easily without explicitly setting a dummy request url.
   //
   // Example URI for `https://site.io/path?param=yes` would be `/path?param=yes`
   const genUrl = (function* () {
@@ -591,3 +596,9 @@ information.
 [17]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [18]: https://github.com/vercel/next.js/pull/8613
 [19]: https://nextjs.org/blog/next-9
+[20]:
+  https://github.com/Xunnamius/next-test-api-route-handler/issues/303#issuecomment-903344572
+[21]:
+  https://github.com/Xunnamius/next-test-api-route-handler#testing-nextjss-official-apollo-example--pagesapigraphql
+[22]:
+  https://github.com/Xunnamius/next-test-api-route-handler#testing-a-flight-search-api-handler--pagesapiv3flightssearch
