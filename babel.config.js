@@ -40,6 +40,11 @@ module.exports = {
         ['@babel/preset-env', { targets: { node: true } }],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
         // ? We don't care about minification
+      ],
+      plugins: [
+        // ? Only active when testing, the plugin solves the following problem:
+        // ? https://stackoverflow.com/q/40771520/1367414
+        'explicit-exports-references'
       ]
     },
     // * Used by `npm run build`
@@ -54,7 +59,7 @@ module.exports = {
           }
         ],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
-        // ? Webpack will handle minification
+        // ? Minification is handled by Webpack
       ]
     },
     // * Used by `npm run build-externals`
@@ -62,7 +67,7 @@ module.exports = {
       presets: [
         ['@babel/preset-env', { targets: { node: true } }],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
-        // ? Webpack will handle minification
+        // ? Minification is handled by Webpack
       ],
       plugins: [transformRenameImport]
     },

@@ -1,5 +1,7 @@
 'use strict';
+
 const debug = require('debug')(`${require('./package.json').name}:eslint-config`);
+const restrictedGlobals = require('confusing-browser-globals');
 
 module.exports = {
   parser: '@typescript-eslint/parser',
@@ -17,7 +19,8 @@ module.exports = {
     sourceType: 'module',
     ecmaFeatures: {
       impliedStrict: true,
-      experimentalObjectRestSpread: true
+      experimentalObjectRestSpread: true,
+      jsx: true
     },
     extraFileExtensions: ['.mjs', '.cjs'],
     project: 'tsconfig.eslint.json'
@@ -27,8 +30,8 @@ module.exports = {
     node: true,
     jest: true,
     'jest/globals': true,
-    browser: false,
-    webextensions: false
+    browser: true,
+    webextensions: true
   },
   rules: {
     'no-console': 'warn',
@@ -42,6 +45,7 @@ module.exports = {
         /*ignore: ['fs/promises', 'dns/promises']*/
       }
     ],
+    'no-restricted-globals': ['warn'].concat(restrictedGlobals),
     'no-extra-boolean-cast': 'off',
     'no-empty': 'off',
     '@typescript-eslint/camelcase': 'off',
@@ -94,18 +98,44 @@ module.exports = {
     }
   ],
   settings: {
+    react: {
+      version: 'detect'
+    },
     'import/extensions': ['.ts', '.tsx', '.js', '.jsx'],
     // ? Switch parsers depending on which type of file we're looking at
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
       'babel-eslint': ['.js', '.jsx']
     },
+    'import/resolver': {
+      alias: {
+        map: [
+          // ! If changed, also update these aliases in tsconfig.json,
+          // ! webpack.config.js, next.config.ts, and jest.config.js
+          ['universe', './src'],
+          ['multiverse', './lib'],
+          ['testverse', './test'],
+          ['externals', './external-scripts'],
+          ['types', './types'],
+          ['package', './package.json']
+        ],
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
+      },
+      typescript: {}
+    },
     'import/ignore': [
       // ? Don't go complaining about anything that we don't own
-      '.*/node_modules/.*'
+      '.*/node_modules/.*',
+      '.*/bin/.*'
     ]
   },
-  ignorePatterns: ['coverage', 'dist', 'bin', 'build']
+  ignorePatterns: ['coverage', 'dist', 'bin', 'build', '/next.config.js'],
+  globals: {
+    page: true,
+    browser: true,
+    context: true,
+    jestPuppeteer: true
+  }
 };
 
 debug('exports: %O', module.exports);

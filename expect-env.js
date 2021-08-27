@@ -239,7 +239,7 @@ module.exports = {
             break;
           }
         } else {
-          throw new IllegalEnvironmentError('unrecognized operation "${rule.operation}"');
+          throw new IllegalEnvironmentError(`unrecognized operation "${rule.operation}"`);
         }
       }
 
