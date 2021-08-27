@@ -124,7 +124,7 @@ describe('::testApiHandler', () => {
     });
   });
 
-  it('respects params object', async () => {
+  it('respects params object; parses query string in request url', async () => {
     expect.hasAssertions();
 
     await testApiHandler({
