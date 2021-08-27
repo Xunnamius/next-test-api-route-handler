@@ -584,7 +584,7 @@ information.
 [6]: https://nodejs.org/api/http.html#http_class_http_serverresponse
 [7]: https://www.npmjs.com/package/isomorphic-unfetch
 [8]: https://github.com/developit/unfetch#examples--demos
-[9]: test
+[9]: test/unit-index.test.ts
 [10]: https://github.com/vercel/next.js
 [11]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
 [12]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
@@ -598,7 +598,5 @@ information.
 [19]: https://nextjs.org/blog/next-9
 [20]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues/303#issuecomment-903344572
-[21]:
-  https://github.com/Xunnamius/next-test-api-route-handler#testing-nextjss-official-apollo-example--pagesapigraphql
-[22]:
-  https://github.com/Xunnamius/next-test-api-route-handler#testing-a-flight-search-api-handler--pagesapiv3flightssearch
+[21]: #testing-nextjss-official-apollo-example--pagesapigraphql
+[22]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
