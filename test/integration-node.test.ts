@@ -1,5 +1,5 @@
 import debugFactory from 'debug';
-import { name as pkgName, version as pkgVersion, main as pkgMain } from '../package.json';
+import { name as pkgName, version as pkgVersion, main as pkgMain } from 'package';
 import {
   run,
   mockFixtureFactory,

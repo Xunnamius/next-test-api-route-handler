@@ -1,4 +1,4 @@
-import { name as pkgName, version as pkgVersion } from '../package.json';
+import { name as pkgName, version as pkgVersion } from 'package';
 import { tmpdir } from 'os';
 import { promises as fs } from 'fs';
 import { resolve } from 'path';
@@ -404,7 +404,7 @@ export function npmCopySelfFixture(): MockFixture {
     setup: async (ctx) => {
       const root = resolve(`${__dirname}/..`);
 
-      const { files: patterns } = await import('../package.json');
+      const { files: patterns } = await import('package');
 
       const files = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
       const dest = `${ctx.root}/node_modules/${pkgName}`;

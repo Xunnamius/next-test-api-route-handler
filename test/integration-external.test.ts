@@ -1,4 +1,4 @@
-import { name as pkgName, peerDependencies } from '../package.json';
+import { name as pkgName, peerDependencies } from 'package';
 import { run, mockFixtureFactory, dummyNpmPackageFixture, runnerFactory } from './setup';
 import debugFactory from 'debug';
 

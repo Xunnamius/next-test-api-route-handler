@@ -12,9 +12,7 @@ const getHandler =
 describe('sanity checks', () => {
   test(`peerDependencies.next => "${nextSemverFloor}"`, async () => {
     expect.hasAssertions();
-    expect(await (await import('../package.json')).peerDependencies.next).toBe(
-      nextSemverFloor
-    );
+    expect(await (await import('package')).peerDependencies.next).toBe(nextSemverFloor);
   });
 });
 

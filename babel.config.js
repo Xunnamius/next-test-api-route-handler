@@ -4,14 +4,15 @@
 
 // ? https://nodejs.org/en/about/releases
 const NODE_LTS = 'maintained node versions';
-
-const debug = require('debug')(`${require('./package.json').name}:babel-config`);
+const pkgName = require('./package.json').name;
+const debug = require('debug')(`${pkgName}:babel-config`);
 
 // ? Fix relative local imports referencing package.json (.dist/esm/...)
 const transformRenameImport = [
   'transform-rename-import',
   {
-    replacements: [{ original: '../package.json', replacement: '../../package.json' }]
+    // ? See: https://bit.ly/38hFTa8
+    replacements: [{ original: 'package', replacement: `${pkgName}/package.json` }]
   }
 ];
 

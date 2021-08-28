@@ -1,4 +1,4 @@
-import { name as pkgName, version as pkgVersion } from '../package.json';
+import { name as pkgName, version as pkgVersion } from 'package';
 import { MongoClient } from 'mongodb';
 import { Octokit } from '@octokit/rest';
 import findPackageJson from 'find-package-json';
