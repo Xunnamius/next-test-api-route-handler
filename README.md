@@ -503,6 +503,10 @@ Check out [the tests][9] for more examples.
 
 Further documentation can be found under [`docs/`][docs].
 
+### License
+
+[![FOSSA analysis][badge-fossa]][link-fossa]
+
 ## Contributing and Support
 
 **[New issues][choose-new-issue] and [pull requests][pr-compare] are always
@@ -539,6 +543,11 @@ information.
   "This package's source license"
 [link-license]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/LICENSE
+[badge-fossa]:
+  https://app.fossa.com/api/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler.svg?type=large
+  "Analysis of this package's license obligations"
+[link-fossa]:
+  https://app.fossa.com/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler
 [badge-npm]:
   https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler
   'Install this package using npm or yarn!'
