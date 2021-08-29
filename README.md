@@ -13,6 +13,7 @@
 [![Compressed package size][badge-size]][link-bundlephobia]
 [![NPM version][badge-npm]][link-npm]
 [![Uses Semantic Release!][badge-semantic-release]][link-semantic-release]
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler?ref=badge_shield)
 
 <!-- badges-end -->
 
@@ -600,3 +601,6 @@ information.
   https://github.com/Xunnamius/next-test-api-route-handler/issues/303#issuecomment-903344572
 [21]: #testing-nextjss-official-apollo-example--pagesapigraphql
 [22]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler?ref=badge_large)
