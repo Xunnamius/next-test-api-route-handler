@@ -6,7 +6,8 @@
 const { EnvironmentPlugin, DefinePlugin, BannerPlugin } = require('webpack');
 const { verifyEnvironment } = require('./expect-env');
 const nodeExternals = require('webpack-node-externals');
-const debug = require('debug')(`${require('./package.json').name}:webpack-config`);
+const pkgName = require('./package.json').name;
+const debug = require('debug')(`${pkgName}:webpack-config`);
 
 const IMPORT_ALIASES = {
   universe: `${__dirname}/src/`,
@@ -53,9 +54,15 @@ const envPlugins = [
 const externals = [
   'next-server/dist/server/api-utils.js',
   nodeExternals(),
-  ({ request }, cb) =>
-    // ? Externalize all .json imports (required as commonjs modules)
-    /\.json$/.test(request) ? cb(null, `commonjs ${request}`) : cb()
+  ({ request }, cb) => {
+    if (request == 'package') {
+      // ? Externalize special "package" (alias of package.json) imports
+      cb(null, `commonjs ${pkgName}/package.json`);
+    } else if (/\.json$/.test(request)) {
+      // ? Externalize all other .json imports (require()'d as commonjs modules)
+      cb(null, `commonjs ${request}`);
+    } else cb();
+  }
 ];
 
 const libConfig = {
