@@ -21,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/Xunnamius/next-test-api-route-handler"
   },
-  "license": "Unlicense",
+  "license": "MIT",
   "author": "Xunnamius",
   "sideEffects": false,
   "type": "commonjs",
