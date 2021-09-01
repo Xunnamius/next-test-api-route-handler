@@ -696,6 +696,7 @@ export async function withMockedFixture<
   const setupDebugger = async (fixture: CustomizedMockFixture, error = false) => {
     const toString = async (
       p: CustomizedMockFixture['name'] | CustomizedMockFixture['description']
+      // TODO: replace with toss
     ) => (typeof p == 'function' ? p(ctx) : typeof p == 'string' ? p : ':impossible:');
     const name = await toString(fixture.name.toString());
     const desc = await toString(fixture.description);
