@@ -127,7 +127,7 @@
     "prettier": "^2.3.2",
     "remark-cli": "^10.0.0",
     "remark-frontmatter": "^4.0.0",
-    "remark-gfm": "^2.0.0",
+    "remark-gfm": "^3.0.0",
     "remark-lint-final-newline": "^2.0.1",
     "remark-lint-hard-break-spaces": "^3.0.1",
     "remark-lint-no-auto-link-without-protocol": "^3.0.1",
