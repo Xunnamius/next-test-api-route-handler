@@ -121,7 +121,7 @@
     "husky": "^7.0.2",
     "jest": "^27.1.0",
     "jest-circus": "^27.1.0",
-    "jest-extended": "^0.11.5",
+    "jest-extended": "^1.1.0",
     "lint-staged": "^11.1.2",
     "mongodb": "^4.1.1",
     "prettier": "^2.3.2",
