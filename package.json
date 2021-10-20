@@ -114,7 +114,7 @@
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-jest": "^25.2.2",
     "execa": "^5.1.1",
     "find-package-json": "^1.2.0",
     "glob": "^7.1.7",
