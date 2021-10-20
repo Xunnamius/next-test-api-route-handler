@@ -110,7 +110,7 @@
     "del": "^6.0.0",
     "dotenv": "^10.0.0",
     "edit-json-file": "^1.6.0",
-    "eslint": "^7.32.0",
+    "eslint": "^8.0.1",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.24.2",
