@@ -6,6 +6,8 @@ import findPackageJson from 'find-package-json';
 import debugFactory from 'debug';
 import execa from 'execa';
 
+import type { ExecaError } from 'execa';
+
 // * By default, external scripts should be silent. Use the DEBUG environment
 // * variable to see relevant output
 
@@ -112,8 +114,9 @@ const invoked = async () => {
         'npm test failed! The latest Next.js is incompatible with this package!';
 
       debug(err);
-      debug('node stdout: ', e.stdout);
-      debug('node stderr: ', e.stderr);
+
+      debug('node stdout: ', (e as ExecaError).stdout);
+      debug('node stderr: ', (e as ExecaError).stderr);
 
       throw new Error(err);
     }
