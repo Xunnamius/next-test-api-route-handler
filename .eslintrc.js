@@ -105,7 +105,7 @@ module.exports = {
     // ? Switch parsers depending on which type of file we're looking at
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
-      'babel-eslint': ['.js', '.jsx']
+      '@babel/eslint-parser': ['.js', '.jsx']
     },
     'import/resolver': {
       alias: {
