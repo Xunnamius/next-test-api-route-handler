@@ -63,9 +63,9 @@ const keys = (obj) => Object.keys(obj).map(splitOutWords);
         ...require('text-extensions'),
         // ? Popular contractions
         ...['ve', 're', 's', 'll', 't', 'd', 'o', 'ol'],
-        ...keys(pkg.dependencies),
-        ...keys(pkg.devDependencies),
-        ...keys(pkg.scripts),
+        ...keys(pkg.dependencies || {}),
+        ...keys(pkg.devDependencies || {}),
+        ...keys(pkg.scripts || {}),
         ...splitOutWords(
           (await execa('git', ['log', '--format="%B"', 'HEAD~1'])).stdout
         ).slice(0, -1)
