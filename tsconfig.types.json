@@ -1,14 +1,14 @@
 {
-  "extends": "./tsconfig.json",
-  "include": ["types/**/*.ts*", "lib/**/*.ts*", "src/**/*.ts*"],
   "compilerOptions": {
-    "outDir": "dist/types",
+    "allowJs": false,
+    "checkJs": false,
     "declaration": true,
+    "emitDeclarationOnly": true,
     "isolatedModules": false,
     "noEmit": false,
-    "checkJs": false,
-    "allowJs": false,
-    "emitDeclarationOnly": true,
+    "outDir": "dist/types",
     "rootDir": "./"
-  }
+  },
+  "extends": "./tsconfig.json",
+  "include": ["types/**/*", "lib/**/*", "src/**/*"]
 }
