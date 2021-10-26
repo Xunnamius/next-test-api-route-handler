@@ -12,7 +12,7 @@ const getHandler =
 describe('sanity checks', () => {
   test(`peerDependencies.next => "${nextSemverFloor}"`, async () => {
     expect.hasAssertions();
-    expect(await (await import('package')).peerDependencies.next).toBe(nextSemverFloor);
+    expect((await import('package')).peerDependencies.next).toBe(nextSemverFloor);
   });
 });
 
@@ -24,7 +24,7 @@ describe('::testApiHandler', () => {
       handler: getHandler(),
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(200);
-        expect(await (await fetch()).json()).toStrictEqual({ hello: 'world' });
+        await expect((await fetch()).json()).resolves.toStrictEqual({ hello: 'world' });
       }
     });
 
@@ -32,7 +32,7 @@ describe('::testApiHandler', () => {
       handler: getHandler(404),
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(404);
-        expect(await (await fetch()).json()).toStrictEqual({ hello: 'world' });
+        await expect((await fetch()).json()).resolves.toStrictEqual({ hello: 'world' });
       }
     });
   });
@@ -47,7 +47,7 @@ describe('::testApiHandler', () => {
       },
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(350);
-        expect(await (await fetch()).json()).toStrictEqual({ data: 'secret!' });
+        await expect((await fetch()).json()).resolves.toStrictEqual({ data: 'secret!' });
       }
     });
   });
@@ -62,7 +62,7 @@ describe('::testApiHandler', () => {
       },
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(350);
-        expect(await (await fetch()).json()).toStrictEqual({ url: '/' });
+        await expect((await fetch()).json()).resolves.toStrictEqual({ url: '/' });
       }
     });
 
@@ -73,7 +73,7 @@ describe('::testApiHandler', () => {
       },
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(350);
-        expect(await (await fetch()).json()).toStrictEqual({ url: '/my-url' });
+        await expect((await fetch()).json()).resolves.toStrictEqual({ url: '/my-url' });
       }
     });
   });
@@ -89,7 +89,7 @@ describe('::testApiHandler', () => {
       },
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(350);
-        expect(await (await fetch()).json()).toStrictEqual({ url: '/my-url?b' });
+        await expect((await fetch()).json()).resolves.toStrictEqual({ url: '/my-url?b' });
       }
     });
   });
@@ -104,7 +104,7 @@ describe('::testApiHandler', () => {
       },
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(500);
-        expect(await (await fetch()).json()).toStrictEqual({ data: 'secret' });
+        await expect((await fetch()).json()).resolves.toStrictEqual({ data: 'secret' });
       }
     });
   });
@@ -117,7 +117,7 @@ describe('::testApiHandler', () => {
       handler: async (_, res) => res.send({}),
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(404);
-        expect(await (await fetch()).json()).toStrictEqual({});
+        await expect((await fetch()).json()).resolves.toStrictEqual({});
       }
     });
   });
@@ -196,7 +196,7 @@ describe('::testApiHandler', () => {
       test: async ({ fetch }) => {
         // @ts-expect-error: b does not exist (this test "fails" if no TS error)
         (await (await fetch()).json()).b;
-        expect(true).toBeTrue();
+        expect(true).toBe(true);
       }
     });
   });

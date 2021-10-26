@@ -35,6 +35,7 @@ const NEXT_VERSIONS_TO_TEST = rawTestTargets ? rawTestTargets : [
 const pkgMainPath = `${__dirname}/../${pkgMain}`;
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 
+// eslint-disable-next-line jest/require-hook
 debug(`NEXT_VERSIONS_TO_TEST: "${NEXT_VERSIONS_TO_TEST}"`);
 
 const fixtureOptions = {

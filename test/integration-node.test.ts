@@ -16,6 +16,7 @@ const pkgMainPath = `${__dirname}/../${pkgMain}`;
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 
+// eslint-disable-next-line jest/require-hook
 debug(`nodeVersion: "${nodeVersion}"`);
 
 const fixtureOptions = {
