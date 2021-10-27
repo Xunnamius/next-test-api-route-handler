@@ -220,15 +220,12 @@ instance (**note that the _url parameter_, i.e. the first parameter in
 [`fetch(...)`][8], is omitted**). Use this to send HTTP requests to the handler
 under test.
 
-#### `fetch::cookies`
+##### `response.cookies`
 
 As of version `2.3.0`, the response object returned by `fetch()` includes a
-non-standard `cookies` field containing an array of objects representing
+non-standard _cookies_ field containing an array of objects representing
 [`set-cookie` response header(s)][23] parsed by [the `cookie` package][24]. Use
-`(await fetch()).cookies` to easily access a response's cookie data in your
-tests.
-
-> Note that response header object keys are all lowercased.
+the _cookies_ field to easily access a response's cookie data in your tests.
 
 Example using [`jest`][16]:
 
@@ -249,6 +246,7 @@ it('does what I want', async () => {
       expect(res.cookies).toStrictEqual([
         expect.objectContaining({
           access_token: '1234',
+          // NOTE: res.cookies keys are all lowercased!
           expires: expect.any(String) // NOTE: "expires" instead of "Expires"
         }),
         expect.objectContaining({ refresh_token: '5678' })
