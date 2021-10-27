@@ -235,7 +235,7 @@ import { testApiHandler } from 'next-test-api-route-handler';
 it('does what I want', async () => {
   await testApiHandler({
     handler: async (_req, res) => {
-      // NOTE: consecutive calls to res.setHeader() overwrite previous
+      // NOTE: multiple calls to setHeader('Set-Cookie', ...) overwrite previous
       res.setHeader('Set-Cookie', [
         serialize('access_token', '1234', { expires: new Date() }),
         serialize('refresh_token', '5678')
@@ -246,7 +246,7 @@ it('does what I want', async () => {
       expect(res.cookies).toStrictEqual([
         expect.objectContaining({
           access_token: '1234',
-          // NOTE: res.cookies keys are all lowercased!
+          // NOTE: keys are all lowercased!
           expires: expect.any(String) // NOTE: "expires" instead of "Expires"
         }),
         expect.objectContaining({ refresh_token: '5678' })
