@@ -177,40 +177,86 @@ async function testApiHandler({
 });
 ```
 
-🚩 `requestPatcher` is a function that receives an [IncomingMessage][5]. Use
-this function to modify the request before it's injected into Next.js's
-resolver. To just set the request url, e.g.
-`requestPatcher: (req) => (req.url = '/my-url?some=query')`, use the `url`
-shorthand, e.g. `url: '/my-url?some=query'`.
+### `requestPatcher`
+
+A function that receives an [IncomingMessage][5]. Use this function to modify
+the request before it's injected into Next.js's resolver. To just set the
+request url, e.g. `requestPatcher: (req) => (req.url = '/my-url?some=query')`,
+use the `url` shorthand, e.g. `url: '/my-url?some=query'`.
 
 > More often than not, [manually setting the request url is unnecessary][20].
 > Only set the url if [your handler expects it][21] or [you want to use
 > automatic query string parsing instead of `params`/`paramsPatcher`][22].
 
-🚩 `responsePatcher` is a function that receives a [ServerResponse][6]. Use this
-function to modify the response before it's injected into Next.js's resolver.
+### `responsePatcher`
 
-🚩 `paramsPatcher` is a function that receives an object representing
-"processed" dynamic routes, e.g. testing a handler that expects `/api/user/:id`
-requires `paramPatcher: (params) => (params.id = 'test-id')`. Route parameters
-can also be passed using the `params` shorthand, e.g.
-`params: { id: 'test-id', ... }`. If both `paramsPatcher` and the `params`
-shorthand are used, `paramsPatcher` will receive an object like
-`{ ...queryStringURLParams, ...params }`.
+A function that receives a [ServerResponse][6]. Use this function to modify the
+response before it's injected into Next.js's resolver.
+
+### `paramsPatcher`
+
+A function that receives an object representing "processed" dynamic routes, e.g.
+testing a handler that expects `/api/user/:id` requires
+`paramPatcher: (params) => (params.id = 'test-id')`. Route parameters can also
+be passed using the `params` shorthand, e.g. `params: { id: 'test-id', ... }`.
+If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
+will receive an object like `{ ...queryStringURLParams, ...params }`.
 
 > Route parameters should not be confused with [query string parameters][14],
 > which are automatically parsed out from the url and added to the params object
 > before `paramsPatcher` is evaluated.
 
-🚩 `handler` is the actual route handler under test (usually imported from
-`pages/api/*`). It should be an async function that accepts [NextApiRequest][2]
-and [NextApiResponse][2] objects as its two parameters.
+### `handler`
 
-🚩 `test` is a function that returns a promise (or async) where test assertions
-can be run. This function receives one parameter: `fetch`, which is a simple
-[unfetch][7] instance (**note that the _url parameter_, i.e. the first parameter
-in [`fetch(...)`][8], is omitted**). Use this to send HTTP requests to the
-handler under test.
+The actual route handler under test (usually imported from `pages/api/*`). It
+should be an async function that accepts [NextApiRequest][2] and
+[NextApiResponse][2] objects as its two parameters.
+
+### `test`
+
+A function that returns a promise (or async) where test assertions can be run.
+This function receives one parameter: `fetch`, which is a simple [unfetch][7]
+instance (**note that the _url parameter_, i.e. the first parameter in
+[`fetch(...)`][8], is omitted**). Use this to send HTTP requests to the handler
+under test.
+
+#### `fetch::cookies`
+
+As of version `2.3.0`, the response object returned by `fetch()` includes a
+non-standard `cookies` field containing an array of objects representing
+[`set-cookie` response header(s)][23] parsed by [the `cookie` package][24]. Use
+`(await fetch()).cookies` to easily access a response's cookie data in your
+tests.
+
+> Note that response header object keys are all lowercased.
+
+Example using [`jest`][16]:
+
+```Typescript
+import { testApiHandler } from 'next-test-api-route-handler';
+
+it('does what I want', async () => {
+  await testApiHandler({
+    handler: async (_req, res) => {
+      // NOTE: consecutive calls to res.setHeader() overwrite previous
+      res.setHeader('Set-Cookie', [
+        serialize('access_token', '1234', { expires: new Date() }),
+        serialize('refresh_token', '5678')
+      ]).status(200).send();
+    },
+    test: async ({ fetch }) => {
+      const res = await fetch();
+      expect(res.cookies).toStrictEqual([
+        expect.objectContaining({
+          access_token: '1234',
+          expires: expect.any(String) // NOTE: "expires" instead of "Expires"
+        }),
+        expect.objectContaining({ refresh_token: '5678' })
+      ]);
+    }
+  });
+});
+```
 
 ## Real-World Examples
 
@@ -303,8 +349,8 @@ Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
 10th, where status code `HTTP 555` is returned instead.
 
-How might we test that this endpoint responds with `HTTP 555` once for every
-nine `HTTP 200` responses?
+How might we [test][16] that this endpoint responds with `HTTP 555` once for
+every nine `HTTP 200` responses?
 
 ```TypeScript
 /* File: test/unit.test.ts */
@@ -384,7 +430,7 @@ Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
 query.
 
-How might we test that this endpoint returns flights in our database as
+How might we [test][16] that this endpoint returns flights in our database as
 expected?
 
 ```TypeScript
@@ -413,7 +459,7 @@ it('returns expected public flights with respect to match', async () => {
   // This function will return in order the URIs we're interested in testing
   // against our handler. Query strings are parsed by NTARH automatically.
   //
-  // DO NOTE: setting the request url manually using encode(), while valid, is
+  // NOTE: setting the request url manually using encode(), while valid, is
   // unnecessary here; we could have used `params` or `paramPatcher` to do this
   // more easily without explicitly setting a dummy request url.
   //
@@ -609,3 +655,5 @@ information.
   https://github.com/Xunnamius/next-test-api-route-handler/issues/303#issuecomment-903344572
 [21]: #testing-nextjss-official-apollo-example--pagesapigraphql
 [22]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
+[23]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+[24]: https://www.npmjs.com/package/cookie
