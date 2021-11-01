@@ -311,26 +311,39 @@ it('runs without any environment variables', async () => {
   }, {});
 });
 
-it('defines NEXT_VERSIONS_TO_TEST env variable when running integration tests', async () => {
+it('respects NODE_TARGET_VERSION env variable', async () => {
   expect.hasAssertions();
 
-  await withMockedEnv(async () => {
-    mockLatestRelease = '199.198.197';
+  mockLatestRelease = '199.198.197';
 
-    mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-      Promise.resolve({ compat: '' })
-    );
+  mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
+    Promise.resolve({ compat: '' })
+  );
 
-    await protectedImport();
+  await withMockedEnv(
+    async () => {
+      await protectedImport();
+    },
+    { MONGODB_URI: 'fake-uri', NODE_TARGET_VERSION: '1.x' }
+  );
 
-    expect(mockedExeca).toBeCalledWith(
-      expect.anything(),
-      expect.arrayContaining(['test-integration']),
-      {
-        env: { NEXT_VERSIONS_TO_TEST: mockLatestRelease }
-      }
-    );
-  }, {});
+  expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+
+  await withMockedEnv(
+    async () => {
+      await protectedImport();
+    },
+    {
+      MONGODB_URI: 'fake-uri',
+      NODE_TARGET_VERSION: `${process.versions.node.split('.')[0]}.x`
+    }
+  );
+
+  expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+    { compat: { $exists: true } },
+    { $set: { compat: mockLatestRelease } },
+    { upsert: true }
+  );
 });
 
 it('uses GH_TOKEN environment variable if available', async () => {
