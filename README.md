@@ -40,8 +40,8 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 ## Install
 
-If you don't have Next.js available, ensure it is installed as it is a required
-peer dependency:
+If you don't have Next.js installed, [or are using `npm@<7`][25], ensure
+`next@>=9` is installed as it is a required peer dependency:
 
 ```Shell
 npm install --save-dev next@latest
@@ -655,3 +655,5 @@ information.
 [22]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
 [23]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
 [24]: https://www.npmjs.com/package/cookie
+[25]:
+  https://github.com/Xunnamius/next-test-api-route-handler/issues/378#issuecomment-956932193
