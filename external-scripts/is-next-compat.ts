@@ -27,7 +27,9 @@ const setCompatFlagTo = async (version: string) => {
     debug(`saw potential semver range: ${semverRange}`);
 
     if (validRange(semverRange) && !satisfiesRange(process.versions.node, semverRange)) {
-      debug(`skipped updating database (node version does not satisfy semver range)`);
+      debug(
+        `skipped updating database (node version ${process.versions.node} not in range)`
+      );
     } else {
       if (process.env.MONGODB_URI) {
         const client = await MongoClient.connect(process.env.MONGODB_URI);
@@ -112,7 +114,8 @@ const invoked = async () => {
 
   if (latestReleaseVersion !== lastTestedVersion) {
     debug(`version check: ${ignoreVersionCheck ? 'ignored' : 'release detected'}`);
-    debug(`installing next@${latestReleaseVersion}`);
+    debug(`installing next@${latestReleaseVersion} for unit tests`);
+    debug(`(integration tests use own Next.js versions)`);
     await execa('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
 
     try {
