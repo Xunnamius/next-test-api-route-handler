@@ -39,7 +39,7 @@ jobs:
           else
             echo '(is-next-compat is not running in debug mode)'
           fi
-          if [ -n "$INPUT_FORCE"]; then
+          if [ -n "$INPUT_FORCE" ]; then
             echo "IS-NEXT-COMPAT IS RUNNING IN FORCE MODE ($INPUT_FORCE)"
           else
             echo '(is-next-compat is not running in force mode)'
