@@ -39,7 +39,7 @@ jobs:
           else
             echo '(is-next-compat is not running in debug mode)'
           fi
-          if [ -n '${{ github.event.inputs.force }}']; then
+          if [ -n "${{ github.event.inputs.force }}"]; then
             echo 'IS-NEXT-COMPAT IS RUNNING IN FORCE MODE!'
           else
             echo '(is-next-compat is not running in force mode)'
