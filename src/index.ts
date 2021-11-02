@@ -7,6 +7,8 @@ import { parse as parseUrl } from 'url';
 import type { PromiseValue } from 'type-fest';
 import type { NextApiHandler } from 'next';
 import type { IncomingMessage, ServerResponse } from 'http';
+
+// @ts-ignore: ignore this (conditional) import so bundlers don't choke and die
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils';
 
 let apiResolver: typeof NextApiResolver | null = null;
