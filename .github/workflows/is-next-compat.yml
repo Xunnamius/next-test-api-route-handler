@@ -21,19 +21,8 @@ jobs:
     name: 'gather-metadata'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    steps:
-      - name: Gather metadata
-        run: |
-          echo "NODE_VERSION_MATRIX=$NODE_OLDER_VERSIONS, "'"'"$NODE_CURRENT_VERSION"'"' >> $GITHUB_ENV
-
-  check-compat:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: metadata
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ${{ fromJson(env.NODE_VERSION_MATRIX) }}
+    outputs:
+      node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
     steps:
       - name: Report DEBUG mode status
         run: |
@@ -42,8 +31,20 @@ jobs:
           else
             echo '(pipeline is not running in debug mode)'
           fi
-          ! [ -z "$DEBUG" ] && echo "NODE_VERSION_MATRIX=$NODE_VERSION_MATRIX" || true
 
+      - name: Gather metadata
+        run: |
+          echo "::set-output name=node-matrix::{\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
+          ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
+
+  check-compat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+    steps:
       - name: Checkout
         uses: actions/checkout@v2.3.5
 
