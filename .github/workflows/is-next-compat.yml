@@ -33,12 +33,17 @@ jobs:
     outputs:
       node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
     steps:
-      - name: Report DEBUG mode status
+      - name: Report mode statuses
         run: |
-          if ! [ -z "$DEBUG" ]; then
-            echo 'PIPELINE IS RUNNING IN DEBUG MODE!'
+          if [ -n "$DEBUG" ]; then
+            echo 'IS-NEXT-COMPAT IS RUNNING IN DEBUG MODE!'
           else
-            echo '(pipeline is not running in debug mode)'
+            echo '(is-next-compat is not running in debug mode)'
+          fi
+          if [ -n '${{ github.event.inputs.force }}']; then
+            echo 'IS-NEXT-COMPAT IS RUNNING IN FORCE MODE!'
+          else
+            echo '(is-next-compat is not running in force mode)'
           fi
 
       - name: Gather metadata
@@ -94,10 +99,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          NODE_TARGET_VERSION: ${{ env.NODE_CURRENT_VERSION }}
           IGNORE_LAST_TESTED_VERSION: ${{ github.event.inputs.force }}
         run: npm run build-externals
 
       - name: Run is-next-compat
-        run:
-          node external-scripts/bin/is-next-compat.js ${{
-          env.NODE_CURRENT_VERSION }}
+        run: node external-scripts/bin/is-next-compat.js
