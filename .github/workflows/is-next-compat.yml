@@ -102,4 +102,13 @@ jobs:
         run: npm run build-externals
 
       - name: Run is-next-compat
-        run: node external-scripts/bin/is-next-compat.js
+        run:
+          node external-scripts/bin/is-next-compat.js &> /tmp/output.txt || true
+
+      - name: Upload output artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: output-node-${{ matrix.node }}-${{ github.sha }}
+          path: /tmp/output.txt
+          if-no-files-found: error
+          retention-days: 1
