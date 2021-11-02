@@ -6,6 +6,13 @@ name: is-next-compat
 
 on:
   workflow_dispatch: # * Treated like a scheduled run
+    inputs:
+      force:
+        description:
+          'If "true", tests will always run regardless of the last tested
+          Next.js version'
+        required: true
+        default: 'true'
   schedule:
     - cron: '0 12 */1 * *'
 
@@ -87,6 +94,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          IGNORE_LAST_TESTED_VERSION: ${{ github.event.inputs.force }}
         run: npm run build-externals
 
       - name: Run is-next-compat
