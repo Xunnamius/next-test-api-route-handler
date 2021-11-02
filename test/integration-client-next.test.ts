@@ -19,10 +19,8 @@ const TEST_IDENTIFIER = 'integration-client-next';
 const NEXT_VERSIONS_TO_TEST = [
   '9.0.0',  // ? Earliest compat release
   '^9',     // ? Latest version 9 release
-  '10.0.0', // ? First version 10 release
   '10.1.x', // ? See issue #184
   '^10',    // ? Latest version 10 release
-  '11.0.0', // ? First version 11 release
   '11.0.x', // ? See issue #295
   '^11',    // ? Latest version 11 release
   '^12'     // ? Latest version 12 release
