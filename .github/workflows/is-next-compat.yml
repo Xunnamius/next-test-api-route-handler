@@ -73,7 +73,12 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
 
       - name: Install CI dependencies
-        run: npm ci
+        run: |
+          npm ci
+          # TODO: add conditional to nix this for runners with npm@>=7
+          PEER_DEPS=$(node -e 'console.log(Object.entries(require("./package.json").peerDependencies || {}).map(([p,v]) => `${p}@${v}`).join(" "))')
+          ! [ -z "$DEBUG" ] && echo "(peer install targets) PEER_DEPS='$PEER_DEPS'" || true
+          ! [ -z "$PEER_DEPS" ] && npm install --no-save $PEER_DEPS || true
 
       - name: Build distributables
         run: npm run build-dist
