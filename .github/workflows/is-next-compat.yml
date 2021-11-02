@@ -29,6 +29,7 @@ jobs:
   check-compat:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: metadata
     strategy:
       fail-fast: false
       matrix:
