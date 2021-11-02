@@ -35,12 +35,12 @@ jobs:
       - name: Report mode statuses
         run: |
           if [ -n "$DEBUG" ]; then
-            echo 'IS-NEXT-COMPAT IS RUNNING IN DEBUG MODE!'
+            echo "IS-NEXT-COMPAT IS RUNNING IN DEBUG MODE ($DEBUG)"
           else
             echo '(is-next-compat is not running in debug mode)'
           fi
           if [ -n "$INPUT_FORCE"]; then
-            echo 'IS-NEXT-COMPAT IS RUNNING IN FORCE MODE!'
+            echo "IS-NEXT-COMPAT IS RUNNING IN FORCE MODE ($INPUT_FORCE)"
           else
             echo '(is-next-compat is not running in force mode)'
           fi
