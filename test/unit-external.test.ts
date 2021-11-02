@@ -174,6 +174,7 @@ it('handles missing package.json', async () => {
 
   await withMockedEnv(
     async () => {
+      mockLatestRelease = '100.99.0';
       mockedFindPackageJson.mockImplementationOnce(
         () =>
           ({
@@ -222,7 +223,6 @@ it('skips running tests if latest version matches last tested version', async ()
   await withMockedEnv(
     async () => {
       mockLatestRelease = '100.99.0';
-
       mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
         Promise.resolve({ compat: mockLatestRelease })
       );
@@ -245,7 +245,6 @@ it('runs tests if latest version does not match last tested version', async () =
   await withMockedEnv(
     async () => {
       mockLatestRelease = '100.99.0';
-
       mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
         Promise.resolve({ compat: '99.100.0' })
       );
@@ -272,7 +271,6 @@ it('runs tests if last tested version is empty', async () => {
   await withMockedEnv(
     async () => {
       mockLatestRelease = '100.100.0';
-
       mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
         Promise.resolve({ compat: '' })
       );
@@ -298,7 +296,6 @@ it('runs without any environment variables', async () => {
 
   await withMockedEnv(async () => {
     mockLatestRelease = '100.100.0';
-
     mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
       Promise.resolve({ compat: '' })
     );
@@ -315,7 +312,6 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
   expect.hasAssertions();
 
   mockLatestRelease = '199.198.197';
-
   mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
     Promise.resolve({ compat: '' })
   );
