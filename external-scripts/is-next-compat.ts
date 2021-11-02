@@ -99,6 +99,7 @@ const invoked = async () => {
 
   const latestReleaseVersion = vlatest.replace(/^v/, '');
   debug(`saw latest release version "${latestReleaseVersion}"`);
+  if (!latestReleaseVersion) throw new Error('could not find latest Next.js version');
 
   const { filename: path } = findPackageJson(process.cwd()).next();
   if (!path) throw new Error('could not find package.json');
@@ -106,9 +107,11 @@ const invoked = async () => {
   const dir = dirname(path);
   debug(`using path: ${dir}`);
 
-  const lastTestedVersion = await getLastTestedVersion();
+  const ignoreVersionCheck = process.env.IGNORE_LAST_TESTED_VERSION === 'true';
+  const lastTestedVersion = ignoreVersionCheck ? null : await getLastTestedVersion();
 
-  if (latestReleaseVersion != lastTestedVersion) {
+  if (latestReleaseVersion !== lastTestedVersion) {
+    debug(`version check: ${ignoreVersionCheck ? 'ignored' : 'release detected'}`);
     debug(`installing next@${latestReleaseVersion}`);
     await execa('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
 

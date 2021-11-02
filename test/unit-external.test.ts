@@ -346,6 +346,27 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
   );
 });
 
+it('respects IGNORE_LAST_TESTED_VERSION env variable', async () => {
+  expect.hasAssertions();
+
+  mockLatestRelease = '111.112.113';
+
+  await withMockedEnv(
+    async () => {
+      await protectedImport();
+    },
+    { MONGODB_URI: 'fake-uri', IGNORE_LAST_TESTED_VERSION: 'true' }
+  );
+
+  expect(mockedMongoConnectDbCollectionFindOne).not.toBeCalled();
+
+  expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+    { compat: { $exists: true } },
+    { $set: { compat: mockLatestRelease } },
+    { upsert: true }
+  );
+});
+
 it('uses GH_TOKEN environment variable if available', async () => {
   expect.hasAssertions();
 
