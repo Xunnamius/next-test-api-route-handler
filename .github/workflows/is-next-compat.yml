@@ -98,7 +98,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NODE_TARGET_VERSION: ${{ env.NODE_CURRENT_VERSION }}
-          IGNORE_LAST_TESTED_VERSION: ${{ github.event.inputs.force }}
+          IGNORE_LAST_TESTED_VERSION: true
         run: npm run build-externals
 
       - name: Run is-next-compat
