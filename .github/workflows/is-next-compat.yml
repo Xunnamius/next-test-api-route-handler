@@ -39,8 +39,8 @@ jobs:
           else
             echo '(is-next-compat is not running in debug mode)'
           fi
-          if [ -n "$INPUT_FORCE" ]; then
-            echo "IS-NEXT-COMPAT IS RUNNING IN FORCE MODE ($INPUT_FORCE)"
+          if [ -n "${{ github.event.inputs.force }}" ]; then
+            echo "IS-NEXT-COMPAT IS RUNNING IN FORCE MODE (${{ github.event.inputs.force }})"
           else
             echo '(is-next-compat is not running in force mode)'
           fi
@@ -98,7 +98,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NODE_TARGET_VERSION: ${{ env.NODE_CURRENT_VERSION }}
-          IGNORE_LAST_TESTED_VERSION: ${{ env.INPUT_FORCE }}
+          IGNORE_LAST_TESTED_VERSION: ${{ github.event.inputs.force }}
         run: npm run build-externals
 
       - name: Run is-next-compat
