@@ -29,7 +29,6 @@ jobs:
   metadata:
     name: 'gather-metadata'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     outputs:
       node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
     steps:
@@ -54,7 +53,6 @@ jobs:
 
   check-compat:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     needs: metadata
     strategy:
       fail-fast: false
