@@ -33,6 +33,7 @@ jobs:
           fi
 
       - name: Gather metadata
+        id: set-matrix
         run: |
           echo "::set-output name=node-matrix::{\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
           ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
