@@ -1,7 +1,6 @@
 // ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
 import { name as pkgName, version as pkgVersion } from 'package';
 import { Octokit } from '@octokit/rest';
-import { dirname } from 'path';
 import { MongoClient } from 'mongodb';
 import { satisfies as satisfiesRange, validRange } from 'semver';
 import findPackageJson from 'find-package-json';
@@ -115,11 +114,12 @@ const getLastTestedVersion = async () => {
   return version;
 };
 
-const execWithDebug = (async (...args: Parameters<typeof execa>) => {
+const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
   try {
     const res = await execa(...args);
     debug.extend('stdout')(res.stdout);
     debug.extend('stderr')(res.stderr);
+    return res;
   } catch (e) {
     const err = 'npm test failed! The latest Next.js is incompatible with this package!';
 
@@ -181,12 +181,12 @@ const invoked = async () => {
     debug(`version check: ${ignoreVersionCheck ? 'ignored' : 'release detected'}`);
     debug(`installing next@${latestReleaseVersion} for unit tests`);
     debug(`(integration tests use own Next.js versions)`);
-    await execWithDebug('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
+    await execaWithDebug('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
 
     debug('running compatibility tests');
 
-    await execWithDebug('npm', ['run', 'test-unit']);
-    await execWithDebug('npm', ['run', 'test-integration-client']);
+    await execaWithDebug('npm', ['run', 'test-unit']);
+    await execaWithDebug('npm', ['run', 'test-integration-client']);
 
     debug('test succeeded');
 
