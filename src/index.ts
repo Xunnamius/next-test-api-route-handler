@@ -92,6 +92,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   let server = null;
 
   try {
+    /* istanbul ignore next */
     if (!apiResolver) {
       /* eslint-disable import/no-unresolved, @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
       // ? The following is for next@>=11.1.0:
@@ -115,9 +116,12 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
     const localUrl = await listen(
       (server = createServer((req, res) => {
-        if (!apiResolver) {
+        /* istanbul ignore next */
+        if (typeof apiResolver != 'function') {
           res.end();
-          throw new Error('missing apiResolver export from next-server/api-utils');
+          throw new Error(
+            'assertion failed unexpectedly: apiResolver was not a function'
+          );
         }
 
         url && (req.url = url);
