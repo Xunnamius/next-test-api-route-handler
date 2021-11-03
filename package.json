@@ -59,9 +59,10 @@
     "prepare": "if [ -z \"$CI\" ] && ([ -z \"$NODE_ENV\" ] || [ \"$NODE_ENV\" = \"development\" ]); then husky install; else echo 'skipped installing husky git hooks'; fi",
     "test": "npm run test-unit --",
     "test-integration": "BABEL_ENV=test jest $JEST_CLI test/integration-*.test.ts* --testPathIgnorePatterns dist test/unit-*.test.ts",
+    "test-integration-client": "BABEL_ENV=test jest $JEST_CLI test/integration-client*.test.ts* --testPathIgnorePatterns dist",
+    "test-integration-compile": "BABEL_ENV=test jest $JEST_CLI test/integration-compile*.test.ts* --testPathIgnorePatterns dist",
     "test-integration-externals": "BABEL_ENV=test jest $JEST_CLI test/integration-external*.test.ts* --testPathIgnorePatterns dist",
     "test-integration-node": "BABEL_ENV=test jest $JEST_CLI test/integration-node*.test.ts* --testPathIgnorePatterns dist",
-    "test-integration-webpack": "BABEL_ENV=test jest $JEST_CLI test/integration-webpack*.test.ts* --testPathIgnorePatterns dist",
     "test-repeat-all": "npm run __test-repeat-all --silent",
     "test-repeat-unit": "npm run __test-repeat-unit --silent",
     "test-unit": "BABEL_ENV=test jest $JEST_CLI --coverage --collectCoverageFrom 'src/**/*.ts*' --collectCoverageFrom 'lib/**/*.ts*' --collectCoverageFrom 'external-scripts/**/*.ts*' --testPathIgnorePatterns test/integration-*.test.ts* dist"
