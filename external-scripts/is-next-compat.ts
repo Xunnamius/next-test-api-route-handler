@@ -25,7 +25,7 @@ const isRunningInTestMode = (async () => {
     try {
       isRunningInTestMode.memoized =
         isRunningInTestMode.memoized === undefined
-          ? (await execaWithDebug('npm', ['run', '_is_next_compat_env'])).stdout ==
+          ? (await execa('npm', ['run', '_is_next_compat_env'])).stdout ==
             'npm_package_config_externals_test_mode=true'
           : isRunningInTestMode.memoized;
     } catch {}
@@ -120,7 +120,6 @@ const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
     return res;
   } catch (e) {
     const err = 'npm test failed! The latest Next.js is incompatible with this package!';
-
     debug(err);
 
     debug.extend('stdout')((e as ExecaError).stdout);
