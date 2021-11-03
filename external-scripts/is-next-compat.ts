@@ -19,35 +19,62 @@ debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
 
 /**
- * Update remote DB with the new information so that the badge stays current
+ * Detect if this tool was invoked in the context of an integration test
+ */
+const isRunningInTestMode = (async () => {
+  if (isRunningInTestMode.memoized === undefined) {
+    try {
+      isRunningInTestMode.memoized =
+        isRunningInTestMode.memoized === undefined
+          ? (await execaWithDebug('npm', ['run', '_is_next_compat_env'])).stdout ==
+            'npm_package_config_externals_test_mode=true'
+          : isRunningInTestMode.memoized;
+    } catch {
+      isRunningInTestMode.memoized = false;
+    }
+  }
+
+  debug(`test override mode: ${isRunningInTestMode.memoized ? 'ACTIVE' : 'inactive'}`);
+  return isRunningInTestMode.memoized;
+}) as (() => Promise<boolean>) & { memoized?: boolean };
+
+/**
+ * Update remote DB with the new information so that the badge stays current.
  */
 const setCompatFlagTo = async (version: string) => {
   try {
-    const semverRange = process.env.NODE_TARGET_VERSION as string;
-    debug(`saw potential semver range: ${semverRange}`);
-
-    if (validRange(semverRange) && !satisfiesRange(process.versions.node, semverRange)) {
-      debug(
-        `skipped updating database (node version ${process.versions.node} not in range)`
-      );
+    if (await isRunningInTestMode()) {
+      debug('skipped updating database (test override mode)');
     } else {
-      if (process.env.MONGODB_URI) {
-        const client = await MongoClient.connect(process.env.MONGODB_URI);
+      const semverRange = process.env.NODE_TARGET_VERSION as string;
+      debug(`saw potential semver range: ${semverRange}`);
 
-        // ? Update database
-        await client
-          .db()
-          .collection('flags')
-          .updateOne(
-            { compat: { $exists: true } },
-            { $set: { compat: version } },
-            { upsert: true }
-          );
+      if (
+        validRange(semverRange) &&
+        !satisfiesRange(process.versions.node, semverRange)
+      ) {
+        debug(
+          `skipped updating database (node version ${process.versions.node} not in range)`
+        );
+      } else {
+        if (process.env.MONGODB_URI) {
+          const client = await MongoClient.connect(process.env.MONGODB_URI);
 
-        await client.close();
+          // ? Update database
+          await client
+            .db()
+            .collection('flags')
+            .updateOne(
+              { compat: { $exists: true } },
+              { $set: { compat: version } },
+              { upsert: true }
+            );
 
-        debug(`updated database compat: "${version}"`);
-      } else debug('skipped updating database (no MONGODB_URI)');
+          await client.close();
+
+          debug(`updated database compat: "${version}"`);
+        } else debug('skipped updating database (no MONGODB_URI)');
+      }
     }
   } catch (e: unknown) {
     debug('additionally, an attempt to update the database failed');
@@ -55,11 +82,17 @@ const setCompatFlagTo = async (version: string) => {
   }
 };
 
+/**
+ * Get the last version of Next.js that passed the most recent successful run of
+ * is-next-compat.
+ */
 const getLastTestedVersion = async () => {
   let version = '';
 
   try {
-    if (process.env.MONGODB_URI) {
+    if (await isRunningInTestMode()) {
+      debug('skipped database last tested version check (test override mode)');
+    } else if (process.env.MONGODB_URI) {
       const client = await MongoClient.connect(process.env.MONGODB_URI);
 
       // ? Access database
@@ -99,6 +132,22 @@ const execWithDebug = (async (...args: Parameters<typeof execa>) => {
   }
 }) as unknown as typeof execa;
 
+/**
+ * The is-next-compat runtime.
+ *
+ * This tool looks for a
+ * `npm_package_config_externals_test_mode`
+ * environment variable (via `npm run`). If this value === `"true"`, no DB
+ * connections will be made. Useful for integration tests' package files, e.g.:
+ *
+ * ```
+ * "config": {
+ *   "externals": {
+ *     "test_mode": true
+ *   }
+ * }
+ * ```
+ */
 const invoked = async () => {
   debug('connecting to GitHub');
 
@@ -123,8 +172,7 @@ const invoked = async () => {
   const { filename: path } = findPackageJson(process.cwd()).next();
   if (!path) throw new Error('could not find package.json');
 
-  const dir = dirname(path);
-  debug(`using path: ${dir}`);
+  debug(`using path: ${path}`);
 
   const ignoreVersionCheck = process.env.IGNORE_LAST_TESTED_VERSION === 'true';
   const lastTestedVersion = ignoreVersionCheck ? null : await getLastTestedVersion();

@@ -17,10 +17,16 @@ const fixtureOptions = {
       "name": "dummy-pkg",
       "scripts": {
         "test-unit": "true",
-        "test-integration": "true"
+        "test-integration": "true",
+        "_is_next_compat_env": "env | grep npm_package_config_externals_test_mode"
       },
       "peerDependencies": {
         "next": "${peerDependencies.next}"
+      },
+      "config": {
+        "externals": {
+          "test_mode": true
+        }
       }
     }`
   } as FixtureOptions['initialFileContents'],
