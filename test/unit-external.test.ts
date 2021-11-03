@@ -220,7 +220,7 @@ it('handles compatibility test failure', async () => {
   );
 });
 
-it('skips running tests if latest version matches last tested version', async () => {
+it('runs tests regardless of latest version #1', async () => {
   expect.hasAssertions();
 
   await withMockedEnv(
@@ -232,17 +232,21 @@ it('skips running tests if latest version matches last tested version', async ()
 
       await protectedImport({ expectedExitCode: 0 });
 
-      expect(mockedExeca).toBeCalledTimes(1);
-      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+      expect(mockedExeca).toBeCalledTimes(4);
       expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
         compat: { $exists: true }
       });
+      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+        { compat: { $exists: true } },
+        { $set: { compat: mockLatestRelease } },
+        { upsert: true }
+      );
     },
     { MONGODB_URI: 'fake-uri' }
   );
 });
 
-it('runs tests if latest version does not match last tested version', async () => {
+it('runs tests regardless of latest version #2', async () => {
   expect.hasAssertions();
 
   await withMockedEnv(
@@ -254,10 +258,10 @@ it('runs tests if latest version does not match last tested version', async () =
 
       await protectedImport({ expectedExitCode: 0 });
 
+      expect(mockedExeca).toBeCalledTimes(4);
       expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
         compat: { $exists: true }
       });
-      expect(mockedExeca).toBeCalledTimes(4);
       expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
         { compat: { $exists: true } },
         { $set: { compat: mockLatestRelease } },
@@ -268,7 +272,7 @@ it('runs tests if latest version does not match last tested version', async () =
   );
 });
 
-it('runs tests if last tested version is empty', async () => {
+it('runs tests regardless of latest version #3', async () => {
   expect.hasAssertions();
 
   await withMockedEnv(
@@ -355,26 +359,6 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
     }
   );
 
-  expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
-    { compat: { $exists: true } },
-    { $set: { compat: mockLatestRelease } },
-    { upsert: true }
-  );
-});
-
-it('respects IGNORE_LAST_TESTED_VERSION env variable', async () => {
-  expect.hasAssertions();
-
-  mockLatestRelease = '111.112.113';
-
-  await withMockedEnv(
-    async () => {
-      await protectedImport({ expectedExitCode: 0 });
-    },
-    { MONGODB_URI: 'fake-uri', IGNORE_LAST_TESTED_VERSION: 'true' }
-  );
-
-  expect(mockedMongoConnectDbCollectionFindOne).not.toBeCalled();
   expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
     { compat: { $exists: true } },
     { $set: { compat: mockLatestRelease } },

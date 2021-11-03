@@ -28,13 +28,11 @@ const isRunningInTestMode = (async () => {
           ? (await execaWithDebug('npm', ['run', '_is_next_compat_env'])).stdout ==
             'npm_package_config_externals_test_mode=true'
           : isRunningInTestMode.memoized;
-    } catch {
-      isRunningInTestMode.memoized = false;
-    }
+    } catch {}
   }
 
   debug(`test override mode: ${isRunningInTestMode.memoized ? 'ACTIVE' : 'inactive'}`);
-  return isRunningInTestMode.memoized;
+  return (isRunningInTestMode.memoized = !!isRunningInTestMode.memoized);
 }) as (() => Promise<boolean>) & { memoized?: boolean };
 
 /**
@@ -90,7 +88,7 @@ const getLastTestedVersion = async () => {
 
   try {
     if (await isRunningInTestMode()) {
-      debug('skipped database last tested version check (test override mode)');
+      debug('skipped database last tested version access (test override mode)');
     } else if (process.env.MONGODB_URI) {
       const client = await MongoClient.connect(process.env.MONGODB_URI);
 
@@ -104,7 +102,7 @@ const getLastTestedVersion = async () => {
         )?.compat || '';
 
       await client.close();
-    } else debug('skipped database last tested version check (no MONGODB_URI)');
+    } else debug('skipped database last tested version access (no MONGODB_URI)');
   } catch (e) {
     debug('database access failed');
     throw e;
@@ -170,28 +168,24 @@ const invoked = async () => {
   if (!latestReleaseVersion) throw new Error('could not find latest Next.js version');
 
   const { filename: path } = findPackageJson(process.cwd()).next();
+  debug(`using path: ${path}`);
   if (!path) throw new Error('could not find package.json');
 
-  debug(`using path: ${path}`);
+  await getLastTestedVersion();
 
-  const ignoreVersionCheck = process.env.IGNORE_LAST_TESTED_VERSION === 'true';
-  const lastTestedVersion = ignoreVersionCheck ? null : await getLastTestedVersion();
+  debug(`installing next@${latestReleaseVersion} for unit tests`);
+  debug(`(integration tests use own Next.js versions)`);
 
-  if (latestReleaseVersion !== lastTestedVersion) {
-    debug(`version check: ${ignoreVersionCheck ? 'ignored' : 'release detected'}`);
-    debug(`installing next@${latestReleaseVersion} for unit tests`);
-    debug(`(integration tests use own Next.js versions)`);
-    await execaWithDebug('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
+  await execaWithDebug('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
 
-    debug('running compatibility tests');
+  debug('running compatibility tests');
 
-    await execaWithDebug('npm', ['run', 'test-unit']);
-    await execaWithDebug('npm', ['run', 'test-integration-client']);
+  await execaWithDebug('npm', ['run', 'test-unit']);
+  await execaWithDebug('npm', ['run', 'test-integration-client']);
 
-    debug('test succeeded');
+  debug('test succeeded');
 
-    await setCompatFlagTo(latestReleaseVersion);
-  } else debug('no new release detected');
+  await setCompatFlagTo(latestReleaseVersion);
 
   debug('execution complete');
 };
