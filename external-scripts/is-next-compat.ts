@@ -133,7 +133,7 @@ const invoked = async () => {
     debug(`version check: ${ignoreVersionCheck ? 'ignored' : 'release detected'}`);
     debug(`installing next@${latestReleaseVersion} for unit tests`);
     debug(`(integration tests use own Next.js versions)`);
-    await execa('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
+    await execWithDebug('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
 
     debug('running compatibility tests');
 
