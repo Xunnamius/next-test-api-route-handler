@@ -105,10 +105,10 @@ jobs:
         run: npm run build-externals
 
       - name: Run is-next-compat
-        run:
-          node external-scripts/bin/is-next-compat.js &> /tmp/output.txt || true
+        run: node external-scripts/bin/is-next-compat.js &> /tmp/output.txt
 
       - name: Upload output artifact
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: output-node-${{ matrix.node }}-${{ github.sha }}
