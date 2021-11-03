@@ -82,6 +82,23 @@ const getLastTestedVersion = async () => {
   return version;
 };
 
+const execWithDebug = (async (...args: Parameters<typeof execa>) => {
+  try {
+    const res = await execa(...args);
+    debug.extend('stdout')(res.stdout);
+    debug.extend('stderr')(res.stderr);
+  } catch (e) {
+    const err = 'npm test failed! The latest Next.js is incompatible with this package!';
+
+    debug(err);
+
+    debug.extend('stdout')((e as ExecaError).stdout);
+    debug.extend('stderr')((e as ExecaError).stderr);
+
+    throw new Error(err);
+  }
+}) as unknown as typeof execa;
+
 const invoked = async () => {
   debug('connecting to GitHub');
 
@@ -118,21 +135,10 @@ const invoked = async () => {
     debug(`(integration tests use own Next.js versions)`);
     await execa('npm', ['install', '--no-save', `next@${latestReleaseVersion}`]);
 
-    try {
-      debug('running compatibility tests');
-      await execa('npm', ['run', 'test-unit']);
-      await execa('npm', ['run', 'test-integration']);
-    } catch (e) {
-      const err =
-        'npm test failed! The latest Next.js is incompatible with this package!';
+    debug('running compatibility tests');
 
-      debug(err);
-
-      debug('node stdout: ', (e as ExecaError).stdout);
-      debug('node stderr: ', (e as ExecaError).stderr);
-
-      throw new Error(err);
-    }
+    await execWithDebug('npm', ['run', 'test-unit']);
+    await execWithDebug('npm', ['run', 'test-integration']);
 
     debug('test succeeded');
 
