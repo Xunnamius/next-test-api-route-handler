@@ -1,4 +1,5 @@
 import { testApiHandler } from '../src/index';
+import { serialize as serializeCookieHeader } from 'cookie';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -172,6 +173,61 @@ describe('::testApiHandler', () => {
         expect((await fetch({ method: 'POST', body: 'more than 1 byte' })).status).toBe(
           413
         );
+      }
+    });
+  });
+
+  it('handles single set-cookie header', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      handler: (_, res) => {
+        res
+          .setHeader(
+            'Set-Cookie',
+            serializeCookieHeader('access_token', '1234', { expires: new Date() })
+          )
+          .status(200)
+          .send({});
+      },
+      test: async ({ fetch }) => {
+        expect((await fetch()).status).toBe(200);
+        await expect((await fetch()).json()).resolves.toStrictEqual({});
+        expect((await fetch()).cookies).toStrictEqual([
+          {
+            access_token: '1234',
+            expires: expect.any(String),
+            Expires: expect.any(String)
+          }
+        ]);
+      }
+    });
+  });
+
+  it('handles multiple set-cookie headers', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      handler: (_, res) => {
+        res
+          .setHeader('Set-Cookie', [
+            serializeCookieHeader('access_token', '1234', { expires: new Date() }),
+            serializeCookieHeader('REFRESH_TOKEN', '5678')
+          ])
+          .status(200)
+          .send({});
+      },
+      test: async ({ fetch }) => {
+        expect((await fetch()).status).toBe(200);
+        await expect((await fetch()).json()).resolves.toStrictEqual({});
+        expect((await fetch()).cookies).toStrictEqual([
+          {
+            access_token: '1234',
+            expires: expect.any(String),
+            Expires: expect.any(String)
+          },
+          { refresh_token: '5678', REFRESH_TOKEN: '5678' }
+        ]);
       }
     });
   });
