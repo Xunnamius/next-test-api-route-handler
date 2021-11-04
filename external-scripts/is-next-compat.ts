@@ -24,10 +24,9 @@ const isRunningInTestMode = (async () => {
   if (isRunningInTestMode.memoized === undefined) {
     try {
       isRunningInTestMode.memoized =
-        isRunningInTestMode.memoized === undefined
-          ? (await execa('npm', ['run', '_is_next_compat_env'])).stdout ==
-            'npm_package_config_externals_test_mode=true'
-          : isRunningInTestMode.memoized;
+        isRunningInTestMode.memoized ??
+        (await execa('npm', ['run', '_is_next_compat_env'])).stdout ==
+          'npm_package_config_externals_test_mode=true';
     } catch {}
   }
 

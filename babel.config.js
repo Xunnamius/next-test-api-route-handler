@@ -21,6 +21,7 @@ module.exports = {
   plugins: [
     '@babel/plugin-proposal-export-default-from',
     '@babel/plugin-proposal-function-bind',
+    '@babel/plugin-proposal-nullish-coalescing-operator',
     '@babel/plugin-transform-typescript',
     // ? Interoperable named CJS imports for free
     [
