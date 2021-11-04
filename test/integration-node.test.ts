@@ -28,40 +28,33 @@ const fixtureOptions = {
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, fixtureOptions);
 
-const runTest = async ({ esm }: { esm: boolean }) => {
-  const indexPath = `src/index.${esm ? 'm' : ''}js`;
+const runTest = async (
+  importAsEsm: boolean,
+  handlerCode: string,
+  testCode: string,
+  testFixtureFn: Parameters<typeof withMockedFixture>[0]
+) => {
+  const indexPath = `src/index.${importAsEsm ? 'm' : ''}js`;
 
   fixtureOptions.initialFileContents[indexPath] =
-    (esm
+    (importAsEsm
       ? `import { testApiHandler } from '${pkgName}';`
       : `const { testApiHandler } = require('${pkgName}');`) +
     `
     const getHandler = (status) => async (_, res) => {
-      res.status(status || 200).send({ works: 'working' });
+      ${handlerCode}
     };
 
-    testApiHandler({
-      handler: getHandler(),
-      test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
-    });`;
+    (async () => {
+      await testApiHandler({
+        handler: getHandler(),
+        test: async ({ fetch }) => ${testCode}
+      });
+    })();`;
 
   await withMockedFixture(async (ctx) => {
     if (!ctx.testResult) throw new Error('must use node-import-test fixture');
-
-    if (esm) {
-      debug('(expecting stdout to be "working" or "")');
-      debug('(expecting stderr to be "" or an error in a 3rd party dependency)');
-
-      expect(ctx.testResult.stdout).toBeOneOf(['working', '']);
-      ctx.testResult.stdout == '' &&
-        expect(ctx.testResult.stderr).toMatch(/ \/.+\/node_modules\/.+$/m);
-    } else {
-      debug('(expecting exit code to be 0)');
-      debug('(expecting stdout to be "working")');
-
-      expect(ctx.testResult.code).toBe(0);
-      expect(ctx.testResult.stdout).toBe('working');
-    }
+    await testFixtureFn(ctx);
   });
 
   delete fixtureOptions.initialFileContents[indexPath];
@@ -76,10 +69,80 @@ beforeAll(async () => {
 
 it('works as an ESM import', async () => {
   expect.hasAssertions();
-  await runTest({ esm: true });
+  await runTest(
+    true,
+    `res.status(status || 200).send({ works: 'working' });`,
+    `console.log((await (await fetch()).json()).works)`,
+    async (ctx) => {
+      debug('(expecting stdout to be "working" or "")');
+      debug('(expecting stderr to be "" or an error in a 3rd party dependency)');
+
+      expect(ctx.testResult?.stdout).toBeOneOf(['working', '']);
+
+      if (ctx.testResult?.stdout == '') {
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(ctx.testResult.stderr).toMatch(/ \/.+\/node_modules\/.+$/m);
+      }
+    }
+  );
 });
 
 it('works as a CJS require(...)', async () => {
   expect.hasAssertions();
-  await runTest({ esm: false });
+  await runTest(
+    false,
+    `res.status(status || 200).send({ works: 'working' });`,
+    `console.log((await (await fetch()).json()).works)`,
+    async (ctx) => {
+      debug('(expecting exit code to be 0)');
+      debug('(expecting stdout to be "working")');
+
+      expect(ctx.testResult?.code).toBe(0);
+      expect(ctx.testResult?.stdout).toBe('working');
+    }
+  );
 });
+
+it('does not hang (500ms limit) on exception in handler function', async () => {
+  expect.hasAssertions();
+  await runTest(
+    false,
+    `throw new Error('BadBadNotGood');`,
+    `console.log(await (await fetch()).text())`,
+    async (ctx) => {
+      debug('(expecting exit code to be non-zero)');
+      debug('(expecting stdout to be "")');
+      debug('(expecting stderr to contain "BadBadNotGood")');
+
+      expect(ctx.testResult?.code).toBe(0);
+      expect(ctx.testResult?.stdout).toBe('Internal Server Error');
+      expect(ctx.testResult?.stderr).toStrictEqual(
+        expect.stringContaining('Error: BadBadNotGood')
+      );
+    }
+  );
+}, 500);
+
+it('does not hang (500ms limit) on exception in test function', async () => {
+  expect.hasAssertions();
+  await runTest(
+    false,
+    `res.status(status || 200).send({ works: 'working' });`,
+    `{ throw new Error('BadBadNotGood'); }`,
+    async (ctx) => {
+      debug('(expecting exit code to be non-zero)');
+      debug('(expecting stdout to be "")');
+      debug('(expecting stderr to contain "BadBadNotGood")');
+
+      expect(ctx.testResult?.code).toBe(
+        // ? node@<15 does not die on unhandled promise rejections
+        Number(process.versions.node.split('.')[0]) < 15 ? 0 : 1
+      );
+
+      expect(ctx.testResult?.stdout).toBeEmpty();
+      expect(ctx.testResult?.stderr).toStrictEqual(
+        expect.stringContaining('Error: BadBadNotGood')
+      );
+    }
+  );
+}, 500);
