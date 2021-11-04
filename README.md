@@ -543,8 +543,8 @@ module (`.mjs`) files. [`package.json`][package-json] also includes the
 shaking][tree-shaking], and the `types` key, which points to a TypeScript
 declarations file.
 
-Additionally, this package does not maintain shared state and so does not
-exhibit the [dual package hazard][hazard].
+Additionally, this package does maintain shared state (i.e. memoized imports)
+but does not exhibit the [dual package hazard][hazard].
 
 ### License
 
