@@ -135,41 +135,49 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
     const localUrl = await listen(
       (server = createServer((req, res) => {
-        /* istanbul ignore next */
-        if (typeof apiResolver != 'function') {
-          res.end();
-          throw new Error(
-            'assertion failed unexpectedly: apiResolver was not a function'
+        try {
+          /* istanbul ignore next */
+          if (typeof apiResolver != 'function') {
+            throw new Error(
+              'assertion failed unexpectedly: apiResolver was not a function'
+            );
+          }
+
+          url && (req.url = url);
+          requestPatcher && requestPatcher(req);
+          responsePatcher && responsePatcher(res);
+
+          const finalParams = { ...parseUrl(req.url || '', true).query, ...params };
+          paramsPatcher && paramsPatcher(finalParams);
+
+          /**
+           *? From Next.js internals:
+           ** apiResolver(
+           **    req: IncomingMessage,
+           **    res: ServerResponse,
+           **    query: any,
+           **    resolverModule: any,
+           **    apiContext: __ApiPreviewProps,
+           **    propagateError: boolean
+           ** )
+           */
+          void apiResolver(
+            req,
+            res,
+            finalParams,
+            handler,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            undefined as any,
+            false
           );
+        } catch (e) {
+          /* istanbul ignore next */
+          // ? Prevent tests that crash the server from hanging
+          !res.writableEnded && res.end();
+          /* istanbul ignore next */
+          // ? Allow the exception to bubble naturally
+          throw e;
         }
-
-        url && (req.url = url);
-        requestPatcher && requestPatcher(req);
-        responsePatcher && responsePatcher(res);
-
-        const finalParams = { ...parseUrl(req.url || '', true).query, ...params };
-        paramsPatcher && paramsPatcher(finalParams);
-
-        /**
-         *? From next internals:
-         ** apiResolver(
-         **    req: IncomingMessage,
-         **    res: ServerResponse,
-         **    query: any,
-         **    resolverModule: any,
-         **    apiContext: __ApiPreviewProps,
-         **    propagateError: boolean
-         ** )
-         */
-        void apiResolver(
-          req,
-          res,
-          finalParams,
-          handler,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          undefined as any,
-          true
-        );
       }))
     );
 
