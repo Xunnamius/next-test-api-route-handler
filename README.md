@@ -40,56 +40,27 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 ## Install
 
-If you don't have Next.js installed, [or are using `npm@<7`][25], ensure
-`next@>=9` is installed as it is a required peer dependency:
-
-```Shell
-npm install --save-dev next@latest
-```
-
-Install NTARH:
+### Step One: Install NTARH
 
 ```Shell
 npm install --save-dev next-test-api-route-handler
 ```
 
-<details><summary>[additional details]</summary>
+### Step Two: Install Peer Dependencies
 
-> Note: **you probably don't need to read through this!** This information is
-> primarily useful for those attempting to bundle this package or for people who
-> have an opinion on ESM versus CJS.
+If you are [using `npm@<7` or `node@<15`][25], you must install Next.js _and its
+peer dependencies_ manually. This is because [`npm@<7` does not install peer
+dependencies by default][26]. **If you're using a modern version of NPM, you can
+skip this step.**
 
-This is a [dual CJS2/ES module][dual-module] package. That means this package
-exposes both CJS2 and ESM entry points.
+```Shell
+npm install --save-dev next@latest react
+```
 
-Loading this package via `require(...)` will cause Node and Webpack to use the
-[CJS2 bundle][cjs2] entry point, disable [tree shaking][tree-shaking] in Webpack
-4, and lead to larger bundles in Webpack 5. Alternatively, loading this package
-via `import { ... } from ...` or `import(...)` will cause Node to use the ESM
-entry point in [versions that support it][node-esm-support], as will Webpack.
-Using the `import` syntax is the modern, preferred choice.
+> If you're also using an older version of Next.js, ensure you install the [peer
+> dependencies (like `react`) that your specific Next.js version requires][27]!
 
-For backwards compatibility with Webpack 4 (_compat with Webpack 4 is not
-guaranteed!_) and Node versions < 14, [`package.json`][package-json] retains the
-[`module`][module-key] key, which points to the ESM entry point, and the
-[`main`][exports-main-key] key, which points to the CJS2 entry point explicitly
-(using the .js file extension). For Webpack 5 and Node versions >= 14,
-[`package.json`][package-json] includes the [`exports`][exports-main-key] key,
-which points to both entry points explicitly.
-
-Though [`package.json`][package-json] includes
-[`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
-module (`.mjs`) files. [`package.json`][package-json] also includes the
-[`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
-shaking][tree-shaking], and the `types` key, which points to a TypeScript
-declarations file.
-
-Additionally, this package does not maintain shared state and so does not
-exhibit the [dual package hazard][hazard].
-
-</details>
-
-### Legacy Next.js Support
+## Legacy Next.js Support
 
 As of version _`2.1.0`_, NTARH is fully backwards compatible with Next.js going
 _allll_ the way back to `next@9.0.0` [when API routes were first
@@ -545,7 +516,35 @@ Check out [the tests][9] for more examples.
 
 ## Documentation
 
-Further documentation can be found under [`docs/`][docs].
+> Further documentation can be found under [`docs/`][docs].
+
+This is a [dual CJS2/ES module][dual-module] package. That means this package
+exposes both CJS2 and ESM entry points.
+
+Loading this package via `require(...)` will cause Node and Webpack to use the
+[CJS2 bundle][cjs2] entry point, disable [tree shaking][tree-shaking] in Webpack
+4, and lead to larger bundles in Webpack 5. Alternatively, loading this package
+via `import { ... } from ...` or `import(...)` will cause Node to use the ESM
+entry point in [versions that support it][node-esm-support], as will Webpack.
+Using the `import` syntax is the modern, preferred choice.
+
+For backwards compatibility with Webpack 4 (_compat with Webpack 4 is not
+guaranteed!_) and Node versions < 14, [`package.json`][package-json] retains the
+[`module`][module-key] key, which points to the ESM entry point, and the
+[`main`][exports-main-key] key, which points to the CJS2 entry point explicitly
+(using the .js file extension). For Webpack 5 and Node versions >= 14,
+[`package.json`][package-json] includes the [`exports`][exports-main-key] key,
+which points to both entry points explicitly.
+
+Though [`package.json`][package-json] includes
+[`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
+module (`.mjs`) files. [`package.json`][package-json] also includes the
+[`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
+shaking][tree-shaking], and the `types` key, which points to a TypeScript
+declarations file.
+
+Additionally, this package does not maintain shared state and so does not
+exhibit the [dual package hazard][hazard].
 
 ### License
 
@@ -657,3 +656,7 @@ information.
 [24]: https://www.npmjs.com/package/cookie
 [25]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues/378#issuecomment-956932193
+[26]:
+  https://github.blog/2021-02-02-npm-7-is-now-generally-available/#peer-dependencies
+[27]:
+  https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109

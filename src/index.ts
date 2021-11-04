@@ -1,4 +1,4 @@
-/* eslint-disable import/no-unresolved, @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
 import listen from 'test-listen';
 import fetch from 'isomorphic-unfetch';
 import { createServer } from 'http';
@@ -21,6 +21,21 @@ type FetchReturnType<NextResponseJsonType> = Promise<
     ) => Promise<NextResponseJsonType>;
   }
 >;
+
+type TryImport = ((
+  path: string
+  // @ts-ignore: this file might not exist in some versions of next
+) => (e: Error) => typeof import('next/dist/server/api-utils.js')) & {
+  importErrors: Error[];
+};
+
+// ? The result of the calling function is memoized, so this function will only
+// ? be invoked the first time this script is imported.
+/* istanbul ignore next */
+const tryImport = ((path: string) => (e: Error) => {
+  (tryImport.importErrors = tryImport.importErrors ?? []).push(e);
+  return import(path);
+}) as unknown as TryImport;
 
 /**
  * The parameters expected by `testApiHandler`.
@@ -94,22 +109,26 @@ export async function testApiHandler<NextResponseJsonType = any>({
   try {
     /* istanbul ignore next */
     if (!apiResolver) {
-      /* eslint-disable import/no-unresolved, @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
       // ? The following is for next@>=11.1.0:
       // @ts-ignore: conditional import for earlier next versions
       ({ apiResolver } = await import('next/dist/server/api-utils.js')
-        // ? The following is for next@<11.1.0 >=10:
-        // @ts-ignore: conditional import for earlier next versions
-        .catch(() => import('next/dist/next-server/server/api-utils.js'))
-        // ? The following is for next@<10:
-        // @ts-ignore: conditional import for earlier next versions
-        .catch(() => import('next-server/dist/server/api-utils.js'))
-        /* eslint-enable import/no-unresolved, @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
-        .catch(() => ({ apiResolver: null })));
+        // ? The following is for next@<11.1.0 >=9.0.6:
+        .catch(tryImport('next/dist/next-server/server/api-utils.js'))
+        // ? The following is for next@<9.0.6 >= 9.0.0:
+        .catch(tryImport('next-server/dist/server/api-utils.js'))
+        .catch((e) => (tryImport.importErrors.push(e), { apiResolver: null })));
 
       if (!apiResolver) {
+        // prettier-ignore
         throw new Error(
-          'dependency resolution failed: NTARH and the installed version of Next.js are incompatible'
+          `failed to import api-utils.js` +
+            `\n\n  This is usually caused by:` +
+            `\n\n    1. Using npm@<7 and/or node@<15, which doesn't install peer deps automatically (review install instructions)` +
+              `\n    2. NTARH and the version of Next.js you installed are actually incompatible (please submit a bug report)` +
+            `\n\n  Failed import attempts:` +
+            `\n\n    - ${tryImport.importErrors
+              .map((e) => e.message.split('imported from')[0].split(`\nRequire`)[0])
+              .join('\n    - ')}`
         );
       }
     }
