@@ -3,6 +3,7 @@ import listen from 'test-listen';
 import fetch from 'isomorphic-unfetch';
 import { createServer } from 'http';
 import { parse as parseUrl } from 'url';
+import { parse as parseCookieHeader } from 'cookie';
 
 import type { PromiseValue } from 'type-fest';
 import type { NextApiHandler } from 'next';
@@ -15,10 +16,14 @@ let apiResolver: typeof NextApiResolver | null = null;
 
 type FetchReturnValue = PromiseValue<ReturnType<typeof fetch>>;
 type FetchReturnType<NextResponseJsonType> = Promise<
-  Omit<FetchReturnValue, 'json'> & {
+  Omit<FetchReturnValue, 'json' | 'headers'> & {
     json: (
       ...args: Parameters<FetchReturnValue['json']>
     ) => Promise<NextResponseJsonType>;
+    cookies: ReturnType<typeof parseCookieHeader>[];
+    headers: FetchReturnValue['headers'] & {
+      raw: () => Record<string, string | string[]>;
+    };
   }
 >;
 
@@ -182,8 +187,22 @@ export async function testApiHandler<NextResponseJsonType = any>({
     );
 
     await test({
-      fetch: (init?: RequestInit) =>
-        fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
+      fetch: async (init?: RequestInit) => {
+        return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
+          (res) => {
+            res.cookies = [res.headers.raw()['set-cookie'] || []]
+              .flat()
+              .map((header) =>
+                Object.entries(parseCookieHeader(header)).reduce(
+                  (obj, [k, v]) =>
+                    Object.assign(obj, { [String(k)]: v, [String(k).toLowerCase()]: v }),
+                  {}
+                )
+              );
+            return res;
+          }
+        );
+      }
     });
   } finally {
     server?.close();

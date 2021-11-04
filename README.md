@@ -208,7 +208,7 @@ it('does what I want', async () => {
     handler: async (_req, res) => {
       // NOTE: multiple calls to setHeader('Set-Cookie', ...) overwrite previous
       res.setHeader('Set-Cookie', [
-        serialize('access_token', '1234', { expires: new Date() }),
+        serialize('access_token', '1234', { expires: new Date() + 10 ** 7 }),
         serialize('refresh_token', '5678')
       ]).status(200).send();
     },
@@ -217,8 +217,10 @@ it('does what I want', async () => {
       expect(res.cookies).toStrictEqual([
         expect.objectContaining({
           access_token: '1234',
-          // NOTE: keys are all lowercased!
-          expires: expect.any(String) // NOTE: "expires" instead of "Expires"
+          // Lowercased cookie properties are available
+          expires: expect.any(String)
+          // Raw cookie property keys are also available
+          Expires: expect.any(String)
         }),
         expect.objectContaining({ refresh_token: '5678' })
       ]);

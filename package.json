@@ -68,6 +68,7 @@
     "test-unit": "BABEL_ENV=test jest $JEST_CLI --coverage --collectCoverageFrom 'src/**/*.ts*' --collectCoverageFrom 'lib/**/*.ts*' --collectCoverageFrom 'external-scripts/**/*.ts*' --testPathIgnorePatterns test/integration-*.test.ts* dist"
   },
   "dependencies": {
+    "cookie": "^0.4.1",
     "debug": "^4.3.2",
     "isomorphic-unfetch": "^3.1.0",
     "test-listen": "^1.1.0"
@@ -89,6 +90,7 @@
     "@semantic-release/exec": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "@types/confusing-browser-globals": "^1.0.0",
+    "@types/cookie": "^0.4.1",
     "@types/debug": "^4.1.7",
     "@types/edit-json-file": "^1.6.1",
     "@types/find-package-json": "^1.2.2",
