@@ -163,7 +163,7 @@
   },
   "peerDependencies": {
     "next": ">=9",
-    "react": ">=16"
+    "react": ">=16.6"
   },
   "engines": {
     "node": ">=12"
