@@ -160,7 +160,9 @@
     "webpack-node-externals": "^3.0.0"
   },
   "peerDependencies": {
-    "next": ">=9"
+    "next": ">=9",
+    "react": ">=16",
+    "react-dom": ">=16"
   },
   "engines": {
     "node": ">=12"

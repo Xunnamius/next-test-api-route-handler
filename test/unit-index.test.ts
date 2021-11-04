@@ -6,8 +6,7 @@ const nextSemverFloor = '>=9';
 
 const getHandler =
   (status?: number) => async (_: NextApiRequest, res: NextApiResponse) => {
-    // * Should be ?? in lieu of ||, but we'll have to wait until node@14 dies
-    res.status(status || 200).send({ hello: 'world' });
+    res.status(status ?? 200).send({ hello: 'world' });
   };
 
 describe('sanity checks', () => {
