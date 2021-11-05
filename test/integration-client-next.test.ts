@@ -68,7 +68,7 @@ beforeAll(async () => {
 });
 
 for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
-  for (const esm of [/*true,*/ false]) {
+  for (const esm of [true, false]) {
     it(`works with ${nextVersion}${
       otherPkgVersions.length ? ` (and ${otherPkgVersions.join(', ')})` : ''
     } using ${
