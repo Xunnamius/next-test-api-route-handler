@@ -132,7 +132,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
               `\n    2. NTARH and the version of Next.js you installed are actually incompatible (please submit a bug report)` +
             `\n\n  Failed import attempts:` +
             `\n\n    - ${tryImport.importErrors
-              .map((e) => e.message.split('imported from')[0].split(`\nRequire`)[0])
+              .map((e) => e.message.split(/(?<=')( imported)? from '/)[0].split(`\nRequire`)[0])
               .join('\n    - ')}`
         );
       }
