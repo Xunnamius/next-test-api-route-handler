@@ -36,7 +36,7 @@ The parameters expected by `testApiHandler`.
 
 #### Defined in
 
-[index.ts:26][3]
+[index.ts:51][3]
 
 ## Functions
 
@@ -66,11 +66,11 @@ testing environment.
 
 #### Defined in
 
-[index.ts:81][4]
+[index.ts:106][4]
 
 [1]: README.md#testparameters
 [2]: README.md#testapihandler
 [3]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/28cb81d/src/index.ts#L26
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/6c94b15/src/index.ts#L51
 [4]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/28cb81d/src/index.ts#L81
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/6c94b15/src/index.ts#L106
