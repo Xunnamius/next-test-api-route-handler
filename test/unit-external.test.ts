@@ -366,16 +366,13 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
   );
 });
 
-it('respects npm_package_config_externals_test_mode=true', async () => {
+it('respects _is_next_compat_test_mode npm script', async () => {
   expect.hasAssertions();
 
   mockLatestRelease = '111.112.113';
 
   mockedExeca.mockImplementationOnce(
-    () =>
-      Promise.resolve({
-        stdout: 'npm_package_config_externals_test_mode=true'
-      }) as unknown as ExecaChildProcess<Buffer>
+    () => Promise.resolve({ exitCode: 0 }) as unknown as ExecaChildProcess<Buffer>
   );
 
   await withMockedEnv(
@@ -387,6 +384,20 @@ it('respects npm_package_config_externals_test_mode=true', async () => {
 
   expect(mockedMongoConnectDbCollectionFindOne).not.toBeCalled();
   expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+
+  mockedExeca.mockImplementationOnce(
+    () => Promise.resolve({ exitCode: 1 }) as unknown as ExecaChildProcess<Buffer>
+  );
+
+  await withMockedEnv(
+    async () => {
+      await protectedImport({ expectedExitCode: 0 });
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+
+  expect(mockedMongoConnectDbCollectionFindOne).toBeCalled();
+  expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalled();
 });
 
 it('uses GH_TOKEN environment variable if available', async () => {

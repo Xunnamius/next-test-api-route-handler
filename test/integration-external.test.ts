@@ -12,21 +12,19 @@ const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 const runExternal = runnerFactory('node', [EXTERNAL_BIN_PATH]);
 
 const fixtureOptions = {
+  // ? We use _is_next_compat_test_mode to prevent the external script (compiled
+  // ? using a .env file potentially with production keys) from attempting
+  // ? external connections
   initialFileContents: {
     'package.json': `{
       "name": "dummy-pkg",
       "scripts": {
         "test-unit": "true",
-        "test-integration": "true",
-        "_is_next_compat_env": "env | grep npm_package_config_externals_test_mode"
+        "test-integration-client": "true",
+        "_is_next_compat_test_mode": "true"
       },
       "peerDependencies": {
         "next": "${peerDependencies.next}"
-      },
-      "config": {
-        "externals": {
-          "test_mode": true
-        }
       }
     }`
   } as FixtureOptions['initialFileContents'],

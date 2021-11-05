@@ -25,8 +25,7 @@ const isRunningInTestMode = (async () => {
     try {
       isRunningInTestMode.memoized =
         isRunningInTestMode.memoized ??
-        (await execa('npm', ['run', '_is_next_compat_env'])).stdout ==
-          'npm_package_config_externals_test_mode=true';
+        (await execa('npm', ['run', '_is_next_compat_test_mode'])).exitCode === 0;
     } catch {}
   }
 
@@ -131,16 +130,14 @@ const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
 /**
  * The is-next-compat runtime.
  *
- * This tool looks for a
- * `npm_package_config_externals_test_mode`
- * environment variable (via `npm run`). If this value === `"true"`, no DB
- * connections will be made. Useful for integration tests' package files, e.g.:
+ * This tool looks for a `_is_next_compat_test_mode` npm script with a zero exit
+ * code. If found, no DB connections will be made. Should appear in integration
+ * tests' package files to prevent those tests from making DB connections using
+ * a project's (potentially production) .env values.
  *
  * ```
- * "config": {
- *   "externals": {
- *     "test_mode": true
- *   }
+ * "scripts": {
+ *   "_is_next_compat_test_mode": "true"
  * }
  * ```
  */
