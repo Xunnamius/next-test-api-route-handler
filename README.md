@@ -200,31 +200,37 @@ non-standard _cookies_ field containing an array of objects representing
 [`set-cookie` response header(s)][23] parsed by [the `cookie` package][24]. Use
 the _cookies_ field to easily access a response's cookie data in your tests.
 
-Example using [`jest`][16]:
+Here's an example taken straight from the [unit tests][28]:
 
 ```Typescript
 import { testApiHandler } from 'next-test-api-route-handler';
 
-it('does what I want', async () => {
+it('handles multiple set-cookie headers', async () => {
+  expect.hasAssertions();
+
   await testApiHandler({
-    handler: async (_req, res) => {
+    handler: (_, res) => {
       // NOTE: multiple calls to setHeader('Set-Cookie', ...) overwrite previous
       res.setHeader('Set-Cookie', [
-        serialize('access_token', '1234', { expires: new Date() + 10 ** 7 }),
-        serialize('refresh_token', '5678')
-      ]).status(200).send();
+        serializeCookieHeader('access_token', '1234', { expires: new Date() }),
+        serializeCookieHeader('REFRESH_TOKEN', '5678')
+      ]);
+      res.status(200).send({});
+      // NOTE: if using node@>=14, you can use a more fluent interface, i.e.:
+      // res.setHeader(...).status(200).send({});
     },
     test: async ({ fetch }) => {
-      const res = await fetch();
-      expect(res.cookies).toStrictEqual([
-        expect.objectContaining({
+      expect((await fetch()).status).toBe(200);
+      await expect((await fetch()).json()).resolves.toStrictEqual({});
+      expect((await fetch()).cookies).toStrictEqual([
+        {
           access_token: '1234',
           // Lowercased cookie property keys are available
-          expires: expect.any(String)
+          expires: expect.any(String),
           // Raw cookie property keys are also available
           Expires: expect.any(String)
-        }),
-        expect.objectContaining({ refresh_token: '5678' })
+        },
+        { refresh_token: '5678', REFRESH_TOKEN: '5678' }
       ]);
     }
   });
@@ -664,3 +670,4 @@ information.
   https://github.blog/2021-02-02-npm-7-is-now-generally-available/#peer-dependencies
 [27]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
+[28]: ./test/unit-index.test.ts
