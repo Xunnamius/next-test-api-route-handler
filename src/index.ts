@@ -39,7 +39,10 @@ type TryImport = ((
 /* istanbul ignore next */
 const tryImport = ((path: string) => (e: Error) => {
   (tryImport.importErrors = tryImport.importErrors ?? []).push(e);
-  return import(path);
+  // ? Node12 does not support dynamic imports, so fall back to require for now
+  return (typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require)(
+    path
+  );
 }) as unknown as TryImport;
 
 /**
