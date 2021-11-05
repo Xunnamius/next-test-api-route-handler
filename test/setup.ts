@@ -422,11 +422,25 @@ export function npmCopySelfFixture(): MockFixture {
         throw new Error(`expected "${destPkgJson}" to exist`);
       }
 
+      // TODO: only optionally remove peer dependencies from the install loop
+      // TODO: (and by default they should NOT be removed, unlike below)
       const { peerDependencies: _, ...dummyPkgJson } = JSON.parse(
         await readFile(destPkgJson, 'utf-8')
       );
 
-      await writeFile(destPkgJson, JSON.stringify(dummyPkgJson));
+      const installTargets = [ctx.options.npmInstall]
+        .flat()
+        .filter((r): r is string => Boolean(r))
+        .reduce<Record<string, string>>((obj, pkgStr) => {
+          const pkg = pkgStr.split('@');
+          return { ...obj, [pkg[0]]: pkg[1] || 'latest' };
+        }, dummyPkgJson.dependencies || {});
+
+      await writeFile(
+        destPkgJson,
+        JSON.stringify({ ...dummyPkgJson, dependencies: installTargets })
+      );
+
       await run('npm', ['install', '--no-save', '--production'], {
         cwd: dest,
         reject: true,
@@ -521,21 +535,8 @@ export function nodeImportTestFixture(): MockFixture {
 
       await writeFile(`${ctx.root}/${indexPath}`, ctx.fileContents[indexPath]);
 
-      const installTargets = [ctx.options.npmInstall]
-        .flat()
-        .filter((r): r is string => Boolean(r));
-
-      if (installTargets.length) {
-        await run(
-          'npm',
-          ['install', '--no-save', '--production', '--force', ...installTargets],
-          {
-            cwd: ctx.root,
-            reject: true
-          }
-        );
-      }
-
+      // TODO: also test all current/active/maintenance versions of node too
+      // TODO: and enable that functionality
       const bin = ctx.options.runWith?.binary || 'node';
       const args = ctx.options.runWith?.args || ['--experimental-json-modules'];
       const opts = ctx.options.runWith?.opts || {};
