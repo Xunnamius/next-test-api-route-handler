@@ -175,7 +175,8 @@ const invoked = async () => {
   await execaWithDebug('npm', [
     'install',
     '--no-save',
-    `next@${latestReleaseVersion} react`
+    `next@${latestReleaseVersion}`,
+    'react'
   ]);
 
   debug('running compatibility tests');
