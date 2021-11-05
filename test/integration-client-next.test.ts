@@ -17,7 +17,7 @@ import type { FixtureOptions } from './setup';
 const TEST_IDENTIFIER = 'integration-client-next';
 
 /* prettier-ignore */
-const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<16') ?
+const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<15') ?
 [
   // ? We need to install some peer deps (like react) manually thanks to npm@<7
   // * [next@version, react@version, others...]
