@@ -152,15 +152,21 @@ for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
           debug('(expecting stdout to be "working" or "")');
           debug('(expecting stderr to be "" or an error in a 3rd party dependency)');
 
-          expect(ctx.testResult.stdout).toBeOneOf(['working', '']);
-          ctx.testResult.stdout == '' &&
+          if (ctx.testResult.stdout == '') {
             expect(ctx.testResult.stderr).toMatch(/ \/.+\/node_modules\/.+$/m);
+          } else expect(ctx.testResult.stderr).toBeEmpty();
+
+          expect(ctx.testResult.stdout).toBeOneOf(['working', '']);
         } else {
           debug('(expecting exit code to be 0)');
           debug('(expecting stdout to be "working")');
 
-          expect(ctx.testResult.code).toBe(0);
+          expect(ctx.testResult.stderr).toStrictEqual(
+            expect.stringContaining('PASS src/index.test.js')
+          );
+
           expect(ctx.testResult.stdout).toStrictEqual(expect.stringContaining('working'));
+          expect(ctx.testResult.code).toBe(0);
         }
       });
 
@@ -237,9 +243,9 @@ it('fails fast (no jest timeout) when using incompatible Next.js version', async
       expect.stringContaining('Exceeded timeout')
     );
 
-    debug('(expecting stderr to contain "dependency resolution failed")');
+    debug('(expecting stderr to contain "Failed import attempts:")');
     expect(ctx.testResult.stderr).toStrictEqual(
-      expect.stringContaining('dependency resolution failed')
+      expect.stringContaining('Failed import attempts:')
     );
 
     debug('(expecting stderr to contain "3 failed, 3 total")');
