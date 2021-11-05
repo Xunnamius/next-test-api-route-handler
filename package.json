@@ -162,8 +162,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "peerDependencies": {
-    "next": ">=9",
-    "react": ">=16.6"
+    "next": ">=9"
   },
   "engines": {
     "node": ">=12"
