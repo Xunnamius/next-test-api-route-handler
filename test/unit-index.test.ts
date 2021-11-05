@@ -15,16 +15,20 @@ describe('::testApiHandler', () => {
     await testApiHandler({
       handler: getHandler(),
       test: async ({ fetch }) => {
-        expect((await fetch()).status).toBe(200);
-        await expect((await fetch()).json()).resolves.toStrictEqual({ hello: 'world' });
+        const res = await fetch();
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({ hello: 'world' });
+        expect(res.cookies).toBeEmpty();
       }
     });
 
     await testApiHandler({
       handler: getHandler(404),
       test: async ({ fetch }) => {
-        expect((await fetch()).status).toBe(404);
-        await expect((await fetch()).json()).resolves.toStrictEqual({ hello: 'world' });
+        const res = await fetch();
+        expect(res.status).toBe(404);
+        await expect(res.json()).resolves.toStrictEqual({ hello: 'world' });
+        expect(res.cookies).toBeEmpty();
       }
     });
   });
