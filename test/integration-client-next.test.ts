@@ -1,5 +1,6 @@
 /* eslint-disable jest/no-conditional-expect */
 import debugFactory from 'debug';
+import stripAnsi from 'strip-ansi';
 import { satisfies as satisfiesRange } from 'semver';
 
 import { name as pkgName, version as pkgVersion, main as pkgMain } from 'package';
@@ -161,8 +162,8 @@ for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
           debug('(expecting exit code to be 0)');
           debug('(expecting stdout to be "working")');
 
-          expect(ctx.testResult.stderr).toStrictEqual(
-            expect.stringContaining('PASS src/index.test.js')
+          expect(stripAnsi(ctx.testResult.stderr)).toMatch(
+            /PASS.*?\s+src\/index\.test\.js/
           );
 
           expect(ctx.testResult.stdout).toStrictEqual(expect.stringContaining('working'));
