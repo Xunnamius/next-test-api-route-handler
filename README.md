@@ -143,7 +143,9 @@ async function testApiHandler({
   url?: string;
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
   test: ({
-    fetch: (init?: RequestInit) => ReturnType<typeof fetch>;
+    fetch: (init?: RequestInit) => ReturnType<typeof fetch> & {
+      cookies: Record<string, string>[]
+    };
   }) => Promise<void>;
 });
 ```
@@ -217,7 +219,7 @@ it('does what I want', async () => {
       expect(res.cookies).toStrictEqual([
         expect.objectContaining({
           access_token: '1234',
-          // Lowercased cookie properties are available
+          // Lowercased cookie property keys are available
           expires: expect.any(String)
           // Raw cookie property keys are also available
           Expires: expect.any(String)
