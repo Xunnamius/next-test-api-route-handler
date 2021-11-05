@@ -1,5 +1,6 @@
 /* eslint-disable jest/no-conditional-expect */
 import debugFactory from 'debug';
+import { satisfies as satisfiesRange } from 'semver';
 
 import { name as pkgName, version as pkgVersion, main as pkgMain } from 'package';
 
@@ -16,18 +17,35 @@ import type { FixtureOptions } from './setup';
 const TEST_IDENTIFIER = 'integration-client-next';
 
 /* prettier-ignore */
-const NEXT_VERSIONS_TO_TEST = [
-  '9.0.0',  // ? Earliest compat release
-  '^9',     // ? Latest version 9 release
-  '10.1.x', // ? See issue #184
-  '^10',    // ? Latest version 10 release
-  '11.0.x', // ? See issue #295
-  '^11',    // ? Latest version 11 release
-  '^12'     // ? Latest version 12 release
+const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<16') ?
+[
+  // ? We need to install some peer deps (like react) manually thanks to npm@<7
+  // * [next@version, react@version, others...]
+  ['next@9.0.0', 'react@^16', 'next-server'],
+  ['next@^9', 'react@^16'],
+  ['next@10.1.x', 'react@^17'],
+  ['next@^10', 'react@^17'],
+  ['next@11.0.x', 'react@^17'],
+  ['next@^11', 'react@^17'],
+  ['next@^12', 'react@^17']
+]
+:
+[
+  // * [next@version]
+  ['next@9.0.0'],  // ? Earliest compat release
+  ['next@^9'],     // ? Latest version 9 release
+  ['next@10.1.x'], // ? See issue #184
+  ['next@^10'],    // ? Latest version 10 release
+  ['next@11.0.x'], // ? See issue #295
+  ['next@^11'],    // ? Latest version 11 release
+  ['next@^12']     // ? Latest version 12 release
 ];
 
 const pkgMainPath = `${__dirname}/../${pkgMain}`;
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
+
+// eslint-disable-next-line jest/require-hook
+debug('NEXT_VERSIONS_UNDER_TEST: %O', NEXT_VERSIONS_UNDER_TEST);
 
 const fixtureOptions = {
   performCleanup: true,
@@ -48,11 +66,9 @@ beforeAll(async () => {
   }
 });
 
-for (const nextVersion of NEXT_VERSIONS_TO_TEST) {
+for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
   for (const esm of [true, false]) {
-    const versionStr = `next@${nextVersion}`;
-
-    it(`works with ${versionStr} using ${
+    it(`works with ${nextVersion} (and ${otherPkgVersions.join(', ')}) using ${
       esm ? 'ESM import (w/o jest)' : 'CJS require (w/ jest)'
     } syntax`, async () => {
       expect.hasAssertions();
@@ -83,7 +99,7 @@ for (const nextVersion of NEXT_VERSIONS_TO_TEST) {
           }
         });`;
 
-        fixtureOptions.npmInstall = versionStr;
+        fixtureOptions.npmInstall = [nextVersion, ...otherPkgVersions];
       } else {
         fixtureOptions.initialFileContents[
           indexPath
@@ -121,7 +137,8 @@ for (const nextVersion of NEXT_VERSIONS_TO_TEST) {
           });
         });`;
 
-        fixtureOptions.npmInstall = [versionStr, 'jest'];
+        fixtureOptions.npmInstall = ['jest', nextVersion, ...otherPkgVersions];
+
         fixtureOptions.runWith = {
           binary: 'npx',
           args: ['jest']
@@ -199,7 +216,7 @@ it('fails fast (no jest timeout) when using incompatible Next.js version', async
     });
   });`;
 
-  fixtureOptions.npmInstall = ['next@8', 'jest'];
+  fixtureOptions.npmInstall = ['next@8', 'react@^16.6.0', 'jest'];
   fixtureOptions.runWith = {
     binary: 'npx',
     args: ['jest'],
