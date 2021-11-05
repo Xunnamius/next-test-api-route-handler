@@ -186,13 +186,12 @@ describe('::testApiHandler', () => {
 
     await testApiHandler({
       handler: (_, res) => {
-        res
-          .setHeader(
-            'Set-Cookie',
-            serializeCookieHeader('access_token', '1234', { expires: new Date() })
-          )
-          .status(200)
-          .send({});
+        // ? Node12 does not provide a fluent interface for setHeader
+        res.setHeader(
+          'Set-Cookie',
+          serializeCookieHeader('access_token', '1234', { expires: new Date() })
+        );
+        res.status(200).send({});
       },
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(200);
@@ -213,13 +212,11 @@ describe('::testApiHandler', () => {
 
     await testApiHandler({
       handler: (_, res) => {
-        res
-          .setHeader('Set-Cookie', [
-            serializeCookieHeader('access_token', '1234', { expires: new Date() }),
-            serializeCookieHeader('REFRESH_TOKEN', '5678')
-          ])
-          .status(200)
-          .send({});
+        res.setHeader('Set-Cookie', [
+          serializeCookieHeader('access_token', '1234', { expires: new Date() }),
+          serializeCookieHeader('REFRESH_TOKEN', '5678')
+        ]);
+        res.status(200).send({});
       },
       test: async ({ fetch }) => {
         expect((await fetch()).status).toBe(200);
