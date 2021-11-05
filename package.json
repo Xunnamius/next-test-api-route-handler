@@ -150,6 +150,7 @@
     "sort-package-json": "github:xunnamius/sort-package-json",
     "source-map-support": "^0.5.20",
     "spellchecker": "^3.7.1",
+    "strip-ansi": "^6.0.1",
     "text-extensions": "^2.4.0",
     "toss-expression": "^0.1.0",
     "type-fest": "^2.5.2",
