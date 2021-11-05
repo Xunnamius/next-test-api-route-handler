@@ -127,6 +127,13 @@ export async function testApiHandler<NextResponseJsonType = any>({
         .catch((e) => (tryImport.importErrors.push(e), { apiResolver: null })));
 
       if (!apiResolver) {
+        const importErrors = tryImport.importErrors
+          .map(
+            (e) => e.message.split(/(?<=')( imported)? from '/)[0].split(`\nRequire`)[0]
+          )
+          .join('\n    - ');
+
+        tryImport.importErrors = [];
         // prettier-ignore
         throw new Error(
           `failed to import api-utils.js` +
@@ -134,9 +141,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
             `\n\n    1. Using npm@<7 and/or node@<15, which doesn't install peer deps automatically (review install instructions)` +
               `\n    2. NTARH and the version of Next.js you installed are actually incompatible (please submit a bug report)` +
             `\n\n  Failed import attempts:` +
-            `\n\n    - ${tryImport.importErrors
-              .map((e) => e.message.split(/(?<=')( imported)? from '/)[0].split(`\nRequire`)[0])
-              .join('\n    - ')}`
+            `\n\n    - ${importErrors}`
         );
       }
     }
