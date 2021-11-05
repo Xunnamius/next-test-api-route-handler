@@ -68,8 +68,10 @@ beforeAll(async () => {
 });
 
 for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
-  for (const esm of [true, false]) {
-    it(`works with ${nextVersion} (and ${otherPkgVersions.join(', ')}) using ${
+  for (const esm of [/*true,*/ false]) {
+    it(`works with ${nextVersion}${
+      otherPkgVersions.length ? ` (and ${otherPkgVersions.join(', ')})` : ''
+    } using ${
       esm ? 'ESM import (w/o jest)' : 'CJS require (w/ jest)'
     } syntax`, async () => {
       expect.hasAssertions();
