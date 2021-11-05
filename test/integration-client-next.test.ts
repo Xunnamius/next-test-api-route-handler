@@ -28,7 +28,7 @@ const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<15') ?
   ['next@^10', 'react@^17'],
   ['next@11.0.x', 'react@^17'],
   ['next@^11', 'react@^17'],
-  ['next@^12', 'react@^17']
+  ['next@latest', 'react@^17']
 ]
 :
 [
@@ -39,7 +39,7 @@ const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<15') ?
   ['next@^10'],    // ? Latest version 10 release
   ['next@11.0.x'], // ? See issue #295
   ['next@^11'],    // ? Latest version 11 release
-  ['next@^12']     // ? Latest version 12 release
+  ['next@latest']  // ? Latest release
 ];
 
 const pkgMainPath = `${__dirname}/../${pkgMain}`;
