@@ -423,10 +423,13 @@ export function npmCopySelfFixture(): MockFixture {
       }
 
       // TODO: only optionally remove peer dependencies from the install loop
-      // TODO: (and by default they should NOT be removed, unlike below)
-      const { peerDependencies: _, ...dummyPkgJson } = JSON.parse(
-        await readFile(destPkgJson, 'utf-8')
-      );
+      // TODO: (and by default they should NOT be removed, unlike below).
+      // TODO: Same deal with dev dependencies (except removed by default).
+      const {
+        peerDependencies: _,
+        devDependencies: __,
+        ...dummyPkgJson
+      } = JSON.parse(await readFile(destPkgJson, 'utf-8'));
 
       const installTargets = [ctx.options.npmInstall]
         .flat()
