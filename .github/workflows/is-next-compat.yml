@@ -77,7 +77,7 @@ jobs:
           npm install --no-save semver
           # ? Install peer deps manually for ancient node versions
           if [ `node -e 'console.log(require("semver").satisfies(process.versions.node, "<15"))'` == 'true' ]; then
-            npm install --no-save next react
+            npm install --no-save next
           fi
 
       - name: Build distributables
