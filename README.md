@@ -185,6 +185,21 @@ The actual route handler under test (usually imported from `pages/api/*`). It
 should be an async function that accepts [NextApiRequest][2] and
 [NextApiResponse][2] objects as its two parameters.
 
+> As of version `2.3.0`, errors thrown in the `handler` function, while reported
+> via `console.error`, **will not cause the promise returned by NTARH to reject
+> or throw**. Instead, the response returned by `fetch()` in your `test`
+> function will have a status of `500`. This is more congruous with how Next.js
+> handles exceptions in production. Prior to `2.3.0`, NTARH's behavior on
+> unhandled exceptions and promise rejections in handlers was inconsistent.
+>
+> Always check that the status of your fetch response is what you're expecting:
+>
+> ```TypeScript
+> const res = await fetch();
+> ...
+> expect(res.status).toBe(200);
+> ```
+
 ### `test`
 
 A function that returns a promise (or async) where test assertions can be run.
