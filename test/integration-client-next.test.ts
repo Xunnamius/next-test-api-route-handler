@@ -99,6 +99,16 @@ for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
               handler: getHandler(),
               test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
             })
+
+            await testApiHandler({
+              handler: getHandler(),
+              test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+            })
+
+            await testApiHandler({
+              handler: getHandler(),
+              test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+            })
           }
         });`;
 
@@ -152,17 +162,17 @@ for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
         if (!ctx.testResult) throw new Error('must use node-import-test fixture');
 
         if (esm) {
-          debug('(expecting stdout to be "working" or "")');
-          debug('(expecting stderr to be "" or an error in a 3rd party dependency)');
-
-          if (ctx.testResult.stdout == '') {
-            expect(ctx.testResult.stderr).toMatch(/ \/.+\/node_modules\/.+$/m);
-          } else expect(ctx.testResult.stderr).toBeEmpty();
-
-          expect(ctx.testResult.stdout).toBeOneOf(['working', '']);
-        } else {
+          debug('(expecting stderr to be "")');
+          debug('(expecting stdout to be "working\\nworking\\nworking")');
           debug('(expecting exit code to be 0)');
-          debug('(expecting stdout to be "working")');
+
+          expect(ctx.testResult.stderr).toBeEmpty();
+          expect(ctx.testResult.stdout).toBe('working\nworking\nworking');
+          expect(ctx.testResult.code).toBe(0);
+        } else {
+          debug('(expecting stderr to contain jest test PASS confirmation)');
+          debug('(expecting stdout to contain "working")');
+          debug('(expecting exit code to be 0)');
 
           expect(stripAnsi(ctx.testResult.stderr)).toMatch(
             /PASS.*?\s+src\/index\.test\.js/
