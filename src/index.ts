@@ -133,7 +133,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
       if (!apiResolver) {
         const importErrors = tryImport.importErrors
           .map(
-            (e) => e.message.split(/(?<=')( imported)? from '/)[0].split(`\nRequire`)[0]
+            (e) =>
+              e.message.split(/(?<=')( imported)? from ('|\S)/)[0].split(`\nRequire`)[0]
           )
           .join('\n    - ');
 
