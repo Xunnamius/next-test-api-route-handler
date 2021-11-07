@@ -88,29 +88,31 @@ for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
         ] = `import { testApiHandler } from '${pkgName}';
         ${commonSrc}
 
-        testApiHandler({
-          handler: getHandler(),
-          test: async ({ fetch }) => {
-            if((await (await fetch()).json()).works != 'working') {
-              throw new Error('initial promise assertion failed');
+        (async () => {
+          await testApiHandler({
+            handler: getHandler(),
+            test: async ({ fetch }) => {
+              if((await (await fetch()).json()).works != 'working') {
+                throw new Error('initial promise assertion failed');
+              }
             }
+          });
 
-            await testApiHandler({
-              handler: getHandler(),
-              test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
-            })
+          await testApiHandler({
+            handler: getHandler(),
+            test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+          });
 
-            await testApiHandler({
-              handler: getHandler(),
-              test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
-            })
+          await testApiHandler({
+            handler: getHandler(),
+            test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+          });
 
-            await testApiHandler({
-              handler: getHandler(),
-              test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
-            })
-          }
-        });`;
+          await testApiHandler({
+            handler: getHandler(),
+            test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+          });
+        })();`;
 
         fixtureOptions.npmInstall = [nextVersion, ...otherPkgVersions];
       } else {
@@ -245,12 +247,6 @@ it('fails fast (no jest timeout) when using incompatible Next.js version', async
   await withMockedFixture(async (ctx) => {
     if (!ctx.testResult) throw new Error('must use node-import-test fixture');
 
-    debug('(expecting exit code to be non-zero)');
-    expect(ctx.testResult.code).not.toBe(0);
-
-    debug('(expecting no forced timeout: exit code must be a number)');
-    expect(ctx.testResult.code).toBeNumber();
-
     debug('(expecting stderr not to contain "Exceeded timeout")');
     expect(ctx.testResult.stderr).not.toStrictEqual(
       expect.stringContaining('Exceeded timeout')
@@ -265,6 +261,12 @@ it('fails fast (no jest timeout) when using incompatible Next.js version', async
     expect(ctx.testResult.stderr).toStrictEqual(
       expect.stringMatching(/^.*?Tests:.*?3 failed.*?,.*?3 total/m)
     );
+
+    debug('(expecting exit code to be non-zero)');
+    expect(ctx.testResult.code).not.toBe(0);
+
+    debug('(expecting no forced timeout: exit code must be a number)');
+    expect(ctx.testResult.code).toBeNumber();
   });
 
   delete fixtureOptions.npmInstall;
