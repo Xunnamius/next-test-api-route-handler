@@ -27,10 +27,10 @@ type FetchReturnType<NextResponseJsonType> = Promise<
   }
 >;
 
-type TryImport = ((
-  path: string
-  // @ts-ignore: this file might not exist in some versions of next
-) => (e: Error) => typeof import('next/dist/server/api-utils.js')) & {
+type TryImport = ((path: string) => (
+  e: Error
+) => // @ts-ignore: this file might not exist in some versions of next
+Promise<typeof import('next/dist/server/api-utils.js')>) & {
   importErrors: Error[];
 };
 
@@ -39,10 +39,14 @@ type TryImport = ((
 /* istanbul ignore next */
 const tryImport = ((path: string) => (e: Error) => {
   (tryImport.importErrors = tryImport.importErrors ?? []).push(e);
-  // ? Node12 does not support dynamic imports, so fall back to require for now
-  return (typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require)(
-    path
-  );
+  if (typeof __webpack_require__ === 'function') {
+    return __non_webpack_require__(path);
+  } else if (typeof require === 'function') {
+    // ? Node12 does not support dynamic imports, so fall back to require first
+    return require(path);
+  } else {
+    return import(path);
+  }
 }) as unknown as TryImport;
 
 /**
