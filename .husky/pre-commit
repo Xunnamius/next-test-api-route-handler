@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname $0)/_/husky.sh"
 
-npm run lint
+if [ -z $GAC_VERIFY_SIMPLE ]; then npm run lint; fi
 npx lint-staged --concurrent false

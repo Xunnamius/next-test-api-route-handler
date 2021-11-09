@@ -2,6 +2,6 @@
 . "$(dirname $0)/_/husky.sh"
 
 npx commitlint -e
-npm run test
+if [ -z $GAC_VERIFY_SIMPLE ]; then npm run test; fi
 echo
 node spellcheck-commit.js
