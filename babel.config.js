@@ -7,7 +7,7 @@ const NODE_LTS = 'maintained node versions';
 const pkgName = require('./package.json').name;
 const debug = require('debug')(`${pkgName}:babel-config`);
 
-// ? Fix relative local imports referencing package.json (.dist/esm/...)
+// ? Fix relative local imports referencing package.json (.dist/bundle/...)
 const transformRenameImport = [
   'transform-rename-import',
   {
@@ -15,6 +15,8 @@ const transformRenameImport = [
     replacements: [{ original: 'package', replacement: `${pkgName}/package.json` }]
   }
 ];
+
+debug('NODE_ENV: %O', process.env.NODE_ENV);
 
 module.exports = {
   parserOpts: { strictMode: true },
@@ -73,8 +75,8 @@ module.exports = {
       ],
       plugins: [transformRenameImport]
     },
-    // * Used for compiling ESM code output somewhere in ./dist
-    esm: {
+    // * Used for compiling ESM code output in ./dist/esm and .dist/bundle
+    'esm-bundle': {
       presets: [
         [
           '@babel/preset-env',

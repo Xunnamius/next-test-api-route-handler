@@ -40,7 +40,9 @@ Promise<typeof import('next/dist/server/api-utils.js')>) & {
 const tryImport = ((path: string) => (e: Error) => {
   (tryImport.importErrors = tryImport.importErrors ?? []).push(e);
   if (typeof __webpack_require__ === 'function') {
-    return __non_webpack_require__(path);
+    return process.env.NODE_ESM
+      ? import(/* webpackIgnore: true */ path)
+      : __non_webpack_require__(path);
   } else if (typeof require === 'function') {
     // ? Node12 does not support dynamic imports, so fall back to require first
     return require(path);

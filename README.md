@@ -547,19 +547,21 @@ This is a [dual CJS2/ES module][dual-module] package. That means this package
 exposes both CJS2 and ESM entry points.
 
 Loading this package via `require(...)` will cause Node and Webpack to use the
-[CJS2 bundle][cjs2] entry point, disable [tree shaking][tree-shaking] in Webpack
-4, and lead to larger bundles in Webpack 5. Alternatively, loading this package
-via `import { ... } from ...` or `import(...)` will cause Node to use the ESM
-entry point in [versions that support it][node-esm-support], as will Webpack.
-Using the `import` syntax is the modern, preferred choice.
+[CJS2 bundle][cjs2] entry point. This can reduce the efficacy of [tree
+shaking][tree-shaking]. Alternatively, loading this package via
+`import { ... } from ...` or `import(...)` will cause Node (and other JS
+runtimes) to use the ESM entry point in [versions that support
+it][node-esm-support], as will modern bundlers like Webpack and Rollup. Using
+the `import` syntax is the modern, preferred choice.
 
-For backwards compatibility with Webpack 4 (_compat with Webpack 4 is not
-guaranteed!_) and Node versions < 14, [`package.json`][package-json] retains the
-[`module`][module-key] key, which points to the ESM entry point, and the
-[`main`][exports-main-key] key, which points to the CJS2 entry point explicitly
-(using the .js file extension). For Webpack 5 and Node versions >= 14,
-[`package.json`][package-json] includes the [`exports`][exports-main-key] key,
-which points to both entry points explicitly.
+For backwards compatibility with Node versions < 14,
+[`package.json`][package-json] retains the [`main`][exports-main-key] key, which
+points to the CJS2 entry point explicitly (using the .js file extension). For
+bundlers and Node versions >= 14, [`package.json`][package-json] includes the
+[`exports`][exports-main-key] key, which points to both entry points explicitly;
+`exports` also points to the bundler-specific [`module`][module-key] entry
+point, which is ESM source compiled specifically to support [tree
+shaking][tree-shaking].
 
 Though [`package.json`][package-json] includes
 [`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
@@ -568,8 +570,9 @@ module (`.mjs`) files. [`package.json`][package-json] also includes the
 shaking][tree-shaking], and the `types` key, which points to a TypeScript
 declarations file.
 
-Additionally, this package does maintain shared state (i.e. memoized imports)
-but does not exhibit the [dual package hazard][hazard].
+Additionally, this package does maintain shared state (i.e. memoized imports,
+stateful error handling); regardless, it does not exhibit the [dual package
+hazard][hazard].
 
 ### License
 
@@ -647,7 +650,8 @@ information.
   https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-package-hazard
 [local-pkg]:
   https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
-[module-key]: https://webpack.js.org/guides/author-libraries/#final-steps
+[module-key]:
+  https://webpack.js.org/guides/package-exports/#providing-commonjs-and-esm-version-stateless
 [node-esm-support]:
   https://medium.com/%40nodejs/node-js-version-14-available-now-8170d384567e#2368
 [side-effects-key]:

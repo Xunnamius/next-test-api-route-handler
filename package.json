@@ -27,6 +27,7 @@
   "type": "commonjs",
   "exports": {
     ".": {
+      "module": "./dist/bundle/index.mjs",
       "import": "./dist/esm/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
@@ -35,7 +36,6 @@
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
-  "module": "./dist/esm/index.mjs",
   "types": "./dist/types/src/index.d.ts",
   "files": [
     "/dist",
@@ -48,7 +48,7 @@
     "__test-repeat-unit": "echo 'Repeating test suite [initializing]...'; (i=0; while [ \"$((( i += 1 ) <= 100 ))\" -ne 0 ]; do sleep 0.1 && echo \"\\r\\033[1A\\033[0KRepeating test suite [run $i/100]...\" && JEST_SILENT_REPORTER_SHOW_WARNINGS=true BABEL_ENV=test jest --reporters=jest-silent-reporter --testPathIgnorePatterns test/integration-*.test.ts dist || exit; done) && echo \"All tests passed! Congrats!\"",
     "build": "npm run build-dist --",
     "build-changelog": "conventional-changelog --outfile CHANGELOG.md --config conventional.config.js --release-count 0 --skip-unstable && (if [ \"$CHANGELOG_SKIP_TITLE\" != 'true' ]; then { node -e 'console.log(require(\"./conventional.config.js\").changelogTitle)'; cat CHANGELOG.md; } > CHANGELOG.md.ignore && mv CHANGELOG.md.ignore CHANGELOG.md; fi) && remark -o --use reference-links --use gfm --use frontmatter CHANGELOG.md && prettier --write CHANGELOG.md",
-    "build-dist": "if [ -r ./next.config.js ]; then next build; else NODE_ENV=production tsc --project tsconfig.types.json && NODE_ENV=production webpack --config-name lib && if [ -r ./src/cli.ts ]; then NODE_ENV=production webpack --config-name cli && chmod +x ./dist/cli.js; fi && NODE_ENV=esm babel src --extensions .ts --out-dir dist/esm --out-file-extension .mjs; fi",
+    "build-dist": "if [ -r ./next.config.js ]; then next build; else NODE_ENV=production tsc --project tsconfig.types.json && NODE_ENV=production webpack --config-name lib && if [ -r ./src/cli.ts ]; then NODE_ENV=production webpack --config-name cli && chmod +x ./dist/cli.js; fi && NODE_ENV=esm-bundle webpack --config-name esm && NODE_ENV=esm-bundle babel src --extensions .ts --out-dir dist/bundle --out-file-extension .mjs; fi",
     "build-docs": "if [ -r ./next.config.js ]; then typedoc --plugin typedoc-plugin-markdown --out docs --readme none lib src test types external-scripts --exclude '**/*.test.*' --exclude external-scripts/bin; else ENTRY=`node -e 'console.log((x => typeof x==\"string\"?x:x.default)(require(\"./package.json\").exports[\".\"]).replace(/\\.\\/dist\\/(.+)\\.[a-zA-Z0-9]+$/, \"./src/$1.ts\"))'` && echo 'Entry file:' \"$ENTRY\" && typedoc --plugin typedoc-plugin-markdown --out docs --readme none $ENTRY && find docs -name '*.md' -exec sed -i -e 's/Project: //g' {} + && sed -i -e 1,4d docs/README.md; fi && find docs -name '*.md' -exec sed -i -e 's/`__namedParameters`/`\\(destructured\\)`/g' {} + && find docs -name '*.md' -exec sed -i -E 's/`__namedParameters\\.([^`]+)`/`\\({ \\1 }\\)`/g' {} +",
     "build-externals": "NODE_ENV=external webpack --config-name externals",
     "build-stats": "NODE_ENV=production webpack --json > bundle-stats.ignore.json",
