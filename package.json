@@ -27,7 +27,6 @@
   "type": "commonjs",
   "exports": {
     ".": {
-      "module": "./dist/bundle/index.mjs",
       "import": "./dist/esm/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
@@ -36,6 +35,7 @@
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
+  "module": "./dist/bundle/index.mjs",
   "types": "./dist/types/src/index.d.ts",
   "files": [
     "/dist",

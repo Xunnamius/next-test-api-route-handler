@@ -558,10 +558,9 @@ For backwards compatibility with Node versions < 14,
 [`package.json`][package-json] retains the [`main`][exports-main-key] key, which
 points to the CJS2 entry point explicitly (using the .js file extension). For
 bundlers and Node versions >= 14, [`package.json`][package-json] includes the
-[`exports`][exports-main-key] key, which points to both entry points explicitly;
-`exports` also points to the bundler-specific [`module`][module-key] entry
-point, which is ESM source compiled specifically to support [tree
-shaking][tree-shaking].
+bundler-specific [`module`][module-key] entry point, which is ESM source loosely
+compiled specifically to support [tree shaking][tree-shaking], and the
+[`exports`][exports-main-key] key, which points to both entry points explicitly.
 
 Though [`package.json`][package-json] includes
 [`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
