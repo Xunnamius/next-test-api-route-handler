@@ -205,15 +205,20 @@ export async function testApiHandler<NextResponseJsonType = any>({
       fetch: async (init?: RequestInit) => {
         return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
           (res) => {
-            res.cookies = [res.headers.raw()['set-cookie'] || []]
-              .flat()
-              .map((header) =>
-                Object.entries(parseCookieHeader(header)).reduce(
-                  (obj, [k, v]) =>
-                    Object.assign(obj, { [String(k)]: v, [String(k).toLowerCase()]: v }),
-                  {}
+            // ? Lazy load (on demand) the contents of the `cookies` field
+            Object.defineProperty(res, 'cookies', {
+              get: () =>
+                [res.headers.raw()['set-cookie'] || []].flat().map((header) =>
+                  Object.entries(parseCookieHeader(header)).reduce(
+                    (obj, [k, v]) =>
+                      Object.assign(obj, {
+                        [String(k)]: v,
+                        [String(k).toLowerCase()]: v
+                      }),
+                    {}
+                  )
                 )
-              );
+            });
             return res;
           }
         );
