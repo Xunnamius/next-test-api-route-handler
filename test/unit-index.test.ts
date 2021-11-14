@@ -1,7 +1,19 @@
 import { testApiHandler } from '../src/index';
-import { serialize as serializeCookieHeader } from 'cookie';
+import { parse, serialize } from 'cookie';
+import { asMockedFunction } from './setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+jest.mock('cookie');
+
+const cookie = jest.requireActual('cookie');
+const mockedCookieParse = asMockedFunction(parse);
+const mockedCookieSerialize = asMockedFunction(serialize);
+
+beforeEach(() => {
+  mockedCookieParse.mockImplementation(cookie.parse);
+  mockedCookieSerialize.mockImplementation(cookie.serialize);
+});
 
 const getHandler =
   (status?: number) => async (_: NextApiRequest, res: NextApiResponse) => {
@@ -189,7 +201,7 @@ describe('::testApiHandler', () => {
         // ? Node12 does not provide a fluent interface for setHeader
         res.setHeader(
           'Set-Cookie',
-          serializeCookieHeader('access_token', '1234', { expires: new Date() })
+          mockedCookieSerialize('access_token', '1234', { expires: new Date() })
         );
         res.status(200).send({});
       },
@@ -213,8 +225,8 @@ describe('::testApiHandler', () => {
     await testApiHandler({
       handler: (_, res) => {
         res.setHeader('Set-Cookie', [
-          serializeCookieHeader('access_token', '1234', { expires: new Date() }),
-          serializeCookieHeader('REFRESH_TOKEN', '5678')
+          mockedCookieSerialize('access_token', '1234', { expires: new Date() }),
+          mockedCookieSerialize('REFRESH_TOKEN', '5678')
         ]);
         res.status(200).send({});
       },
@@ -229,6 +241,46 @@ describe('::testApiHandler', () => {
           },
           { refresh_token: '5678', REFRESH_TOKEN: '5678' }
         ]);
+      }
+    });
+  });
+
+  it('response.cookies is lazily defined', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      handler: (_, res) => {
+        res.setHeader('Set-Cookie', [
+          mockedCookieSerialize('access_token', '1234'),
+          mockedCookieSerialize('access_token', '1234')
+        ]);
+        res.status(200).send({});
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch();
+
+        expect(res.cookies).toBeArrayOfSize(2);
+        expect(mockedCookieParse).toBeCalledTimes(2);
+        expect(res.cookies).toBeArrayOfSize(2);
+        expect(mockedCookieParse).toBeCalledTimes(2);
+      }
+    });
+
+    await testApiHandler({
+      handler: (_, res) => {
+        res.setHeader('Set-Cookie', [
+          mockedCookieSerialize('access_token', '1234'),
+          mockedCookieSerialize('access_token', '1234')
+        ]);
+        res.status(200).send({});
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch();
+
+        expect(res.cookies).toBeArrayOfSize(2);
+        expect(mockedCookieParse).toBeCalledTimes(4);
+        expect(res.cookies).toBeArrayOfSize(2);
+        expect(mockedCookieParse).toBeCalledTimes(4);
       }
     });
   });
