@@ -143,9 +143,9 @@ async function testApiHandler({
   url?: string;
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
   test: ({
-    fetch: (init?: RequestInit) => ReturnType<typeof fetch> & {
+    fetch: (init?: RequestInit) => Promise<PromiseValue<ReturnType<typeof fetch>> & {
       cookies: Record<string, string>[]
-    };
+    }>;
   }) => Promise<void>;
 });
 ```
