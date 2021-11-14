@@ -544,23 +544,25 @@ Check out [the tests][9] for more examples.
 > Further documentation can be found under [`docs/`][docs].
 
 This is a [dual CJS2/ES module][dual-module] package. That means this package
-exposes both CJS2 and ESM entry points.
+exposes both CJS2 and ESM (treeshakable and non-treeshakable) entry points.
 
 Loading this package via `require(...)` will cause Node and Webpack to use the
 [CJS2 bundle][cjs2] entry point. This can reduce the efficacy of [tree
 shaking][tree-shaking]. Alternatively, loading this package via
 `import { ... } from ...` or `import(...)` will cause Node (and other JS
-runtimes) to use the ESM entry point in [versions that support
-it][node-esm-support], as will modern bundlers like Webpack and Rollup. Using
-the `import` syntax is the modern, preferred choice.
+runtimes) to use the non-treeshakable ESM entry point in [versions that support
+it][node-esm-support]. Modern bundlers like Webpack and Rollup will use the
+treeshakable ESM entry point. Using the `import` syntax is the modern, preferred
+choice.
 
 For backwards compatibility with Node versions < 14,
 [`package.json`][package-json] retains the [`main`][exports-main-key] key, which
 points to the CJS2 entry point explicitly (using the .js file extension). For
-bundlers and Node versions >= 14, [`package.json`][package-json] includes the
-bundler-specific [`module`][module-key] entry point, which is ESM source loosely
-compiled specifically to support [tree shaking][tree-shaking], and the
-[`exports`][exports-main-key] key, which points to both entry points explicitly.
+Node versions > 14, [`package.json`][package-json] includes the more modern
+[`exports`][exports-main-key] key. For bundlers, [`package.json`][package-json]
+includes the bundler-specific [`module`][module-key] key (soon to be superseded
+by [`exports['.'].module`][exports-module-key]), which points to ESM source
+loosely compiled specifically to support [tree shaking][tree-shaking].
 
 Though [`package.json`][package-json] includes
 [`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
@@ -650,6 +652,8 @@ information.
 [local-pkg]:
   https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
 [module-key]:
+  https://github.com/nodejs/node-eps/blob/4217dca299d89c8c18ac44c878b5fe9581974ef3/002-es6-modules.md#51-determining-if-source-is-an-es-module
+[exports-module-key]:
   https://webpack.js.org/guides/package-exports/#providing-commonjs-and-esm-version-stateless
 [node-esm-support]:
   https://medium.com/%40nodejs/node-js-version-14-available-now-8170d384567e#2368
