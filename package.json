@@ -60,7 +60,6 @@
     "test": "npm run test-unit --",
     "test-integration": "BABEL_ENV=test jest $JEST_CLI test/integration-*.test.ts* --testPathIgnorePatterns dist test/unit-*.test.ts",
     "test-integration-client": "BABEL_ENV=test jest $JEST_CLI test/integration-client*.test.ts* --testPathIgnorePatterns dist",
-    "test-integration-compile": "BABEL_ENV=test jest $JEST_CLI test/integration-compile*.test.ts* --testPathIgnorePatterns dist",
     "test-integration-externals": "BABEL_ENV=test jest $JEST_CLI test/integration-external*.test.ts* --testPathIgnorePatterns dist",
     "test-integration-node": "BABEL_ENV=test jest $JEST_CLI test/integration-node*.test.ts* --testPathIgnorePatterns dist",
     "test-repeat-all": "npm run __test-repeat-all --silent",
