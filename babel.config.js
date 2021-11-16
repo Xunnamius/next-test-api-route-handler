@@ -75,8 +75,23 @@ module.exports = {
       ],
       plugins: [transformRenameImport]
     },
-    // * Used for compiling ESM code output in ./dist/esm and .dist/bundle
-    'esm-bundle': {
+    // * Used for compiling ESM code output in ./dist/esm
+    esm: {
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            // ? https://babeljs.io/docs/en/babel-preset-env#modules
+            modules: false,
+            targets: NODE_LTS
+          }
+        ],
+        ['@babel/preset-typescript', { allowDeclareFields: true }]
+        // ? Minification is handled by Webpack
+      ]
+    },
+    // * Used for compiling ESM code output in .dist/bundle
+    bundle: {
       presets: [
         [
           '@babel/preset-env',
