@@ -546,7 +546,7 @@ Check out [the tests][9] for more examples.
 This is a [dual CJS2/ES module][dual-module] package. That means this package
 exposes both CJS2 and ESM (treeshakable and non-treeshakable) entry points.
 
-Loading this package via `require(...)` will cause Node and Webpack to use the
+Loading this package via `require(...)` will cause Node and bundlers to use the
 [CJS2 bundle][cjs2] entry point. This can reduce the efficacy of [tree
 shaking][tree-shaking]. Alternatively, loading this package via
 `import { ... } from ...` or `import(...)` will cause Node (and other JS
