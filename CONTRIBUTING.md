@@ -105,8 +105,8 @@ which of the following scripts are available for this project.
   Node versions (handled by CI)
 - `npm run test-integration-client` to run client (browser/cli/etc) integration
   tests with [puppeteer][52] (handled by CI)
-- `npm run test-integration-webpack` to run tests verifying the distributable
-  can be bundled with Webpack 5 (as both ESM and CJS) (handled by CI)
+- `npm run test-integration-compile` to run tests verifying the distributable
+  can be bundled with a modern bundler (handled by CI)
 - `npm run test-integration-externals` to run tests on compiled external
   executables (under `external-scripts/bin/`) (handled by CI)
 
