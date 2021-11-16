@@ -28,8 +28,8 @@ express? Then look no further! 🤩
 
 `next-test-api-route-handler` (NTARH) uses Next.js's internal API resolver to
 precisely emulate API route handling. To guarantee stability, this package is
-[automatically tested][13] against [each release of Next.js][3]. Go forth and
-test confidently!
+[automatically tested][13] against [each release of Next.js][3] and Node.js. Go
+forth and test confidently!
 
 <div align="center">
 
@@ -546,21 +546,21 @@ Check out [the tests][9] for more examples.
 This is a [dual CJS2/ES module][dual-module] package. That means this package
 exposes both CJS2 and ESM (treeshakable and non-treeshakable) entry points.
 
-Loading this package via `require(...)` will cause Node and bundlers to use the
-[CJS2 bundle][cjs2] entry point. This can reduce the efficacy of [tree
+Loading this package via `require(...)` will cause Node and some bundlers to use
+the [CJS2 bundle][cjs2] entry point. This can reduce the efficacy of [tree
 shaking][tree-shaking]. Alternatively, loading this package via
 `import { ... } from ...` or `import(...)` will cause Node (and other JS
 runtimes) to use the non-treeshakable ESM entry point in [versions that support
 it][node-esm-support]. Modern bundlers like Webpack and Rollup will use the
-treeshakable ESM entry point. Using the `import` syntax is the modern, preferred
-choice.
+treeshakable ESM entry point. Hence, using the `import` syntax is the modern,
+preferred choice.
 
 For backwards compatibility with Node versions < 14,
 [`package.json`][package-json] retains the [`main`][exports-main-key] key, which
 points to the CJS2 entry point explicitly (using the .js file extension). For
 Node versions > 14, [`package.json`][package-json] includes the more modern
 [`exports`][exports-main-key] key. For bundlers, [`package.json`][package-json]
-includes the bundler-specific [`module`][module-key] key (soon to be superseded
+includes the bundler-specific [`module`][module-key] key (eventually superseded
 by [`exports['.'].module`][exports-module-key]), which points to ESM source
 loosely compiled specifically to support [tree shaking][tree-shaking].
 
