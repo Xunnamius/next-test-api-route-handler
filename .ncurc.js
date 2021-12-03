@@ -3,6 +3,8 @@
 module.exports = {
   reject: [
     // ? Pin the CJS version of strip-ansi
-    'strip-ansi'
+    'strip-ansi',
+    // ? Pin the CJS version of strip-ansi
+    'execa'
   ]
 };
