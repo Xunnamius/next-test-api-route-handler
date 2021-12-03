@@ -194,7 +194,7 @@ export async function withMockedOutput(
     infoSpy: jest.SpyInstance;
     stdoutSpy: jest.SpyInstance;
     stdErrSpy: jest.SpyInstance;
-  }) => AnyVoid
+  }) => unknown
 ) {
   const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
   const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
