@@ -74,7 +74,7 @@ const externals = ({ esm /*: boolean */ }) => [
 ];
 
 const libCjsConfig = {
-  name: 'lib',
+  name: 'cjs',
   mode: 'production',
   target: 'node',
   node: false,
