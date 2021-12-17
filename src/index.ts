@@ -1,27 +1,24 @@
 /* eslint-disable @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
-import fetch from 'isomorphic-unfetch';
+import fetch from 'node-fetch';
 import { createServer } from 'http';
 import { parse as parseUrl } from 'url';
 import { parse as parseCookieHeader } from 'cookie';
 
 import type { NextApiHandler } from 'next';
 import type { Server, IncomingMessage, ServerResponse } from 'http';
+import type { RequestInit, Response as FetchReturnValue } from 'node-fetch';
 
 // @ts-ignore: ignore this (conditional) import so bundlers don't choke and die
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils';
 
 let apiResolver: typeof NextApiResolver | null = null;
 
-type FetchReturnValue = PromiseValue<ReturnType<typeof fetch>>;
 type FetchReturnType<NextResponseJsonType> = Promise<
-  Omit<FetchReturnValue, 'json' | 'headers'> & {
+  Omit<FetchReturnValue, 'json'> & {
     json: (
       ...args: Parameters<FetchReturnValue['json']>
     ) => Promise<NextResponseJsonType>;
     cookies: ReturnType<typeof parseCookieHeader>[];
-    headers: FetchReturnValue['headers'] & {
-      raw: () => Record<string, string | string[]>;
-    };
   }
 >;
 
@@ -180,44 +177,44 @@ export async function testApiHandler<NextResponseJsonType = any>({
     }
 
     server = createServer((req, res) => {
-        try {
-          if (typeof apiResolver != 'function') {
-            throw new Error(
-              'assertion failed unexpectedly: apiResolver was not a function'
-            );
-          }
+      try {
+        if (typeof apiResolver != 'function') {
+          throw new Error(
+            'assertion failed unexpectedly: apiResolver was not a function'
+          );
+        }
 
-          url && (req.url = url);
-          requestPatcher && requestPatcher(req);
-          responsePatcher && responsePatcher(res);
+        url && (req.url = url);
+        requestPatcher && requestPatcher(req);
+        responsePatcher && responsePatcher(res);
 
-          const finalParams = { ...parseUrl(req.url || '', true).query, ...params };
-          paramsPatcher && paramsPatcher(finalParams);
+        const finalParams = { ...parseUrl(req.url || '', true).query, ...params };
+        paramsPatcher && paramsPatcher(finalParams);
 
-          /**
-           *? From Next.js internals:
-           ** apiResolver(
-           **    req: IncomingMessage,
-           **    res: ServerResponse,
-           **    query: any,
-           **    resolverModule: any,
-           **    apiContext: __ApiPreviewProps,
+        /**
+         *? From Next.js internals:
+         ** apiResolver(
+         **    req: IncomingMessage,
+         **    res: ServerResponse,
+         **    query: any,
+         **    resolverModule: any,
+         **    apiContext: __ApiPreviewProps,
          **    propagateError: boolean,
          **    ...
-           ** )
-           */
-          void apiResolver(
-            req,
-            res,
-            finalParams,
-            handler,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            undefined as any,
+         ** )
+         */
+        void apiResolver(
+          req,
+          res,
+          finalParams,
+          handler,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          undefined as any,
           !!rejectOnHandlerError
         ).catch((e) => handleError(res, e, deferredReject));
-        } catch (e) {
+      } catch (e) {
         handleError(res, e, deferredReject);
-        }
+      }
     });
 
     const port = await new Promise<number>((resolve, reject) => {
@@ -229,7 +226,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
             new Error(
               'assertion failed unexpectedly: server did not return AddressInfo instance'
             )
-    );
+          );
         } else {
           resolve(addr?.port);
         }
@@ -241,35 +238,35 @@ export async function testApiHandler<NextResponseJsonType = any>({
     await new Promise((resolve, reject) => {
       deferredReject = reject;
       test({
-      fetch: async (init?: RequestInit) => {
-        return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
-          (res) => {
-            // ? Lazy load (on demand) the contents of the `cookies` field
-            Object.defineProperty(res, 'cookies', {
-              configurable: true,
-              enumerable: true,
-              get: () => {
-                // @ts-expect-error: lazy getter guarantees this will be set
-                delete res.cookies;
-                res.cookies = [res.headers.raw()['set-cookie'] || []]
-                  .flat()
-                  .map((header) =>
-                    Object.entries(parseCookieHeader(header)).reduce(
-                      (obj, [k, v]) =>
-                        Object.assign(obj, {
-                          [String(k)]: v,
-                          [String(k).toLowerCase()]: v
-                        }),
-                      {}
-                    )
-                  );
-                return res.cookies;
-              }
-            });
-            return res;
-          }
-        );
-      }
+        fetch: async (init?: RequestInit) => {
+          return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
+            (res) => {
+              // ? Lazy load (on demand) the contents of the `cookies` field
+              Object.defineProperty(res, 'cookies', {
+                configurable: true,
+                enumerable: true,
+                get: () => {
+                  // @ts-expect-error: lazy getter guarantees this will be set
+                  delete res.cookies;
+                  res.cookies = [res.headers.raw()['set-cookie'] || []]
+                    .flat()
+                    .map((header) =>
+                      Object.entries(parseCookieHeader(header)).reduce(
+                        (obj, [k, v]) =>
+                          Object.assign(obj, {
+                            [String(k)]: v,
+                            [String(k).toLowerCase()]: v
+                          }),
+                        {}
+                      )
+                    );
+                  return res.cookies;
+                }
+              });
+              return res;
+            }
+          );
+        }
       }).then(resolve, reject);
     });
   } finally {

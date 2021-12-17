@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "cookie": "^0.4.1",
-    "isomorphic-unfetch": "^3.1.0"
+    "node-fetch": "^2.6.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
