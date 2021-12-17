@@ -32,7 +32,7 @@ describe('my-test', () => {
           })
         });
 
-        expect(await res.json()).toStrictEqual({
+        await expect(res.json()).resolves.toStrictEqual({
           data: { viewer: { id: '1', name: 'John Smith', status: 'cached' } }
         });
       }
@@ -64,7 +64,7 @@ describe('my-test', () => {
           })
         });
 
-        expect(await res.json()).toStrictEqual({
+        await expect(res.json()).resolves.toStrictEqual({
           data: { viewer: { id: '1', name: 'John Smith', status: 'cached' } }
         });
       }
@@ -96,7 +96,7 @@ describe('my-test', () => {
           })
         });
 
-        expect(await res.json()).toStrictEqual({
+        await expect(res.json()).resolves.toStrictEqual({
           data: { viewer: { id: '1', name: 'John Smith', status: 'cached' } }
         });
       }
