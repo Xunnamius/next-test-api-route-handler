@@ -72,7 +72,7 @@ const handleError = (
 /**
  * The parameters expected by `testApiHandler`.
  */
-export type TestParameters<NextResponseJsonType = unknown> = {
+export type NtarhParameters<NextResponseJsonType = unknown> = {
   /**
    * If `false`, errors thrown from within a handler are kicked up to Next.js's
    * resolver to deal with, which is what would happen in production. Instead,
@@ -122,11 +122,11 @@ export type TestParameters<NextResponseJsonType = unknown> = {
   handler: NextApiHandler<NextResponseJsonType>;
   /**
    * `test` must be a function that runs your test assertions, returning a
-   * promise (or async). This function receives one parameter: `fetch`, which is
-   * the unfetch package's `fetch(...)` function but with the first parameter
-   * omitted.
+   * promise (or async). This function receives one destructured parameter:
+   * `fetch`, which is the unfetch package's `fetch(...)` function but with the
+   * first parameter omitted.
    */
-  test: (obj: {
+  test: (params: {
     fetch: (init?: RequestInit) => FetchReturnType<NextResponseJsonType>;
   }) => Promise<void>;
 };
@@ -145,7 +145,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   url,
   handler,
   test
-}: TestParameters<NextResponseJsonType>) {
+}: NtarhParameters<NextResponseJsonType>) {
   let server = null;
   let deferredReject: ((e?: unknown) => void) | null = null;
 
