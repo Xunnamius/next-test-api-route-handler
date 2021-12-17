@@ -4,7 +4,6 @@ import { createServer } from 'http';
 import { parse as parseUrl } from 'url';
 import { parse as parseCookieHeader } from 'cookie';
 
-import type { PromiseValue } from 'type-fest';
 import type { NextApiHandler } from 'next';
 import type { Server, IncomingMessage, ServerResponse } from 'http';
 
