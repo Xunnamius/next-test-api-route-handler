@@ -13,7 +13,7 @@ import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils'
 
 let apiResolver: typeof NextApiResolver | null = null;
 
-type FetchReturnType<NextResponseJsonType> = Promise<
+export type FetchReturnType<NextResponseJsonType> = Promise<
   Omit<FetchReturnValue, 'json'> & {
     json: (
       ...args: Parameters<FetchReturnValue['json']>
