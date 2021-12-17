@@ -1,6 +1,6 @@
 {
   "name": "next-test-api-route-handler",
-  "version": "2.3.4",
+  "version": "3.0.0",
   "description": "Confidently unit test your Next.js API routes/handlers in an isolated Next.js-like environment",
   "keywords": [
     "api",
@@ -94,7 +94,7 @@
     "@types/find-package-json": "^1.2.2",
     "@types/jest": "^27.0.3",
     "@types/node": "^17.0.0",
-    "@types/node-fetch": "^2.5.12",
+    "@types/node-fetch": "^3.0.3",
     "@types/semver": "^7.3.9",
     "@types/test-listen": "^1.1.0",
     "@types/webpack": "^5.28.0",
