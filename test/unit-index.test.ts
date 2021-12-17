@@ -259,6 +259,7 @@ describe('::testApiHandler', () => {
       test: async ({ fetch }) => {
         const res = await fetch();
 
+        expect(mockedCookieParse).toBeCalledTimes(0);
         expect(res.cookies).toBeArrayOfSize(2);
         expect(mockedCookieParse).toBeCalledTimes(2);
         expect(res.cookies).toBeArrayOfSize(2);
@@ -277,6 +278,7 @@ describe('::testApiHandler', () => {
       test: async ({ fetch }) => {
         const res = await fetch();
 
+        expect(mockedCookieParse).toBeCalledTimes(2);
         expect(res.cookies).toBeArrayOfSize(2);
         expect(mockedCookieParse).toBeCalledTimes(4);
         expect(res.cookies).toBeArrayOfSize(2);
