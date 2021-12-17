@@ -51,10 +51,37 @@ const tryImport = ((path: string) => (e: Error) => {
   }
 }) as unknown as TryImport;
 
+const handleError = (
+  res: ServerResponse,
+  e: unknown,
+  deferredReject: ((e: unknown) => unknown) | null
+) => {
+  // ? Prevent tests that crash the server from hanging
+  !res.writableEnded && res.end();
+
+  // ? Throwing at the point this function was called would not normally cause
+  // ? testApiHandler to reject because createServer (an EventEmitter) only
+  // ? accepts non-async event handlers which swallow errors from async
+  // ? functions (which is why `void` is used instead of `await` below). So
+  // ? we'll have to get creative! How about: defer rejections manually?
+  /* istanbul ignore else */
+  if (deferredReject) deferredReject(e);
+  else throw e;
+};
+
 /**
  * The parameters expected by `testApiHandler`.
  */
 export type TestParameters<NextResponseJsonType = unknown> = {
+  /**
+   * If `false`, errors thrown from within a handler are kicked up to Next.js's
+   * resolver to deal with, which is what would happen in production. Instead,
+   * if `true`, the [[`testApiHandler`]] function will reject immediately.
+   *
+   * @default false
+   */
+  rejectOnHandlerError?: boolean;
+
   /**
    * A function that receives an `IncomingMessage` object. Use this function to
    * edit the request before it's injected into the handler.
@@ -110,6 +137,7 @@ export type TestParameters<NextResponseJsonType = unknown> = {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function testApiHandler<NextResponseJsonType = any>({
+  rejectOnHandlerError,
   requestPatcher,
   responsePatcher,
   paramsPatcher,
@@ -119,9 +147,9 @@ export async function testApiHandler<NextResponseJsonType = any>({
   test
 }: TestParameters<NextResponseJsonType>) {
   let server = null;
+  let deferredReject: ((e?: unknown) => void) | null = null;
 
   try {
-    /* istanbul ignore next */
     if (!apiResolver) {
       // ? The following is for next@>=11.1.0:
       // @ts-ignore: conditional import for earlier next versions
@@ -156,7 +184,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
     const localUrl = await listen(
       (server = createServer((req, res) => {
         try {
-          /* istanbul ignore next */
           if (typeof apiResolver != 'function') {
             throw new Error(
               'assertion failed unexpectedly: apiResolver was not a function'
@@ -178,7 +205,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
            **    query: any,
            **    resolverModule: any,
            **    apiContext: __ApiPreviewProps,
-           **    propagateError: boolean
+         **    propagateError: boolean,
+         **    ...
            ** )
            */
           void apiResolver(
@@ -188,20 +216,17 @@ export async function testApiHandler<NextResponseJsonType = any>({
             handler,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             undefined as any,
-            false
-          );
+          !!rejectOnHandlerError
+        ).catch((e) => handleError(res, e, deferredReject));
         } catch (e) {
-          /* istanbul ignore next */
-          // ? Prevent tests that crash the server from hanging
-          !res.writableEnded && res.end();
-          /* istanbul ignore next */
-          // ? Allow the exception to bubble naturally
-          throw e;
+        handleError(res, e, deferredReject);
         }
       }))
     );
 
-    await test({
+    await new Promise((resolve, reject) => {
+      deferredReject = reject;
+      test({
       fetch: async (init?: RequestInit) => {
         return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
           (res) => {
@@ -231,6 +256,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           }
         );
       }
+      }).then(resolve, reject);
     });
   } finally {
     server?.close();

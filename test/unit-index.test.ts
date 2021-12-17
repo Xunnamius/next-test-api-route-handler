@@ -1,6 +1,6 @@
 import { testApiHandler } from '../src/index';
 import { parse, serialize } from 'cookie';
-import { asMockedFunction } from './setup';
+import { asMockedFunction, withMockedOutput } from './setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -284,6 +284,104 @@ describe('::testApiHandler', () => {
         expect(res.cookies).toBeArrayOfSize(2);
         expect(mockedCookieParse).toBeCalledTimes(4);
       }
+    });
+  });
+
+  it('resolves on errors from handler function by default or if rejectOnHandlerError is false', async () => {
+    expect.hasAssertions();
+
+    await withMockedOutput(async () => {
+      await expect(
+        testApiHandler({
+          handler: () => {
+            throw new Error('not good');
+          },
+          test: async ({ fetch }) => {
+            expect((await fetch()).status).toBe(500);
+            await expect((await fetch()).text()).resolves.toMatch(
+              /Internal Server Error/
+            );
+          }
+        })
+      ).toResolve();
+
+      await expect(
+        testApiHandler({
+          rejectOnHandlerError: false,
+          handler: () => {
+            throw new Error('bad not good');
+          },
+          test: async ({ fetch }) => {
+            expect((await fetch()).status).toBe(500);
+            await expect((await fetch()).text()).resolves.toMatch(
+              /Internal Server Error/
+            );
+          }
+        })
+      ).toResolve();
+    });
+  });
+
+  it('rejects on errors from test function', async () => {
+    expect.hasAssertions();
+
+    await expect(
+      testApiHandler({
+        handler: getHandler(),
+        test: async ({ fetch }) => {
+          await fetch();
+          throw new Error('bad bad no good');
+        }
+      })
+    ).rejects.toMatchObject({ message: 'bad bad no good' });
+
+    await expect(
+      testApiHandler({
+        handler: getHandler(),
+        test: async () => {
+          throw new Error('bad bad no good at all');
+        }
+      })
+    ).rejects.toMatchObject({ message: 'bad bad no good at all' });
+  });
+
+  it('rejects on errors from handler function if rejectOnHandlerError is true', async () => {
+    expect.hasAssertions();
+
+    await withMockedOutput(async () => {
+      await expect(
+        testApiHandler({
+          rejectOnHandlerError: true,
+          handler: () => {
+            throw new Error('bad bad not good');
+          },
+          test: async ({ fetch }) => {
+            await fetch();
+          }
+        })
+      ).rejects.toMatchObject({ message: 'bad bad not good' });
+
+      await expect(
+        testApiHandler({
+          rejectOnHandlerError: true,
+          handler: async () => {
+            throw new Error('bad bad bad not good');
+          },
+          test: async ({ fetch }) => {
+            await fetch();
+          }
+        })
+      ).rejects.toMatchObject({ message: 'bad bad bad not good' });
+
+      await expect(
+        testApiHandler({
+          rejectOnHandlerError: true,
+          handler: () => Promise.reject(new Error('bad bad bad bad not good')),
+          test: async ({ fetch }) => {
+            await fetch();
+          }
+        })
+      ).rejects.toMatchObject({ message: 'bad bad bad bad not good' });
     });
   });
 
