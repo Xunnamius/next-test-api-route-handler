@@ -124,33 +124,56 @@ export function mockEnvFactory(
   };
 }
 
-// TODO: XXX: make this into a separate (jest-isolated-import) package
-export async function isolatedImport(path: string) {
-  let pkg: Promise<unknown> | undefined;
+/**
+ * Performs a module import as if it were being imported for the first time.
+ *
+ * Note that this function breaks the "require caching" expectation of Node.js
+ * modules. Problems can arise, for example, when closing an app-wide database
+ * connection in your test cleanup phase and expecting it to close for the
+ * isolated module too. In this case, the isolated module has its own isolated
+ * "app-wide" connection that would not actually be closed and could cause your
+ * test to hang unexpectedly, even when all tests pass.
+ */
+export function isolatedImport<T = unknown>(args: {
+  /**
+   * Path to the module to import. Module resolution is handled by `require`.
+   */
+  path: string;
+  /**
+   * By default, if `module.__esModule === true`, the default export will be
+   * returned instead. Use `useDefault` to override this behavior in either
+   * direction.
+   */
+  useDefault?: boolean;
+}) {
+  let pkg: T | undefined;
 
   // ? Cache-busting
   jest.isolateModules(() => {
     pkg = ((r) => {
       debug(
-        `performing isolated import of ${path} as ${r.__esModule ? 'es' : 'cjs'} module`
+        `performing isolated import of ${args.path}${
+          args.useDefault ? ' (returning default by force)' : ''
+        }`
       );
 
-      if (!r.__esModule && r.default) {
-        debug(
-          'WARNING: treating module with default export as CJS instead of ESM, which could cause undefined behavior!'
-        );
-      }
-
-      return r.__esModule ? r.default : r;
-    })(require(path));
+      return r.default &&
+        (args.useDefault === true ||
+          (args.useDefault !== false && r.__esModule && Object.keys(r).length == 1))
+        ? r.default
+        : r;
+    })(require(args.path));
   });
 
-  return pkg;
+  return pkg as T;
 }
 
 // TODO: XXX: make this into a separate package (along with the above)
-export function isolatedImportFactory(path: string) {
-  return () => isolatedImport(path);
+export function isolatedImportFactory<T = unknown>(args: {
+  path: string;
+  useDefault?: boolean;
+}) {
+  return () => isolatedImport<T>({ path: args.path, useDefault: args.useDefault });
 }
 
 // TODO: XXX: make this into a separate (mock-exit) package
@@ -174,7 +197,7 @@ export function protectedImportFactory(path: string) {
     let pkg: unknown = undefined;
 
     await withMockedExit(async ({ exitSpy }) => {
-      pkg = await isolatedImport(path);
+      pkg = await isolatedImport({ path });
       if (expect && params?.expectedExitCode)
         expect(exitSpy).toBeCalledWith(params.expectedExitCode);
       else if (!expect)
@@ -447,7 +470,7 @@ export function npmCopySelfFixture(): MockFixture {
       await run('npm', ['install', '--no-save', '--production'], {
         cwd: dest,
         reject: true,
-        env: { CI: 'true' }
+        env: { NODE_ENV: 'production', CI: 'true' }
       });
 
       await run('mv', ['node_modules', 'node_modules_old'], {

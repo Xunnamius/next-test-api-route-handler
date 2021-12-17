@@ -6,6 +6,6 @@
     "src/**/*",
     "test/**/*",
     "external-scripts/**/*",
-    "packages/**/*.ts.*"
+    "packages/**/*"
   ]
 }

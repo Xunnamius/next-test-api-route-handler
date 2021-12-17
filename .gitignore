@@ -1,6 +1,7 @@
 *.ignore
 *.ignore.*
 ignore.*
+*.tsbuildinfo
 dist
 build
 .vscode

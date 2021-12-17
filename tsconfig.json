@@ -10,6 +10,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "incremental": true,
     "inlineSourceMap": true,
     "isolatedModules": true,
     "lib": [
@@ -25,13 +26,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
+      // ! If changed, also update these aliases in jest.config.js,
+      // ! webpack.config.js, next.config.ts, and .eslintrc.js
       "externals/*": ["external-scripts/*"],
       "multiverse/*": ["lib/*"],
       "package": ["package.json"],
+      "pkgverse/*": ["packages/*"],
       "testverse/*": ["test/*"],
       "types/*": ["types/*"],
-      // ! If changed, also update these aliases in jest.config.js,
-      // ! webpack.config.js, next.config.ts, and .eslintrc.js
       "universe/*": ["src/*"]
     },
     "resolveJsonModule": true,
@@ -45,6 +47,7 @@
     "lib/**/*",
     "src/**/*",
     "test/**/*",
-    "external-scripts/**/*"
+    "external-scripts/**/*",
+    "packages/**/*"
   ]
 }
