@@ -2,13 +2,33 @@
 
 ### Type aliases
 
-- [NtarhParameters][1]
+- [FetchReturnType][1]
+- [NtarhParameters][2]
 
 ### Functions
 
-- [testApiHandler][2]
+- [testApiHandler][3]
 
 ## Type aliases
+
+### FetchReturnType
+
+Ƭ **FetchReturnType**<`NextResponseJsonType`>:
+`Promise`<`Omit`<`FetchReturnValue`, `"json"`> & { `cookies`:
+`ReturnType`\<typeof `parseCookieHeader`>\[] ; `json`: (...`args`: \[]) =>
+`Promise`<`NextResponseJsonType`> }>
+
+#### Type parameters
+
+| Name                   |
+| :--------------------- |
+| `NextResponseJsonType` |
+
+#### Defined in
+
+[index.ts:16][4]
+
+---
 
 ### NtarhParameters
 
@@ -24,20 +44,20 @@ The parameters expected by `testApiHandler`.
 
 #### Type declaration
 
-| Name                    | Type                                                                                                                | Description                                                                                                                                                                                                                                                                                                                               |
-| :---------------------- | :------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `handler`               | `NextApiHandler`<`NextResponseJsonType`>                                                                            | The actual handler under test. It should be an async function that accepts `NextApiRequest` and `NextApiResult` objects (in that order) as its two parameters.                                                                                                                                                                            |
-| `params?`               | `Record`<`string`, `string` \| `string`\[]>                                                                         | `params` is passed directly to the handler and represent processed dynamic routes. This should not be confused with query string parsing, which is handled automatically. `params: { id: 'some-id' }` is shorthand for `paramsPatcher: (params) => (params.id = 'some-id')`. This is most useful for quickly setting many params at once. |
-| `rejectOnHandlerError?` | `boolean`                                                                                                           | If `false`, errors thrown from within a handler are kicked up to Next.js's resolver to deal with, which is what would happen in production. Instead, if `true`, the \[\[`testApiHandler`]] function will reject immediately. **`default`** false                                                                                          |
-| `url?`                  | `string`                                                                                                            | `url: 'your-url'` is shorthand for `requestPatcher: (req) => (req.url = 'your-url')`                                                                                                                                                                                                                                                      |
-| `paramsPatcher?`        | (`params`: `Record`<`string`, `unknown`>) => `void`                                                                 | -                                                                                                                                                                                                                                                                                                                                         |
-| `requestPatcher?`       | (`req`: `IncomingMessage`) => `void`                                                                                | -                                                                                                                                                                                                                                                                                                                                         |
-| `responsePatcher?`      | (`res`: `ServerResponse`) => `void`                                                                                 | -                                                                                                                                                                                                                                                                                                                                         |
-| `test`                  | (`params`: { `fetch`: (`init?`: `RequestInit`) => `FetchReturnType`<`NextResponseJsonType`> }) => `Promise`<`void`> | -                                                                                                                                                                                                                                                                                                                                         |
+| Name                    | Type                                                                                                                     | Description                                                                                                                                                                                                                                                                                                                               |
+| :---------------------- | :----------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `handler`               | `NextApiHandler`<`NextResponseJsonType`>                                                                                 | The actual handler under test. It should be an async function that accepts `NextApiRequest` and `NextApiResult` objects (in that order) as its two parameters.                                                                                                                                                                            |
+| `params?`               | `Record`<`string`, `string` \| `string`\[]>                                                                              | `params` is passed directly to the handler and represent processed dynamic routes. This should not be confused with query string parsing, which is handled automatically. `params: { id: 'some-id' }` is shorthand for `paramsPatcher: (params) => (params.id = 'some-id')`. This is most useful for quickly setting many params at once. |
+| `rejectOnHandlerError?` | `boolean`                                                                                                                | If `false`, errors thrown from within a handler are kicked up to Next.js's resolver to deal with, which is what would happen in production. Instead, if `true`, the \[\[`testApiHandler`]] function will reject immediately. **`default`** false                                                                                          |
+| `url?`                  | `string`                                                                                                                 | `url: 'your-url'` is shorthand for `requestPatcher: (req) => (req.url = 'your-url')`                                                                                                                                                                                                                                                      |
+| `paramsPatcher?`        | (`params`: `Record`<`string`, `unknown`>) => `void`                                                                      | -                                                                                                                                                                                                                                                                                                                                         |
+| `requestPatcher?`       | (`req`: `IncomingMessage`) => `void`                                                                                     | -                                                                                                                                                                                                                                                                                                                                         |
+| `responsePatcher?`      | (`res`: `ServerResponse`) => `void`                                                                                      | -                                                                                                                                                                                                                                                                                                                                         |
+| `test`                  | (`params`: { `fetch`: (`init?`: `RequestInit`) => [`FetchReturnType`][1]<`NextResponseJsonType`> }) => `Promise`<`void`> | -                                                                                                                                                                                                                                                                                                                                         |
 
 #### Defined in
 
-[index.ts:70][3]
+[index.ts:70][5]
 
 ## Functions
 
@@ -59,7 +79,7 @@ testing environment.
 
 | Name             | Type                                           |
 | :--------------- | :--------------------------------------------- |
-| `(destructured)` | [`NtarhParameters`][1]<`NextResponseJsonType`> |
+| `(destructured)` | [`NtarhParameters`][2]<`NextResponseJsonType`> |
 
 #### Returns
 
@@ -67,11 +87,14 @@ testing environment.
 
 #### Defined in
 
-[index.ts:134][4]
+[index.ts:134][6]
 
-[1]: README.md#ntarhparameters
-[2]: README.md#testapihandler
-[3]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/5a1a2ee/src/index.ts#L70
+[1]: README.md#fetchreturntype
+[2]: README.md#ntarhparameters
+[3]: README.md#testapihandler
 [4]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/5a1a2ee/src/index.ts#L134
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/a17315d/src/index.ts#L16
+[5]:
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/a17315d/src/index.ts#L70
+[6]:
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/a17315d/src/index.ts#L134
