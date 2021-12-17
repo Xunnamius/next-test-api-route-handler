@@ -74,15 +74,11 @@ it('works as an ESM import', async () => {
     `res.status(status || 200).send({ works: 'working' });`,
     `console.log((await (await fetch()).json()).works)`,
     async (ctx) => {
-      debug('(expecting stdout to be "working" or "")');
-      debug('(expecting stderr to be "" or an error in a 3rd party dependency)');
+      debug('(expecting stdout to be "working")');
+      debug('(expecting exit code to be 0)');
 
-      expect(ctx.testResult?.stdout).toBeOneOf(['working', '']);
-
-      if (ctx.testResult?.stdout == '') {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(ctx.testResult.stderr).toMatch(/ \/.+\/node_modules\/.+$/m);
-      }
+      expect(ctx.testResult?.stdout).toBe('working');
+      expect(ctx.testResult?.code).toBe(0);
     }
   );
 });
@@ -94,11 +90,11 @@ it('works as a CJS require(...)', async () => {
     `res.status(status || 200).send({ works: 'working' });`,
     `console.log((await (await fetch()).json()).works)`,
     async (ctx) => {
-      debug('(expecting exit code to be 0)');
       debug('(expecting stdout to be "working")');
+      debug('(expecting exit code to be 0)');
 
-      expect(ctx.testResult?.code).toBe(0);
       expect(ctx.testResult?.stdout).toBe('working');
+      expect(ctx.testResult?.code).toBe(0);
     }
   );
 });
@@ -110,15 +106,15 @@ it('does not hang (500ms limit) on exception in handler function', async () => {
     `throw new Error('BadBadNotGood');`,
     `console.log(await (await fetch()).text())`,
     async (ctx) => {
-      debug('(expecting exit code to be non-zero)');
-      debug('(expecting stdout to be "")');
+      debug('(expecting stdout to be "Internal Server Error")');
       debug('(expecting stderr to contain "BadBadNotGood")');
+      debug('(expecting exit code to be non-zero)');
 
-      expect(ctx.testResult?.code).toBe(0);
       expect(ctx.testResult?.stdout).toBe('Internal Server Error');
       expect(ctx.testResult?.stderr).toStrictEqual(
         expect.stringContaining('Error: BadBadNotGood')
       );
+      expect(ctx.testResult?.code).toBe(0);
     }
   );
 }, 500);
