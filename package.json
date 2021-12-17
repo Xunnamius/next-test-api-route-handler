@@ -69,7 +69,6 @@
   },
   "dependencies": {
     "cookie": "^0.4.1",
-    "debug": "^4.3.3",
     "isomorphic-unfetch": "^3.1.0"
   },
   "devDependencies": {
