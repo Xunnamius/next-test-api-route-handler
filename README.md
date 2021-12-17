@@ -62,7 +62,7 @@ npm install --save-dev next@latest react
 
 ## Legacy Next.js Support
 
-As of version _`2.1.0`_, NTARH is fully backwards compatible with Next.js going
+As of version `2.1.0`, NTARH is fully backwards compatible with Next.js going
 _allll_ the way back to `next@9.0.0` [when API routes were first
 introduced][19]!
 
