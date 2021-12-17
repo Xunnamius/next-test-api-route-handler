@@ -22,14 +22,14 @@
 
 Trying to unit test your [Next.js API route handlers][1]? Want to avoid mucking
 around with custom servers and writing boring test infra just to get some unit
-tests working? Want your handlers to receive actual [NextApiRequest][2] and
-[NextApiResponse][2] objects rather than having to hack something together with
-express? Then look no further! 🤩
+tests working? Want your handlers to receive actual [`NextApiRequest`][2] and
+[`NextApiResponse`][2] objects rather than having to hack something together
+with express? Then look no further! 🤩
 
-`next-test-api-route-handler` (NTARH) uses Next.js's internal API resolver to
-precisely emulate API route handling. To guarantee stability, this package is
-[automatically tested][13] against [each release of Next.js][3] and Node.js. Go
-forth and test confidently!
+[`next-test-api-route-handler`][link-repo] (NTARH) uses Next.js's internal API
+resolver to precisely emulate API route handling. To guarantee stability, this
+package is [automatically tested][13] against [each release of Next.js][3] and
+Node.js. Go forth and test confidently!
 
 <div align="center">
 
@@ -48,8 +48,8 @@ npm install --save-dev next-test-api-route-handler
 
 ### Step Two: Install Peer Dependencies
 
-If you are [using `npm@<7` or `node@<15`][25], you must install Next.js _and its
-peer dependencies_ manually. This is because [`npm@<7` does not install peer
+If you are using `npm@<7` or `node@<15`, you must install Next.js _and its peer
+dependencies_ manually. This is because [`npm@<7` does not install peer
 dependencies by default][26]. **If you're using a modern version of NPM, you can
 skip this step.**
 
@@ -104,7 +104,7 @@ await testApiHandler({
   requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
   test: async ({ fetch }) => {
     const res = await fetch({ method: 'POST', body: 'data' });
-    console.log(await res.json()); // ◄ outputs: "{hello: 'world'}"
+    expect(await res.json()).toStrictEqual({ hello: 'world' }); // ◄ Passes!
   }
 });
 
@@ -117,9 +117,9 @@ await testApiHandler<{ hello: string }>({
   test: async ({ fetch }) => {
     const res = await fetch({ method: 'POST', body: 'data' });
     // The next line would cause TypeScript to complain:
-    // const { goodbye } = await res.json();
+    // const { goodbye: hello } = await res.json();
     const { hello } = await res.json();
-    console.log(hello); // ◄ outputs: "world"
+    expect(hello).toBe('world'); // ◄ Passes!
   }
 });
 ```
@@ -127,15 +127,8 @@ await testApiHandler<{ hello: string }>({
 The interface for `testApiHandler` without generics looks like this:
 
 ```TypeScript
-async function testApiHandler({
-  requestPatcher,
-  responsePatcher,
-  paramsPatcher,
-  params,
-  url,
-  handler,
-  test
-}: {
+async function testApiHandler(params: {
+  rejectOnHandlerError?: boolean;
   requestPatcher?: (req: IncomingMessage) => void;
   responsePatcher?: (res: ServerResponse) => void;
   paramsPatcher?: (params: Record<string, unknown>) => void;
@@ -152,7 +145,7 @@ async function testApiHandler({
 
 ### `requestPatcher`
 
-A function that receives an [IncomingMessage][5]. Use this function to modify
+A function that receives an [`IncomingMessage`][5]. Use this function to modify
 the request before it's injected into Next.js's resolver. To just set the
 request url, e.g. `requestPatcher: (req) => (req.url = '/my-url?some=query')`,
 use the `url` shorthand, e.g. `url: '/my-url?some=query'`.
@@ -163,8 +156,8 @@ use the `url` shorthand, e.g. `url: '/my-url?some=query'`.
 
 ### `responsePatcher`
 
-A function that receives a [ServerResponse][6]. Use this function to modify the
-response before it's injected into Next.js's resolver.
+A function that receives a [`ServerResponse`][6]. Use this function to modify
+the response before it's injected into Next.js's resolver.
 
 ### `paramsPatcher`
 
@@ -182,31 +175,65 @@ will receive an object like `{ ...queryStringURLParams, ...params }`.
 ### `handler`
 
 The actual route handler under test (usually imported from `pages/api/*`). It
-should be an async function that accepts [NextApiRequest][2] and
-[NextApiResponse][2] objects as its two parameters.
+should be an async function that accepts [`NextApiRequest`][2] and
+[`NextApiResponse`][2] objects as its two parameters.
 
-> As of version `2.3.0`, errors thrown in the `handler` function, while reported
-> via `console.error`, **will not cause the promise returned by `testApiHandler`
-> to reject or throw**. Instead, the response returned by `fetch()` in your
-> `test` function will have a status of `500`. This is more congruous with how
-> Next.js handles exceptions in production. Prior to `2.3.0`, NTARH's behavior
-> on unhandled exceptions and promise rejections in handlers was inconsistent.
->
-> Always check that the status of your response is what you're expecting:
->
-> ```TypeScript
-> const res = await fetch();
-> ...
-> expect(res.status).toBe(200);
-> ```
+> As of version `2.3.0`, unhandled errors in the `handler` function are kicked
+> up to Next.js to handle _by default_. This means **`testApiHandler` will NOT
+> reject or throw if an unhandled error occurs.** Instead, the response returned
+> by `fetch()` in your `test` function will have a status of `500` [thanks to
+> how Next.js deals with unhandled exceptions in production][29]. Prior to
+> `2.3.0`, NTARH's behavior on unhandled exceptions and promise rejections in
+> handlers and elsewhere was inconsistent. Version `3.0.0` further improves
+> error handling, ensuring `testApiHandler` no longer lets errors slip by
+> uncaught.
+
+To guard against false positives, you can do either of the following:
+
+1.  Make sure the status of the `fetch()` response is what you're expecting:
+
+```TypeScript
+const res = await fetch();
+...
+// For this test, a 403 status is what we wanted
+expect(res.status).toBe(403);
+...
+const res2 = await fetch();
+...
+// Later, we expect an "unhandled" exception
+expect(res2.status).toBe(500);
+```
+
+2.  If you're using version `>=3.0.0`, you can use `rejectOnHandlerError` to
+    tell NTARH to intercept unhandled handler errors and reject the promise
+    returned by `testApiHandler` _instead_ of the default behavior (kicking the
+    error up to Next.js):
+
+```TypeScript
+await expect(testApiHandler({
+  rejectOnHandlerError: true,
+  handler: (res) => {
+    res.status(200);
+    throw new Error('bad bad not good');
+  },
+  test: async ({ fetch }) => {
+    const res = await fetch();
+    // By default, res.status would be 500...
+    //expect(res.status).toBe(500);
+  }
+// ...but since we used rejectOnHandlerError, the whole promise rejects instead
+})).rejects.toMatchObject({ message: expect.stringContaining('bad not good') });
+```
 
 ### `test`
 
 A function that returns a promise (or async) where test assertions can be run.
-This function receives one parameter: `fetch`, which is a simple [unfetch][7]
-instance (**note that the _url parameter_, i.e. the first parameter in
-[`fetch(...)`][8], is omitted**). Use this to send HTTP requests to the handler
-under test.
+This function receives one destructured parameter: `fetch`, which is a simple
+[node-fetch][7] instance. Use this to send HTTP requests to the handler under
+test.
+
+**Note that `fetch`'s url parameter, _i.e. the first parameter in
+[`fetch(...)`][8]_, is omitted.**
 
 ##### `response.cookies`
 
@@ -666,8 +693,8 @@ information.
 [4]: CHANGELOG.md
 [5]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
 [6]: https://nodejs.org/api/http.html#http_class_http_serverresponse
-[7]: https://www.npmjs.com/package/isomorphic-unfetch
-[8]: https://github.com/developit/unfetch#examples--demos
+[7]: https://www.npmjs.com/package/node-fetch
+[8]: https://github.com/node-fetch/node-fetch#post-with-json
 [9]: test/unit-index.test.ts
 [10]: https://github.com/vercel/next.js
 [11]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
@@ -693,3 +720,5 @@ information.
 [27]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
 [28]: ./test/unit-index.test.ts
+[29]:
+  https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
