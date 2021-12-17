@@ -104,7 +104,7 @@ await testApiHandler({
   requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
   test: async ({ fetch }) => {
     const res = await fetch({ method: 'POST', body: 'data' });
-    expect(await res.json()).toStrictEqual({ hello: 'world' }); // ◄ Passes!
+    await expect(res.json()).resolves.toStrictEqual({ hello: 'world' }); // ◄ Passes!
   }
 });
 
@@ -347,7 +347,7 @@ describe('my-test', () => {
           })
         });
 
-        expect(await res.json()).toStrictEqual({
+        await expect(res.json()).resolves.toStrictEqual({
           data: { viewer: { id: '1', name: 'John Smith', status: 'cached' } }
         });
       }
@@ -690,7 +690,6 @@ information.
 [1]: https://nextjs.org/docs/api-routes/introduction
 [2]: https://nextjs.org/docs/basic-features/typescript#api-routes
 [3]: https://github.com/vercel/next.js/releases
-[4]: CHANGELOG.md
 [5]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
 [6]: https://nodejs.org/api/http.html#http_class_http_serverresponse
 [7]: https://www.npmjs.com/package/node-fetch
@@ -713,8 +712,6 @@ information.
 [22]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
 [23]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
 [24]: https://www.npmjs.com/package/cookie
-[25]:
-  https://github.com/Xunnamius/next-test-api-route-handler/issues/378#issuecomment-956932193
 [26]:
   https://github.blog/2021-02-02-npm-7-is-now-generally-available/#peer-dependencies
 [27]:
