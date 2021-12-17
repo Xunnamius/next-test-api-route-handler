@@ -58,7 +58,7 @@ it(`is verbose when DEBUG='${debugId}'`, async () => {
 
   await withMockedFixture(async ({ root }) => {
     const { code, stdout, stderr } = await runExternal(undefined, {
-      env: { DEBUG: debugId },
+      env: { NODE_ENV: process.env.NODE_ENV, DEBUG: debugId },
       cwd: root
     });
 
