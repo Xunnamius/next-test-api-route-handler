@@ -36,14 +36,14 @@ Promise<typeof import('next/dist/server/api-utils.js')>) & {
 
 // ? The result of the calling function is memoized, so this function will only
 // ? be invoked the first time this script is imported.
-/* istanbul ignore next */
 const tryImport = ((path: string) => (e: Error) => {
   (tryImport.importErrors = tryImport.importErrors ?? []).push(e);
-  if (typeof __webpack_require__ === 'function') {
+  /* istanbul ignore next */
+  if (typeof __webpack_require__ == 'function') {
     return process.env.NODE_ESM
       ? import(/* webpackIgnore: true */ path)
       : __non_webpack_require__(path);
-  } else if (typeof require === 'function') {
+  } else if (typeof require == 'function') {
     // ? Node12 does not support dynamic imports, so fall back to require first
     return require(path);
   } else {
