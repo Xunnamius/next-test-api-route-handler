@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
-import listen from 'test-listen';
 import fetch from 'isomorphic-unfetch';
 import { createServer } from 'http';
 import { parse as parseUrl } from 'url';
@@ -7,7 +6,7 @@ import { parse as parseCookieHeader } from 'cookie';
 
 import type { PromiseValue } from 'type-fest';
 import type { NextApiHandler } from 'next';
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { Server, IncomingMessage, ServerResponse } from 'http';
 
 // @ts-ignore: ignore this (conditional) import so bundlers don't choke and die
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils';
@@ -146,7 +145,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   handler,
   test
 }: NtarhParameters<NextResponseJsonType>) {
-  let server = null;
+  let server: Server | null = null;
   let deferredReject: ((e?: unknown) => void) | null = null;
 
   try {
@@ -181,8 +180,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       }
     }
 
-    const localUrl = await listen(
-      (server = createServer((req, res) => {
+    server = createServer((req, res) => {
         try {
           if (typeof apiResolver != 'function') {
             throw new Error(
@@ -221,8 +219,25 @@ export async function testApiHandler<NextResponseJsonType = any>({
         } catch (e) {
         handleError(res, e, deferredReject);
         }
-      }))
+    });
+
+    const port = await new Promise<number>((resolve, reject) => {
+      server?.listen(() => {
+        const addr = server?.address();
+
+        if (!addr || typeof addr == 'string') {
+          reject(
+            new Error(
+              'assertion failed unexpectedly: server did not return AddressInfo instance'
+            )
     );
+        } else {
+          resolve(addr?.port);
+        }
+      });
+    });
+
+    const localUrl = `http://localhost:${port}`;
 
     await new Promise((resolve, reject) => {
       deferredReject = reject;
