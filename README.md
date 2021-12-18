@@ -180,11 +180,10 @@ should be an async function that accepts [`NextApiRequest`][2] and
 > up to Next.js to handle _by default_. This means **`testApiHandler` will NOT
 > reject or throw if an unhandled error occurs.** Instead, the response returned
 > by `fetch()` in your `test` function will have a status of `500` [thanks to
-> how Next.js deals with unhandled errors in production][29]. Prior to
-> `2.3.0`, NTARH's behavior on unhandled errors and promise rejections in
-> handlers and elsewhere was inconsistent. Version `3.0.0` further improves
-> error handling, ensuring `testApiHandler` no longer lets errors slip by
-> uncaught.
+> how Next.js deals with unhandled errors in production][29]. Prior to `2.3.0`,
+> NTARH's behavior on unhandled errors and promise rejections in handlers and
+> elsewhere was inconsistent. Version `3.0.0` further improves error handling,
+> ensuring `testApiHandler` no longer lets errors slip by uncaught.
 
 To guard against false positives, you can do either of the following:
 
