@@ -135,9 +135,7 @@ async function testApiHandler(params: {
   params?: Record<string, unknown>;
   url?: string;
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
-  test: ({
-    fetch: (init?: RequestInit) => FetchReturnType;
-  }) => Promise<void>;
+  test: ({ fetch: (init?: RequestInit) => FetchReturnType; }) => Promise<void>;
 });
 ```
 
