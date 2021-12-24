@@ -176,14 +176,14 @@ should be an async function that accepts [`NextApiRequest`][2] and
 
 > As of version `2.3.0`, unhandled errors in the `handler` function are kicked
 > up to Next.js to handle. This means **`testApiHandler` will NOT reject or
-> throw if an unhandled error occurs.** Instead, the response returned by
-> `fetch()` in your `test` function will have a `HTTP 500` status [thanks to how
-> Next.js deals with unhandled errors in production][29]. Prior to `2.3.0`,
-> NTARH's behavior on unhandled errors in `handler` and elsewhere was
-> inconsistent. Version `3.0.0` further improves error handling, ensuring no
-> errors slip by uncaught.
+> throw if an unhandled error occurs in `handler`, which includes failing Jest
+> `expect()` assertions.** Instead, the response returned by `fetch()` in your
+> `test` function will have a `HTTP 500` status [thanks to how Next.js deals
+> with unhandled errors in production][29]. Prior to `2.3.0`, NTARH's behavior
+> on unhandled errors in `handler` and elsewhere was inconsistent. Version
+> `3.0.0` further improves error handling, ensuring no errors slip by uncaught.
 
-To guard against false positives, you can do either of the following:
+To guard against false negatives, you can do either of the following:
 
 1.  Make sure the status of the `fetch()` response is what you're expecting:
 
@@ -202,12 +202,13 @@ expect(res2.status).toBe(500);
 2.  If you're using version `>=3.0.0`, you can use `rejectOnHandlerError` to
     tell NTARH to intercept unhandled handler errors and reject the promise
     returned by `testApiHandler` _instead_ of relying on Next.js to respond with
-    `HTTP 500`:
+    `HTTP 500`. This is especially useful if you have `expect()` assertions
+    _inside_ your handler function:
 
 ```TypeScript
 await expect(
   testApiHandler({
-    rejectOnHandlerError: true,
+    rejectOnHandlerError: true, // <==
     handler: (res) => {
       res.status(200);
       throw new Error('bad bad not good');
@@ -218,8 +219,27 @@ await expect(
       //expect(res.status).toBe(500);
     }
   })
-  // ...but since we used rejectOnHandlerError, the whole promise rejects instead
-).rejects.toMatchObject({ message: expect.stringContaining('bad not good') });
+  // ...but since we used rejectOnHandlerError, the whole promise rejects
+  // instead
+).rejects.toThrow('bad not good');
+
+await testApiHandler({
+  rejectOnHandlerError: true, // <==
+  handler: async (res) => {
+    // Suppose this expectation fails
+    await expect(backend.getSomeStuff()).resolves.toStrictEqual(someStuff);
+  },
+  test: async ({ fetch }) => {
+    await fetch();
+    // By default, res.status would be 500 due to the failing expect(). If we
+    // don't also expect() a non-500 response status here, the failing
+    // expectation in the handler will be swallowed and the test will pass
+    // (a false negative).
+  }
+});
+// ...but since we used rejectOnHandlerError, the whole promise rejects
+// and Jest reports that the test failed, which is probably what you wanted.
+
 ```
 
 ### `test`
