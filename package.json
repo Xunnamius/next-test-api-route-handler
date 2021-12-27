@@ -147,7 +147,7 @@
     "semantic-release": "github:xunnamius/semantic-release",
     "semver": "^7.3.5",
     "simple-git": "^2.48.0",
-    "sort-package-json": "github:xunnamius/sort-package-json",
+    "sort-package-json": "^1.53.1",
     "source-map-support": "^0.5.21",
     "spellchecker": "^3.7.1",
     "strip-ansi": "^6.0.1",
