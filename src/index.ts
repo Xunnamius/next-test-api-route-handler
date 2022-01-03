@@ -29,8 +29,8 @@ Promise<typeof import('next/dist/server/api-utils.js')>) & {
   importErrors: Error[];
 };
 
-// ? The result of the calling function is memoized, so this function will only
-// ? be invoked the first time this script is imported.
+// ? The result of this function is memoized by the caller, so this function
+// ? will only be invoked the first time this script is imported.
 const tryImport = ((path: string) => (e: Error) => {
   (tryImport.importErrors = tryImport.importErrors ?? []).push(e);
   /* istanbul ignore next */
