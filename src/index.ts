@@ -228,7 +228,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
             )
           );
         } else {
-          resolve(addr?.port);
+          resolve(addr.port);
         }
       });
     });
