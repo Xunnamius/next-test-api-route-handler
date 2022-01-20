@@ -67,9 +67,11 @@ jobs:
         uses: actions/cache@v2.1.7
         id: cache-npm
         with:
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          key:
+            npm-node-${{ matrix.node }}-${{ runner.os }}-${{
+            hashFiles('**/package-lock.json') }}
           path: ~/.npm
-          restore-keys: npm-${{ runner.os }}-
+          restore-keys: npm-node-${{ matrix.node }}-${{ runner.os }}-
 
       - name: Install CI dependencies
         run: |
