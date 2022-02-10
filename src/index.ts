@@ -234,11 +234,24 @@ export async function testApiHandler<NextResponseJsonType = any>({
     });
 
     const localUrl = `http://localhost:${port}`;
+    const defaultInit: RequestInit = {
+      headers: {
+        'x-msw-bypass': 'true'
+      }
+    };
 
     await new Promise((resolve, reject) => {
       deferredReject = reject;
       test({
-        fetch: async (init?: RequestInit) => {
+        fetch: async (customInit?: RequestInit) => {
+          const init: RequestInit = {
+            ...defaultInit,
+            ...customInit,
+            headers: {
+              ...defaultInit.headers,
+              ...customInit?.headers
+            }
+          };
           return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
             (res) => {
               // ? Lazy load (on demand) the contents of the `cookies` field

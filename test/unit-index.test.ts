@@ -117,6 +117,66 @@ describe('::testApiHandler', () => {
     });
   });
 
+  it('automatically inserts x-msw-bypass when no header is set', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      handler: async (req, res) => {
+        res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch();
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({
+          mswBypass: 'true'
+        });
+      }
+    });
+  });
+
+  it('automatically inserts x-msw-bypass when other headers are set through request patcher', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      requestPatcher: (req) => (req.headers.key = 'secret'),
+      handler: async (req, res) => {
+        res.status(200).send({
+          mswBypass: req.headers['x-msw-bypass'],
+          key: req.headers.key
+        });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch();
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({
+          mswBypass: 'true',
+          key: 'secret'
+        });
+      }
+    });
+  });
+
+  it('automatically inserts x-msw-bypass when other headers are set via the fetch init argument', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      handler: async (req, res) => {
+        res.status(200).send({
+          mswBypass: req.headers['x-msw-bypass'],
+          authorization: req.headers.authorization
+        });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch({ headers: { authorization: 'Bearer XYZ123' } });
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({
+          mswBypass: 'true',
+          authorization: 'Bearer XYZ123'
+        });
+      }
+    });
+  });
+
   it('respects changes introduced through response patcher', async () => {
     expect.hasAssertions();
 
