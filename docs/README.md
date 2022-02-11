@@ -93,8 +93,8 @@ testing environment.
 [2]: README.md#ntarhparameters
 [3]: README.md#testapihandler
 [4]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/8649ce9/src/index.ts#L16
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/0ee4ce5/src/index.ts#L16
 [5]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/8649ce9/src/index.ts#L70
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/0ee4ce5/src/index.ts#L70
 [6]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/8649ce9/src/index.ts#L134
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/0ee4ce5/src/index.ts#L134
