@@ -135,7 +135,7 @@ async function testApiHandler(args: {
   params?: Record<string, unknown>;
   url?: string;
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
-  test: (args: { fetch: (init?: RequestInit) => FetchReturnType }) => Promise<void>;
+  test: (args: { fetch: (customInit?: RequestInit) => FetchReturnType }) => Promise<void>;
 });
 ```
 
@@ -251,6 +251,10 @@ test.
 
 **Note that `fetch`'s url parameter, _i.e. the first parameter in
 [`fetch(...)`][8]_, is omitted.**
+
+As of version 3.1.0, NTARH adds the [`x-msw-bypass: true`][4] header to all
+requests by default. You can use `fetch`'s `customInit` parameter to override
+this behavior if desired.
 
 ##### `response.cookies`
 
@@ -736,3 +740,5 @@ information.
 [28]: ./test/unit-index.test.ts
 [29]:
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
+[4]:
+  https://github.com/mswjs/msw/blob/2e7ecd87e5568c6e59a408e812535f088498e437/src/utils/handleRequest.ts#L60-L65
