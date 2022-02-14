@@ -1,4 +1,4 @@
-/* eslint-disable jest/no-conditional-expect */
+/* eslint-disable jest/no-conditional-in-test, jest/no-conditional-expect */
 import debugFactory from 'debug';
 import stripAnsi from 'strip-ansi';
 import { satisfies as satisfiesRange } from 'semver';

@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-conditional-in-test */
 import { name as pkgName, peerDependencies } from 'package';
 import { run, mockFixtureFactory, dummyNpmPackageFixture, runnerFactory } from './setup';
 import debugFactory from 'debug';
