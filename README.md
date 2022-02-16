@@ -252,7 +252,7 @@ test.
 **Note that `fetch`'s url parameter, _i.e. the first parameter in
 [`fetch(...)`][8]_, is omitted.**
 
-As of version 3.1.0, NTARH adds the [`x-msw-bypass: true`][4] header to all
+As of version `3.1.0`, NTARH adds the [`x-msw-bypass: true`][4] header to all
 requests by default. You can use `fetch`'s `customInit` parameter to override
 this behavior if desired.
 
