@@ -75,7 +75,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.17.3",
-    "@babel/core": "^7.17.3",
+    "@babel/core": "^7.17.4",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-proposal-export-default-from": "^7.16.7",
     "@babel/plugin-proposal-function-bind": "^7.16.7",
