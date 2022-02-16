@@ -122,7 +122,7 @@ export type NtarhParameters<NextResponseJsonType = unknown> = {
    * first parameter omitted.
    */
   test: (params: {
-    fetch: (init?: RequestInit) => FetchReturnType<NextResponseJsonType>;
+    fetch: (customInit?: RequestInit) => FetchReturnType<NextResponseJsonType>;
   }) => Promise<void>;
 };
 
