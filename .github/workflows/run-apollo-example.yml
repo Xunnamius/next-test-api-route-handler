@@ -3,7 +3,7 @@ name: run-apollo-example
 on:
   workflow_dispatch: # * Treated like a scheduled run
   schedule:
-    - cron: '0 12 */1 * *'
+    - cron: '0 */6 * * *'
 
 env:
   # * Selectively enable debugger verbose output in the pipeline
