@@ -2,6 +2,12 @@ name: run-apollo-example
 
 on:
   workflow_dispatch: # * Treated like a scheduled run
+    inputs:
+      dist-tag:
+        type: string
+        description: NTARH version to test
+        required: true
+        default: 'latest'
   schedule:
     - cron: '0 */6 * * *'
 
@@ -50,12 +56,12 @@ jobs:
           git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
           cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
           npm install
-          npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env graphql-tools
+          npm install next-test-api-route-handler@${{ github.event.inputs.dist-tag }} jest babel-jest @babel/core @babel/preset-env graphql-tools
           # You could test with an older version of Next.js if you want, e.g.:
           # npm install next@9.0.6 --force
           # Or even older:
           # npm install next@9.0.0 next-server --force
           echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
           mkdir test
-          curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
+          curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/${{ github.sha }}/apollo_test_raw
           npx jest
