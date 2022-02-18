@@ -9,7 +9,7 @@ import type { Server, IncomingMessage, ServerResponse } from 'http';
 import type { RequestInit, Response as FetchReturnValue } from 'node-fetch';
 
 // @ts-ignore: ignore this (conditional) import so bundlers don't choke and die
-import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils';
+import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/node';
 
 let apiResolver: typeof NextApiResolver | null = null;
 
@@ -25,7 +25,7 @@ export type FetchReturnType<NextResponseJsonType> = Promise<
 type TryImport = ((path: string) => (
   e: Error
 ) => // @ts-ignore: this file might not exist in some versions of next
-Promise<typeof import('next/dist/server/api-utils.js')>) & {
+Promise<typeof import('next/dist/server/api-utils/node.js')>) & {
   importErrors: Error[];
 };
 
@@ -146,9 +146,11 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
   try {
     if (!apiResolver) {
-      // ? The following is for next@>=11.1.0:
+      // ? The following is for next@>=12.1.0:
       // @ts-ignore: conditional import for earlier next versions
-      ({ apiResolver } = await import('next/dist/server/api-utils.js')
+      ({ apiResolver } = await import('next/dist/server/api-utils/node.js')
+        // ? The following is for next@<12.1.0 >=11.1.0:
+        .catch(tryImport('next/dist/server/api-utils.js'))
         // ? The following is for next@<11.1.0 >=9.0.6:
         .catch(tryImport('next/dist/next-server/server/api-utils.js'))
         // ? The following is for next@<9.0.6 >= 9.0.0:

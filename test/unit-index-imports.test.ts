@@ -3,17 +3,20 @@ import { isolatedImport } from './setup';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { IncomingMessage, ServerResponse } from 'http';
 
-const firstResolverPath = 'next/dist/server/api-utils.js';
-const secondResolverPath = 'next/dist/next-server/server/api-utils.js';
-const thirdResolverPath = 'next-server/dist/server/api-utils.js';
+const actualResolverPath = 'next/dist/server/api-utils/node.js';
+const altResolverPaths = [
+  'next-server/dist/server/api-utils.js',
+  'next/dist/next-server/server/api-utils.js',
+  'next/dist/server/api-utils.js'
+];
 
-jest.mock('next/dist/server/api-utils.js', () => {
+jest.mock('next/dist/server/api-utils/node.js', () => {
   return new Proxy(
     {},
     {
       get: function (_, key) {
         if (mockResolversMetadata) {
-          const meta = mockResolversMetadata[firstResolverPath];
+          const meta = mockResolversMetadata[actualResolverPath];
           if (meta.shouldFail) {
             throw new Error(`fake import failure #1`);
           } else if (key == 'apiResolver') {
@@ -24,33 +27,11 @@ jest.mock('next/dist/server/api-utils.js', () => {
             return this;
           }
           // ? Mocks are hoisted above imports, so account for that
-        } else throw new Error('proxy invoked too early');
+        } else throw new Error('proxy #1 invoked too early');
       }
     }
   );
 });
-
-jest.mock(
-  'next/dist/next-server/server/api-utils.js',
-  () => {
-    return new Proxy(
-      {},
-      {
-        get: function (_, key) {
-          if (mockResolversMetadata) {
-            const meta = mockResolversMetadata[secondResolverPath];
-            if (meta.shouldFail) {
-              throw new Error(`fake import failure #2`);
-            } else if (key == 'apiResolver') {
-              return getMockResolver(meta);
-            }
-          } else throw new Error('proxy invoked too early');
-        }
-      }
-    );
-  },
-  { virtual: true }
-);
 
 jest.mock(
   'next-server/dist/server/api-utils.js',
@@ -60,13 +41,57 @@ jest.mock(
       {
         get: function (_, key) {
           if (mockResolversMetadata) {
-            const meta = mockResolversMetadata[thirdResolverPath];
+            const meta = mockResolversMetadata[altResolverPaths[0]];
+            if (meta.shouldFail) {
+              throw new Error(`fake import failure #2`);
+            } else if (key == 'apiResolver') {
+              return getMockResolver(meta);
+            }
+          } else throw new Error('proxy #2 invoked too early');
+        }
+      }
+    );
+  },
+  { virtual: true }
+);
+
+jest.mock(
+  'next/dist/next-server/server/api-utils.js',
+  () => {
+    return new Proxy(
+      {},
+      {
+        get: function (_, key) {
+          if (mockResolversMetadata) {
+            const meta = mockResolversMetadata[altResolverPaths[1]];
             if (meta.shouldFail) {
               throw new Error(`fake import failure #3`);
             } else if (key == 'apiResolver') {
               return getMockResolver(meta);
             }
-          } else throw new Error('proxy invoked too early');
+          } else throw new Error('proxy #3 invoked too early');
+        }
+      }
+    );
+  },
+  { virtual: true }
+);
+
+jest.mock(
+  'next/dist/server/api-utils.js',
+  () => {
+    return new Proxy(
+      {},
+      {
+        get: function (_, key) {
+          if (mockResolversMetadata) {
+            const meta = mockResolversMetadata[altResolverPaths[2]];
+            if (meta.shouldFail) {
+              throw new Error(`fake import failure #4`);
+            } else if (key == 'apiResolver') {
+              return getMockResolver(meta);
+            }
+          } else throw new Error('proxy #4 invoked too early');
         }
       }
     );
@@ -75,17 +100,22 @@ jest.mock(
 );
 
 const mockResolversMetadata = {
-  [firstResolverPath]: {
+  [actualResolverPath]: {
     called: false,
     shouldFail: false,
     shouldReturnBadValue: false
   },
-  [secondResolverPath]: {
+  [altResolverPaths[0]]: {
     called: false,
     shouldFail: false,
     shouldReturnBadValue: false
   },
-  [thirdResolverPath]: {
+  [altResolverPaths[1]]: {
+    called: false,
+    shouldFail: false,
+    shouldReturnBadValue: false
+  },
+  [altResolverPaths[2]]: {
     called: false,
     shouldFail: false,
     shouldReturnBadValue: false
@@ -130,7 +160,7 @@ describe('::testApiHandler', () => {
   it('gets apiResolver from wherever it might be located using whatever method is available', async () => {
     expect.hasAssertions();
 
-    mockResolversMetadata[firstResolverPath].shouldFail = true;
+    mockResolversMetadata[actualResolverPath].shouldFail = true;
 
     await expect(
       importNtarh()({
@@ -141,14 +171,15 @@ describe('::testApiHandler', () => {
       })
     ).toResolve();
 
-    expect(mockResolversMetadata[firstResolverPath].called).toBeFalse();
-    expect(mockResolversMetadata[secondResolverPath].called).toBeTrue();
-    expect(mockResolversMetadata[thirdResolverPath].called).toBeFalse();
+    expect(mockResolversMetadata[actualResolverPath].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[2]].called).toBeTrue();
+    expect(mockResolversMetadata[altResolverPaths[1]].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[0]].called).toBeFalse();
 
     resetMockResolverFlags();
 
-    mockResolversMetadata[firstResolverPath].shouldFail = true;
-    mockResolversMetadata[secondResolverPath].shouldFail = true;
+    mockResolversMetadata[actualResolverPath].shouldFail = true;
+    mockResolversMetadata[altResolverPaths[2]].shouldFail = true;
 
     await expect(
       importNtarh()({
@@ -157,15 +188,37 @@ describe('::testApiHandler', () => {
       })
     ).toResolve();
 
-    expect(mockResolversMetadata[firstResolverPath].called).toBeFalse();
-    expect(mockResolversMetadata[secondResolverPath].called).toBeFalse();
-    expect(mockResolversMetadata[thirdResolverPath].called).toBeTrue();
+    expect(mockResolversMetadata[actualResolverPath].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[2]].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[1]].called).toBeTrue();
+    expect(mockResolversMetadata[altResolverPaths[0]].called).toBeFalse();
 
     resetMockResolverFlags();
 
-    mockResolversMetadata[firstResolverPath].shouldFail = true;
-    mockResolversMetadata[secondResolverPath].shouldFail = true;
-    mockResolversMetadata[thirdResolverPath].shouldFail = true;
+    mockResolversMetadata[actualResolverPath].shouldFail = true;
+    mockResolversMetadata[altResolverPaths[2]].shouldFail = true;
+    mockResolversMetadata[altResolverPaths[1]].shouldFail = true;
+
+    await expect(
+      importNtarh()({
+        handler: getHandler(),
+        test: async ({ fetch }) => expect((await fetch()).status).toBe(200)
+      })
+    ).toResolve();
+
+    expect(mockResolversMetadata[actualResolverPath].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[2]].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[1]].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[0]].called).toBeTrue();
+
+    // ? Finally, they should all fail if they are all not found
+
+    resetMockResolverFlags();
+
+    mockResolversMetadata[actualResolverPath].shouldFail = true;
+    mockResolversMetadata[altResolverPaths[2]].shouldFail = true;
+    mockResolversMetadata[altResolverPaths[1]].shouldFail = true;
+    mockResolversMetadata[altResolverPaths[0]].shouldFail = true;
 
     await expect(
       importNtarh()({
@@ -174,19 +227,20 @@ describe('::testApiHandler', () => {
       })
     ).rejects.toMatchObject({
       message: expect.stringMatching(
-        /- fake import failure #1\s+- fake import failure #2\s+- fake import failure #3/
+        /- fake import failure #1\s+- fake import failure #4\s+- fake import failure #3\s+- fake import failure #2/
       )
     });
 
-    expect(mockResolversMetadata[firstResolverPath].called).toBeFalse();
-    expect(mockResolversMetadata[secondResolverPath].called).toBeFalse();
-    expect(mockResolversMetadata[thirdResolverPath].called).toBeFalse();
+    expect(mockResolversMetadata[actualResolverPath].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[2]].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[1]].called).toBeFalse();
+    expect(mockResolversMetadata[altResolverPaths[0]].called).toBeFalse();
   });
 
   it('sanity checks apiResolver value when server is created', async () => {
     expect.hasAssertions();
 
-    mockResolversMetadata[firstResolverPath].shouldReturnBadValue = true;
+    mockResolversMetadata[actualResolverPath].shouldReturnBadValue = true;
 
     await expect(
       importNtarh()({
