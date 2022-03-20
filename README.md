@@ -9,8 +9,6 @@
 [![Pull requests][badge-pulls]][link-pulls]
 [![Codecov][badge-codecov]][link-codecov]
 [![Source license][badge-license]][link-license]
-[![Tree shaking support][badge-tree-shaking]][link-bundlephobia]
-[![Compressed package size][badge-size]][link-bundlephobia]
 [![NPM version][badge-npm]][link-npm]
 [![Uses Semantic Release!][badge-semantic-release]][link-semantic-release]
 
