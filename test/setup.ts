@@ -467,7 +467,7 @@ export function npmCopySelfFixture(): MockFixture {
         JSON.stringify({ ...dummyPkgJson, dependencies: installTargets })
       );
 
-      await run('npm', ['install', '--no-save', '--production'], {
+      await run('npm', ['install', '--no-save', '--production', '--force'], {
         cwd: dest,
         reject: true,
         env: { NODE_ENV: 'production', CI: 'true' }

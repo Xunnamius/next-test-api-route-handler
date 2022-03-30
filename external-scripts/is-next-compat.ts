@@ -169,12 +169,13 @@ const invoked = async () => {
   await getLastTestedVersion();
 
   debug(`installing next@${latestReleaseVersion} for unit tests`);
-  debug(`(integration tests use own Next.js versions)`);
+  debug(`(integration tests use their own Next.js versions)`);
 
   // ? Install peer deps manually for ancient node versions
   await execaWithDebug('npm', [
     'install',
     '--no-save',
+    '--force',
     `next@${latestReleaseVersion}`,
     'react'
   ]);
