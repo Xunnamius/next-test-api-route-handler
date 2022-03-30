@@ -213,7 +213,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           undefined as any,
           !!rejectOnHandlerError
-        ).catch((e) => handleError(res, e, deferredReject));
+        ).catch((e: unknown) => handleError(res, e, deferredReject));
       } catch (e) {
         handleError(res, e, deferredReject);
       }
