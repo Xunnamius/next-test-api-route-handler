@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload output artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: output-node-${{ matrix.node }}-${{ github.sha }}
           path: /tmp/output.txt
