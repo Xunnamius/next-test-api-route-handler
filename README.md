@@ -20,9 +20,9 @@
 
 Trying to unit test your [Next.js API route handlers][1]? Want to avoid mucking
 around with custom servers and writing boring test infra just to get some unit
-tests working? Want your handlers to receive actual [`NextApiRequest`][2] and
+tests working? Want your handlers to receive _actual_ [`NextApiRequest`][2] and
 [`NextApiResponse`][2] objects rather than having to hack something together
-with express? Then look no further! 🤩
+with express or node-mocks-http? Then look no further! 🤩
 
 [`next-test-api-route-handler`][link-repo] (NTARH) uses Next.js's internal API
 resolver to precisely emulate API route handling. To guarantee stability, this
