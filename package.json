@@ -158,7 +158,7 @@
     "type-fest": "^2.12.2",
     "typedoc": "^0.22.15",
     "typedoc-plugin-markdown": "^3.12.1",
-    "typescript": "^4.6.4",
+    "typescript": "^4.7.0-beta",
     "unique-filename": "^1.1.1",
     "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2",
