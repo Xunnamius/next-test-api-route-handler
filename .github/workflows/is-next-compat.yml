@@ -73,11 +73,11 @@ jobs:
 
       - name: Install CI dependencies
         run: |
-          npm ci
-          npm install --no-save semver
+          npm ci --force
+          npm install --force --no-save semver
           # ? Install peer deps manually for ancient node versions
           if [ `node -e 'console.log(require("semver").satisfies(process.versions.node, "<15"))'` == 'true' ]; then
-            npm install --no-save next
+            npm install --force --no-save next
           fi
 
       - name: Build distributables
