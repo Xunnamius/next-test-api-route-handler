@@ -159,8 +159,9 @@ A function that receives an object representing "processed" dynamic routes, e.g.
 testing a handler that expects `/api/user/:id` requires
 `paramPatcher: (params) => (params.id = 'test-id')`. Route parameters can also
 be passed using the `params` shorthand, e.g. `params: { id: 'test-id', ... }`.
-If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
-will receive an object like `{ ...queryStringURLParams, ...params }`.
+Due to its simplicity, favor the `params` shorthand over `paramsPatcher`. If
+both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher` will
+receive an object like `{ ...queryStringURLParams, ...params }`. 
 
 > Route parameters should not be confused with [query string parameters][14],
 > which are automatically parsed out from the url and added to the params object
