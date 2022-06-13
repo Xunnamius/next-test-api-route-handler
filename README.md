@@ -157,7 +157,7 @@ the response before it's injected into Next.js's resolver.
 
 A function that receives an object representing "processed" dynamic routes, e.g.
 testing a handler that expects `/api/user/:id` requires
-`paramPatcher: (params) => (params.id = 'test-id')`. Route parameters can also
+`paramsPatcher: (params) => (params.id = 'test-id')`. Route parameters can also
 be passed using the `params` shorthand, e.g. `params: { id: 'test-id', ... }`.
 Due to its simplicity, favor the `params` shorthand over `paramsPatcher`. If
 both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher` will
