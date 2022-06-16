@@ -95,7 +95,7 @@
     "@types/edit-json-file": "^1.7.0",
     "@types/find-package-json": "^1.2.3",
     "@types/jest": "^28.1.0",
-    "@types/node": "^17.0.38",
+    "@types/node": "^18.0.0",
     "@types/node-fetch": "^2.5.12",
     "@types/semver": "^7.3.9",
     "@types/test-listen": "^1.1.0",
