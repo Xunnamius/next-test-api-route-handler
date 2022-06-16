@@ -71,7 +71,7 @@ export type NtarhParameters<NextResponseJsonType = unknown> = {
   /**
    * If `false`, errors thrown from within a handler are kicked up to Next.js's
    * resolver to deal with, which is what would happen in production. Instead,
-   * if `true`, the [[`testApiHandler`]] function will reject immediately.
+   * if `true`, the {@link testApiHandler} function will reject immediately.
    *
    * @default false
    */
