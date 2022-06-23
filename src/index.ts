@@ -80,6 +80,8 @@ export type NtarhParameters<NextResponseJsonType = unknown> = {
   /**
    * A function that receives an `IncomingMessage` object. Use this function to
    * edit the request before it's injected into the handler.
+   *
+   * **Note: all replacement `IncomingMessage.header` names must be lowercase.**
    */
   requestPatcher?: (req: IncomingMessage) => void;
   /**
