@@ -161,7 +161,7 @@ testing a handler that expects `/api/user/:id` requires
 be passed using the `params` shorthand, e.g. `params: { id: 'test-id', ... }`.
 Due to its simplicity, favor the `params` shorthand over `paramsPatcher`. If
 both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher` will
-receive an object like `{ ...queryStringURLParams, ...params }`. 
+receive an object like `{ ...queryStringURLParams, ...params }`.
 
 > Route parameters should not be confused with [query string parameters][14],
 > which are automatically parsed out from the url and added to the params object
@@ -252,8 +252,16 @@ test.
 [`fetch(...)`][8]_, is omitted.**
 
 As of version `3.1.0`, NTARH adds the [`x-msw-bypass: true`][4] header to all
-requests by default. You can use `fetch`'s `customInit` parameter to override
-this behavior if desired.
+requests by default. You can override this behavior by unsetting the header via
+`requestPatcher`:
+
+```TypeScript
+await testApiHandler({
+  handler,
+  requestPatcher: (req) => delete req.headers['x-msw-bypass'], // <==
+  test: async ({ fetch }) => expect((await fetch()).status).toBe(200)
+});
+```
 
 ##### `response.cookies`
 
