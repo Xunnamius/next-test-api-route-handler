@@ -265,7 +265,7 @@ it('redirects a shortened URL to the real URL', async () => {
 
   // e.g. https://xunn.at/gg => https://www.google.com/search?q=next-test-api-route-handler
   // shortId would be "gg"
-  // realUrl would be https://www.google.com/search?q=next-test-api-route-handler
+  // realLink would be https://www.google.com/search?q=next-test-api-route-handler
 
   const { shortId, realLink } = getUriEntry();
   const realUrl = new URL(realLink);
