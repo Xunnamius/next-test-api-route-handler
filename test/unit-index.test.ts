@@ -177,30 +177,17 @@ describe('::testApiHandler', () => {
     });
   });
 
-  it('allows unsetting x-msw-bypass via request patcher', async () => {
+  it('allows overriding x-msw-bypass via fetch init argument', async () => {
     expect.hasAssertions();
 
     await testApiHandler({
-      requestPatcher: (req) => (req.headers['x-msw-bypass'] = undefined),
       handler: async (req, res) => {
         res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
       },
       test: async ({ fetch }) => {
-        const res = await fetch();
+        const res = await fetch({ headers: { 'x-msw-bypass': 'false' } });
         expect(res.status).toBe(200);
-        await expect(res.json()).resolves.toStrictEqual({});
-      }
-    });
-
-    await testApiHandler({
-      requestPatcher: (req) => delete req.headers['x-msw-bypass'],
-      handler: async (req, res) => {
-        res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
-      },
-      test: async ({ fetch }) => {
-        const res = await fetch();
-        expect(res.status).toBe(200);
-        await expect(res.json()).resolves.toStrictEqual({});
+        await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
       }
     });
   });

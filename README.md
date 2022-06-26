@@ -252,14 +252,40 @@ test.
 [`fetch(...)`][8]_, is omitted.**
 
 As of version `3.1.0`, NTARH adds the [`x-msw-bypass: true`][4] header to all
-requests by default. You can override this behavior by unsetting the header via
-`requestPatcher`:
+requests by default. You can override this behavior by setting the header to
+`"false"` via `requestPatcher`. This comes in handy when testing functionality
+like [arbitrary response redirection][25].
+
+For example:
 
 ```TypeScript
-await testApiHandler({
-  handler,
-  requestPatcher: (req) => delete req.headers['x-msw-bypass'], // <==
-  test: async ({ fetch }) => expect((await fetch()).status).toBe(200)
+it('redirects a shortened URL to the real URL', async () => {
+  expect.hasAssertions();
+
+  // e.g. https://my-shortener.vercel.app/zmskfuid => https://google.com
+  // shortId would be "zmskfuid"
+  // realUrl would be https://google.com
+
+  const { shortId, realLink } = getUriEntry();
+  const realUrl = new URL(realLink);
+
+  await testApiHandler({
+    handler,
+    params: { shortId },
+    test: async ({ fetch }) => {
+      server.use(
+        rest.get('*', (req, res, ctx) => {
+          return req.url.href == realUrl.href
+            ? res(ctx.status(200), ctx.json({ it: 'worked' }))
+            : req.passthrough();
+        })
+      );
+
+      const res = await fetch({ headers: { 'x-msw-bypass': 'false' } }); // <==
+      await expect(res.json()).resolves.toMatchObject({ it: 'worked' });
+      expect(res.status).toBe(200);
+    }
+  });
 });
 ```
 
@@ -749,3 +775,5 @@ information.
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
 [4]:
   https://github.com/mswjs/msw/blob/2e7ecd87e5568c6e59a408e812535f088498e437/src/utils/handleRequest.ts#L60-L65
+[25]:
+  https://nextjs.org/docs/api-routes/response-helpers#redirects-to-a-specified-path-or-url
