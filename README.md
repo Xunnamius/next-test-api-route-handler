@@ -252,9 +252,10 @@ test.
 [`fetch(...)`][8]_, is omitted.**
 
 As of version `3.1.0`, NTARH adds the [`x-msw-bypass: true`][4] header to all
-requests by default. You can override this behavior by setting the header to
-`"false"` via `requestPatcher`. This comes in handy when testing functionality
-like [arbitrary response redirection][25].
+requests by default. If necessary, you can override this behavior by setting the
+header to `"false"` via `fetch`'s `customInit` parameter (not `requestPatcher`).
+This comes in handy when testing functionality like [arbitrary response
+redirection][25].
 
 For example:
 
@@ -262,9 +263,9 @@ For example:
 it('redirects a shortened URL to the real URL', async () => {
   expect.hasAssertions();
 
-  // e.g. https://my-shortener.vercel.app/zmskfuid => https://google.com
-  // shortId would be "zmskfuid"
-  // realUrl would be https://google.com
+  // e.g. https://xunn.at/gg => https://www.google.com/search?q=next-test-api-route-handler
+  // shortId would be "gg"
+  // realUrl would be https://www.google.com/search?q=next-test-api-route-handler
 
   const { shortId, realLink } = getUriEntry();
   const realUrl = new URL(realLink);
