@@ -156,7 +156,7 @@
     "text-extensions": "^2.4.0",
     "toss-expression": "^0.1.1",
     "type-fest": "^2.14.0",
-    "typedoc": "^0.22.18",
+    "typedoc": "^0.23.1",
     "typedoc-plugin-markdown": "^3.12.1",
     "typescript": "^4.7.4",
     "unique-filename": "^1.1.1",
