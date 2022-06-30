@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
-import fetch from 'node-fetch';
+import fetch, { Headers } from 'node-fetch';
 import { createServer } from 'http';
 import { parse as parseUrl } from 'url';
 import { parse as parseCookieHeader } from 'cookie';
@@ -10,6 +10,22 @@ import type { RequestInit, Response as FetchReturnValue } from 'node-fetch';
 
 // @ts-ignore: ignore this (conditional) import so bundlers don't choke and die
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/node';
+
+/**
+ * This function is responsible for adding the headers sent along with every
+ * fetch request by default. Headers that already exist will not be overwritten.
+ *
+ * Current default headers:
+ *
+ * - `x-msw-bypass: true`
+ */
+const addDefaultHeaders = (headers: Headers) => {
+  if (!headers.has('x-msw-bypass')) {
+    headers.set('x-msw-bypass', 'true');
+  }
+
+  return headers;
+};
 
 let apiResolver: typeof NextApiResolver | null = null;
 
@@ -238,23 +254,14 @@ export async function testApiHandler<NextResponseJsonType = any>({
     });
 
     const localUrl = `http://localhost:${port}`;
-    const defaultInit: RequestInit = {
-      headers: {
-        'x-msw-bypass': 'true'
-      }
-    };
 
     await new Promise((resolve, reject) => {
       deferredReject = reject;
       test({
         fetch: async (customInit?: RequestInit) => {
           const init: RequestInit = {
-            ...defaultInit,
             ...customInit,
-            headers: {
-              ...defaultInit.headers,
-              ...customInit?.headers
-            }
+            headers: addDefaultHeaders(new Headers(customInit?.headers))
           };
           return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
             (res) => {

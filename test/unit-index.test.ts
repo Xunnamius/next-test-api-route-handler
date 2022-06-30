@@ -1,6 +1,7 @@
 import { testApiHandler } from '../src/index';
 import { parse, serialize } from 'cookie';
 import { asMockedFunction, withMockedOutput } from './setup';
+import { Headers } from 'node-fetch';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -177,7 +178,7 @@ describe('::testApiHandler', () => {
     });
   });
 
-  it('allows overriding x-msw-bypass via fetch init argument', async () => {
+  it('allows overriding x-msw-bypass via various permutations of fetch init argument', async () => {
     expect.hasAssertions();
 
     await testApiHandler({
@@ -188,6 +189,68 @@ describe('::testApiHandler', () => {
         const res = await fetch({ headers: { 'x-msw-bypass': 'false' } });
         expect(res.status).toBe(200);
         await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
+      }
+    });
+
+    await testApiHandler({
+      handler: async (req, res) => {
+        res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch({ headers: [['x-msw-bypass', 'false']] });
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
+      }
+    });
+
+    await testApiHandler({
+      handler: async (req, res) => {
+        res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch({ headers: new Headers({ 'x-msw-bypass': 'false' }) });
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
+      }
+    });
+  });
+
+  it('allows specifying random header via various permutations of fetch init argument', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      handler: async (req, res) => {
+        res.status(200).send({ header: req.headers['x-random-header'] });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch({ headers: { 'x-random-header': 'randomness' } });
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({ header: 'randomness' });
+      }
+    });
+
+    await testApiHandler({
+      handler: async (req, res) => {
+        res.status(200).send({ header: req.headers['x-random-header'] });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          headers: new Headers({ 'x-random-header': 'randomness' })
+        });
+
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({ header: 'randomness' });
+      }
+    });
+
+    await testApiHandler({
+      handler: async (req, res) => {
+        res.status(200).send({ header: req.headers['x-random-header'] });
+      },
+      test: async ({ fetch }) => {
+        const res = await fetch({ headers: [['x-random-header', 'randomness']] });
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toStrictEqual({ header: 'randomness' });
       }
     });
   });
