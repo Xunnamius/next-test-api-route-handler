@@ -93,7 +93,8 @@ module.exports = {
         'jest/no-if': 'off',
         'jest/no-disabled-tests': 'warn',
         'jest/no-commented-out-tests': 'warn',
-        'jest/no-alias-methods': 'off'
+        'jest/no-alias-methods': 'off',
+        'jest/max-expects': 'off'
       }
     }
   ],
