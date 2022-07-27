@@ -48,8 +48,15 @@ it(`runs silent by default`, async () => {
     const { code, stdout, stderr } = await runExternal(undefined, { cwd: root });
 
     expect(stdout).toBeEmpty();
-    // eslint-disable-next-line jest/no-conditional-expect
-    !process.env.DEBUG && expect(stderr).toBeEmpty();
+
+    if (!process.env.DEBUG) {
+      // eslint-disable-next-line jest/no-conditional-expect
+      expect(
+        // ? Remove outputs caused by Node's experimental warnings
+        stderr.replace(/^.*? (ExperimentalWarning:|--trace-warnings) .*?$/gm, '').trim()
+      ).toBeEmpty();
+    }
+
     expect(code).toBe(0);
   });
 });
