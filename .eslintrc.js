@@ -94,7 +94,8 @@ module.exports = {
         'jest/no-disabled-tests': 'warn',
         'jest/no-commented-out-tests': 'warn',
         'jest/no-alias-methods': 'off',
-        'jest/max-expects': 'off'
+        'jest/max-expects': 'off',
+        'jest/prefer-mock-promise-shorthand': 'off'
       }
     }
   ],
