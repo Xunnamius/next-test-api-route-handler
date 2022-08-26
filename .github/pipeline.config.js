@@ -21,10 +21,10 @@ module.exports = {
   // ? For even more debugging tools, see: https://bit.ly/2R6NAdZ
   //
   // * The semver version of node to install and setup before each job.
-  // nodeCurrentVersion: '15.x',
+  // nodeCurrentVersion: '18.x',
   //
   // * Node semver versions to run unit and integration tests against.
-  // nodeTestVersions: ['12.x', '14.x'],
+  // nodeTestVersions: ['14.x', '16.x'],
   //
   // * Webpack semver versions to run unit and integration tests against.
   // webpackTestVersions: ['5.x'],

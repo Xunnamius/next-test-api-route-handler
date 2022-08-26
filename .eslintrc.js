@@ -37,14 +37,7 @@ module.exports = {
     'no-console': 'warn',
     'no-return-await': 'warn',
     'no-await-in-loop': 'warn',
-    'import/no-unresolved': [
-      'error',
-      {
-        commonjs: true
-        // ? Once Node 12 dies, these can be used safely
-        /*ignore: ['fs/promises', 'dns/promises']*/
-      }
-    ],
+    'import/no-unresolved': ['error', { commonjs: true }],
     'no-restricted-globals': ['warn'].concat(restrictedGlobals),
     'no-extra-boolean-cast': 'off',
     'no-empty': 'off',
