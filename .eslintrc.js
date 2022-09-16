@@ -88,7 +88,8 @@ module.exports = {
         'jest/no-commented-out-tests': 'warn',
         'jest/no-alias-methods': 'off',
         'jest/max-expects': 'off',
-        'jest/prefer-mock-promise-shorthand': 'off'
+        'jest/prefer-mock-promise-shorthand': 'off',
+        'jest/prefer-each': 'off'
       }
     }
   ],
