@@ -97,28 +97,30 @@ import type { PageConfig } from 'next';
 const handler: typeof endpoint & { config?: PageConfig } = endpoint;
 handler.config = config;
 
-await testApiHandler({
-  handler,
-  requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
-  test: async ({ fetch }) => {
-    const res = await fetch({ method: 'POST', body: 'data' });
-    await expect(res.json()).resolves.toStrictEqual({ hello: 'world' }); // ◄ Passes!
-  }
-});
+it('does what I want', async () => {
+  await testApiHandler({
+    handler,
+    requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
+    test: async ({ fetch }) => {
+      const res = await fetch({ method: 'POST', body: 'data' });
+      await expect(res.json()).resolves.toStrictEqual({ hello: 'world' }); // ◄ Passes!
+    }
+  });
 
-// NTARH also supports typed response data via TypeScript generics:
-await testApiHandler<{ hello: string }>({
-  // The next line would cause TypeScript to complain:
-  // handler: (_, res) => res.status(200).send({ hello: false }),
-  handler: (_, res) => res.status(200).send({ hello: 'world' }),
-  requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
-  test: async ({ fetch }) => {
-    const res = await fetch({ method: 'POST', body: 'data' });
+  // NTARH also supports typed response data via TypeScript generics:
+  await testApiHandler<{ hello: string }>({
     // The next line would cause TypeScript to complain:
-    // const { goodbye: hello } = await res.json();
-    const { hello } = await res.json();
-    expect(hello).toBe('world'); // ◄ Passes!
-  }
+    // handler: (_, res) => res.status(200).send({ hello: false }),
+    handler: (_, res) => res.status(200).send({ hello: 'world' }),
+    requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
+    test: async ({ fetch }) => {
+      const res = await fetch({ method: 'POST', body: 'data' });
+      // The next line would cause TypeScript to complain:
+      // const { goodbye: hello } = await res.json();
+      const { hello } = await res.json();
+      expect(hello).toBe('world'); // ◄ Passes!
+    }
+  });
 });
 ```
 
