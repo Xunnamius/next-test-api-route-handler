@@ -349,8 +349,8 @@ commands into your terminal.
 ```Bash
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
 cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
-npm install
-npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env graphql-tools
+npm install --force
+npm install next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env graphql-tools --force
 # You could test with an older version of Next.js if you want, e.g.:
 # npm install next@9.0.6 --force
 # Or even older:
