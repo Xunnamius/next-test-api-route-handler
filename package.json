@@ -105,7 +105,7 @@
     "@typescript-eslint/parser": "^5.41.0",
     "@xunnamius/conventional-changelog-projector": "^1.1.1",
     "babel-jest": "^29.2.2",
-    "babel-loader": "^8.2.5",
+    "babel-loader": "^9.1.0",
     "babel-plugin-add-import-extension": "^1.6.0",
     "babel-plugin-explicit-exports-references": "^1.0.2",
     "babel-plugin-source-map-support": "^2.2.0",
