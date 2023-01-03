@@ -64,7 +64,7 @@ The parameters expected by `testApiHandler`.
 
 ### testApiHandler
 
-▸ **testApiHandler**<`NextResponseJsonType`>(`(destructured)`):
+▸ **testApiHandler**<`NextResponseJsonType`>(`«destructured»`):
 `Promise`<`void`>
 
 Uses Next's internal `apiResolver` to execute api route handlers in a Next-like
@@ -80,7 +80,7 @@ testing environment.
 
 | Name             | Type                                           |
 | :--------------- | :--------------------------------------------- |
-| `(destructured)` | [`NtarhParameters`][2]<`NextResponseJsonType`> |
+| `«destructured»` | [`NtarhParameters`][2]<`NextResponseJsonType`> |
 
 #### Returns
 
@@ -94,8 +94,8 @@ testing environment.
 [2]: README.md#ntarhparameters
 [3]: README.md#testapihandler
 [4]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/c8e65f4/src/index.ts#L32
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/be35674/src/index.ts#L32
 [5]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/c8e65f4/src/index.ts#L86
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/be35674/src/index.ts#L86
 [6]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/c8e65f4/src/index.ts#L152
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/be35674/src/index.ts#L152
