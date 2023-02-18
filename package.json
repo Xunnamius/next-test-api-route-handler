@@ -150,7 +150,7 @@
     "semantic-release": "https://xunn.at/semantic-release-atam",
     "semver": "^7.3.8",
     "simple-git": "^3.16.1",
-    "sort-package-json": "^2.4.1",
+    "sort-package-json": "https://xunn.at/sort-package-json",
     "source-map-support": "^0.5.21",
     "spellchecker": "^3.7.1",
     "strip-ansi": "^6.0.1",
