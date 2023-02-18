@@ -32,7 +32,7 @@ Node.js. Go forth and test confidently!
 <div align="center">
 
 ✨ <a href="https://github.com/vercel/next.js"><img
-src="https://xunn.at/is-next-compat" /></a> ✨
+src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 </div>
 
@@ -623,7 +623,7 @@ it('returns expected public flights with respect to match', async () => {
 
 Check out [the tests][9] for more examples.
 
-## Appendix
+## Documentation
 
 > Further documentation can be found under [`docs/`][docs].
 
@@ -705,7 +705,7 @@ information.
 [link-fossa]:
   https://app.fossa.com/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler
 [badge-npm]:
-  https://xunn.at/npm-pkg-version/next-test-api-route-handler
+  https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler
   'Install this package using npm or yarn!'
 [link-npm]: https://www.npmjs.com/package/next-test-api-route-handler
 [badge-semantic-release]:
