@@ -73,15 +73,15 @@ jobs:
 
       - name: Install CI dependencies
         run: |
-          npm ci --force
-          npm install --force --no-save semver
+          npm ci --force &>> /tmp/output.txt
+          npm install --force --no-save semver &>> /tmp/output.txt
           # ? Install peer deps manually for ancient node versions
           if [ `node -e 'console.log(require("semver").satisfies(process.versions.node, "<15"))'` == 'true' ]; then
-            npm install --force --no-save next
+            npm install --force --no-save next &>> /tmp/output.txt
           fi
 
       - name: Build distributables
-        run: npm run build-dist
+        run: npm run build-dist &>> /tmp/output.txt
 
       - name: Build externals
         env:
@@ -92,7 +92,7 @@ jobs:
         run: npm run build-externals
 
       - name: Run is-next-compat
-        run: node external-scripts/bin/is-next-compat.js &> /tmp/output.txt
+        run: node external-scripts/bin/is-next-compat.js &>> /tmp/output.txt
 
       - name: Upload output artifact
         if: always()
