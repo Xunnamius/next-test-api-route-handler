@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-untyped-mock-factory */
 import { isolatedImport } from './setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';

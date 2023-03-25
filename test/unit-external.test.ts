@@ -72,12 +72,12 @@ beforeEach(() => {
     } as unknown as ReturnType<typeof mockedOctokitGetLatestRelease>)
   );
 
-  mockedMongoConnect.mockImplementation(() =>
-    Promise.resolve({
+  mockedMongoConnect.mockImplementation(() => {
+    return Promise.resolve({
       db: mockedMongoConnectDb,
       close: mockedMongoConnectClose
-    })
-  );
+    }) as unknown as Promise<MongoClient>;
+  });
 
   mockedMongoConnectDb.mockImplementation(
     () => ({ collection: mockedMongoConnectDbCollection } as unknown as Db)
