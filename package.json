@@ -96,7 +96,7 @@
     "@types/find-package-json": "^1.2.3",
     "@types/glob": "^8.1.0",
     "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.8",
+    "@types/node": "^20.2.3",
     "@types/node-fetch": "^2.5.12",
     "@types/semver": "^7.3.13",
     "@types/test-listen": "^1.1.0",
