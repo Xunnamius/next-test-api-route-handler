@@ -130,7 +130,7 @@
     "jest-circus": "^29.6.2",
     "jest-extended": "^4.0.1",
     "lint-staged": "^13.2.3",
-    "mongodb": "^5.7.0",
+    "mongodb": "^6.0.0",
     "prettier": "^3.0.1",
     "remark-cli": "^11.0.0",
     "remark-frontmatter": "^4.0.1",
