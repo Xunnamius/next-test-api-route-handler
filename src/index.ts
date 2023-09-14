@@ -68,7 +68,9 @@ const handleError = (
   deferredReject: ((e: unknown) => unknown) | null
 ) => {
   // ? Prevent tests that crash the server from hanging
-  !res.writableEnded && res.end();
+  if (!res.writableEnded) {
+    res.end();
+  }
 
   // ? Throwing at the point this function was called would not normally cause
   // ? testApiHandler to reject because createServer (an EventEmitter) only
@@ -204,12 +206,16 @@ export async function testApiHandler<NextResponseJsonType = any>({
           );
         }
 
-        url && (req.url = url);
-        requestPatcher && requestPatcher(req);
-        responsePatcher && responsePatcher(res);
+        if (url) {
+          req.url = url;
+        }
+
+        requestPatcher?.(req);
+        responsePatcher?.(res);
 
         const finalParams = { ...parseUrl(req.url || '', true).query, ...params };
-        paramsPatcher && paramsPatcher(finalParams);
+
+        paramsPatcher?.(finalParams);
 
         /**
          *? From Next.js internals:
@@ -220,7 +226,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
          **    resolverModule: any,
          **    apiContext: __ApiPreviewProps,
          **    propagateError: boolean,
-         **    ...
+         **    dev?: boolean,
+         **    page?: boolean
          ** )
          */
         void apiResolver(
