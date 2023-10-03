@@ -166,9 +166,11 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
   try {
     if (!apiResolver) {
-      // ? The following is for next@>=12.1.0:
+      // ? The following is for next@>=13.5.4:
       // @ts-ignore: conditional import for earlier next versions
-      ({ apiResolver } = await import('next/dist/server/api-utils/node.js')
+      ({ apiResolver } = await import('next/dist/server/api-utils/node/api-resolver.js')
+        // ? The following is for next@>=12.1.0:
+        .catch(tryImport('next/dist/server/api-utils/node.js'))
         // ? The following is for next@<12.1.0 >=11.1.0:
         .catch(tryImport('next/dist/server/api-utils.js'))
         // ? The following is for next@<11.1.0 >=9.0.6:
