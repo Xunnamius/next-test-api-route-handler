@@ -28,8 +28,9 @@ const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<15') ?
   ['next@^10', 'react@^17'],
   ['next@11.0.x', 'react@^17'],
   ['next@^11', 'react@^17'],
-  ['next@12.0.x', 'react@^17'],
-  ['next@latest', 'react@^17']
+  ['next@12.0.x', 'react@^18'],
+  ['next@13.5.3', 'react@^18'],
+  ['next@latest', 'react@^18']
 ]
 :
 [
@@ -41,6 +42,7 @@ const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<15') ?
   ['next@11.0.x'],  // ? See issue #295
   ['next@^11'],     // ? Latest version 11 release
   ['next@^12.0.x'], // ? See issue #487
+  ['next@^13.5.3'], // ? See issue #887
   ['next@latest']   // ? Latest release
 ];
 

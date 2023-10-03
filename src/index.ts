@@ -8,8 +8,7 @@ import type { NextApiHandler } from 'next';
 import type { Server, IncomingMessage, ServerResponse } from 'http';
 import type { RequestInit, Response as FetchReturnValue } from 'node-fetch';
 
-// @ts-ignore: ignore this (conditional) import so bundlers don't choke and die
-import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/node';
+import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/node/api-resolver';
 
 /**
  * This function is responsible for adding the headers sent along with every
@@ -166,9 +165,10 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
   try {
     if (!apiResolver) {
-      // ? The following is for next@>=12.1.0:
-      // @ts-ignore: conditional import for earlier next versions
-      ({ apiResolver } = await import('next/dist/server/api-utils/node.js')
+      // ? The following is for next@>=12.5.4:
+      ({ apiResolver } = await import('next/dist/server/api-utils/node/api-resolver.js')
+        // ? The following is for next@<12.5.4 >=12.1.0:
+        .catch(tryImport('next/dist/server/api-utils/node.js'))
         // ? The following is for next@<12.1.0 >=11.1.0:
         .catch(tryImport('next/dist/server/api-utils.js'))
         // ? The following is for next@<11.1.0 >=9.0.6:
