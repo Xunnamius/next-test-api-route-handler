@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/prefer-ts-expect-error, @typescript-eslint/ban-ts-comment */
-import fetch, { Headers } from 'node-fetch';
-import { createServer } from 'http';
-import { parse as parseUrl } from 'url';
-import { parse as parseCookieHeader } from 'cookie';
+import { createServer } from 'node:http';
+import { parse as parseUrl } from 'node:url';
 
+import { parse as parseCookieHeader } from 'cookie';
+import fetch, { Headers } from 'node-fetch';
+
+import type { IncomingMessage, Server, ServerResponse } from 'http';
 import type { NextApiHandler } from 'next';
-import type { Server, IncomingMessage, ServerResponse } from 'http';
-import type { RequestInit, Response as FetchReturnValue } from 'node-fetch';
+import type { Response as FetchReturnValue, RequestInit } from 'node-fetch';
 
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/node/api-resolver';
 

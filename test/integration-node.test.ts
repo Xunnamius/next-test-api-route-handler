@@ -1,12 +1,13 @@
 /* eslint-disable jest/no-conditional-in-test */
 import debugFactory from 'debug';
-import { name as pkgName, version as pkgVersion, main as pkgMain } from 'package';
+import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package';
+
 import {
-  run,
-  mockFixtureFactory,
   dummyNpmPackageFixture,
+  mockFixtureFactory,
+  nodeImportTestFixture,
   npmLinkSelfFixture,
-  nodeImportTestFixture
+  run
 } from './setup';
 
 import type { FixtureOptions } from './setup';

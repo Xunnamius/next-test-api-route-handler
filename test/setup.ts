@@ -1,19 +1,20 @@
-import { name as pkgName, version as pkgVersion } from 'package';
-import { tmpdir } from 'os';
-import { promises as fs } from 'fs';
-import { resolve } from 'path';
-import glob from 'glob';
-import execa from 'execa';
-import uniqueFilename from 'unique-filename';
-import debugFactory from 'debug';
-import gitFactory from 'simple-git';
-// ? https://github.com/jest-community/jest-extended#typescript
-import 'jest-extended/all';
-import 'jest-extended';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve } from 'node:path';
 
-import type { ExecaReturnValue } from 'execa';
+import debugFactory from 'debug';
+import execa from 'execa';
+import glob from 'glob';
+import { name as pkgName, version as pkgVersion } from 'package';
+import gitFactory from 'simple-git';
+import uniqueFilename from 'unique-filename';
+// ? https://github.com/jest-community/jest-extended#typescript
+import 'jest-extended';
+import 'jest-extended/all';
+
 import type { AnyFunction, AnyVoid } from '@ergodark/types';
 import type { Debugger } from 'debug';
+import type { ExecaReturnValue } from 'execa';
 import type { SimpleGit } from 'simple-git';
 
 const { writeFile, readFile, access: accessFile } = fs;

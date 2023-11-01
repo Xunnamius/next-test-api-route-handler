@@ -1,16 +1,15 @@
 /* eslint-disable jest/no-conditional-in-test, jest/no-conditional-expect */
 import debugFactory from 'debug';
-import stripAnsi from 'strip-ansi';
+import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package';
 import { satisfies as satisfiesRange } from 'semver';
-
-import { name as pkgName, version as pkgVersion, main as pkgMain } from 'package';
+import stripAnsi from 'strip-ansi';
 
 import {
-  run,
-  mockFixtureFactory,
   dummyNpmPackageFixture,
+  mockFixtureFactory,
+  nodeImportTestFixture,
   npmCopySelfFixture,
-  nodeImportTestFixture
+  run
 } from './setup';
 
 import type { FixtureOptions } from './setup';

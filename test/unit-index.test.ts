@@ -1,7 +1,8 @@
-import { testApiHandler } from '../src/index';
 import { parse, serialize } from 'cookie';
-import { asMockedFunction, withMockedOutput } from './setup';
 import { Headers } from 'node-fetch';
+
+import { testApiHandler } from '../src/index';
+import { asMockedFunction, withMockedOutput } from './setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 

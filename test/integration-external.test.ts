@@ -1,7 +1,8 @@
 /* eslint-disable jest/no-conditional-in-test */
-import { name as pkgName, peerDependencies } from 'package';
-import { run, mockFixtureFactory, dummyNpmPackageFixture, runnerFactory } from './setup';
 import debugFactory from 'debug';
+import { peerDependencies, name as pkgName } from 'package';
+
+import { dummyNpmPackageFixture, mockFixtureFactory, run, runnerFactory } from './setup';
 
 import type { FixtureOptions } from './setup';
 

@@ -1,15 +1,15 @@
-import { name as pkgName, version as pkgVersion } from 'package';
-import { MongoClient } from 'mongodb';
 import { Octokit } from '@octokit/rest';
-import findPackageJson from 'find-package-json';
-import execa from 'execa';
 import debugFactory from 'debug';
+import execa from 'execa';
+import findPackageJson from 'find-package-json';
+import { MongoClient } from 'mongodb';
+import { name as pkgName, version as pkgVersion } from 'package';
 
 import { asMockedFunction, protectedImportFactory, withMockedEnv } from './setup';
 
+import type { Debugger } from 'debug';
 import type { ExecaChildProcess } from 'execa';
 import type { Collection, Db } from 'mongodb';
-import type { Debugger } from 'debug';
 
 const EXTERNAL_PATH = '../external-scripts/is-next-compat';
 
@@ -50,7 +50,7 @@ beforeEach(() => {
     () =>
       ({
         next: () => ({ value: {}, filename: 'fake/package.json' })
-      } as unknown as ReturnType<typeof findPackageJson>)
+      }) as unknown as ReturnType<typeof findPackageJson>
   );
 
   mockedExeca.mockImplementation(() => Promise.resolve({}) as ExecaChildProcess<Buffer>);
@@ -61,7 +61,7 @@ beforeEach(() => {
         repos: {
           getLatestRelease: mockedOctokitGetLatestRelease
         }
-      } as unknown as Octokit)
+      }) as unknown as Octokit
   );
 
   mockedOctokitGetLatestRelease.mockImplementation(() =>
@@ -80,7 +80,7 @@ beforeEach(() => {
   });
 
   mockedMongoConnectDb.mockImplementation(
-    () => ({ collection: mockedMongoConnectDbCollection } as unknown as Db)
+    () => ({ collection: mockedMongoConnectDbCollection }) as unknown as Db
   );
 
   mockedMongoConnectDbCollection.mockImplementation(
@@ -88,7 +88,7 @@ beforeEach(() => {
       ({
         findOne: mockedMongoConnectDbCollectionFindOne,
         updateOne: mockedMongoConnectDbCollectionUpdateOne
-      } as unknown as Collection)
+      }) as unknown as Collection
   );
 });
 
@@ -179,7 +179,7 @@ it('handles missing package.json', async () => {
         () =>
           ({
             next: () => ({ value: {}, filename: null })
-          } as unknown as ReturnType<typeof findPackageJson>)
+          }) as unknown as ReturnType<typeof findPackageJson>
       );
 
       await protectedImport({ expectedExitCode: 2 });
