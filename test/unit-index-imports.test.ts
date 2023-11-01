@@ -4,7 +4,7 @@
 import { isolatedImport } from './setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 // * This unit test ensures that NTARH can handle missing resolver dependencies.
 // *
@@ -316,13 +316,18 @@ describe('::testApiHandler', () => {
   it('sanity checks addr value when server starts listening', async () => {
     expect.hasAssertions();
 
-    jest.doMock('http', () => ({
-      createServer: (...args: unknown[]) => {
-        const server = jest.requireActual('http').createServer(...args);
+    jest.doMock('node:http', () => {
+      const http = jest.requireActual('node:http');
+      const oldCreateServer = http.createServer;
+
+      http.createServer = (...args: unknown[]) => {
+        const server = oldCreateServer(...args);
         server.address = () => undefined;
         return server;
-      }
-    }));
+      };
+
+      return http;
+    });
 
     await expect(
       importNtarh()({
