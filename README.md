@@ -3,7 +3,7 @@
 </p>
 
 <p align="center" width="100%">
-Confidently unit test your Next.js API routes in an isolated Next.js-like environment
+Confidently test your Next.js API routes in an isolated Next-like environment
 </p>
 
 <hr />
