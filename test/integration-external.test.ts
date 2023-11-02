@@ -54,7 +54,10 @@ it(`runs silent by default`, async () => {
       // eslint-disable-next-line jest/no-conditional-expect
       expect(
         // ? Remove outputs caused by Node's experimental warnings
-        stderr.replace(/^.*? (ExperimentalWarning:|--trace-warnings) .*?$/gm, '').trim()
+        // TODO: replace with suppression package
+        stderr
+          .replaceAll(/^.*? (ExperimentalWarning:|--trace-warnings) .*?$/gm, '')
+          .trim()
       ).toBeEmpty();
     }
 

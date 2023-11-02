@@ -223,8 +223,8 @@ describe('::testApiHandler', () => {
       const previousResolverPaths = mockResolverPaths.slice(0, currentIndex);
       const nextResolverPaths = mockResolverPaths.slice(currentIndex + 1);
 
-      for (const prevResolverPath of previousResolverPaths) {
-        mockResolversMetadata[prevResolverPath].shouldFail = true;
+      for (const previousResolverPath of previousResolverPaths) {
+        mockResolversMetadata[previousResolverPath].shouldFail = true;
       }
 
       // eslint-disable-next-line no-await-in-loop
@@ -237,9 +237,9 @@ describe('::testApiHandler', () => {
         })
       ).toResolve();
 
-      for (const prevResolverPath of previousResolverPaths) {
-        const context = jestExpectationContextFactory(prevResolverPath);
-        expect(context(mockResolversMetadata[prevResolverPath].called)).toBe(
+      for (const previousResolverPath of previousResolverPaths) {
+        const context = jestExpectationContextFactory(previousResolverPath);
+        expect(context(mockResolversMetadata[previousResolverPath].called)).toBe(
           context(false)
         );
       }
@@ -267,7 +267,7 @@ describe('::testApiHandler', () => {
 
         // ? Should be in reverse alphabetical order
         const expectedFailureLetters = Array.from({ length: mockResolverPaths.length })
-          .map((_, index) => String.fromCharCode(65 + index))
+          .map((_, index) => String.fromCodePoint(65 + index))
           .reverse();
 
         // eslint-disable-next-line no-await-in-loop

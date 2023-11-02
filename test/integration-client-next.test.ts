@@ -163,28 +163,30 @@ for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
         };
       }
 
-      await withMockedFixture(async (ctx) => {
-        if (!ctx.testResult) throw new Error('must use node-import-test fixture');
+      await withMockedFixture(async (context) => {
+        if (!context.testResult) throw new Error('must use node-import-test fixture');
 
         if (esm) {
           debug('(expecting stderr to be "")');
           debug('(expecting stdout to be "working\\nworking\\nworking")');
           debug('(expecting exit code to be 0)');
 
-          expect(ctx.testResult.stderr).toBeEmpty();
-          expect(ctx.testResult.stdout).toBe('working\nworking\nworking');
-          expect(ctx.testResult.code).toBe(0);
+          expect(context.testResult.stderr).toBeEmpty();
+          expect(context.testResult.stdout).toBe('working\nworking\nworking');
+          expect(context.testResult.code).toBe(0);
         } else {
           debug('(expecting stderr to contain jest test PASS confirmation)');
           debug('(expecting stdout to contain "working")');
           debug('(expecting exit code to be 0)');
 
-          expect(stripAnsi(ctx.testResult.stderr)).toMatch(
+          expect(stripAnsi(context.testResult.stderr)).toMatch(
             /PASS.*?\s+src\/index\.test\.js/
           );
 
-          expect(ctx.testResult.stdout).toStrictEqual(expect.stringContaining('working'));
-          expect(ctx.testResult.code).toBe(0);
+          expect(context.testResult.stdout).toStrictEqual(
+            expect.stringContaining('working')
+          );
+          expect(context.testResult.code).toBe(0);
         }
       });
 
@@ -244,32 +246,32 @@ it('fails fast (no jest timeout) when using incompatible Next.js version', async
   fixtureOptions.runWith = {
     binary: 'npx',
     args: ['jest'],
-    opts: { timeout: 10000 }
+    opts: { timeout: 10_000 }
   };
 
-  await withMockedFixture(async (ctx) => {
-    if (!ctx.testResult) throw new Error('must use node-import-test fixture');
+  await withMockedFixture(async (context) => {
+    if (!context.testResult) throw new Error('must use node-import-test fixture');
 
     debug('(expecting stderr not to contain "Exceeded timeout")');
-    expect(ctx.testResult.stderr).not.toStrictEqual(
+    expect(context.testResult.stderr).not.toStrictEqual(
       expect.stringContaining('Exceeded timeout')
     );
 
     debug('(expecting stderr to contain "Failed import attempts:")');
-    expect(ctx.testResult.stderr).toStrictEqual(
+    expect(context.testResult.stderr).toStrictEqual(
       expect.stringContaining('Failed import attempts:')
     );
 
     debug('(expecting stderr to contain "3 failed, 3 total")');
-    expect(ctx.testResult.stderr).toStrictEqual(
+    expect(context.testResult.stderr).toStrictEqual(
       expect.stringMatching(/^.*?Tests:.*?3 failed.*?,.*?3 total/m)
     );
 
     debug('(expecting exit code to be non-zero)');
-    expect(ctx.testResult.code).not.toBe(0);
+    expect(context.testResult.code).not.toBe(0);
 
     debug('(expecting no forced timeout: exit code must be a number)');
-    expect(ctx.testResult.code).toBeNumber();
+    expect(context.testResult.code).toBeNumber();
   });
 
   delete fixtureOptions.npmInstall;

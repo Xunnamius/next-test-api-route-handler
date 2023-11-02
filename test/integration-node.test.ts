@@ -54,9 +54,9 @@ const runTest = async (
       });
     })();`;
 
-  await withMockedFixture(async (ctx) => {
-    if (!ctx.testResult) throw new Error('must use node-import-test fixture');
-    await testFixtureFn(ctx);
+  await withMockedFixture(async (context) => {
+    if (!context.testResult) throw new Error('must use node-import-test fixture');
+    await testFixtureFn(context);
   });
 
   delete fixtureOptions.initialFileContents[indexPath];
@@ -75,12 +75,12 @@ it('works as an ESM import', async () => {
     true,
     `res.status(status || 200).send({ works: 'working' });`,
     `console.log((await (await fetch()).json()).works)`,
-    async (ctx) => {
+    async (context) => {
       debug('(expecting stdout to be "working")');
       debug('(expecting exit code to be 0)');
 
-      expect(ctx.testResult?.stdout).toBe('working');
-      expect(ctx.testResult?.code).toBe(0);
+      expect(context.testResult?.stdout).toBe('working');
+      expect(context.testResult?.code).toBe(0);
     }
   );
 });
@@ -91,12 +91,12 @@ it('works as a CJS require(...)', async () => {
     false,
     `res.status(status || 200).send({ works: 'working' });`,
     `console.log((await (await fetch()).json()).works)`,
-    async (ctx) => {
+    async (context) => {
       debug('(expecting stdout to be "working")');
       debug('(expecting exit code to be 0)');
 
-      expect(ctx.testResult?.stdout).toBe('working');
-      expect(ctx.testResult?.code).toBe(0);
+      expect(context.testResult?.stdout).toBe('working');
+      expect(context.testResult?.code).toBe(0);
     }
   );
 });
@@ -107,16 +107,16 @@ it('does not hang (500ms limit) on exception in handler function', async () => {
     false,
     `throw new Error('BadBadNotGood');`,
     `console.log(await (await fetch()).text())`,
-    async (ctx) => {
+    async (context) => {
       debug('(expecting stdout to be "Internal Server Error")');
       debug('(expecting stderr to contain "BadBadNotGood")');
       debug('(expecting exit code to be non-zero)');
 
-      expect(ctx.testResult?.stdout).toBe('Internal Server Error');
-      expect(ctx.testResult?.stderr).toStrictEqual(
+      expect(context.testResult?.stdout).toBe('Internal Server Error');
+      expect(context.testResult?.stderr).toStrictEqual(
         expect.stringContaining('Error: BadBadNotGood')
       );
-      expect(ctx.testResult?.code).toBe(0);
+      expect(context.testResult?.code).toBe(0);
     }
   );
 }, 500);
@@ -127,18 +127,18 @@ it('does not hang (500ms limit) on exception in test function', async () => {
     false,
     `res.status(status || 200).send({ works: 'working' });`,
     `{ throw new Error('BadBadNotGood'); }`,
-    async (ctx) => {
+    async (context) => {
       debug('(expecting exit code to be non-zero)');
       debug('(expecting stdout to be "")');
       debug('(expecting stderr to contain "BadBadNotGood")');
 
-      expect(ctx.testResult?.code).toBe(
+      expect(context.testResult?.code).toBe(
         // ? node@<15 does not die on unhandled promise rejections
         Number(process.versions.node.split('.')[0]) < 15 ? 0 : 1
       );
 
-      expect(ctx.testResult?.stdout).toBeEmpty();
-      expect(ctx.testResult?.stderr).toStrictEqual(
+      expect(context.testResult?.stdout).toBeEmpty();
+      expect(context.testResult?.stderr).toStrictEqual(
         expect.stringContaining('Error: BadBadNotGood')
       );
     }

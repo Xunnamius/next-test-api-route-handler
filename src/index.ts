@@ -5,9 +5,9 @@ import { parse as parseUrl } from 'node:url';
 import { parse as parseCookieHeader } from 'cookie';
 import fetch, { Headers } from 'node-fetch';
 
-import type { IncomingMessage, Server, ServerResponse } from 'http';
 import type { NextApiHandler } from 'next';
 import type { Response as FetchReturnValue, RequestInit } from 'node-fetch';
+import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/node/api-resolver';
 
@@ -39,7 +39,7 @@ export type FetchReturnType<NextResponseJsonType> = Promise<
 >;
 
 type TryImport = ((path: string) => (
-  e: Error
+  error: Error
 ) => // @ts-ignore: this file might not exist in some versions of next
 Promise<typeof import('next/dist/server/api-utils/node.js')>) & {
   importErrors: Error[];
@@ -47,8 +47,8 @@ Promise<typeof import('next/dist/server/api-utils/node.js')>) & {
 
 // ? The result of this function is memoized by the caller, so this function
 // ? will only be invoked the first time this script is imported.
-const tryImport = ((path: string) => (e: Error) => {
-  (tryImport.importErrors = tryImport.importErrors ?? []).push(e);
+const tryImport = ((path: string) => (error: Error) => {
+  (tryImport.importErrors = tryImport.importErrors ?? []).push(error);
   /* istanbul ignore next */
   if (typeof __webpack_require__ == 'function') {
     return process.env.NODE_ESM
@@ -64,8 +64,8 @@ const tryImport = ((path: string) => (e: Error) => {
 
 const handleError = (
   res: ServerResponse,
-  e: unknown,
-  deferredReject: ((e: unknown) => unknown) | null
+  error: unknown,
+  deferredReject: ((error: unknown) => unknown) | null
 ) => {
   // ? Prevent tests that crash the server from hanging
   if (!res.writableEnded) {
@@ -78,8 +78,8 @@ const handleError = (
   // ? functions (which is why `void` is used instead of `await` below). So
   // ? we'll have to get creative! How about: defer rejections manually?
   /* istanbul ignore else */
-  if (deferredReject) deferredReject(e);
-  else throw e;
+  if (deferredReject) deferredReject(error);
+  else throw error;
 };
 
 /**
@@ -101,7 +101,7 @@ export type NtarhParameters<NextResponseJsonType = unknown> = {
    *
    * **Note: all replacement `IncomingMessage.header` names must be lowercase.**
    */
-  requestPatcher?: (req: IncomingMessage) => void;
+  requestPatcher?: (request: IncomingMessage) => void;
   /**
    * A function that receives a `ServerResponse` object. Use this functions to
    * edit the request before it's injected into the handler.
@@ -113,7 +113,7 @@ export type NtarhParameters<NextResponseJsonType = unknown> = {
    * should not be confused with query string parsing, which is handled
    * automatically.
    */
-  paramsPatcher?: (params: Record<string, unknown>) => void;
+  paramsPatcher?: (parameters: Record<string, unknown>) => void;
   /**
    * `params` is passed directly to the handler and represent processed dynamic
    * routes. This should not be confused with query string parsing, which is
@@ -141,7 +141,7 @@ export type NtarhParameters<NextResponseJsonType = unknown> = {
    * `fetch`, which is the unfetch package's `fetch(...)` function but with the
    * first parameter omitted.
    */
-  test: (params: {
+  test: (parameters: {
     fetch: (customInit?: RequestInit) => FetchReturnType<NextResponseJsonType>;
   }) => Promise<void>;
 };
@@ -162,7 +162,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   test
 }: NtarhParameters<NextResponseJsonType>) {
   let server: Server | null = null;
-  let deferredReject: ((e?: unknown) => void) | null = null;
+  let deferredReject: ((error?: unknown) => void) | null = null;
 
   try {
     if (!apiResolver) {
@@ -176,13 +176,15 @@ export async function testApiHandler<NextResponseJsonType = any>({
         .catch(tryImport('next/dist/next-server/server/api-utils.js'))
         // ? The following is for next@<9.0.6 >= 9.0.0:
         .catch(tryImport('next-server/dist/server/api-utils.js'))
-        .catch((e) => (tryImport.importErrors.push(e), { apiResolver: null })));
+        .catch((error) => (tryImport.importErrors.push(error), { apiResolver: null })));
 
       if (!apiResolver) {
         const importErrors = tryImport.importErrors
           .map(
-            (e) =>
-              e.message.split(/(?<=')( imported)? from ('|\S)/)[0].split(`\nRequire`)[0]
+            (error) =>
+              error.message
+                .split(/(?<=')( imported)? from ('|\S)/)[0]
+                .split(`\nRequire`)[0]
           )
           .join('\n    - ');
 
@@ -199,24 +201,24 @@ export async function testApiHandler<NextResponseJsonType = any>({
       }
     }
 
-    server = createServer((req, res) => {
+    server = createServer((request, res) => {
       try {
         if (typeof apiResolver != 'function') {
-          throw new Error(
+          throw new TypeError(
             'assertion failed unexpectedly: apiResolver was not a function'
           );
         }
 
         if (url) {
-          req.url = url;
+          request.url = url;
         }
 
-        requestPatcher?.(req);
+        requestPatcher?.(request);
         responsePatcher?.(res);
 
-        const finalParams = { ...parseUrl(req.url || '', true).query, ...params };
+        const finalParameters = { ...parseUrl(request.url || '', true).query, ...params };
 
-        paramsPatcher?.(finalParams);
+        paramsPatcher?.(finalParameters);
 
         /**
          *? From Next.js internals:
@@ -232,16 +234,16 @@ export async function testApiHandler<NextResponseJsonType = any>({
          ** )
          */
         void apiResolver(
-          req,
+          request,
           res,
-          finalParams,
+          finalParameters,
           handler,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           undefined as any,
           !!rejectOnHandlerError
-        ).catch((e: unknown) => handleError(res, e, deferredReject));
-      } catch (e) {
-        handleError(res, e, deferredReject);
+        ).catch((error: unknown) => handleError(res, error, deferredReject));
+      } catch (error) {
+        handleError(res, error, deferredReject);
       }
     });
 
@@ -283,13 +285,13 @@ export async function testApiHandler<NextResponseJsonType = any>({
                   res.cookies = [res.headers.raw()['set-cookie'] || []]
                     .flat()
                     .map((header) =>
-                      Object.entries(parseCookieHeader(header)).reduce(
-                        (obj, [k, v]) =>
-                          Object.assign(obj, {
-                            [String(k)]: v,
-                            [String(k).toLowerCase()]: v
-                          }),
-                        {}
+                      Object.fromEntries(
+                        Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
+                          return [
+                            [String(k), v],
+                            [String(k).toLowerCase(), v]
+                          ];
+                        })
                       )
                     );
                   return res.cookies;

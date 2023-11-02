@@ -287,7 +287,7 @@ describe('::testApiHandler', () => {
     expect.hasAssertions();
 
     await testApiHandler({
-      paramsPatcher: (params) => (params.a = '1'),
+      paramsPatcher: (parameters) => (parameters.a = '1'),
       requestPatcher: (req) => (req.url = '/api/handler?b=2&c=3'),
       handler: async (req, res) => {
         res.send({});
@@ -302,7 +302,7 @@ describe('::testApiHandler', () => {
 
     await testApiHandler({
       params: { d: 'z', e: 'f' },
-      paramsPatcher: (params) => (params.a = '1'),
+      paramsPatcher: (parameters) => (parameters.a = '1'),
       requestPatcher: (req) => (req.url = '/api/handler?b=2&c=3'),
       handler: async (req, res) => {
         res.send({});
