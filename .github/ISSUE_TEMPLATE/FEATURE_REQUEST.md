@@ -4,7 +4,7 @@ about: Tell us about your awesome idea
 labels: enhancement
 ---
 
-<!-- THANK YOU for taking a moment to improve this project. 🤘🏿 You rock! 🎸 -->
+<!-- THANK YOU for taking a moment to improve this project. 🤘🏿 You rock! 🎸 |-->
 
 <!--
 Replace this comment with a clear and concise description of what you're
@@ -13,7 +13,7 @@ links, etc.
 
 🚩 If you encountered a bug, please report it as a bug instead of a feature
 request.
--->
+|-->
 
 <!--
 <details><summary><strong>Alternatives and workarounds</strong></summary>

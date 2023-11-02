@@ -1,22 +1,33 @@
-<!-- prettier-ignore-start -->
+<p align="center" width="100%">
+  <img width="300" src="./ntarh.png">
+</p>
+
+<p align="center" width="100%">
+Confidently unit test your Next.js API routes in an isolated Next.js-like environment
+</p>
+
+<hr />
 
 <!-- badges-start -->
 
-[![Black Lives Matter!][badge-blm]][link-blm]
-[![Maintenance status][badge-maintenance]][link-repo]
-[![Last commit timestamp][badge-last-commit]][link-repo]
-[![Open issues][badge-issues]][link-issues]
-[![Pull requests][badge-pulls]][link-pulls]
-[![Codecov][badge-codecov]][link-codecov]
-[![Source license][badge-license]][link-license]
-[![NPM version][badge-npm]][link-npm]
-[![Uses Semantic Release!][badge-semantic-release]][link-semantic-release]
+<div align="center">
+
+[![Black Lives Matter!][x-badge-blm-image]][x-badge-blm-link]
+[![Last commit timestamp][x-badge-lastcommit-image]][x-badge-repo-link]
+[![Codecov][x-badge-codecov-image]][x-badge-codecov-link]
+[![Source license][x-badge-license-image]][x-badge-license-link]
+[![Uses Semantic Release!][x-badge-semanticrelease-image]][x-badge-semanticrelease-link]
+
+[![NPM version][x-badge-npm-image]][x-badge-npm-link]
+[![Monthly Downloads][x-badge-downloads-image]][x-badge-npm-link]
+
+</div>
 
 <!-- badges-end -->
 
-<!-- prettier-ignore-end -->
+<br />
 
-# next-test-api-route-handler
+# next-test-api-route-handler (NTARH)
 
 Trying to unit test your [Next.js API route handlers][1]? Want to avoid mucking
 around with custom servers and writing boring test infra just to get some unit
@@ -24,10 +35,12 @@ tests working? Want your handlers to receive _actual_ [`NextApiRequest`][2] and
 [`NextApiResponse`][2] objects rather than having to hack something together
 with express or node-mocks-http? Then look no further! 🤩
 
-[`next-test-api-route-handler`][link-repo] (NTARH) uses Next.js's internal API
-resolver to precisely emulate API route handling. To guarantee stability, this
-package is [automatically tested][13] against [each release of Next.js][3] and
-Node.js. Go forth and test confidently!
+[`next-test-api-route-handler`][x-badge-repo-link] (NTARH) uses Next.js's
+internal API resolver to precisely emulate API route handling. To guarantee
+stability, this package is [automatically tested][3] against [each release of
+Next.js][4] and Node.js. Go forth and test confidently!
+
+<br />
 
 <div align="center">
 
@@ -36,56 +49,59 @@ src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
 
 </div>
 
+<br />
+
+---
+
+<!-- remark-ignore-start -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Install](#install)
+- [Usage](#usage)
+  - [`requestPatcher`](#requestpatcher)
+  - [`responsePatcher`](#responsepatcher)
+  - [`paramsPatcher`](#paramspatcher)
+  - [`handler`](#handler)
+  - [`test`](#test)
+- [Real-World Examples](#real-world-examples)
+  - [Testing Next.js's Official Apollo Example @ `pages/api/graphql`](#testing-nextjss-official-apollo-example--pagesapigraphql)
+  - [Testing an Unreliable API Handler @ `pages/api/unreliable`](#testing-an-unreliable-api-handler--pagesapiunreliable)
+  - [Testing a Flight Search API Handler @ `pages/api/v3/flights/search`](#testing-a-flight-search-api-handler--pagesapiv3flightssearch)
+- [Appendix](#appendix)
+  - [Legacy Runtime Support](#legacy-runtime-support)
+  - [Inspiration](#inspiration)
+  - [Published Package Details](#published-package-details)
+  - [License](#license)
+- [Contributing and Support](#contributing-and-support)
+  - [Contributors](#contributors)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- remark-ignore-end -->
+
 ## Install
 
-### Step One: Install NTARH
-
-```Shell
+```shell
 npm install --save-dev next-test-api-route-handler
 ```
 
-### Step Two: Install Peer Dependencies
-
-If you are using `npm@<7` or `node@<15`, you must install Next.js _and its peer
-dependencies_ manually. This is because [`npm@<7` does not install peer
-dependencies by default][26]. **If you're using a modern version of NPM, you can
-skip this step.**
-
-```Shell
-npm install --save-dev next@latest react
-```
-
-> If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][27]!
-
-## Legacy Next.js Support
-
-As of version `2.1.0`, NTARH is fully backwards compatible with Next.js going
-_allll_ the way back to `next@9.0.0` [when API routes were first
-introduced][19]!
-
-If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
-`next`][18]), you might need to install `next-server` manually:
-
-```Shell
-npm install --save-dev next-server
-```
+> See [the appendix][5] for legacy support options.
 
 ## Usage
 
-```TypeScript
+```typeScript
 // ESM
 import { testApiHandler } from 'next-test-api-route-handler';
 ```
 
-```Javascript
+```javascript
 // CJS
 const { testApiHandler } = require('next-test-api-route-handler');
 ```
 
 Quick start:
 
-```TypeScript
+```typeScript
 /* File: test/unit.test.ts */
 
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -126,7 +142,7 @@ it('does what I want', async () => {
 
 The interface for `testApiHandler` without generics looks like this:
 
-```TypeScript
+```typeScript
 async function testApiHandler(args: {
   rejectOnHandlerError?: boolean;
   requestPatcher?: (req: IncomingMessage) => void;
@@ -141,18 +157,18 @@ async function testApiHandler(args: {
 
 ### `requestPatcher`
 
-A function that receives an [`IncomingMessage`][5]. Use this function to modify
+A function that receives an [`IncomingMessage`][6]. Use this function to modify
 the request before it's injected into Next.js's resolver. To just set the
 request url, e.g. `requestPatcher: (req) => (req.url = '/my-url?some=query')`,
 use the `url` shorthand, e.g. `url: '/my-url?some=query'`.
 
-> More often than not, [manually setting the request url is unnecessary][20].
-> Only set the url if [your handler expects it][21] or [you want to use
-> automatic query string parsing instead of `params`/`paramsPatcher`][22].
+> More often than not, [manually setting the request url is unnecessary][7].
+> Only set the url if [your handler expects it][8] or [you want to use automatic
+> query string parsing instead of `params`/`paramsPatcher`][9].
 
 ### `responsePatcher`
 
-A function that receives a [`ServerResponse`][6]. Use this function to modify
+A function that receives a [`ServerResponse`][10]. Use this function to modify
 the response before it's injected into Next.js's resolver.
 
 ### `paramsPatcher`
@@ -165,7 +181,7 @@ Due to its simplicity, favor the `params` shorthand over `paramsPatcher`. If
 both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher` will
 receive an object like `{ ...queryStringURLParams, ...params }`.
 
-> Route parameters should not be confused with [query string parameters][14],
+> Route parameters should not be confused with [query string parameters][11],
 > which are automatically parsed out from the url and added to the params object
 > before `paramsPatcher` is evaluated.
 
@@ -180,15 +196,15 @@ should be an async function that accepts [`NextApiRequest`][2] and
 > throw if an unhandled error occurs in `handler`, which includes failing Jest
 > `expect()` assertions.** Instead, the response returned by `fetch()` in your
 > `test` function will have a `HTTP 500` status [thanks to how Next.js deals
-> with unhandled errors in production][29]. Prior to `2.3.0`, NTARH's behavior
+> with unhandled errors in production][12]. Prior to `2.3.0`, NTARH's behavior
 > on unhandled errors in `handler` and elsewhere was inconsistent. Version
 > `3.0.0` further improves error handling, ensuring no errors slip by uncaught.
 
 To guard against false negatives, you can do either of the following:
 
-1.  Make sure the status of the `fetch()` response is what you're expecting:
+1. Make sure the status of the `fetch()` response is what you're expecting:
 
-```TypeScript
+```typeScript
 const res = await fetch();
 ...
 // For this test, a 403 status is what we wanted
@@ -200,13 +216,13 @@ const res2 = await fetch();
 expect(res2.status).toBe(500);
 ```
 
-2.  If you're using version `>=3.0.0`, you can use `rejectOnHandlerError` to
-    tell NTARH to intercept unhandled handler errors and reject the promise
-    returned by `testApiHandler` _instead_ of relying on Next.js to respond with
-    `HTTP 500`. This is especially useful if you have `expect()` assertions
-    _inside_ your handler function:
+2. If you're using version `>=3.0.0`, you can use `rejectOnHandlerError` to tell
+   NTARH to intercept unhandled handler errors and reject the promise returned
+   by `testApiHandler` _instead_ of relying on Next.js to respond with
+   `HTTP 500`. This is especially useful if you have `expect()` assertions
+   _inside_ your handler function:
 
-```TypeScript
+```typeScript
 await expect(
   testApiHandler({
     rejectOnHandlerError: true, // <==
@@ -247,21 +263,21 @@ await testApiHandler({
 
 A function that returns a promise (or async) where test assertions can be run.
 This function receives one destructured parameter: `fetch`, which is a simple
-[node-fetch][7] instance. Use this to send HTTP requests to the handler under
+[node-fetch][13] instance. Use this to send HTTP requests to the handler under
 test.
 
 **Note that `fetch`'s url parameter, _i.e. the first parameter in
-[`fetch(...)`][8]_, is omitted.**
+[`fetch(...)`][14]_, is omitted.**
 
-As of version `3.1.0`, NTARH adds the [`x-msw-bypass: true`][4] header to all
+As of version `3.1.0`, NTARH adds the [`x-msw-bypass: true`][15] header to all
 requests by default. If necessary, you can override this behavior by setting the
 header to `"false"` via `fetch`'s `customInit` parameter (not `requestPatcher`).
 This comes in handy when testing functionality like [arbitrary response
-redirection][25].
+redirection][16].
 
 For example:
 
-```TypeScript
+```typeScript
 it('redirects a shortened URL to the real URL', async () => {
   expect.hasAssertions();
 
@@ -296,12 +312,12 @@ it('redirects a shortened URL to the real URL', async () => {
 
 As of version `2.3.0`, the response object returned by `fetch()` includes a
 non-standard _cookies_ field containing an array of objects representing
-[`set-cookie` response header(s)][23] parsed by [the `cookie` package][24]. Use
+[`set-cookie` response header(s)][17] parsed by [the `cookie` package][18]. Use
 the _cookies_ field to easily access a response's cookie data in your tests.
 
-Here's an example taken straight from the [unit tests][28]:
+Here's an example taken straight from the [unit tests][19]:
 
-```Typescript
+```typescript
 import { testApiHandler } from 'next-test-api-route-handler';
 
 it('handles multiple set-cookie headers', async () => {
@@ -344,9 +360,9 @@ You can easily run this example yourself by copying and pasting the following
 commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][17]. Requires `curl`, `node`, and `git`.
+> [WSL][20]. Requires `curl`, `node`, and `git`.
 
-```Bash
+```bash
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
 cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
 npm install --force
@@ -361,15 +377,15 @@ curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-ap
 npx jest
 ```
 
-The above script will clone [the Next.js repository][10], install NTARH and
-configure dependencies, download [the following script][15], and run it with
-[jest][16].
+The above script will clone [the Next.js repository][21], install NTARH and
+configure dependencies, download [the following script][22], and run it with
+[jest][23].
 
-> **Note that passing the [route configuration object][11] (imported below as
+> **Note that passing the [route configuration object][24] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
-> [crucial][12] when testing Apollo endpoints!**
+> [crucial][25] when testing Apollo endpoints!**
 
-```TypeScript
+```typeScript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
 
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -427,10 +443,10 @@ Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
 10th, where status code `HTTP 555` is returned instead.
 
-How might we [test][16] that this endpoint responds with `HTTP 555` once for
+How might we [test][23] that this endpoint responds with `HTTP 555` once for
 every nine `HTTP 200` responses?
 
-```TypeScript
+```typeScript
 /* File: test/unit.test.ts */
 
 // Import the handler under test from the pages/api directory
@@ -508,10 +524,10 @@ Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
 query.
 
-How might we [test][16] that this endpoint returns flights in our database as
+How might we [test][23] that this endpoint returns flights in our database as
 expected?
 
-```TypeScript
+```typeScript
 /* File: test/unit.test.ts */
 
 import endpoint, { config } from '../pages/api/v3/flights/search';
@@ -621,162 +637,253 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
-Check out [the tests][9] for more examples.
+Check out [the tests][26] for more examples.
 
-## Documentation
+## Appendix
 
-> Further documentation can be found under [`docs/`][docs].
+Further documentation can be found under [`docs/`][x-repo-docs].
 
-This is a [dual CJS2/ES module][dual-module] package. That means this package
-exposes both CJS2 and ESM (treeshakable and non-treeshakable) entry points.
+### Legacy Runtime Support
 
-Loading this package via `require(...)` will cause Node and some bundlers to use
-the [CJS2 bundle][cjs2] entry point. This can reduce the efficacy of [tree
-shaking][tree-shaking]. Alternatively, loading this package via
-`import { ... } from ...` or `import(...)` will cause Node (and other JS
-runtimes) to use the non-treeshakable ESM entry point in [versions that support
-it][node-esm-support]. Modern bundlers like Webpack and Rollup will use the
-treeshakable ESM entry point. Hence, using the `import` syntax is the modern,
-preferred choice.
+As of version `2.1.0`, NTARH is fully backwards compatible with Next.js going
+_allll_ the way back to `next@9.0.0` [when API routes were first
+introduced][27]!
 
-For backwards compatibility with Node versions < 14,
-[`package.json`][package-json] retains the [`main`][exports-main-key] key, which
-points to the CJS2 entry point explicitly (using the .js file extension). For
-Node versions > 14, [`package.json`][package-json] includes the more modern
-[`exports`][exports-main-key] key. For bundlers, [`package.json`][package-json]
-includes the bundler-specific [`module`][module-key] key (eventually superseded
-by [`exports['.'].module`][exports-module-key]), which points to ESM source
-loosely compiled specifically to support [tree shaking][tree-shaking].
+If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
+`next`][28]), you might need to install `next-server` manually:
 
-Though [`package.json`][package-json] includes
-[`{ "type": "commonjs"}`][local-pkg], note that the ESM entry points are ES
-module (`.mjs`) files. [`package.json`][package-json] also includes the
-[`sideEffects`][side-effects-key] key, which is `false` for [optimal tree
-shaking][tree-shaking], and the `types` key, which points to a TypeScript
-declarations file.
+```shell
+npm install --save-dev next-server
+```
 
-Additionally, this package does maintain shared state (i.e. memoized imports,
-stateful error handling); regardless, it does not exhibit the [dual package
-hazard][hazard].
+Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
+_and its peer dependencies_ manually. This is because [`npm@<7` does not install
+peer dependencies by default][29].
+
+```shell
+npm install --save-dev next@latest react
+```
+
+> If you're also using an older version of Next.js, ensure you install the [peer
+> dependencies (like `react`) that your specific Next.js version requires][30]!
+
+### Inspiration
+
+I'm constantly creating things with Next.js. Most of these applications have a
+major API component. Unfortunately, Next.js doesn't make unit testing your APIs
+very easy. After a while, I noticed some conventions forming around how I liked
+to test my APIs and NTARH was born 🙂
+
+Of course, this all was back before the app router or edge routes existed. NTARH
+got app router and edge route support in version 4.
+
+### Published Package Details
+
+This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
+built by Babel for Node.js versions that are not end-of-life. For TypeScript
+users, this package supports both `"Node10"` and `"Node16"` module resolution
+strategies .
+
+<details><summary>Expand details</summary>
+
+That means both CJS2 (via `require(...)`) and ESM (via `import { ... } from ...`
+or `await import(...)`) source will load this package from the same entry points
+when using Node. This has several benefits, the foremost being: less code
+shipped/smaller package size, avoiding [dual package
+hazard][x-pkg-dual-package-hazard] entirely, distributables are not
+packed/bundled/uglified, a drastically less complex build process, and CJS
+consumers aren't shafted.
+
+Each entry point (i.e. `ENTRY`) in [`package.json`'s
+`exports[ENTRY]`][x-repo-package-json] object includes one or more [export
+conditions][x-pkg-exports-conditions]. These entries may or may not include: an
+[`exports[ENTRY].types`][x-pkg-exports-types-key] condition pointing to a type
+declarations file for TypeScript and IDEs, an
+[`exports[ENTRY].module`][x-pkg-exports-module-key] condition pointing to
+(usually ESM) source for Webpack/Rollup, an `exports[ENTRY].node` condition
+pointing to (usually CJS2) source for Node.js `require` _and `import`_, an
+`exports[ENTRY].default` condition pointing to source for browsers and other
+environments, and [other conditions][x-pkg-exports-conditions] not enumerated
+here. Check the [package.json][x-repo-package-json] file to see which export
+conditions are supported.
+
+Though [`package.json`][x-repo-package-json] includes
+[`{ "type": "commonjs" }`][x-pkg-type], note that any ESM-only entry points will
+be ES module (`.mjs`) files. Finally, [`package.json`][x-repo-package-json] also
+includes the [`sideEffects`][x-pkg-side-effects-key] key, which is `false` for
+optimal [tree shaking][x-pkg-tree-shaking] where appropriate.
+
+</details>
 
 ### License
 
-[![FOSSA analysis][badge-fossa]][link-fossa]
+See [LICENSE][x-repo-license].
 
 ## Contributing and Support
 
-**[New issues][choose-new-issue] and [pull requests][pr-compare] are always
-welcome and greatly appreciated! 🤩** Just as well, you can [star 🌟 this
-project][link-repo] to let me know you found it useful! ✊🏿 Thank you!
+**[New issues][x-repo-choose-new-issue] and [pull requests][x-repo-pr-compare]
+are always welcome and greatly appreciated! 🤩** Just as well, you can [star 🌟
+this project][x-badge-repo-link] to let me know you found it useful! ✊🏿 Or you
+could [buy me a beer][x-repo-sponsor] 🥺 Thank you!
 
-See [CONTRIBUTING.md][contributing] and [SUPPORT.md][support] for more
-information.
+See [CONTRIBUTING.md][x-repo-contributing] and [SUPPORT.md][x-repo-support] for
+more information.
 
-[badge-blm]: https://xunn.at/badge-blm 'Join the movement!'
-[link-blm]: https://xunn.at/donate-blm
-[badge-maintenance]:
-  https://img.shields.io/maintenance/active/2023
-  'Is this package maintained?'
-[link-repo]: https://github.com/xunnamius/next-test-api-route-handler
-[badge-last-commit]:
-  https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler
-  'Latest commit timestamp'
-[badge-issues]:
-  https://img.shields.io/github/issues/Xunnamius/next-test-api-route-handler
-  'Open issues'
-[link-issues]:
-  https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
-[badge-pulls]:
-  https://img.shields.io/github/issues-pr/xunnamius/next-test-api-route-handler
-  'Open pull requests'
-[link-pulls]: https://github.com/xunnamius/next-test-api-route-handler/pulls
-[badge-codecov]:
-  https://codecov.io/gh/Xunnamius/next-test-api-route-handler/branch/main/graph/badge.svg?token=HWRIOBAAPW
+### Contributors
+
+<!-- remark-ignore-start -->
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
+[![All Contributors](https://img.shields.io/badge/all_contributors-20-orange.svg?style=flat-square)](#contributors-)
+
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+<!-- remark-ignore-end -->
+
+Thanks goes to these wonderful people ([emoji
+key][x-repo-all-contributors-emojis]):
+
+<!-- remark-ignore-start -->
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://xunn.io/"><img src="https://avatars.githubusercontent.com/u/656017?v=4?s=100" width="100px;" alt="Bernard"/><br /><sub><b>Bernard</b></sub></a><br /><a href="#infra-Xunnamius" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=Xunnamius" title="Code">💻</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=Xunnamius" title="Documentation">📖</a> <a href="#maintenance-Xunnamius" title="Maintenance">🚧</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=Xunnamius" title="Tests">⚠️</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/pulls?q=is%3Apr+reviewed-by%3AXunnamius" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/kevinjennison/"><img src="https://avatars.githubusercontent.com/u/5924325?v=4?s=100" width="100px;" alt="Kevin Jennison"/><br /><sub><b>Kevin Jennison</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=kmjennison" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jonkers3"><img src="https://avatars.githubusercontent.com/u/100176328?v=4?s=100" width="100px;" alt="jonkers3"/><br /><sub><b>jonkers3</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=jonkers3" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://valentin-hervieu.fr/"><img src="https://avatars.githubusercontent.com/u/2678610?v=4?s=100" width="100px;" alt="Valentin Hervieu"/><br /><sub><b>Valentin Hervieu</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=ValentinH" title="Code">💻</a> <a href="#ideas-ValentinH" title="Ideas, Planning, & Feedback">🤔</a> <a href="#research-ValentinH" title="Research">🔬</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=ValentinH" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://danawoodman.com/"><img src="https://avatars.githubusercontent.com/u/157695?v=4?s=100" width="100px;" alt="Dana Woodman"/><br /><sub><b>Dana Woodman</b></sub></a><br /><a href="#infra-danawoodman" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rhys-e"><img src="https://avatars.githubusercontent.com/u/1895732?v=4?s=100" width="100px;" alt="Rhys"/><br /><sub><b>Rhys</b></sub></a><br /><a href="#ideas-rhys-e" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://prakharshukla.dev/"><img src="https://avatars.githubusercontent.com/u/39938009?v=4?s=100" width="100px;" alt="Prakhar Shukla"/><br /><sub><b>Prakhar Shukla</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Aimprakharshukla" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jakejones2"><img src="https://avatars.githubusercontent.com/u/126596149?v=4?s=100" width="100px;" alt="Jake Jones"/><br /><sub><b>Jake Jones</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Ajakejones2" title="Bug reports">🐛</a> <a href="#ideas-jakejones2" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/desclapez"><img src="https://avatars.githubusercontent.com/u/562849?v=4?s=100" width="100px;" alt="Diego Esclapez"/><br /><sub><b>Diego Esclapez</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Adesclapez" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/k2xl"><img src="https://avatars.githubusercontent.com/u/965260?v=4?s=100" width="100px;" alt="k2xl"/><br /><sub><b>k2xl</b></sub></a><br /><a href="#research-k2xl" title="Research">🔬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/machineghost"><img src="https://avatars.githubusercontent.com/u/448908?v=4?s=100" width="100px;" alt="Jeremy Walker"/><br /><sub><b>Jeremy Walker</b></sub></a><br /><a href="#example-machineghost" title="Examples">💡</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/adrian-kriegel"><img src="https://avatars.githubusercontent.com/u/23387365?v=4?s=100" width="100px;" alt="Adrian Kriegel"/><br /><sub><b>Adrian Kriegel</b></sub></a><br /><a href="#example-adrian-kriegel" title="Examples">💡</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://hems.io/"><img src="https://avatars.githubusercontent.com/u/27327?v=4?s=100" width="100px;" alt="hems.io"/><br /><sub><b>hems.io</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Ahems" title="Bug reports">🐛</a> <a href="#research-hems" title="Research">🔬</a> <a href="#ideas-hems" title="Ideas, Planning, & Feedback">🤔</a> <a href="#example-hems" title="Examples">💡</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/steve-taylor"><img src="https://avatars.githubusercontent.com/u/1135589?v=4?s=100" width="100px;" alt="Steve Taylor"/><br /><sub><b>Steve Taylor</b></sub></a><br /><a href="#ideas-steve-taylor" title="Ideas, Planning, & Feedback">🤔</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/willnix86"><img src="https://avatars.githubusercontent.com/u/33470216?v=4?s=100" width="100px;" alt="Will Nixon"/><br /><sub><b>Will Nixon</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Awillnix86" title="Bug reports">🐛</a> <a href="#research-willnix86" title="Research">🔬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sebpowell"><img src="https://avatars.githubusercontent.com/u/1786366?v=4?s=100" width="100px;" alt="Sebastien Powell"/><br /><sub><b>Sebastien Powell</b></sub></a><br /><a href="#example-sebpowell" title="Examples">💡</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zero734kr"><img src="https://avatars.githubusercontent.com/u/51540538?v=4?s=100" width="100px;" alt="Hajin Lim"/><br /><sub><b>Hajin Lim</b></sub></a><br /><a href="#ideas-zero734kr" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://meetjane.dev/"><img src="https://avatars.githubusercontent.com/u/47473728?v=4?s=100" width="100px;" alt="Jane"/><br /><sub><b>Jane</b></sub></a><br /><a href="#example-sustainjane98" title="Examples">💡</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://janhesters.com/"><img src="https://avatars.githubusercontent.com/u/31096420?v=4?s=100" width="100px;" alt="Jan Hesters"/><br /><sub><b>Jan Hesters</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Ajanhesters" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://bencesomogyi.com/"><img src="https://avatars.githubusercontent.com/u/10220181?v=4?s=100" width="100px;" alt="Bence Somogyi"/><br /><sub><b>Bence Somogyi</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Asomogyibence" title="Bug reports">🐛</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=somogyibence" title="Code">💻</a> <a href="#research-somogyibence" title="Research">🔬</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=somogyibence" title="Tests">⚠️</a></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td align="center" size="13px" colspan="7">
+        <img src="https://raw.githubusercontent.com/all-contributors/all-contributors-cli/1b8533af435da9854653492b1327a23a4dbd0a10/assets/logo-small.svg">
+          <a href="https://all-contributors.js.org/docs/en/bot/usage">Add your contributions</a>
+        </img>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!-- remark-ignore-end -->
+
+This project follows the [all-contributors][x-repo-all-contributors]
+specification. Contributions of any kind welcome!
+
+[x-badge-blm-image]: https://xunn.at/badge-blm 'Join the movement!'
+[x-badge-blm-link]: https://xunn.at/donate-blm
+[x-badge-codecov-image]:
+  https://img.shields.io/codecov/c/github/Xunnamius/next-test-api-route-handler/main?style=flat-square&token=HWRIOBAAPW
   'Is this package well-tested?'
-[link-codecov]: https://codecov.io/gh/Xunnamius/next-test-api-route-handler
-[badge-license]:
-  https://img.shields.io/npm/l/next-test-api-route-handler
+[x-badge-codecov-link]:
+  https://codecov.io/gh/Xunnamius/next-test-api-route-handler
+[x-badge-downloads-image]:
+  https://img.shields.io/npm/dm/next-test-api-route-handler?style=flat-square
+  'Number of times this package has been downloaded per month'
+[x-badge-lastcommit-image]:
+  https://img.shields.io/github/last-commit/xunnamius/next-test-api-route-handler?style=flat-square
+  'Latest commit timestamp'
+[x-badge-license-image]:
+  https://img.shields.io/npm/l/next-test-api-route-handler?style=flat-square
   "This package's source license"
-[link-license]:
+[x-badge-license-link]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/LICENSE
-[badge-fossa]:
-  https://app.fossa.com/api/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler.svg?type=large
-  "Analysis of this package's license obligations"
-[link-fossa]:
-  https://app.fossa.com/projects/git%2Bgithub.com%2FXunnamius%2Fnext-test-api-route-handler
-[badge-npm]:
-  https://api.ergodark.com/badges/npm-pkg-version/next-test-api-route-handler
+[x-badge-npm-image]:
+  https://xunn.at/npm-pkg-version/next-test-api-route-handler
   'Install this package using npm or yarn!'
-[link-npm]: https://www.npmjs.com/package/next-test-api-route-handler
-[badge-semantic-release]:
-  https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
+[x-badge-npm-link]: https://www.npmjs.com/package/next-test-api-route-handler
+[x-badge-repo-link]: https://github.com/xunnamius/next-test-api-route-handler
+[x-badge-semanticrelease-image]:
+  https://xunn.at/badge-semantic-release
   'This repo practices continuous integration and deployment!'
-[link-semantic-release]: https://github.com/semantic-release/semantic-release
-[badge-size]: https://badgen.net/bundlephobia/minzip/next-test-api-route-handler
-[badge-tree-shaking]:
-  https://badgen.net/bundlephobia/tree-shaking/next-test-api-route-handler
-  'Is this package optimized for Webpack?'
-[link-bundlephobia]:
-  https://bundlephobia.com/result?p=next-test-api-route-handler
-  'Package size (minified and gzipped)'
-[package-json]: package.json
-[docs]: docs
-[choose-new-issue]:
-  https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose
-[pr-compare]: https://github.com/Xunnamius/next-test-api-route-handler/compare
-[contributing]: CONTRIBUTING.md
-[support]: .github/SUPPORT.md
-[cjs2]: https://webpack.js.org/configuration/output/#module-definition-systems
-[dual-module]:
-  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-commonjses-module-packages
-[exports-main-key]:
-  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#package-entry-points
-[hazard]:
-  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#dual-package-hazard
-[local-pkg]:
+[x-badge-semanticrelease-link]:
+  https://github.com/semantic-release/semantic-release
+[x-pkg-cjs-mojito]:
+  https://dev.to/jakobjingleheimer/configuring-commonjs-es-modules-for-nodejs-12ed#publish-only-a-cjs-distribution-with-property-exports
+[x-pkg-dual-package-hazard]:
+  https://nodejs.org/api/packages.html#dual-package-hazard
+[x-pkg-exports-conditions]:
+  https://webpack.js.org/guides/package-exports#reference-syntax
+[x-pkg-exports-module-key]:
+  https://webpack.js.org/guides/package-exports#providing-commonjs-and-esm-version-stateless
+[x-pkg-exports-types-key]:
+  https://devblogs.microsoft.com/typescript/announcing-typescript-4-5-beta#packagejson-exports-imports-and-self-referencing
+[x-pkg-side-effects-key]:
+  https://webpack.js.org/guides/tree-shaking#mark-the-file-as-side-effect-free
+[x-pkg-tree-shaking]: https://webpack.js.org/guides/tree-shaking
+[x-pkg-type]:
   https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
-[module-key]:
-  https://github.com/nodejs/node-eps/blob/4217dca299d89c8c18ac44c878b5fe9581974ef3/002-es6-modules.md#51-determining-if-source-is-an-es-module
-[exports-module-key]:
-  https://webpack.js.org/guides/package-exports/#providing-commonjs-and-esm-version-stateless
-[node-esm-support]:
-  https://medium.com/%40nodejs/node-js-version-14-available-now-8170d384567e#2368
-[side-effects-key]:
-  https://webpack.js.org/guides/tree-shaking/#mark-the-file-as-side-effect-free
-[tree-shaking]: https://webpack.js.org/guides/tree-shaking
+[x-repo-all-contributors]: https://github.com/all-contributors/all-contributors
+[x-repo-all-contributors-emojis]: https://allcontributors.org/docs/en/emoji-key
+[x-repo-choose-new-issue]:
+  https://github.com/xunnamius/next-test-api-route-handler/issues/new/choose
+[x-repo-contributing]: /CONTRIBUTING.md
+[x-repo-docs]: docs
+[x-repo-license]: ./LICENSE
+[x-repo-package-json]: package.json
+[x-repo-pr-compare]:
+  https://github.com/xunnamius/next-test-api-route-handler/compare
+[x-repo-sponsor]: https://github.com/sponsors/Xunnamius
+[x-repo-support]: /.github/SUPPORT.md
 [1]: https://nextjs.org/docs/api-routes/introduction
 [2]: https://nextjs.org/docs/basic-features/typescript#api-routes
-[3]: https://github.com/vercel/next.js/releases
-[5]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
-[6]: https://nodejs.org/api/http.html#http_class_http_serverresponse
-[7]: https://www.npmjs.com/package/node-fetch
-[8]: https://github.com/node-fetch/node-fetch#post-with-json
-[9]: test/unit-index.test.ts
-[10]: https://github.com/vercel/next.js
-[11]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
-[12]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[13]:
+[3]:
   https://github.com/Xunnamius/next-test-api-route-handler/actions/workflows/is-next-compat.yml
-[14]: https://en.wikipedia.org/wiki/Query_string
-[15]: ./apollo_test_raw
-[16]: https://www.npmjs.com/package/jest
-[17]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-[18]: https://github.com/vercel/next.js/pull/8613
-[19]: https://nextjs.org/blog/next-9
-[20]:
+[4]: https://github.com/vercel/next.js/releases
+[5]: #legacy-runtime-support
+[6]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
+[7]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues/303#issuecomment-903344572
-[21]: #testing-nextjss-official-apollo-example--pagesapigraphql
-[22]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
-[23]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
-[24]: https://www.npmjs.com/package/cookie
-[26]:
-  https://github.blog/2021-02-02-npm-7-is-now-generally-available/#peer-dependencies
-[27]:
-  https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
-[28]: ./test/unit-index.test.ts
-[29]:
+[8]: #testing-nextjss-official-apollo-example--pagesapigraphql
+[9]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
+[10]: https://nodejs.org/api/http.html#http_class_http_serverresponse
+[11]: https://en.wikipedia.org/wiki/Query_string
+[12]:
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
-[4]:
+[13]: https://www.npmjs.com/package/node-fetch
+[14]: https://github.com/node-fetch/node-fetch#post-with-json
+[15]:
   https://github.com/mswjs/msw/blob/2e7ecd87e5568c6e59a408e812535f088498e437/src/utils/handleRequest.ts#L60-L65
-[25]:
+[16]:
   https://nextjs.org/docs/api-routes/response-helpers#redirects-to-a-specified-path-or-url
+[17]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+[18]: https://www.npmjs.com/package/cookie
+[19]: ./test/unit-index.test.ts
+[20]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[21]: https://github.com/vercel/next.js
+[22]: ./apollo_test_raw
+[23]: https://www.npmjs.com/package/jest
+[24]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[25]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
+[26]: test/unit-index.test.ts
+[27]: https://nextjs.org/blog/next-9
+[28]: https://github.com/vercel/next.js/pull/8613
+[29]:
+  https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
+[30]:
+  https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
