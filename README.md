@@ -27,7 +27,7 @@ Confidently unit test your Next.js API routes in an isolated Next.js-like enviro
 
 <br />
 
-# next-test-api-route-handler (NTARH)
+# next-test-api-route-handler
 
 Trying to unit test your [Next.js API route handlers][1]? Want to avoid mucking
 around with custom servers and writing boring test infra just to get some unit
