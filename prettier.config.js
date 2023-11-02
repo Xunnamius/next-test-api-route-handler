@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @type {import('prettier').Options}
+ */
 module.exports = {
   endOfLine: 'lf',
   printWidth: 80,
@@ -10,7 +13,7 @@ module.exports = {
   trailingComma: 'none',
   overrides: [
     {
-      files: '**/*.@(ts|?(@(c|m))js)?(x)',
+      files: '**/*.?(@(c|m))@(ts|js)?(x)',
       options: {
         parser: 'babel-ts',
         printWidth: 90

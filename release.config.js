@@ -4,7 +4,7 @@ const debug = require('debug')(
   `${require('./package.json').name}:semantic-release-config`
 );
 
-// TODO: turn this into @xunnamius/semantic-release-projector-config
+// TODO: replace this with @xunnamius/semantic-release-projector-config
 
 const updateChangelog =
   process.env.UPDATE_CHANGELOG === 'true' ||
@@ -55,15 +55,14 @@ module.exports = {
           [
             '@semantic-release/exec',
             {
-              prepareCmd: 'CHANGELOG_SKIP_TITLE=true npm run build-changelog'
+              prepareCmd: 'CHANGELOG_SKIP_TITLE=true npm run build:changelog'
             }
           ],
           ['@semantic-release/changelog', { changelogTitle }],
           [
             '@semantic-release/exec',
             {
-              prepareCmd:
-                'remark -o --use reference-links --use gfm --use frontmatter CHANGELOG.md'
+              prepareCmd: 'NODE_ENV=format npx remark --output --frail CHANGELOG.md'
             }
           ],
           [

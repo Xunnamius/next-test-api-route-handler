@@ -4,34 +4,21 @@
 
 // ? https://nodejs.org/en/about/releases
 const NODE_LTS = 'maintained node versions';
+// TODO: replace with 'package'
 const pkgName = require('./package.json').name;
 const debug = require('debug')(`${pkgName}:babel-config`);
 
-// ? Fix relative local imports referencing package.json (.dist/bundle/...)
-const transformRenameImport = [
-  'transform-rename-import',
-  {
-    // ? See: https://bit.ly/38hFTa8
-    replacements: [{ original: 'package', replacement: `${pkgName}/package.json` }]
-  }
-];
-
 debug('NODE_ENV: %O', process.env.NODE_ENV);
 
+/**
+ * @type {import('@babel/core').TransformOptions}
+ */
 module.exports = {
+  comments: false,
   parserOpts: { strictMode: true },
   plugins: [
     '@babel/plugin-proposal-export-default-from',
-    '@babel/plugin-proposal-function-bind',
-    '@babel/plugin-proposal-nullish-coalescing-operator',
-    '@babel/plugin-transform-typescript',
-    // ? Interoperable named CJS imports for free
-    [
-      'transform-default-named-imports',
-      {
-        exclude: [/^next([/?#].+)?/, /^mongodb([/?#].+)?/]
-      }
-    ]
+    '@babel/plugin-syntax-import-assertions'
   ],
   // ? Sub-keys under the "env" config key will augment the above
   // ? configuration depending on the value of NODE_ENV and friends. Default
@@ -39,11 +26,11 @@ module.exports = {
   env: {
     // * Used by Jest and `npm test`
     test: {
+      comments: true,
       sourceMaps: 'both',
       presets: [
         ['@babel/preset-env', { targets: { node: true } }],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
-        // ? We don't care about minification
       ],
       plugins: [
         // ? Only active when testing, the plugin solves the following problem:
@@ -51,63 +38,58 @@ module.exports = {
         'explicit-exports-references'
       ]
     },
-    // * Used by `npm run build`
-    production: {
-      presets: [
-        [
-          '@babel/preset-env',
-          {
-            // ? https://github.com/babel/babel-loader/issues/521#issuecomment-441466991
-            //modules: false,
-            targets: NODE_LTS
-          }
-        ],
-        ['@babel/preset-typescript', { allowDeclareFields: true }]
-        // ? Minification is handled by Webpack
-      ]
-    },
-    // * Used by `npm run build-externals`
-    external: {
-      presets: [
-        ['@babel/preset-env', { targets: { node: true } }],
-        ['@babel/preset-typescript', { allowDeclareFields: true }]
-        // ? Minification is handled by Webpack
-      ],
-      plugins: [transformRenameImport]
-    },
-    // * Used for compiling ESM code output in ./dist/esm
-    esm: {
+    // * Used by `npm run build` for transpiling TS to CJS output in ./dist
+    'production-cjs': {
       presets: [
         [
           '@babel/preset-env',
           {
             // ? https://babeljs.io/docs/en/babel-preset-env#modules
-            modules: false,
-            targets: NODE_LTS
+            modules: 'cjs',
+            targets: NODE_LTS,
+            useBuiltIns: 'usage',
+            corejs: '3.27',
+            shippedProposals: true
           }
         ],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
-        // ? Minification is handled by Webpack
-      ]
-    },
-    // * Used for compiling ESM code output in .dist/bundle
-    bundle: {
-      presets: [
-        [
-          '@babel/preset-env',
-          {
-            // ? https://babeljs.io/docs/en/babel-preset-env#modules
-            modules: false,
-            targets: NODE_LTS
-          }
-        ],
-        ['@babel/preset-typescript', { allowDeclareFields: true }]
-        // ? The end user will handle minification
       ],
       plugins: [
-        // ? Ensure all local imports without extensions now end in .mjs
-        ['add-import-extension', { extension: 'mjs' }],
-        transformRenameImport
+        [
+          'babel-plugin-transform-rewrite-imports',
+          {
+            replaceExtensions: {
+              '^../package.json$': '../../package.json'
+            }
+          }
+        ]
+      ]
+    },
+    // * Used by `npm run build` for compiling TS to ESM output in ./dist
+    'production-external': {
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            // ? https://babeljs.io/docs/en/babel-preset-env#modules
+            modules: false,
+            targets: NODE_LTS,
+            useBuiltIns: 'usage',
+            corejs: '3.27',
+            shippedProposals: true
+          }
+        ],
+        ['@babel/preset-typescript', { allowDeclareFields: true }]
+      ],
+      plugins: [
+        [
+          'babel-plugin-transform-rewrite-imports',
+          {
+            replaceExtensions: {
+              '^../package.json$': '../../package.json'
+            }
+          }
+        ]
       ]
     }
   }
