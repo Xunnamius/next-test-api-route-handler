@@ -16,9 +16,28 @@ debug('NODE_ENV: %O', process.env.NODE_ENV);
 module.exports = {
   comments: false,
   parserOpts: { strictMode: true },
+  assumptions: {
+    constantReexports: true
+  },
   plugins: [
     '@babel/plugin-proposal-export-default-from',
-    '@babel/plugin-syntax-import-assertions'
+    [
+      'module-resolver',
+      {
+        root: '.',
+        extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+        // ! If changed, also update these aliases in tsconfig.json,
+        // ! webpack.config.js, next.config.ts, eslintrc.js, and jest.config.js
+        alias: {
+          '^universe/(.*)$': './src/\\1',
+          '^multiverse/(.*)$': './lib/\\1',
+          '^testverse/(.*)$': './test/\\1',
+          '^externals/(.*)$': './external-scripts/\\1',
+          '^types/(.*)$': './types/\\1',
+          '^package$': `./package.json`
+        }
+      }
+    ]
   ],
   // ? Sub-keys under the "env" config key will augment the above
   // ? configuration depending on the value of NODE_ENV and friends. Default
@@ -31,11 +50,28 @@ module.exports = {
       presets: [
         ['@babel/preset-env', { targets: { node: true } }],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
+        // ? We don't care about minification
       ],
       plugins: [
         // ? Only active when testing, the plugin solves the following problem:
         // ? https://stackoverflow.com/q/40771520/1367414
         'explicit-exports-references'
+      ]
+    },
+    // * Used when NODE_ENV == production (usually for generating types w/ tsc)
+    production: {
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            // ? https://babeljs.io/docs/en/babel-preset-env#modules
+            modules: 'auto',
+            targets: NODE_LTS,
+            exclude: ['proposal-dynamic-import']
+          }
+        ],
+        ['@babel/preset-typescript', { allowDeclareFields: true }]
+        // ? Minification is handled externally (e.g. by webpack)
       ]
     },
     // * Used by `npm run build` for transpiling TS to CJS output in ./dist
@@ -48,15 +84,16 @@ module.exports = {
             modules: 'cjs',
             targets: NODE_LTS,
             useBuiltIns: 'usage',
-            corejs: '3.27',
-            shippedProposals: true
+            corejs: '3.33',
+            shippedProposals: true,
+            exclude: ['proposal-dynamic-import']
           }
         ],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
       ],
       plugins: [
         [
-          'babel-plugin-transform-rewrite-imports',
+          'transform-rewrite-imports',
           {
             replaceExtensions: {
               '^../package.json$': '../../package.json'
@@ -65,25 +102,27 @@ module.exports = {
         ]
       ]
     },
-    // * Used by `npm run build` for compiling TS to ESM output in ./dist
+    // * Used by `npm run build:externals` for compiling to ESM code output in
+    // * ./external-scripts/bin
     'production-external': {
       presets: [
         [
           '@babel/preset-env',
           {
             // ? https://babeljs.io/docs/en/babel-preset-env#modules
-            modules: false,
+            modules: 'cjs',
             targets: NODE_LTS,
             useBuiltIns: 'usage',
-            corejs: '3.27',
-            shippedProposals: true
+            corejs: '3.33',
+            shippedProposals: true,
+            exclude: ['proposal-dynamic-import']
           }
         ],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
       ],
       plugins: [
         [
-          'babel-plugin-transform-rewrite-imports',
+          'transform-rewrite-imports',
           {
             replaceExtensions: {
               '^../package.json$': '../../package.json'
