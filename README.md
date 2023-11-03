@@ -682,7 +682,7 @@ got app router and edge route support in version 4.
 This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
 built by Babel for Node.js versions that are not end-of-life. For TypeScript
 users, this package supports both `"Node10"` and `"Node16"` module resolution
-strategies .
+strategies.
 
 <details><summary>Expand details</summary>
 
