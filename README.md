@@ -89,7 +89,7 @@ npm install --save-dev next-test-api-route-handler
 
 ## Usage
 
-```typeScript
+```typescript
 // ESM
 import { testApiHandler } from 'next-test-api-route-handler';
 ```
@@ -101,7 +101,7 @@ const { testApiHandler } = require('next-test-api-route-handler');
 
 Quick start:
 
-```typeScript
+```typescript
 /* File: test/unit.test.ts */
 
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -142,7 +142,7 @@ it('does what I want', async () => {
 
 The interface for `testApiHandler` without generics looks like this:
 
-```typeScript
+```typescript
 async function testApiHandler(args: {
   rejectOnHandlerError?: boolean;
   requestPatcher?: (req: IncomingMessage) => void;
@@ -151,7 +151,9 @@ async function testApiHandler(args: {
   params?: Record<string, unknown>;
   url?: string;
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
-  test: (args: { fetch: (customInit?: RequestInit) => FetchReturnType }) => Promise<void>;
+  test: (args: {
+    fetch: (customInit?: RequestInit) => FetchReturnType;
+  }) => Promise<void>;
 });
 ```
 
@@ -204,7 +206,7 @@ To guard against false negatives, you can do either of the following:
 
 1. Make sure the status of the `fetch()` response is what you're expecting:
 
-```typeScript
+```typescript
 const res = await fetch();
 ...
 // For this test, a 403 status is what we wanted
@@ -222,7 +224,7 @@ expect(res2.status).toBe(500);
    `HTTP 500`. This is especially useful if you have `expect()` assertions
    _inside_ your handler function:
 
-```typeScript
+```typescript
 await expect(
   testApiHandler({
     rejectOnHandlerError: true, // <==
@@ -256,7 +258,6 @@ await testApiHandler({
 });
 // ...but since we used rejectOnHandlerError, the whole promise rejects
 // and Jest reports that the test failed, which is probably what you wanted.
-
 ```
 
 ### `test`
@@ -277,7 +278,7 @@ redirection][16].
 
 For example:
 
-```typeScript
+```typescript
 it('redirects a shortened URL to the real URL', async () => {
   expect.hasAssertions();
 
@@ -308,7 +309,7 @@ it('redirects a shortened URL to the real URL', async () => {
 });
 ```
 
-##### `response.cookies`
+#### `response.cookies`
 
 As of version `2.3.0`, the response object returned by `fetch()` includes a
 non-standard _cookies_ field containing an array of objects representing
@@ -385,7 +386,7 @@ configure dependencies, download [the following script][22], and run it with
 > `config`) through to NTARH and setting `request.url` to the proper value is
 > [crucial][25] when testing Apollo endpoints!**
 
-```typeScript
+```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
 
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -446,7 +447,7 @@ The endpoint responds with status code `HTTP 200` for every request except the
 How might we [test][23] that this endpoint responds with `HTTP 555` once for
 every nine `HTTP 200` responses?
 
-```typeScript
+```typescript
 /* File: test/unit.test.ts */
 
 // Import the handler under test from the pages/api directory
@@ -515,7 +516,6 @@ it('injects contrived errors at the required rate', async () => {
     }
   });
 });
-
 ```
 
 ### Testing a Flight Search API Handler @ `pages/api/v3/flights/search`
@@ -527,7 +527,7 @@ query.
 How might we [test][23] that this endpoint returns flights in our database as
 expected?
 
-```typeScript
+```typescript
 /* File: test/unit.test.ts */
 
 import endpoint, { config } from '../pages/api/v3/flights/search';

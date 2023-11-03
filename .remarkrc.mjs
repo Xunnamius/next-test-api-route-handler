@@ -24,7 +24,11 @@ const lintConfig = {
     'lint-first-heading-level',
     'lint-heading-increment',
     'lint-heading-whitespace',
-    'lint-list-item-style',
+    [
+      'lint-list-item-style',
+      // ? Add ":" as allowed punctuation
+      { checkPunctuation: ['(\\.|\\?|;|:|,|!|\\p{Emoji}\uFE0F|\\p{Emoji_Presentation})'] }
+    ],
     'lint-no-duplicate-defined-urls',
     'lint-no-duplicate-headings-in-section',
     'lint-no-empty-sections',

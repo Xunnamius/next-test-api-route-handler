@@ -6,8 +6,8 @@
 
 <!-- Replace `[ ]` with `[x]` in all the following boxes that apply to you -->
 
-- [ ] I have read **[CONTRIBUTING.md][1]**
-- [ ] This PR is not security related (see [SECURITY.md][2])
+- [ ] I have read **[CONTRIBUTING.md][1]**.
+- [ ] This PR is not security related (see [SECURITY.md][2]).
 
 [1]: /CONTRIBUTING.md
 [2]: /SECURITY.md
