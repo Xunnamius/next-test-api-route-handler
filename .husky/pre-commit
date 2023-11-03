@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname $0)/_/husky.sh"
 
-if [ -z $GAC_VERIFY_SIMPLE ]; then npm run lint; fi
+if [ -z $GAC_VERIFY_SIMPLE ]; then npm run lint:all; fi
 NODE_ENV=format npx lint-staged --concurrent false
