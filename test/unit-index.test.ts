@@ -2,7 +2,11 @@ import { parse, serialize } from 'cookie';
 import { Headers } from 'node-fetch';
 
 import { testApiHandler } from '../src/index';
-import { asMockedFunction, withMockedOutput } from './setup';
+import { withMockedOutput } from './setup';
+
+// TODO: fix this import
+// @ts-expect-error: broken import from node10; needs fixing
+import { asMockedFunction } from '@xunnamius/jest-types';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -398,11 +402,11 @@ describe('::testApiHandler', () => {
       test: async ({ fetch }) => {
         const res = await fetch();
 
-        expect(mockedCookieParse).toBeCalledTimes(0);
+        expect(mockedCookieParse).toHaveBeenCalledTimes(0);
         expect(res.cookies).toBeArrayOfSize(2);
-        expect(mockedCookieParse).toBeCalledTimes(2);
+        expect(mockedCookieParse).toHaveBeenCalledTimes(2);
         expect(res.cookies).toBeArrayOfSize(2);
-        expect(mockedCookieParse).toBeCalledTimes(2);
+        expect(mockedCookieParse).toHaveBeenCalledTimes(2);
       }
     });
 
@@ -417,11 +421,11 @@ describe('::testApiHandler', () => {
       test: async ({ fetch }) => {
         const res = await fetch();
 
-        expect(mockedCookieParse).toBeCalledTimes(2);
+        expect(mockedCookieParse).toHaveBeenCalledTimes(2);
         expect(res.cookies).toBeArrayOfSize(2);
-        expect(mockedCookieParse).toBeCalledTimes(4);
+        expect(mockedCookieParse).toHaveBeenCalledTimes(4);
         expect(res.cookies).toBeArrayOfSize(2);
-        expect(mockedCookieParse).toBeCalledTimes(4);
+        expect(mockedCookieParse).toHaveBeenCalledTimes(4);
       }
     });
   });
@@ -429,17 +433,16 @@ describe('::testApiHandler', () => {
   it('resolves on errors from handler function by default or if rejectOnHandlerError is false', async () => {
     expect.hasAssertions();
 
-    await withMockedOutput(async () => {
+    await withMockedOutput(async ({ errorSpy }) => {
       await expect(
         testApiHandler({
           handler: () => {
             throw new Error('not good');
           },
           test: async ({ fetch }) => {
-            expect((await fetch()).status).toBe(500);
-            await expect((await fetch()).text()).resolves.toMatch(
-              /Internal Server Error/
-            );
+            const res = await fetch();
+            expect(res.status).toBe(500);
+            await expect(res.text()).resolves.toMatch(/Internal Server Error/);
           }
         })
       ).toResolve();
@@ -451,13 +454,14 @@ describe('::testApiHandler', () => {
             throw new Error('bad not good');
           },
           test: async ({ fetch }) => {
-            expect((await fetch()).status).toBe(500);
-            await expect((await fetch()).text()).resolves.toMatch(
-              /Internal Server Error/
-            );
+            const res = await fetch();
+            expect(res.status).toBe(500);
+            await expect(res.text()).resolves.toMatch(/Internal Server Error/);
           }
         })
       ).toResolve();
+
+      expect(errorSpy).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -487,7 +491,7 @@ describe('::testApiHandler', () => {
   it('rejects on errors from handler function if rejectOnHandlerError is true', async () => {
     expect.hasAssertions();
 
-    await withMockedOutput(async () => {
+    await withMockedOutput(async ({ errorSpy }) => {
       await expect(
         testApiHandler({
           rejectOnHandlerError: true,
@@ -521,6 +525,8 @@ describe('::testApiHandler', () => {
           }
         })
       ).rejects.toMatchObject({ message: 'bad bad bad bad not good' });
+
+      expect(errorSpy).toHaveBeenCalledTimes(3);
     });
   });
 

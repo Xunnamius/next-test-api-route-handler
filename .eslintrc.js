@@ -120,7 +120,9 @@ const rules = {
   // ? I'll decide when I want switch cases for fallthrough or not, thanks
   'unicorn/prefer-switch': 'off',
   // ? No, thanks
-  'unicorn/prefer-set-has': 'off'
+  'unicorn/prefer-set-has': 'off',
+  // ? Nah
+  'unicorn/prefer-top-level-await': 'off'
 };
 
 module.exports = {

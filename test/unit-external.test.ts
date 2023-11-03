@@ -5,7 +5,11 @@ import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
 import { name as pkgName, version as pkgVersion } from 'package';
 
-import { asMockedFunction, protectedImportFactory, withMockedEnv } from './setup';
+import { protectedImportFactory, withMockedEnv } from './setup';
+
+// TODO: fix this import
+// @ts-expect-error: broken import from node10; needs fixing
+import { asMockedFunction } from '@xunnamius/jest-types';
 
 import type { Debugger } from 'debug';
 import type { ExecaChildProcess } from 'execa';
@@ -94,7 +98,10 @@ beforeEach(() => {
 
 it('calls invoker when imported', async () => {
   expect.hasAssertions();
+
+  mockLatestRelease = '100.99.0';
   await protectedImport({ expectedExitCode: 0 });
+
   expect(mockedDebug).toHaveBeenNthCalledWith(3, 'connecting to GitHub');
 });
 
@@ -138,7 +145,7 @@ it('handles setCompatFlagTo rejection', async () => {
 
       await protectedImport({ expectedExitCode: 2 });
 
-      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
         { compat: { $exists: true } },
         { $set: { compat: mockLatestRelease } },
         { upsert: true }
@@ -160,10 +167,10 @@ it('handles getLastTestedVersion rejection', async () => {
 
       await protectedImport({ expectedExitCode: 2 });
 
-      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
         compat: { $exists: true }
       });
-      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
     },
     { MONGODB_URI: 'fake-uri' }
   );
@@ -183,8 +190,8 @@ it('handles missing package.json', async () => {
       );
 
       await protectedImport({ expectedExitCode: 2 });
-      expect(mockedFindPackageJson).toBeCalled();
-      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+      expect(mockedFindPackageJson).toHaveBeenCalled();
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
     },
     { MONGODB_URI: 'fake-uri' }
   );
@@ -212,9 +219,9 @@ it('handles compatibility test failure', async () => {
 
       await protectedImport({ expectedExitCode: 2 });
 
-      expect(mockedExeca).toBeCalledTimes(4);
-      expect(mockedDebug).toBeCalledWith(expect.stringContaining('failed!'));
-      expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+      expect(mockedExeca).toHaveBeenCalledTimes(4);
+      expect(mockedDebug).toHaveBeenCalledWith(expect.stringContaining('failed!'));
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
     },
     { MONGODB_URI: 'fake-uri' }
   );
@@ -232,11 +239,11 @@ it('runs tests regardless of latest version #1', async () => {
 
       await protectedImport({ expectedExitCode: 0 });
 
-      expect(mockedExeca).toBeCalledTimes(4);
-      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+      expect(mockedExeca).toHaveBeenCalledTimes(4);
+      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
         compat: { $exists: true }
       });
-      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
         { compat: { $exists: true } },
         { $set: { compat: mockLatestRelease } },
         { upsert: true }
@@ -258,11 +265,11 @@ it('runs tests regardless of latest version #2', async () => {
 
       await protectedImport({ expectedExitCode: 0 });
 
-      expect(mockedExeca).toBeCalledTimes(4);
-      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+      expect(mockedExeca).toHaveBeenCalledTimes(4);
+      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
         compat: { $exists: true }
       });
-      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
         { compat: { $exists: true } },
         { $set: { compat: mockLatestRelease } },
         { upsert: true }
@@ -284,11 +291,11 @@ it('runs tests regardless of latest version #3', async () => {
 
       await protectedImport({ expectedExitCode: 0 });
 
-      expect(mockedMongoConnectDbCollectionFindOne).toBeCalledWith({
+      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
         compat: { $exists: true }
       });
-      expect(mockedExeca).toBeCalledTimes(4);
-      expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+      expect(mockedExeca).toHaveBeenCalledTimes(4);
+      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
         { compat: { $exists: true } },
         { $set: { compat: mockLatestRelease } },
         { upsert: true }
@@ -309,9 +316,9 @@ it('runs without any environment variables', async () => {
 
     await protectedImport({ expectedExitCode: 0 });
 
-    expect(mockedExeca).toBeCalledTimes(4);
-    expect(mockedMongoConnectDbCollectionFindOne).not.toBeCalled();
-    expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+    expect(mockedExeca).toHaveBeenCalledTimes(4);
+    expect(mockedMongoConnectDbCollectionFindOne).not.toHaveBeenCalled();
+    expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
   }, {});
 });
 
@@ -326,9 +333,9 @@ it('runs with version string prepended with "v"', async () => {
 
     await protectedImport({ expectedExitCode: 0 });
 
-    expect(mockedExeca).toBeCalledTimes(4);
-    expect(mockedMongoConnectDbCollectionFindOne).not.toBeCalled();
-    expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+    expect(mockedExeca).toHaveBeenCalledTimes(4);
+    expect(mockedMongoConnectDbCollectionFindOne).not.toHaveBeenCalled();
+    expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
   }, {});
 });
 
@@ -347,7 +354,7 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
     { MONGODB_URI: 'fake-uri', NODE_TARGET_VERSION: '1.x' }
   );
 
-  expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+  expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
 
   await withMockedEnv(
     async () => {
@@ -359,7 +366,7 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
     }
   );
 
-  expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalledWith(
+  expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
     { compat: { $exists: true } },
     { $set: { compat: mockLatestRelease } },
     { upsert: true }
@@ -382,8 +389,8 @@ it('respects _is_next_compat_test_mode npm script', async () => {
     { MONGODB_URI: 'fake-uri' }
   );
 
-  expect(mockedMongoConnectDbCollectionFindOne).not.toBeCalled();
-  expect(mockedMongoConnectDbCollectionUpdateOne).not.toBeCalled();
+  expect(mockedMongoConnectDbCollectionFindOne).not.toHaveBeenCalled();
+  expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
 
   mockedExeca.mockImplementationOnce(
     () => Promise.resolve({ exitCode: 1 }) as unknown as ExecaChildProcess<Buffer>
@@ -396,17 +403,19 @@ it('respects _is_next_compat_test_mode npm script', async () => {
     { MONGODB_URI: 'fake-uri' }
   );
 
-  expect(mockedMongoConnectDbCollectionFindOne).toBeCalled();
-  expect(mockedMongoConnectDbCollectionUpdateOne).toBeCalled();
+  expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalled();
+  expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalled();
 });
 
 it('uses GH_TOKEN environment variable if available', async () => {
   expect.hasAssertions();
 
+  mockLatestRelease = '100.99.0';
+
   await withMockedEnv(
     async () => {
       await protectedImport({ expectedExitCode: 0 });
-      expect(mockedOctokit).toBeCalledWith({
+      expect(mockedOctokit).toHaveBeenCalledWith({
         auth: 'fake-token',
         userAgent: `${pkgName}@${pkgVersion}`
       });

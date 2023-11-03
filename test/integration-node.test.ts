@@ -5,7 +5,7 @@ import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package
 import {
   dummyNpmPackageFixture,
   mockFixtureFactory,
-  nodeImportTestFixture,
+  nodeImportAndRunTestFixture,
   npmLinkSelfFixture,
   run
 } from './setup';
@@ -25,7 +25,7 @@ const fixtureOptions = {
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
   } as FixtureOptions['initialFileContents'],
-  use: [dummyNpmPackageFixture(), npmLinkSelfFixture(), nodeImportTestFixture()]
+  use: [dummyNpmPackageFixture(), npmLinkSelfFixture(), nodeImportAndRunTestFixture()]
 };
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, fixtureOptions);
@@ -65,7 +65,7 @@ const runTest = async (
 beforeAll(async () => {
   if ((await run('test', ['-e', pkgMainPath])).code != 0) {
     debug(`unable to find main distributable: ${pkgMainPath}`);
-    throw new Error('must build distributables first (try `npm run build-dist`)');
+    throw new Error('must build distributables first (try `npm run build:dist`)');
   }
 });
 

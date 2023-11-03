@@ -1,13 +1,12 @@
 /* eslint-disable jest/no-conditional-in-test, jest/no-conditional-expect */
 import debugFactory from 'debug';
 import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package';
-import { satisfies as satisfiesRange } from 'semver';
 import stripAnsi from 'strip-ansi';
 
 import {
   dummyNpmPackageFixture,
   mockFixtureFactory,
-  nodeImportTestFixture,
+  nodeImportAndRunTestFixture,
   npmCopySelfFixture,
   run
 } from './setup';
@@ -17,22 +16,7 @@ import type { FixtureOptions } from './setup';
 const TEST_IDENTIFIER = 'integration-client-next';
 
 /* prettier-ignore */
-const NEXT_VERSIONS_UNDER_TEST = satisfiesRange(process.versions.node, '<15') ?
-[
-  // ? We need to install some peer deps (like react) manually thanks to npm@<7
-  // * [next@version, react@version, others...]
-  ['next@9.0.0', 'react@^16', 'next-server'],
-  ['next@^9', 'react@^16'],
-  ['next@10.1.x', 'react@^17'],
-  ['next@^10', 'react@^17'],
-  ['next@11.0.x', 'react@^17'],
-  ['next@^11', 'react@^17'],
-  ['next@12.0.x', 'react@^18'],
-  ['next@13.5.3', 'react@^18'],
-  ['next@latest', 'react@^18']
-]
-:
-[
+const NEXT_VERSIONS_UNDER_TEST = [
   // * [next@version]
   ['next@9.0.0'],   // ? Earliest compat release
   ['next@^9'],      // ? Latest version 9 release
@@ -56,7 +40,7 @@ const fixtureOptions = {
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
   } as FixtureOptions['initialFileContents'],
-  use: [dummyNpmPackageFixture(), npmCopySelfFixture(), nodeImportTestFixture()]
+  use: [dummyNpmPackageFixture(), npmCopySelfFixture(), nodeImportAndRunTestFixture()]
 } as Partial<FixtureOptions> & {
   initialFileContents: FixtureOptions['initialFileContents'];
 };
@@ -66,7 +50,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, fixtureOptions);
 beforeAll(async () => {
   if ((await run('test', ['-e', pkgMainPath])).code != 0) {
     debug(`unable to find main distributable: ${pkgMainPath}`);
-    throw new Error('must build distributables first (try `npm run build-dist`)');
+    throw new Error('must build distributables first (try `npm run build:dist`)');
   }
 });
 

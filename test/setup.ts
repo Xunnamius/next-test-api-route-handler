@@ -1,39 +1,53 @@
-/* eslint-disable unicorn/no-object-as-default-parameter */
-// TODO: remove the previous line ^^^
+/* eslint-disable unicorn/no-keyword-prefix */
+import assert from 'node:assert';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { resolve } from 'node:path';
+import { basename, join as joinPath, resolve as resolvePath } from 'node:path';
+import { name as pkgName, version as pkgVersion } from '../package.json';
 
 import debugFactory from 'debug';
 import execa from 'execa';
 import glob from 'glob';
-import { name as pkgName, version as pkgVersion } from 'package';
-import gitFactory from 'simple-git';
 import uniqueFilename from 'unique-filename';
+//import gitFactory from 'simple-git';
 // ? https://github.com/jest-community/jest-extended#typescript
 import 'jest-extended';
 import 'jest-extended/all';
 
-import type { AnyFunction, AnyVoid } from '@xunnamius/types';
 import type { Debugger } from 'debug';
 import type { ExecaReturnValue } from 'execa';
-import type { SimpleGit } from 'simple-git';
+import type { Merge, Promisable } from 'type-fest';
+//import type { SimpleGit } from 'simple-git';
 
-const { writeFile, readFile, access: accessFile } = fs;
-const debug = debugFactory(`${pkgName}:jest-setup`);
+// ! Note that these notes are relics of a copy-paste and are not recent. Most
+// ! recent TODO notes for all of this stuff is in msft-todo-backup.
 
-debug(`pkgName: "${pkgName}"`);
-debug(`pkgVersion: "${pkgVersion}"`);
+// ! HOWEVER
 
-// TODO: XXX: add this to @ergodark/types:
-export function asMockedFunction<T extends AnyFunction = never>(): jest.MockedFunction<T>;
-export function asMockedFunction<T extends AnyFunction>(fn: T): jest.MockedFunction<T>;
-export function asMockedFunction<T extends AnyFunction>(fn?: T): jest.MockedFunction<T> {
-  return (fn || jest.fn()) as unknown as jest.MockedFunction<T>;
-}
+// ! The versions of the functions here are fixed in various ways compared to
+// ! older versions of this file. A great merging will have to occur soon...
+
+// TODO: automated tests against both Windows and Linux (and for all tooling)
+
+// TODO: consider stripping indents from all writeFiles (perhaps add option)
+
+// TODO: add "all" interleaved output to testResult
+
+// TODO: ensure post-test cleanup ALWAYS happens and dirs/files are NEVER left around
+
+// TODO: combine the files and dir fixtures into one; dirs should be
+// TODO: automatically created from file paths and from explicit dir paths too
+
+// TODO: ability to copy entire arbitrary directories recursively into fixture
+// TODO: root
+
+const globalDebug = debugFactory(`${pkgName}:jest-setup`);
+
+globalDebug(`pkgName: "${pkgName}"`);
+globalDebug(`pkgVersion: "${pkgVersion}"`);
 
 // TODO: XXX: make this into a separate (mock-argv) package (along w/ the below)
-export type MockArgvOptions = {
+export type MockedArgvOptions = {
   /**
    * By default, the first two elements in `process.argv` are preserved. Setting
    * `replace` to `true` will cause the entire process.argv array to be replaced
@@ -43,7 +57,7 @@ export type MockArgvOptions = {
 };
 
 // TODO: XXX: make this into a separate (mock-env) package (along w/ the below)
-export type MockEnvOptions = {
+export type MockedEnvOptions = {
   /**
    * By default, the `process.env` object is emptied and re-hydrated with
    * `newEnv`. Setting `replace` to `false` will cause `newEnv` to be appended
@@ -51,54 +65,214 @@ export type MockEnvOptions = {
    * @default true
    */
   replace?: boolean;
+  /**
+   * If `true`, whenever `process.env.DEBUG` is present, it will be forwarded
+   * as-is to the underlying environment mock even when `replace` is `true`.
+   * This allows debug output to make it to the screen.
+   *
+   * @default true
+   */
+  passthroughDebugEnv?: boolean;
 };
+
+// TODO: make these fs-style functions accessible from the context object
+async function writeFile({
+  path,
+  data,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  path: string;
+  data: string;
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  !noDebugOutput && debug(`writing file: ${path}`);
+  !noDebugOutput && debug.extend('contents >')(data);
+  return fs.writeFile(path, data);
+}
+
+async function readFile({
+  path,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  path: string;
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  !noDebugOutput && debug(`reading file: ${path}`);
+  const data = await fs.readFile(path, 'utf8');
+  !noDebugOutput && debug.extend('contents >')(data);
+  return data;
+}
+
+async function accessFile({
+  path,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  path: string;
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  !noDebugOutput && debug(`determining accessibility of file: ${path}`);
+  return fs.access(path);
+}
+
+async function symlink({
+  actualPath,
+  linkPath,
+  isDir = true,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  actualPath: string;
+  linkPath: string;
+  isDir: boolean;
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  if (!noDebugOutput) {
+    debug(
+      `creating symlink (${isDir ? 'dir' : 'not dir'}): ${actualPath} => ${linkPath}`
+    );
+  }
+
+  return fs.symlink(
+    actualPath,
+    linkPath,
+    process.platform == 'win32' ? (isDir ? 'junction' : 'file') : undefined
+  );
+}
+
+async function mkdir({
+  paths,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  paths: string[];
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  return Promise.all(
+    paths.map((path) => {
+      !noDebugOutput && debug(`making directory: ${path}`);
+      return fs.mkdir(path, { recursive: true });
+    })
+  );
+}
+
+async function remove({
+  paths,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  paths: string[];
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  return Promise.all(
+    paths.map((path) => {
+      !noDebugOutput && debug(`deleting item: ${path}`);
+      return fs.rm(path, { force: true, recursive: true });
+    })
+  );
+}
+
+async function copy({
+  sourcePaths,
+  destinationPath,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  sourcePaths: string[];
+  destinationPath: string;
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  return Promise.all(
+    sourcePaths.map((src) => {
+      // eslint-disable-next-line unicorn/prevent-abbreviations
+      const dst = joinPath(destinationPath, basename(src));
+      !noDebugOutput && debug(`copying item: ${src} => ${dst}`);
+      return fs.cp(src, dst, { force: true, recursive: true });
+    })
+  );
+}
+
+async function rename({
+  oldPath,
+  newPath,
+  context: { debug },
+  noDebugOutput = false
+}: {
+  oldPath: string;
+  newPath: string;
+  context: FixtureContext;
+  noDebugOutput?: boolean;
+}) {
+  !noDebugOutput && debug(`renaming (moving) item: ${oldPath} => ${newPath}`);
+  return fs.rename(oldPath, newPath);
+}
 
 // TODO: XXX: make this into a separate (mock-argv) package
 export async function withMockedArgv(
-  fn: () => AnyVoid,
-  newArgv: string[],
-  options: MockArgvOptions = { replace: false }
+  fn: () => Promisable<void>,
+  simulatedArgv: string[],
+  // eslint-disable-next-line unicorn/no-object-as-default-parameter
+  { replace = false }: MockedArgvOptions = {}
 ) {
   // ? Take care to preserve the original argv array reference in memory
-  const previousArgv = process.argv.splice(options?.replace ? 0 : 2, process.argv.length);
-  process.argv.push(...newArgv);
+  const previousArgv = process.argv.splice(replace ? 0 : 2, process.argv.length);
+  process.argv.push(...simulatedArgv);
 
   await fn();
 
-  process.argv.splice(options?.replace ? 0 : 2, process.argv.length);
+  process.argv.splice(replace ? 0 : 2, process.argv.length);
   process.argv.push(...previousArgv);
 }
 
 // TODO: XXX: make this into a separate (mock-argv) package (along w/ the above)
 export function mockArgvFactory(
-  newArgv: typeof process.argv,
-  options: MockArgvOptions = { replace: false }
+  factorySimulatedArgv: typeof process.argv,
+  // eslint-disable-next-line unicorn/no-object-as-default-parameter
+  factoryOptions: MockedArgvOptions = {}
 ) {
-  const factoryNewArgv = newArgv;
-  const factoryOptions = options;
-
-  return (fn: () => AnyVoid, newArgv?: string[], options?: MockArgvOptions) => {
+  return (
+    fn: () => Promisable<void>,
+    simulatedArgv?: string[],
+    localOptions?: MockedArgvOptions
+  ) => {
     return withMockedArgv(
       fn,
-      [...factoryNewArgv, ...(newArgv || [])],
-      options || factoryOptions
+      [...factorySimulatedArgv, ...(simulatedArgv || [])],
+      Object.assign({}, factoryOptions, localOptions)
     );
   };
 }
 
 // TODO: XXX: make this into a separate (mock-env) package
 export async function withMockedEnv(
-  fn: () => AnyVoid,
-  newEnv: Record<string, string>,
-  options: MockEnvOptions = { replace: true }
+  fn: () => Promisable<void>,
+  simulatedEnv: Record<string, string>,
+  // eslint-disable-next-line unicorn/no-object-as-default-parameter
+  { passthroughDebugEnv = true, replace = true }: MockedEnvOptions = {}
 ) {
   const previousEnv = { ...process.env };
   const clearEnv = () =>
-    Object.getOwnPropertyNames(process.env).forEach((prop) => delete process.env[prop]);
+    Object.getOwnPropertyNames(process.env).forEach(
+      (property) => delete process.env[property]
+    );
 
   // ? Take care to preserve the original env object reference in memory
-  if (options.replace) clearEnv();
-  Object.assign(process.env, newEnv);
+  if (replace) clearEnv();
+
+  Object.assign(
+    process.env,
+    simulatedEnv,
+    passthroughDebugEnv && previousEnv.DEBUG ? { DEBUG: previousEnv.DEBUG } : {}
+  );
 
   await fn();
 
@@ -108,25 +282,19 @@ export async function withMockedEnv(
 
 // TODO: XXX: make this into a separate (mock-env) package (along w/ the above)
 export function mockEnvFactory(
-  // eslint-disable-next-line unicorn/no-keyword-prefix
-  newEnv: Record<string, string>,
-  options: MockEnvOptions = { replace: true }
+  factorySimulatedEnv: Record<string, string>,
+  // eslint-disable-next-line unicorn/no-object-as-default-parameter
+  factoryOptions: MockedEnvOptions = {}
 ) {
-  // eslint-disable-next-line unicorn/no-keyword-prefix
-  const factoryNewEnv = newEnv;
-  const factoryOptions = options;
-
   return (
-    fn: () => AnyVoid,
-    // eslint-disable-next-line unicorn/no-keyword-prefix
-    newEnv?: Record<string, string>,
-    options?: MockEnvOptions
+    fn: () => Promisable<void>,
+    simulatedEnv: Record<string, string> = {},
+    localOptions?: MockedEnvOptions
   ) => {
     return withMockedEnv(
       fn,
-      // eslint-disable-next-line unicorn/no-keyword-prefix
-      { ...factoryNewEnv, ...newEnv },
-      options || factoryOptions
+      { ...factorySimulatedEnv, ...simulatedEnv },
+      Object.assign({}, factoryOptions, localOptions)
     );
   };
 }
@@ -158,7 +326,7 @@ export function isolatedImport<T = unknown>(args: {
   // ? Cache-busting
   jest.isolateModules(() => {
     pkg = ((r) => {
-      debug(
+      globalDebug.extend('isolated-import')(
         `performing isolated import of ${args.path}${
           args.useDefault ? ' (returning default by force)' : ''
         }`
@@ -185,35 +353,70 @@ export function isolatedImportFactory<T = unknown>(args: {
 
 // TODO: XXX: make this into a separate (mock-exit) package
 export async function withMockedExit(
-  fn: (spies: { exitSpy: jest.SpyInstance }) => AnyVoid
+  fn: (spies: {
+    exitSpy: jest.SpyInstance;
+    getExitCode: () => typeof process.exitCode;
+  }) => Promisable<void>
 ) {
   const exitSpy = jest
     .spyOn(process, 'exit')
     .mockImplementation(() => undefined as never);
 
+  const oldProcessExitCode = process.exitCode;
+
   try {
-    await fn({ exitSpy });
+    await fn({
+      exitSpy,
+      getExitCode() {
+        return process.exitCode;
+      }
+    });
   } finally {
     exitSpy.mockRestore();
+    process.exitCode = oldProcessExitCode;
   }
 }
 
 // TODO: XXX: make this into a separate package (along with the above)
 export function protectedImportFactory(path: string) {
-  return async (parameters?: { expectedExitCode?: number }) => {
+  return async (factoryOptions?: { expectedExitCode?: number }) => {
     let pkg: unknown = undefined;
 
-    await withMockedExit(async ({ exitSpy }) => {
+    await withMockedExit(async ({ exitSpy, getExitCode }) => {
       pkg = await isolatedImport({ path });
-      if (expect && parameters?.expectedExitCode)
-        expect(exitSpy).toBeCalledWith(parameters.expectedExitCode);
-      else if (!expect)
-        debug('WARNING: "expect" object not found, so exit check was skipped');
+
+      if (expect && factoryOptions?.expectedExitCode !== undefined) {
+        if (getExitCode() === undefined) {
+          expect(exitSpy).toHaveBeenCalledWith(factoryOptions.expectedExitCode);
+        } else {
+          expect(getExitCode()).toBe(factoryOptions.expectedExitCode);
+        }
+      } else if (!expect) {
+        globalDebug.extend('protected-import-factory')(
+          'WARNING: "expect" object not found, so exit check was skipped'
+        );
+      }
     });
 
     return pkg;
   };
 }
+
+export type MockedOutputOptions = {
+  /**
+   * If `true`, whenever `process.env.DEBUG` is present, output functions will
+   * still be spied on but their implementations will not be mocked, allowing
+   * debug output to make it to the screen.
+   *
+   * @default true
+   */
+  passthroughOutputIfDebugging?: boolean;
+  /**
+   * Call `::mockRestore` on one or more output functions currently being spied
+   * upon.
+   */
+  passthrough?: ('log' | 'warn' | 'error' | 'info' | 'stdout' | 'stderr')[];
+};
 
 // TODO: XXX: make this into a separate (mock-output) package
 export async function withMockedOutput(
@@ -223,33 +426,140 @@ export async function withMockedOutput(
     errorSpy: jest.SpyInstance;
     infoSpy: jest.SpyInstance;
     stdoutSpy: jest.SpyInstance;
-    stdErrSpy: jest.SpyInstance;
-  }) => unknown
+    stderrSpy: jest.SpyInstance;
+  }) => unknown,
+  { passthrough = [], passthroughOutputIfDebugging = true }: MockedOutputOptions = {}
 ) {
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
-  const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-  const infoSpy = jest.spyOn(console, 'info').mockImplementation(() => undefined);
-  const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
-  const stdErrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+  const spies = {
+    logSpy: jest.spyOn(console, 'log'),
+    warnSpy: jest.spyOn(console, 'warn'),
+    errorSpy: jest.spyOn(console, 'error'),
+    infoSpy: jest.spyOn(console, 'info'),
+    stdoutSpy: jest.spyOn(process.stdout, 'write'),
+    stderrSpy: jest.spyOn(process.stderr, 'write')
+  };
+
+  const $wasAccessed = Symbol('was-accessed');
+  const noDebugPassthrough = !process.env.DEBUG || !passthroughOutputIfDebugging;
+
+  for (const [name, spy] of Object.entries(spies)) {
+    // ? If we're debugging, show all outputs instead of swallowing them
+    if (
+      noDebugPassthrough &&
+      !passthrough.includes(name as (typeof passthrough)[number])
+    ) {
+      if (name.startsWith('std')) {
+        spy.mockImplementation(() => true);
+      } else {
+        // @ts-expect-error: TypeScript isn't smart enough to figure this out
+        spy.mockImplementation(() => undefined);
+      }
+    }
+
+    // ? Sometimes useful warnings/errors and what not are swallowed when all we
+    // ? really wanted was to track log/stdout calls, or vice-versa. To prevent
+    // ? this, we expect that our spies have not been called at all UNLESS the
+    // ? caller of withMockedOutput uses the spy (accesses a property).
+    let wasAccessed = false;
+    // @ts-expect-error: TypeScript isn't smart enough to figure this out
+    spies[name as keyof typeof spies] =
+      //
+      new Proxy(spy, {
+        get(target, property) {
+          if (property === $wasAccessed) {
+            return wasAccessed;
+          }
+
+          wasAccessed = true;
+
+          const value: unknown =
+            // @ts-expect-error: TypeScript isn't smart enough to figure this out
+            target[property];
+
+          if (value instanceof Function) {
+            return function (...args: unknown[]) {
+              // ? "this-recovering" code
+              return value.apply(target, args);
+            };
+          }
+
+          return value;
+        }
+      });
+  }
 
   try {
-    await fn({
-      logSpy,
-      warnSpy,
-      errorSpy,
-      infoSpy,
-      stdoutSpy,
-      stdErrSpy
-    });
+    await fn(spies);
+
+    // ? Let us know when output was swallowed unexpectedly
+    for (const [name, spy] of Object.entries(spies)) {
+      if (
+        noDebugPassthrough &&
+        !passthrough.includes(name as (typeof passthrough)[number])
+      ) {
+        const wasAccessed = (spy as typeof spy & { [$wasAccessed]: boolean })[
+          $wasAccessed
+        ];
+
+        assert(typeof wasAccessed === 'boolean');
+
+        if (!wasAccessed) {
+          expect({
+            'failing-spy': name,
+            'unexpected-output': spy.mock.calls
+          }).toStrictEqual({ 'failing-spy': name, 'unexpected-output': [] });
+        }
+      }
+    }
   } finally {
-    logSpy.mockRestore();
-    warnSpy.mockRestore();
-    errorSpy.mockRestore();
-    infoSpy.mockRestore();
-    stdoutSpy.mockRestore();
-    stdErrSpy.mockRestore();
+    spies.logSpy.mockRestore();
+    spies.warnSpy.mockRestore();
+    spies.errorSpy.mockRestore();
+    spies.infoSpy.mockRestore();
+    spies.stdoutSpy.mockRestore();
+    spies.stderrSpy.mockRestore();
   }
+}
+
+/**
+ * Wraps {@link withMockedExit} + {@link withMockedOutput} with
+ * {@link withMockedArgv} + {@link withMockedEnv}.
+ */
+export async function withMocks(
+  fn: (
+    spies: Merge<
+      Parameters<Parameters<typeof withMockedOutput>[0]>[0],
+      Parameters<Parameters<typeof withMockedExit>[0]>[0]
+    >
+  ) => Promise<void>,
+  {
+    simulatedEnv = {},
+    simulatedArgv = [],
+    options = undefined
+  }: {
+    simulatedEnv?: Record<string, string>;
+    simulatedArgv?: string[];
+    options?: Merge<Merge<MockedArgvOptions, MockedEnvOptions>, MockedOutputOptions>;
+  } = {}
+) {
+  return withMockedArgv(
+    () => {
+      return withMockedEnv(
+        () => {
+          return withMockedExit((exitSpies) =>
+            withMockedOutput(
+              (outputSpies) => fn(Object.assign({}, exitSpies, outputSpies)),
+              options
+            )
+          );
+        },
+        simulatedEnv,
+        options
+      );
+    },
+    simulatedArgv,
+    options
+  );
 }
 
 // TODO: XXX: make this into a separate (run) package (along w/ below)
@@ -269,7 +579,7 @@ export async function run(file: string, args?: string[], options?: RunOptions) {
   result = (await execa(file, args, { reject: false, ...options })) as typeof result;
 
   result.code = result.exitCode;
-  debug('executed command result: %O', result);
+  globalDebug.extend('run')('executed command result: %O', result);
 
   return result;
 }
@@ -289,7 +599,7 @@ export function runnerFactory(file: string, args?: string[], options?: RunOption
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface FixtureOptions
   extends Partial<WebpackTestFixtureOptions>,
-    Partial<GitRepositoryFixtureOptions>,
+    /*Partial<GitRepositoryFixtureOptions>,*/
     Partial<NodeImportTestFixtureOptions>,
     Partial<DummyDirectoriesFixtureOptions> {
   performCleanup: boolean;
@@ -303,9 +613,9 @@ export interface WebpackTestFixtureOptions {
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-export interface GitRepositoryFixtureOptions {
-  setupGit: (git: SimpleGit) => AnyVoid;
-}
+/* export interface GitRepositoryFixtureOptions {
+  setupGit: (git: SimpleGit) => Promisable<void>;
+} */
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface DummyDirectoriesFixtureOptions {
@@ -315,6 +625,7 @@ export interface DummyDirectoriesFixtureOptions {
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface NodeImportTestFixtureOptions {
   npmInstall?: string | string[];
+  runInstallScripts?: boolean;
   runWith?: {
     binary?: string;
     args?: string[];
@@ -326,8 +637,8 @@ export interface NodeImportTestFixtureOptions {
 // eslint-disable-next-line @typescript-eslint/ban-types
 export interface FixtureContext<CustomOptions extends Record<string, unknown> = {}>
   extends Partial<TestResultProvider>,
-    Partial<TreeOutputProvider>,
-    Partial<GitProvider> {
+    Partial<TreeOutputProvider> /*,
+    Partial<GitProvider>*/ {
   root: string;
   testIdentifier: string;
   options: FixtureOptions & CustomOptions;
@@ -347,9 +658,9 @@ export interface TreeOutputProvider {
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-export interface GitProvider {
+/* export interface GitProvider {
   git: SimpleGit;
-}
+} */
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -381,13 +692,16 @@ export function rootFixture(): MockFixture {
           : ''
       }`,
     setup: async (context) => {
+      // TODO: add the tmpdir suffix to all related debug outputs
       context.root = uniqueFilename(tmpdir(), context.testIdentifier);
 
-      await run('mkdir', ['-p', context.root], { reject: true });
-      await run('mkdir', ['-p', 'src'], { cwd: context.root, reject: true });
+      await mkdir({ paths: [resolvePath(context.root, 'src')], context });
     },
-    teardown: async (context) =>
-      context.options.performCleanup && run('rm', ['-rf', context.root], { reject: true })
+    teardown: async (context) => {
+      if (context.options.performCleanup) {
+        await remove({ paths: [context.root], context });
+      }
+    }
   };
 }
 
@@ -397,19 +711,23 @@ export function dummyNpmPackageFixture(): MockFixture {
     name: 'dummy-npm-package',
     description: 'creating package.json file and node_modules subdirectory',
     setup: async (context) => {
+      context.fileContents['package.json'] ||= '{"name":"dummy-pkg"}';
+
       await Promise.all([
-        writeFile(
-          `${context.root}/package.json`,
-          (context.fileContents['package.json'] =
-            context.fileContents['package.json'] || '{"name":"dummy-pkg"}')
-        ),
-        run('mkdir', ['-p', 'node_modules'], { cwd: context.root, reject: true })
+        mkdir({ paths: [resolvePath(context.root, 'node_modules')], context }),
+        writeFile({
+          path: resolvePath(context.root, 'package.json'),
+          data: context.fileContents['package.json'],
+          context
+        })
       ]);
 
       if (pkgName.includes('/')) {
-        await run('mkdir', ['-p', pkgName.split('/')[0]], {
-          cwd: `${context.root}/node_modules`,
-          reject: true
+        await mkdir({
+          paths: [
+            resolvePath(context.root, joinPath('node_modules', pkgName.split('/')[0]))
+          ],
+          context
         });
       }
     }
@@ -423,9 +741,11 @@ export function npmLinkSelfFixture(): MockFixture {
     description:
       'soft-linking project repo into node_modules to emulate package installation',
     setup: async (context) => {
-      await run('ln', ['-s', resolve(`${__dirname}/..`), pkgName], {
-        cwd: `${context.root}/node_modules`,
-        reject: true
+      await symlink({
+        actualPath: resolvePath(__dirname, '..'),
+        linkPath: resolvePath(context.root, joinPath('node_modules', pkgName)),
+        isDir: true,
+        context
       });
     }
   };
@@ -436,72 +756,91 @@ export function npmCopySelfFixture(): MockFixture {
   return {
     name: 'npm-copy-self',
     description:
-      'copying package.json#files into node_modules to emulate package installation',
+      'copying package.json `files` into node_modules to emulate package installation',
     setup: async (context) => {
-      const root = resolve(`${__dirname}/..`);
+      const root = resolvePath(__dirname, '..');
 
-      const { files: patterns } = await import('package');
+      const { files: patterns } = (await import('../package.json')).default;
 
-      const files = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
-      const dest = `${context.root}/node_modules/${pkgName}`;
-      const destPkgJson = `${dest}/package.json`;
+      const sourcePaths = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
+      const destinationPath = resolvePath(
+        context.root,
+        joinPath('node_modules', pkgName)
+      );
+      const destPkgJson = resolvePath(destinationPath, 'package.json');
 
-      context.debug(`cp destination: ${dest}`);
-      context.debug(`cp sources (cwd: ${root}): %O`, files);
-
-      await run('mkdir', ['-p', dest], { reject: true });
-      await run('cp', ['-r', ...files, dest], { cwd: root, reject: true });
+      await mkdir({ paths: [destinationPath], context });
+      await copy({ sourcePaths, destinationPath, context });
 
       if (!destPkgJson) {
         throw new Error(`expected "${destPkgJson}" to exist`);
       }
 
       // TODO: only optionally remove peer dependencies from the install loop
-      // TODO: (and by default they should NOT be removed, unlike below).
+      // TODO: (and by default they should NOT? be removed, unlike below).
       // TODO: Same deal with dev dependencies (except removed by default).
       const {
         peerDependencies: _,
         devDependencies: __,
         ...dummyPkgJson
-      } = JSON.parse(await readFile(destPkgJson, 'utf8'));
+      } = JSON.parse(await readFile({ path: destPkgJson, context }));
 
-      const installTargets = [context.options.npmInstall]
-        .flat()
-        .filter((r): r is string => Boolean(r))
-        // TODO: fix/merge this
-        // eslint-disable-next-line unicorn/no-array-reduce
-        .reduce<Record<string, string>>((obj, pkgStr) => {
-          const pkg = pkgStr.split('@');
-          return { ...obj, [pkg[0]]: pkg[1] || 'latest' };
-        }, dummyPkgJson.dependencies || {});
+      const installTargets = {
+        ...dummyPkgJson.dependencies,
+        ...Object.fromEntries(
+          [context.options.npmInstall]
+            .flat()
+            .filter((r): r is string => Boolean(r))
+            .map((pkgStr) => {
+              const isScoped = pkgStr.startsWith('@');
+              const pkgSplit = (isScoped ? pkgStr.slice(1) : pkgStr).split('@');
+              const pkg = isScoped ? [`@${pkgSplit[0]}`, pkgSplit[1]] : pkgSplit;
+              return [pkg[0], pkg[1] || 'latest'];
+            })
+        )
+      };
 
-      await writeFile(
-        destPkgJson,
-        JSON.stringify({ ...dummyPkgJson, dependencies: installTargets })
+      await writeFile({
+        path: destPkgJson,
+        data: JSON.stringify({ ...dummyPkgJson, dependencies: installTargets }),
+        context
+      });
+
+      await run(
+        'npm',
+        [
+          'install',
+          '--no-save',
+          ...(context.options.runInstallScripts ? [] : ['--ignore-scripts']),
+          '--production',
+          '--force'
+        ],
+        {
+          cwd: destinationPath,
+          reject: true,
+          env: { NODE_ENV: 'production', CI: 'true' }
+        }
       );
 
-      await run('npm', ['install', '--no-save', '--production', '--force'], {
-        cwd: dest,
-        reject: true,
-        env: { NODE_ENV: 'production', CI: 'true' }
+      await rename({
+        oldPath: `${context.root}/node_modules`,
+        newPath: `${context.root}/node_modules_old`,
+        context
       });
 
-      await run('mv', ['node_modules', 'node_modules_old'], {
-        cwd: context.root,
-        reject: true
+      await rename({
+        oldPath: `${context.root}/node_modules_old/${pkgName}/node_modules`,
+        newPath: `${context.root}/node_modules`,
+        context
       });
 
-      await run('mv', [`node_modules_old/${pkgName}/node_modules`, '.'], {
-        cwd: context.root,
-        reject: true
+      await rename({
+        oldPath: `${context.root}/node_modules_old/${pkgName}`,
+        newPath: `${context.root}/node_modules/${pkgName}`,
+        context
       });
 
-      await run('mv', [`node_modules_old/${pkgName}`, 'node_modules'], {
-        cwd: context.root,
-        reject: true
-      });
-
-      await run('rm', ['-rf', 'node_modules_old'], { cwd: context.root, reject: true });
+      await remove({ paths: [`${context.root}/node_modules_old`], context });
     }
   };
 }
@@ -510,28 +849,35 @@ export function npmCopySelfFixture(): MockFixture {
 export function webpackTestFixture(): MockFixture {
   return {
     name: 'webpack-test',
-    description: 'setting up webpack jest integration test',
+    description: 'setting up webpack integration test',
     setup: async (context) => {
       if (typeof context.options.webpackVersion != 'string') {
         throw new TypeError('invalid or missing options.webpackVersion, expected string');
       }
 
-      const indexPath = Object.keys(context.fileContents).find((path) =>
-        /^src\/index\.(((c|m)?js)|ts)x?$/.test(path)
-      );
+      const indexPath = Object.keys(context.fileContents).find((path) => {
+        return /^src\/index\.(((c|m)?js)|ts)x?$/.test(path);
+      });
 
-      if (!indexPath)
+      if (!indexPath) {
         throw new Error('could not find initial contents for src/index file');
+      }
 
-      if (!context.fileContents['webpack.config.js'])
+      if (!context.fileContents['webpack.config.js']) {
         throw new Error('could not find initial contents for webpack.config.js file');
+      }
 
       await Promise.all([
-        writeFile(`${context.root}/${indexPath}`, context.fileContents[indexPath]),
-        writeFile(
-          `${context.root}/webpack.config.js`,
-          context.fileContents['webpack.config.js']
-        )
+        writeFile({
+          path: `${context.root}/${indexPath}`,
+          data: context.fileContents[indexPath],
+          context
+        }),
+        writeFile({
+          path: `${context.root}/webpack.config.js`,
+          data: context.fileContents['webpack.config.js'],
+          context
+        })
       ]);
 
       context.treeOutput = await getTreeOutput(context);
@@ -566,33 +912,44 @@ export function webpackTestFixture(): MockFixture {
 }
 
 async function getTreeOutput(context: FixtureContext) {
-  return (await execa('tree', ['-a', '-L', '2'], { cwd: context.root })).stdout;
+  if (process.platform == 'win32') {
+    return '(this platform does not support the `tree` command)';
+  } else {
+    const { stdout } = await execa('tree', ['-a', '-L', '2'], {
+      cwd: context.root,
+      reject: false
+    });
+    return stdout || '(`tree` command did not return a result. Is it installed?)';
+  }
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-export function nodeImportTestFixture(): MockFixture {
+export function nodeImportAndRunTestFixture(): MockFixture {
   return {
-    name: 'node-import-test',
-    description: 'setting up node import jest integration test',
+    name: 'node-import-and-run-test',
+    description: 'setting up node import and runtime integration test',
     setup: async (context) => {
-      const indexPath = Object.keys(context.fileContents).find((path) =>
+      const targetPath = Object.keys(context.fileContents).find((path) =>
         /^src\/index(\.test)?\.(((c|m)?js)|ts)x?$/.test(path)
       );
 
-      if (!indexPath)
+      if (!targetPath) {
         throw new Error('could not find initial contents for src/index test file');
+      }
 
-      await writeFile(`${context.root}/${indexPath}`, context.fileContents[indexPath]);
+      await writeFile({
+        path: `${context.root}/${targetPath}`,
+        data: context.fileContents[targetPath],
+        context
+      });
 
-      // TODO: also test all current/active/maintenance versions of node too
-      // TODO: and enable that functionality
       const bin = context.options.runWith?.binary || 'node';
       const args = context.options.runWith?.args || ['--experimental-json-modules'];
       const options = context.options.runWith?.opts || {};
 
       context.treeOutput = await getTreeOutput(context);
 
-      const { code, stdout, stderr } = await run(bin, [...args, indexPath], {
+      const { code, stdout, stderr } = await run(bin, [...args, targetPath], {
         cwd: context.root,
         ...options
       });
@@ -607,7 +964,37 @@ export function nodeImportTestFixture(): MockFixture {
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-export function gitRepositoryFixture(): MockFixture {
+export function nodeRunTestFixture(): MockFixture {
+  return {
+    name: 'node-run-test',
+    description: 'setting up runtime integration test',
+    setup: async (context) => {
+      const bin = context.options.runWith?.binary;
+      const args = context.options.runWith?.args || [];
+      const options = context.options.runWith?.opts || {};
+
+      context.treeOutput = await getTreeOutput(context);
+
+      if (!bin) {
+        throw new Error('missing `runWith` binary');
+      }
+
+      const { code, stdout, stderr } = await run(bin, args, {
+        cwd: context.root,
+        ...options
+      });
+
+      context.testResult = {
+        code,
+        stdout,
+        stderr
+      };
+    }
+  };
+}
+
+// TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
+/* export function gitRepositoryFixture(): MockFixture {
   return {
     name: 'git-repository',
     description: 'configuring fixture root to be a git repository',
@@ -626,7 +1013,7 @@ export function gitRepositoryFixture(): MockFixture {
             .addConfig('user.email', 'fake@email'));
     }
   };
-}
+} */
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export function dummyDirectoriesFixture(): MockFixture {
@@ -639,9 +1026,10 @@ export function dummyDirectoriesFixture(): MockFixture {
       }
 
       await Promise.all(
-        context.options.directoryPaths.map((path) =>
-          run('mkdir', ['-p', path], { cwd: context.root, reject: true })
-        )
+        context.options.directoryPaths.map((path) => {
+          const dir = resolvePath(context.root, path);
+          return mkdir({ paths: [dir], context });
+        })
       );
     }
   };
@@ -649,6 +1037,7 @@ export function dummyDirectoriesFixture(): MockFixture {
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export function dummyFilesFixture(): MockFixture {
+  // TODO: assets/ directory support
   return {
     name: 'dummy-files',
     description: 'creating dummy files under fixture root',
@@ -656,12 +1045,19 @@ export function dummyFilesFixture(): MockFixture {
       await Promise.all(
         Object.entries(context.fileContents).map(async ([path, contents]) => {
           const fullPath = `${context.root}/${path}`;
-          await accessFile(fullPath).then(
-            () => debug(`skipped creating dummy file: file already exists at ${path}`),
+          await accessFile({ path: fullPath, context }).then(
+            () => {
+              context.debug(
+                `skipped creating dummy file: file already exists at ${path}`
+              );
+            },
             async () => {
-              debug(`creating dummy file "${path}" with contents:`);
-              debug.extend('contents >')(contents);
-              await writeFile(fullPath, (context.fileContents[path] = contents));
+              context.fileContents[path] = contents;
+              await writeFile({
+                path: fullPath,
+                data: context.fileContents[path],
+                context
+              });
             }
           );
         })
@@ -710,7 +1106,7 @@ export async function withMockedFixture<
     CustomContext;
   type CustomizedMockFixture = MockFixture<CustomizedFixtureContext>;
 
-  const testSymbol = Symbol('test');
+  const testSymbol = Symbol.for('@xunnamius/test');
   const finalOptions = {
     performCleanup: true,
     use: [] as MockFixture[],
@@ -721,7 +1117,7 @@ export async function withMockedFixture<
   const context = {
     root: '',
     testIdentifier,
-    debug,
+    debug: globalDebug,
     using: [] as MockFixture[],
     options: finalOptions,
     fileContents: { ...finalOptions.initialFileContents }
@@ -753,7 +1149,7 @@ export async function withMockedFixture<
       typeof p == 'function' ? p(context) : typeof p == 'string' ? p : ':impossible:';
     const name = await toString(fixture.name.toString());
     const desc = await toString(fixture.description);
-    const dbg = debug.extend(error ? `${name}:<error>` : name);
+    const dbg = globalDebug.extend(error ? `${name}:<error>` : name);
     context.debug = dbg;
     dbg(desc);
   };
@@ -762,8 +1158,8 @@ export async function withMockedFixture<
   try {
     for (const mockFixture of context.using) {
       if (mockFixture.name == testSymbol) {
-        context.debug = debug;
-        debug('executing test callback');
+        context.debug = globalDebug;
+        globalDebug('executing test callback');
       } else {
         await setupDebugger(mockFixture);
         if (mockFixture.teardown) cleanupFunctions.push(mockFixture.teardown);
@@ -785,7 +1181,7 @@ export async function withMockedFixture<
       await fixture.setup?.(context);
     }
 
-    context.debug = debug.extend('<cleanup>');
+    context.debug = globalDebug.extend('<cleanup>');
 
     for (const cfn of cleanupFunctions.reverse()) {
       await cfn(context).catch((error) =>

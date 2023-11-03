@@ -1,11 +1,11 @@
 // ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
-import { name as pkgName, version as pkgVersion } from 'package';
 import { Octokit } from '@octokit/rest';
-import { MongoClient } from 'mongodb';
-import { satisfies as satisfiesRange, validRange } from 'semver';
-import findPackageJson from 'find-package-json';
 import debugFactory from 'debug';
 import execa from 'execa';
+import findPackageJson from 'find-package-json';
+import { MongoClient } from 'mongodb';
+import { name as pkgName, version as pkgVersion } from 'package.json';
+import { satisfies as satisfiesRange, validRange } from 'semver';
 
 import type { ExecaError } from 'execa';
 
@@ -71,9 +71,9 @@ const setCompatFlagTo = async (version: string) => {
         } else debug('skipped updating database (no MONGODB_URI)');
       }
     }
-  } catch (e: unknown) {
+  } catch (error) {
     debug('additionally, an attempt to update the database failed');
-    throw e;
+    throw error;
   }
 };
 
@@ -101,9 +101,9 @@ const getLastTestedVersion = async () => {
 
       await client.close();
     } else debug('skipped database last tested version access (no MONGODB_URI)');
-  } catch (e) {
+  } catch (error) {
     debug('database access failed');
-    throw e;
+    throw error;
   }
 
   debug('last tested version was ' + (version ? `"${version}"` : '(not tested)'));
@@ -116,14 +116,15 @@ const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
     debug.extend('stdout')(res.stdout);
     debug.extend('stderr')(res.stderr);
     return res;
-  } catch (e) {
-    const err = 'npm test failed! The latest Next.js is incompatible with this package!';
-    debug(err);
+  } catch (error) {
+    const error_ =
+      'npm test failed! The latest Next.js is incompatible with this package!';
+    debug(error_);
 
-    debug.extend('stdout')((e as ExecaError).stdout);
-    debug.extend('stderr')((e as ExecaError).stderr);
+    debug.extend('stdout')((error as ExecaError).stdout);
+    debug.extend('stderr')((error as ExecaError).stderr);
 
-    throw new Error(err);
+    throw new Error(error_);
   }
 }) as unknown as typeof execa;
 
@@ -190,9 +191,11 @@ const invoked = async () => {
   await setCompatFlagTo(latestReleaseVersion);
 
   debug('execution complete');
+
+  process.exitCode = 0;
 };
 
-export default invoked().catch((e: Error | string) => {
-  debug.extend('error')(typeof e == 'string' ? e : e.message);
-  process.exit(2);
+export default invoked().catch((error: Error | string) => {
+  debug.extend('error')(typeof error == 'string' ? error : error.message);
+  process.exitCode = 2;
 });

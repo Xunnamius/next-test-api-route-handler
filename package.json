@@ -28,16 +28,23 @@
   "type": "commonjs",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.mjs",
-      "require": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./dist/types/src/index.d.ts",
+      "node": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
     },
     "./package": "./package.json",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/bundle/index.mjs",
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
   "types": "./dist/types/src/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/types/src/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "/dist",
     "/LICENSE",
@@ -49,9 +56,9 @@
     "__test:repeat:unit": "echo 'Repeating test suite [initializing]...'; (i=0; while [ \"$((( i += 1 ) <= 100 ))\" -ne 0 ]; do sleep 0.1 && echo \"\\r\\033[1A\\033[0KRepeating test suite [run $i/100]...\" && JEST_SILENT_REPORTER_SHOW_WARNINGS=true NODE_ENV=test npx jest --reporters=jest-silent-reporter --testPathIgnorePatterns '/(integration|e2e).*?\\.test\\.tsx?' '/dist/' || exit; done) && echo \"All tests passed! Congrats!\"",
     "build": "npm run build:dist --",
     "build:changelog": "conventional-changelog --outfile CHANGELOG.md --config ./conventional.config.js --release-count 0 --skip-unstable && (if [ \"$CHANGELOG_SKIP_TITLE\" != 'true' ]; then { node -e 'console.log(require(\"./conventional.config.js\").changelogTitle)'; cat CHANGELOG.md; } > CHANGELOG.md.ignore && mv CHANGELOG.md.ignore CHANGELOG.md; fi) && NODE_ENV=format remark --output --frail CHANGELOG.md && prettier --write CHANGELOG.md",
-    "build:dist": "NODE_ENV=production tsc --project tsconfig.types.json --incremental false && tsconfig-replace-paths --project tsconfig.types.json && NODE_ENV=production-cjs babel src --extensions .ts --out-dir dist/src",
+    "build:dist": "echo '> Generating types...' && NODE_ENV=production tsc --project tsconfig.types.json --incremental false && tsconfig-replace-paths --project tsconfig.types.json && echo '> Building distributables...' && NODE_ENV=production-cjs babel src --extensions .ts --out-dir dist/src",
     "build:docs": "if [ -r ./next.config.js ]; then typedoc --plugin typedoc-plugin-markdown --skipErrorChecking --cleanOutputDir --tsconfig tsconfig.docs.json --out docs --readme none lib src test types external-scripts --exclude '**/*.test.*' --exclude external-scripts/bin; else ENTRY=`node -e 'const entry = require(\"./package.json\").config?.[\"plugin-build\"]?.docs?.entry; if(!entry) throw new Error(\"\\\"config['\"'\"'plugin-build'\"'\"'].docs.entry\\\" field is not defined in package.json\"); console.log(entry)'` && echo 'Entry file:' $ENTRY && typedoc --plugin typedoc-plugin-markdown --skipErrorChecking --cleanOutputDir --tsconfig tsconfig.docs.json --out docs --readme none $ENTRY; fi",
-    "build:externals": "NODE_ENV=production-external babel external-scripts --extensions .ts --out-dir external-scripts/bin --out-file-extension .mjs",
+    "build:externals": "NODE_ENV=production-external babel external-scripts --extensions .ts --out-dir external-scripts/bin",
     "clean": "git ls-files --exclude-standard --ignored --others --directory | grep -vE '^((\\.(env|vscode|husky))|next-env\\.d\\.ts|node_modules)($|\\/)' | xargs -p rm -rf",
     "format": "MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && (echo $MD_FILES | xargs remark --no-config --no-stdout --quiet --frail --use gfm --use lint-no-undefined-references || (echo -n '\u001b' && echo '[37;41;1m FAIL \u001b[0m cannot continue with undefined references present' && false)) && sort-package-json './package.json' './packages/*/package.json' && echo $MD_FILES | NODE_ENV=format xargs remark --output --frail && echo $MD_FILES | xargs doctoc --no-title --maxlevel 3 --update-only && prettier --write .",
     "lint": "stdbuf -i0 -o0 -e0 tsc --project tsconfig.lint.json; X=$?; stdbuf -i0 -o0 -e0 eslint --parser-options=project:tsconfig.lint.json --no-error-on-unmatched-pattern packages src; Y=$?; MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && echo $MD_FILES | NODE_ENV=lint xargs remark --quiet --frail --no-stdout; Z=$?; [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
@@ -88,7 +95,6 @@
     "@babel/eslint-parser": "^7.22.15",
     "@babel/plugin-proposal-export-default-from": "^7.22.17",
     "@babel/plugin-proposal-function-bind": "^7.22.5",
-    "@babel/plugin-syntax-import-assertions": "^7.22.5",
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-typescript": "^7.23.2",
     "@commitlint/cli": "^18.2.0",
@@ -143,7 +149,7 @@
     "eslint-plugin-unicorn": "^49.0.0",
     "execa": "^5.1.1",
     "find-package-json": "^1.2.0",
-    "glob": "^10.3.10",
+    "glob": "^9.3.2",
     "glob-gitignore": "^1.0.14",
     "husky": "^8.0.3",
     "jest": "^29.7.0",
