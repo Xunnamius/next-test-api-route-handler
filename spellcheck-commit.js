@@ -1,11 +1,15 @@
+/* eslint-disable unicorn/no-abusive-eslint-disable */
+/* eslint-disable */
 'use strict';
-/* eslint-disable no-console */
+
 const spellcheck = require('spellchecker');
 const pkg = require('./package.json');
 const read = require('fs').promises.readFile;
 const execa = require('execa');
 
-const debug = require('debug')(`${require('./package.json').name}:spellcheck-commit`);
+const debug = require('debug')(
+  `${require(`${process.cwd()}/package.json`).name}:spellcheck-commit`
+);
 
 const tryToRead = async (path) => {
   try {
