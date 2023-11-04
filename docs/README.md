@@ -27,7 +27,7 @@ next-test-api-route-handler
 
 #### Defined in
 
-[index.ts:32](https://github.com/Xunnamius/next-test-api-route-handler/blob/60a529f/src/index.ts#L32)
+[index.ts:32](https://github.com/Xunnamius/next-test-api-route-handler/blob/85f9724/src/index.ts#L32)
 
 ___
 
@@ -58,7 +58,7 @@ The parameters expected by `testApiHandler`.
 
 #### Defined in
 
-[index.ts:91](https://github.com/Xunnamius/next-test-api-route-handler/blob/60a529f/src/index.ts#L91)
+[index.ts:91](https://github.com/Xunnamius/next-test-api-route-handler/blob/85f9724/src/index.ts#L91)
 
 ## Functions
 
@@ -87,4 +87,4 @@ Next-like testing environment.
 
 #### Defined in
 
-[index.ts:157](https://github.com/Xunnamius/next-test-api-route-handler/blob/60a529f/src/index.ts#L157)
+[index.ts:157](https://github.com/Xunnamius/next-test-api-route-handler/blob/85f9724/src/index.ts#L157)
