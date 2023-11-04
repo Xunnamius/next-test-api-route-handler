@@ -66,6 +66,21 @@ module.exports = {
             }
           ],
           [
+            // ! Account for marked's incredibly short-sighted decision to
+            // ! MIX WARNING TEXT WITH PERFECTLY FINE F****NG OUTPUT TEXT WTF
+            '@semantic-release/exec',
+            {
+              prepareCmd: `node -e '
+                const fs = require("node:fs");
+                fs.writeFileSync("CHANGELOG.md", fs.readFileSync("CHANGELOG.md", "utf8")
+                  .split("\\n")
+                  .filter(line => !line.startsWith("marked()"))
+                  .join("\\n")
+                );
+              '`
+            }
+          ],
+          [
             '@semantic-release/exec',
             {
               prepareCmd: 'npx prettier --write CHANGELOG.md'
