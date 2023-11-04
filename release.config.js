@@ -73,9 +73,9 @@ module.exports = {
               prepareCmd: `node -e '
                 const fs = require("node:fs");
                 fs.writeFileSync("CHANGELOG.md", fs.readFileSync("CHANGELOG.md", "utf8")
-                  .split("\n")
+                  .split("\\n")
                   .filter(line => !line.startsWith("marked()"))
-                  .join("\n")
+                  .join("\\n")
                 );
               '`
             }
