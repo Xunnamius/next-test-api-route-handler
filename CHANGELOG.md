@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this auto-generated
 file. The format is based on [Conventional Commits][1];
 this project adheres to [Semantic Versioning][2].
 
-## [4.0.0-canary.2][3] (2023-11-04)
+### [3.1.10][3] (2023-11-04)
 
 #### ⚙️ Build System
 
@@ -531,7 +531,7 @@ this project adheres to [Semantic Versioning][2].
 
 [1]: https://conventionalcommits.org
 [2]: https://semver.org
-[3]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v4.0.0-canary.1...v4.0.0-canary.2
+[3]: https://github.com/Xunnamius/next-test-api-route-handler/compare/v3.1.9...v3.1.10
 [4]: https://github.com/Xunnamius/next-test-api-route-handler/commit/a9d136b2ada5dcac26a8509fd4590a2dec805a56
 [5]: https://github.com/Xunnamius/next-test-api-route-handler/commit/db0223ea0c74edab17489595c1c858eb035dd418
 [6]: https://github.com/Xunnamius/next-test-api-route-handler/commit/e457064ddbc7e3f7b1d96c7f27b5b74479303f2f
