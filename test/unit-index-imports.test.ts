@@ -235,7 +235,7 @@ describe('::testApiHandler', () => {
             expect((await fetch()).status).toBe(200);
           }
         })
-      ).toResolve();
+      ).resolves.toBeUndefined();
 
       for (const previousResolverPath of previousResolverPaths) {
         const context = jestExpectationContextFactory(previousResolverPath);

@@ -445,7 +445,7 @@ describe('::testApiHandler', () => {
             await expect(res.text()).resolves.toMatch(/Internal Server Error/);
           }
         })
-      ).toResolve();
+      ).resolves.toBeUndefined();
 
       await expect(
         testApiHandler({
@@ -459,7 +459,7 @@ describe('::testApiHandler', () => {
             await expect(res.text()).resolves.toMatch(/Internal Server Error/);
           }
         })
-      ).toResolve();
+      ).resolves.toBeUndefined();
 
       expect(errorSpy).toHaveBeenCalledTimes(2);
     });

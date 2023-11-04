@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/no-keyword-prefix */
 import assert from 'node:assert';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -8,6 +7,7 @@ import { name as pkgName, version as pkgVersion } from '../package.json';
 import debugFactory from 'debug';
 import execa from 'execa';
 import glob from 'glob';
+import deepMerge from 'lodash.mergewith';
 import uniqueFilename from 'unique-filename';
 //import gitFactory from 'simple-git';
 // ? https://github.com/jest-community/jest-extended#typescript
@@ -16,7 +16,7 @@ import 'jest-extended/all';
 
 import type { Debugger } from 'debug';
 import type { ExecaReturnValue } from 'execa';
-import type { Merge, Promisable } from 'type-fest';
+import type { EmptyObject, Merge, PartialDeep, Promisable } from 'type-fest';
 //import type { SimpleGit } from 'simple-git';
 
 // ! Note that these notes are relics of a copy-paste and are not recent. Most
@@ -193,34 +193,32 @@ async function copy({
 }) {
   return Promise.all(
     sourcePaths.map((src) => {
-      // eslint-disable-next-line unicorn/prevent-abbreviations
-      const dst = joinPath(destinationPath, basename(src));
-      !noDebugOutput && debug(`copying item: ${src} => ${dst}`);
-      return fs.cp(src, dst, { force: true, recursive: true });
+      const dest = joinPath(destinationPath, basename(src));
+      !noDebugOutput && debug(`copying item: ${src} => ${dest}`);
+      return fs.cp(src, dest, { force: true, recursive: true });
     })
   );
 }
 
 async function rename({
   oldPath,
-  newPath,
+  updatedPath,
   context: { debug },
   noDebugOutput = false
 }: {
   oldPath: string;
-  newPath: string;
+  updatedPath: string;
   context: FixtureContext;
   noDebugOutput?: boolean;
 }) {
-  !noDebugOutput && debug(`renaming (moving) item: ${oldPath} => ${newPath}`);
-  return fs.rename(oldPath, newPath);
+  !noDebugOutput && debug(`renaming (moving) item: ${oldPath} => ${updatedPath}`);
+  return fs.rename(oldPath, updatedPath);
 }
 
 // TODO: XXX: make this into a separate (mock-argv) package
 export async function withMockedArgv(
   fn: () => Promisable<void>,
   simulatedArgv: string[],
-  // eslint-disable-next-line unicorn/no-object-as-default-parameter
   { replace = false }: MockedArgvOptions = {}
 ) {
   // ? Take care to preserve the original argv array reference in memory
@@ -236,7 +234,6 @@ export async function withMockedArgv(
 // TODO: XXX: make this into a separate (mock-argv) package (along w/ the above)
 export function mockArgvFactory(
   factorySimulatedArgv: typeof process.argv,
-  // eslint-disable-next-line unicorn/no-object-as-default-parameter
   factoryOptions: MockedArgvOptions = {}
 ) {
   return (
@@ -256,7 +253,6 @@ export function mockArgvFactory(
 export async function withMockedEnv(
   fn: () => Promisable<void>,
   simulatedEnv: Record<string, string>,
-  // eslint-disable-next-line unicorn/no-object-as-default-parameter
   { passthroughDebugEnv = true, replace = true }: MockedEnvOptions = {}
 ) {
   const previousEnv = { ...process.env };
@@ -283,7 +279,6 @@ export async function withMockedEnv(
 // TODO: XXX: make this into a separate (mock-env) package (along w/ the above)
 export function mockEnvFactory(
   factorySimulatedEnv: Record<string, string>,
-  // eslint-disable-next-line unicorn/no-object-as-default-parameter
   factoryOptions: MockedEnvOptions = {}
 ) {
   return (
@@ -574,9 +569,10 @@ export interface RunOptions extends execa.Options {
 // TODO: XXX: make this into a separate (run) package
 // ! By default, does NOT reject on bad exit code (set reject: true to override)
 export async function run(file: string, args?: string[], options?: RunOptions) {
-  let result: ExecaReturnValue & { code: ExecaReturnValue['exitCode'] };
-  // eslint-disable-next-line prefer-const
-  result = (await execa(file, args, { reject: false, ...options })) as typeof result;
+  const result = (await execa(file, args, {
+    reject: false,
+    ...options
+  })) as ExecaReturnValue & { code: ExecaReturnValue['exitCode'] };
 
   result.code = result.exitCode;
   globalDebug.extend('run')('executed command result: %O', result);
@@ -634,9 +630,9 @@ export interface NodeImportTestFixtureOptions {
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-// eslint-disable-next-line @typescript-eslint/ban-types
-export interface FixtureContext<CustomOptions extends Record<string, unknown> = {}>
-  extends Partial<TestResultProvider>,
+export interface FixtureContext<
+  CustomOptions extends Record<string, unknown> = EmptyObject
+> extends Partial<TestResultProvider>,
     Partial<TreeOutputProvider> /*,
     Partial<GitProvider>*/ {
   root: string;
@@ -663,7 +659,6 @@ export interface TreeOutputProvider {
 } */
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type FixtureAction<Context = FixtureContext> = (
   context: Context
 ) => Promise<unknown>;
@@ -824,19 +819,19 @@ export function npmCopySelfFixture(): MockFixture {
 
       await rename({
         oldPath: `${context.root}/node_modules`,
-        newPath: `${context.root}/node_modules_old`,
+        updatedPath: `${context.root}/node_modules_old`,
         context
       });
 
       await rename({
         oldPath: `${context.root}/node_modules_old/${pkgName}/node_modules`,
-        newPath: `${context.root}/node_modules`,
+        updatedPath: `${context.root}/node_modules`,
         context
       });
 
       await rename({
         oldPath: `${context.root}/node_modules_old/${pkgName}`,
-        newPath: `${context.root}/node_modules/${pkgName}`,
+        updatedPath: `${context.root}/node_modules/${pkgName}`,
         context
       });
 
@@ -944,7 +939,7 @@ export function nodeImportAndRunTestFixture(): MockFixture {
       });
 
       const bin = context.options.runWith?.binary || 'node';
-      const args = context.options.runWith?.args || ['--experimental-json-modules'];
+      const args = context.options.runWith?.args || [];
       const options = context.options.runWith?.opts || {};
 
       context.treeOutput = await getTreeOutput(context);
@@ -1084,10 +1079,8 @@ export function describeRootFixture(): MockFixture {
 
 // TODO: XXX: make this into a separate (mock-fixture) package
 export async function withMockedFixture<
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomOptions extends Record<string, unknown> = {},
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomContext extends Record<string, unknown> = {}
+  CustomOptions extends Record<string, unknown> = EmptyObject,
+  CustomContext extends Record<string, unknown> = EmptyObject
 >({
   fn,
   testIdentifier,
@@ -1198,15 +1191,20 @@ export async function withMockedFixture<
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ above)
 export function mockFixtureFactory<
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomOptions extends Record<string, unknown> = {},
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomContext extends Record<string, unknown> = {}
->(testIdentifier: string, options?: Partial<FixtureOptions & CustomOptions>) {
+  CustomOptions extends Record<string, unknown> = EmptyObject,
+  CustomContext extends Record<string, unknown> = EmptyObject
+>(testIdentifier: string, options?: PartialDeep<FixtureOptions & CustomOptions>) {
   return (
     fn: FixtureAction<
       FixtureContext<FixtureOptions & Partial<Record<string, unknown> & CustomOptions>> &
         CustomContext
-    >
-  ) => withMockedFixture<CustomOptions, CustomContext>({ fn, testIdentifier, options });
+    >,
+    options_?: typeof options
+  ) => {
+    return withMockedFixture<CustomOptions, CustomContext>({
+      fn,
+      testIdentifier,
+      options: deepMerge({}, options, options_)
+    });
+  };
 }

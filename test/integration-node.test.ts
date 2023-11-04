@@ -10,8 +10,6 @@ import {
   run
 } from './setup';
 
-import type { FixtureOptions } from './setup';
-
 const TEST_IDENTIFIER = 'integration-node';
 
 const pkgMainPath = `${__dirname}/../${pkgMain}`;
@@ -21,14 +19,12 @@ const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 // eslint-disable-next-line jest/require-hook
 debug(`nodeVersion: "${nodeVersion}"`);
 
-const fixtureOptions = {
+const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
-  } as FixtureOptions['initialFileContents'],
+  },
   use: [dummyNpmPackageFixture(), npmLinkSelfFixture(), nodeImportAndRunTestFixture()]
-};
-
-const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, fixtureOptions);
+});
 
 const runTest = async (
   importAsEsm: boolean,
@@ -38,28 +34,31 @@ const runTest = async (
 ) => {
   const indexPath = `src/index.${importAsEsm ? 'm' : ''}js`;
 
-  fixtureOptions.initialFileContents[indexPath] =
-    (importAsEsm
-      ? `import { testApiHandler } from '${pkgName}';`
-      : `const { testApiHandler } = require('${pkgName}');`) +
-    `
-    const getHandler = (status) => async (_, res) => {
-      ${handlerCode}
-    };
+  await withMockedFixture(
+    async (context) => {
+      if (!context.testResult) throw new Error('must use node-import-test fixture');
+      await testFixtureFn(context);
+    },
+    {
+      initialFileContents: {
+        [indexPath]:
+          (importAsEsm
+            ? `import { testApiHandler } from '${pkgName}';`
+            : `const { testApiHandler } = require('${pkgName}');`) +
+          `
+const getHandler = (status) => async (_, res) => {
+  ${handlerCode}
+};
 
-    (async () => {
-      await testApiHandler({
-        handler: getHandler(),
-        test: async ({ fetch }) => ${testCode}
-      });
-    })();`;
-
-  await withMockedFixture(async (context) => {
-    if (!context.testResult) throw new Error('must use node-import-test fixture');
-    await testFixtureFn(context);
+(async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => ${testCode}
   });
-
-  delete fixtureOptions.initialFileContents[indexPath];
+})();`
+      }
+    }
+  );
 };
 
 beforeAll(async () => {

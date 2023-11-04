@@ -11,8 +11,6 @@ import {
   run
 } from './setup';
 
-import type { FixtureOptions } from './setup';
-
 const TEST_IDENTIFIER = 'integration-client-next';
 
 /* prettier-ignore */
@@ -35,17 +33,13 @@ const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 // eslint-disable-next-line jest/require-hook
 debug('NEXT_VERSIONS_UNDER_TEST: %O', NEXT_VERSIONS_UNDER_TEST);
 
-const fixtureOptions = {
+const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   performCleanup: true,
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
-  } as FixtureOptions['initialFileContents'],
+  },
   use: [dummyNpmPackageFixture(), npmCopySelfFixture(), nodeImportAndRunTestFixture()]
-} as Partial<FixtureOptions> & {
-  initialFileContents: FixtureOptions['initialFileContents'];
-};
-
-const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, fixtureOptions);
+});
 
 beforeAll(async () => {
   if ((await run('test', ['-e', pkgMainPath])).code != 0) {
@@ -65,118 +59,114 @@ for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {
 
       const indexPath = `src/index.${esm ? 'm' : 'test.'}js`;
       const commonSrc = `
-      const getHandler = (status) => async (_, res) => {
-        res.status(status || 200).send({ works: 'working' });
-      };`;
+const getHandler = (status) => async (_, res) => {
+  res.status(status || 200).send({ works: 'working' });
+};`;
 
-      if (esm) {
-        fixtureOptions.initialFileContents[
-          indexPath
-        ] = `import { testApiHandler } from '${pkgName}';
-        ${commonSrc}
+      await withMockedFixture(
+        async (context) => {
+          if (!context.testResult) throw new Error('must use node-import-test fixture');
 
-        (async () => {
-          await testApiHandler({
-            handler: getHandler(),
-            test: async ({ fetch }) => {
-              if((await (await fetch()).json()).works != 'working') {
-                throw new Error('initial promise assertion failed');
+          if (esm) {
+            debug('(expecting stderr to be "")');
+            debug('(expecting stdout to be "working\\nworking\\nworking")');
+            debug('(expecting exit code to be 0)');
+
+            expect(context.testResult.stderr).toBeEmpty();
+            expect(context.testResult.stdout).toBe('working\nworking\nworking');
+            expect(context.testResult.code).toBe(0);
+          } else {
+            debug('(expecting stderr to contain jest test PASS confirmation)');
+            debug('(expecting stdout to contain "working")');
+            debug('(expecting exit code to be 0)');
+
+            expect(stripAnsi(context.testResult.stderr)).toMatch(
+              /PASS.*?\s+src\/index\.test\.js/
+            );
+
+            expect(context.testResult.stdout).toStrictEqual(
+              expect.stringContaining('working')
+            );
+            expect(context.testResult.code).toBe(0);
+          }
+        },
+        esm
+          ? {
+              initialFileContents: {
+                [indexPath]: `import { testApiHandler } from '${pkgName}';
+${commonSrc}
+
+(async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => {
+      if((await (await fetch()).json()).works != 'working') {
+        throw new Error('initial promise assertion failed');
+      }
+    }
+  });
+
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+  });
+
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+  });
+
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
+  });
+})();`
+              },
+              npmInstall: [nextVersion, ...otherPkgVersions]
+            }
+          : {
+              initialFileContents: {
+                [indexPath]: `const { testApiHandler } = require('${pkgName}');
+${commonSrc}
+
+it('does what I want', async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => {
+      const result = (await (await fetch()).json()).works;
+      expect(result).toBe('working');
+    }
+  });
+});
+
+it('does what I want 2', async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => {
+      const result = (await (await fetch()).json()).works;
+      expect(result).toBe('working');
+    }
+  });
+});
+
+it('does what I want 3', async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => {
+      const result = (await (await fetch()).json()).works;
+      expect(result).toBe('working');
+      console.log(result);
+    }
+  });
+});`
+              },
+              npmInstall: ['jest', nextVersion, ...otherPkgVersions],
+              runWith: {
+                binary: 'npx',
+                args: ['jest']
               }
             }
-          });
-
-          await testApiHandler({
-            handler: getHandler(),
-            test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
-          });
-
-          await testApiHandler({
-            handler: getHandler(),
-            test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
-          });
-
-          await testApiHandler({
-            handler: getHandler(),
-            test: async ({ fetch }) => console.log((await (await fetch()).json()).works)
-          });
-        })();`;
-
-        fixtureOptions.npmInstall = [nextVersion, ...otherPkgVersions];
-      } else {
-        fixtureOptions.initialFileContents[
-          indexPath
-        ] = `const { testApiHandler } = require('${pkgName}');
-        ${commonSrc}
-
-        it('does what I want', async () => {
-          await testApiHandler({
-            handler: getHandler(),
-            test: async ({ fetch }) => {
-              const result = (await (await fetch()).json()).works;
-              expect(result).toBe('working');
-            }
-          });
-        });
-
-        it('does what I want 2', async () => {
-          await testApiHandler({
-            handler: getHandler(),
-            test: async ({ fetch }) => {
-              const result = (await (await fetch()).json()).works;
-              expect(result).toBe('working');
-            }
-          });
-        });
-
-        it('does what I want 3', async () => {
-          await testApiHandler({
-            handler: getHandler(),
-            test: async ({ fetch }) => {
-              const result = (await (await fetch()).json()).works;
-              expect(result).toBe('working');
-              console.log(result);
-            }
-          });
-        });`;
-
-        fixtureOptions.npmInstall = ['jest', nextVersion, ...otherPkgVersions];
-
-        fixtureOptions.runWith = {
-          binary: 'npx',
-          args: ['jest']
-        };
-      }
-
-      await withMockedFixture(async (context) => {
-        if (!context.testResult) throw new Error('must use node-import-test fixture');
-
-        if (esm) {
-          debug('(expecting stderr to be "")');
-          debug('(expecting stdout to be "working\\nworking\\nworking")');
-          debug('(expecting exit code to be 0)');
-
-          expect(context.testResult.stderr).toBeEmpty();
-          expect(context.testResult.stdout).toBe('working\nworking\nworking');
-          expect(context.testResult.code).toBe(0);
-        } else {
-          debug('(expecting stderr to contain jest test PASS confirmation)');
-          debug('(expecting stdout to contain "working")');
-          debug('(expecting exit code to be 0)');
-
-          expect(stripAnsi(context.testResult.stderr)).toMatch(
-            /PASS.*?\s+src\/index\.test\.js/
-          );
-
-          expect(context.testResult.stdout).toStrictEqual(
-            expect.stringContaining('working')
-          );
-          expect(context.testResult.code).toBe(0);
-        }
-      });
-
-      delete fixtureOptions.npmInstall;
-      delete fixtureOptions.runWith;
-      delete fixtureOptions.initialFileContents[indexPath];
+      );
     });
   }
 }
@@ -186,79 +176,80 @@ it('fails fast (no jest timeout) when using incompatible Next.js version', async
 
   const indexPath = 'src/index.test.js';
 
-  fixtureOptions.initialFileContents[indexPath] = `
-  const { testApiHandler } = require('${pkgName}');
+  await withMockedFixture(
+    async (context) => {
+      if (!context.testResult) throw new Error('must use node-import-test fixture');
 
-  jest.setTimeout(5000);
+      debug('(expecting stderr not to contain "Exceeded timeout")');
+      expect(context.testResult.stderr).not.toStrictEqual(
+        expect.stringContaining('Exceeded timeout')
+      );
 
-  const getHandler = (status) => async (_, res) => {
-    res.status(status || 200).send({ works: 'working' });
-  };
+      debug('(expecting stderr to contain "Failed import attempts:")');
+      expect(context.testResult.stderr).toStrictEqual(
+        expect.stringContaining('Failed import attempts:')
+      );
 
-  it('does what I want', async () => {
-    await testApiHandler({
-      handler: getHandler(),
-      test: async ({ fetch }) => {
-        const result = (await (await fetch()).json()).works;
-        expect(result).toBe('working');
-      }
-    });
+      debug('(expecting stderr to contain "3 failed, 3 total")');
+      expect(context.testResult.stderr).toStrictEqual(
+        expect.stringMatching(/^.*?Tests:.*?3 failed.*?,.*?3 total/m)
+      );
+
+      debug('(expecting exit code to be non-zero)');
+      expect(context.testResult.code).not.toBe(0);
+
+      debug('(expecting no forced timeout: exit code must be a number)');
+      expect(context.testResult.code).toBeNumber();
+    },
+    {
+      initialFileContents: {
+        [indexPath]: `
+const { testApiHandler } = require('${pkgName}');
+
+jest.setTimeout(5000);
+
+const getHandler = (status) => async (_, res) => {
+  res.status(status || 200).send({ works: 'working' });
+};
+
+it('does what I want', async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => {
+      const result = (await (await fetch()).json()).works;
+      expect(result).toBe('working');
+    }
   });
+});
 
-  it('does what I want 2', async () => {
-    await testApiHandler({
-      handler: getHandler(),
-      test: async ({ fetch }) => {
-        const result = (await (await fetch()).json()).works;
-        expect(result).toBe('working');
-      }
-    });
+it('does what I want 2', async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => {
+      const result = (await (await fetch()).json()).works;
+      expect(result).toBe('working');
+    }
   });
+});
 
-  it('does what I want 3', async () => {
-    await testApiHandler({
-      handler: getHandler(),
-      test: async ({ fetch }) => {
-        const result = (await (await fetch()).json()).works;
-        expect(result).toBe('working');
-        console.log(result);
-      }
-    });
-  });`;
-
-  fixtureOptions.npmInstall = ['next@8', 'react@^16.6.0', 'jest'];
-  fixtureOptions.runWith = {
-    binary: 'npx',
-    args: ['jest'],
-    opts: { timeout: 10_000 }
-  };
-
-  await withMockedFixture(async (context) => {
-    if (!context.testResult) throw new Error('must use node-import-test fixture');
-
-    debug('(expecting stderr not to contain "Exceeded timeout")');
-    expect(context.testResult.stderr).not.toStrictEqual(
-      expect.stringContaining('Exceeded timeout')
-    );
-
-    debug('(expecting stderr to contain "Failed import attempts:")');
-    expect(context.testResult.stderr).toStrictEqual(
-      expect.stringContaining('Failed import attempts:')
-    );
-
-    debug('(expecting stderr to contain "3 failed, 3 total")');
-    expect(context.testResult.stderr).toStrictEqual(
-      expect.stringMatching(/^.*?Tests:.*?3 failed.*?,.*?3 total/m)
-    );
-
-    debug('(expecting exit code to be non-zero)');
-    expect(context.testResult.code).not.toBe(0);
-
-    debug('(expecting no forced timeout: exit code must be a number)');
-    expect(context.testResult.code).toBeNumber();
+it('does what I want 3', async () => {
+  await testApiHandler({
+    handler: getHandler(),
+    test: async ({ fetch }) => {
+      const result = (await (await fetch()).json()).works;
+      expect(result).toBe('working');
+      console.log(result);
+    }
   });
+});`
+      },
 
-  delete fixtureOptions.npmInstall;
-  delete fixtureOptions.runWith;
-  delete fixtureOptions.initialFileContents[indexPath];
+      npmInstall: ['next@8', 'react@^16.6.0', 'jest'],
+      runWith: {
+        binary: 'npx',
+        args: ['jest'],
+        opts: { timeout: 10_000 }
+      }
+    }
+  );
 });

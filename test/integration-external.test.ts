@@ -4,8 +4,6 @@ import { peerDependencies, name as pkgName } from 'package';
 
 import { dummyNpmPackageFixture, mockFixtureFactory, run, runnerFactory } from './setup';
 
-import type { FixtureOptions } from './setup';
-
 const TEST_IDENTIFIER = 'integration-externals';
 const EXTERNAL_BIN_PATH = `${__dirname}/../external-scripts/bin/is-next-compat.js`;
 
@@ -13,7 +11,7 @@ const debugId = `${pkgName}:*`;
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 const runExternal = runnerFactory('node', [EXTERNAL_BIN_PATH]);
 
-const fixtureOptions = {
+const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   // ? We use _is_next_compat_test_mode to prevent the external script (compiled
   // ? using a .env file potentially with production keys) from attempting
   // ? external connections
@@ -29,11 +27,9 @@ const fixtureOptions = {
         "next": "${peerDependencies.next}"
       }
     }`
-  } as FixtureOptions['initialFileContents'],
+  },
   use: [dummyNpmPackageFixture()]
-};
-
-const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, fixtureOptions);
+});
 
 beforeAll(async () => {
   if ((await run('test', ['-e', EXTERNAL_BIN_PATH])).code != 0) {
@@ -42,7 +38,7 @@ beforeAll(async () => {
   }
 });
 
-it(`runs silent by default`, async () => {
+it('runs silent by default', async () => {
   expect.hasAssertions();
 
   await withMockedFixture(async ({ root }) => {
@@ -65,7 +61,7 @@ it(`runs silent by default`, async () => {
   });
 });
 
-it(`is verbose when DEBUG='${debugId}'`, async () => {
+it("is verbose when DEBUG='${debugId}'", async () => {
   expect.hasAssertions();
 
   await withMockedFixture(async ({ root }) => {
