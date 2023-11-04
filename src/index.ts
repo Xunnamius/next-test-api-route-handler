@@ -197,7 +197,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
         throw new Error(
           `next-test-api-route-handler (NTARH) failed to import api-utils.js` +
             `\n\n  This is usually caused by:` +
-            `\n\n    1. Using npm@<7 and/or node@<15, which doesn't install peer deps automatically (review install instructions)` +
+            `\n\n    1. Using a Node version that is end-of-life (review legacy install instructions)` +
               `\n    2. NTARH and the version of Next.js you installed are actually incompatible (please submit a bug report)` +
             `\n\n  Failed import attempts:` +
             `\n\n    - ${importErrors}`
