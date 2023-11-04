@@ -147,6 +147,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/10220181?v=4",
       "profile": "https://bencesomogyi.com/",
       "contributions": ["bug", "code", "research", "test"]
+    },
+    {
+      "login": "tolivturnstile",
+      "name": "Tony",
+      "avatar_url": "https://avatars.githubusercontent.com/u/121887214?v=4",
+      "profile": "https://github.com/tolivturnstile",
+      "contributions": ["research"]
     }
   ],
   "contributorsPerLine": 7,
