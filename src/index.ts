@@ -39,7 +39,7 @@ export type FetchReturnType<NextResponseJsonType> = Promise<
 >;
 
 type TryImport = ((path: string) => (
-  error: Error
+  error?: Error
 ) => // @ts-ignore: this file might not exist in some versions of next
 Promise<typeof import('next/dist/server/api-utils/node.js')>) & {
   importErrors: Error[];
@@ -47,14 +47,17 @@ Promise<typeof import('next/dist/server/api-utils/node.js')>) & {
 
 // ? The result of this function is memoized by the caller, so this function
 // ? will only be invoked the first time this script is imported.
-const tryImport = ((path: string) => (error: Error) => {
-  (tryImport.importErrors = tryImport.importErrors ?? []).push(error);
+const tryImport = ((path: string) => (error?: Error) => {
+  if (error) {
+    (tryImport.importErrors = tryImport.importErrors ?? []).push(error);
+  }
   /* istanbul ignore next */
-  if (typeof __webpack_require__ == 'function') {
-    return process.env.NODE_ESM
+  if (typeof __webpack_require__ === 'function') {
+    const runningAsESM = module === undefined && require === undefined;
+    return runningAsESM
       ? import(/* webpackIgnore: true */ path)
       : __non_webpack_require__(path);
-  } else if (typeof require == 'function') {
+  } else if (typeof require === 'function') {
     // ? Node12 does not support dynamic imports, so fall back to require first
     return require(path);
   } else {
@@ -166,8 +169,9 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
   try {
     if (!apiResolver) {
-      // ? The following is for next@>=13.5.4:
-      ({ apiResolver } = await import('next/dist/server/api-utils/node/api-resolver.js')
+      ({ apiResolver } = await Promise.reject()
+        // ? The following is for next@>=13.5.4:
+        .catch(tryImport('next/dist/server/api-utils/node/api-resolver.js'))
         // ? The following is for next@<13.5.4 >=12.1.0:
         .catch(tryImport('next/dist/server/api-utils/node.js'))
         // ? The following is for next@<12.1.0 >=11.1.0:
@@ -251,7 +255,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       server?.listen(() => {
         const addr = server?.address();
 
-        if (!addr || typeof addr == 'string') {
+        if (!addr || typeof addr === 'string') {
           reject(
             new Error(
               'assertion failed unexpectedly: server did not return AddressInfo instance'
