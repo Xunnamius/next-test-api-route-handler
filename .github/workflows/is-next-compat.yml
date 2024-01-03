@@ -71,12 +71,20 @@ jobs:
           path: ~/.npm
           restore-keys: npm-node-${{ matrix.node }}-${{ runner.os }}-
 
+      # tee eats exit codes... ... sigh
       - name: Install CI dependencies
         run: |
-          npm install --force --no-save semver 2>&1 | tee --append /tmp/output.txt
+          mkfifo '#pipe'
+          tee --append /tmp/output.txt < '#pipe' &
+          npm install --force --no-save semver > '#pipe' 2>&1
+          rm '#pipe'
 
       - name: Build distributables
-        run: npm run build:dist 2>&1 | tee --append /tmp/output.txt
+        run: |
+          mkfifo '#pipe'
+          tee --append /tmp/output.txt < '#pipe' &
+          npm run build:dist > '#pipe' 2>&1
+          rm '#pipe'
 
       - name: Build externals
         env:
@@ -87,9 +95,11 @@ jobs:
         run: npm run build:externals
 
       - name: Run is-next-compat
-        run:
-          node external-scripts/bin/is-next-compat.js 2>&1 | tee --append
-          /tmp/output.txt
+        run: |
+          mkfifo '#pipe'
+          tee --append /tmp/output.txt < '#pipe' &
+          node external-scripts/bin/is-next-compat.js > '#pipe' 2>&1
+          rm '#pipe'
 
       - name: Upload output artifact
         if: always()
