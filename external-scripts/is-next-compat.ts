@@ -183,8 +183,8 @@ const invoked = async () => {
 
   debug('running compatibility tests');
 
-  await execaWithDebug('npm', ['run', 'test-unit']);
-  await execaWithDebug('npm', ['run', 'test-integration-client']);
+  await execaWithDebug('npm', ['run', 'test:unit']);
+  await execaWithDebug('npm', ['run', 'test:integration:client']);
 
   debug('test succeeded');
 
