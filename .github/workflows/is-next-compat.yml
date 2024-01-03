@@ -12,7 +12,7 @@ on:
 env:
   # * Selectively enable debugger verbose output in the pipeline
   # ? See also: https://www.npmjs.com/package/debug#wildcards
-  # DEBUG: 'next-test-api-route-handler:*'
+  DEBUG: 'next-test-api-route-handler:*'
   NODE_CURRENT_VERSION: 21.x
   NODE_OLDER_VERSIONS: '"18.x", "20.x"'
 
@@ -87,14 +87,13 @@ jobs:
           rm '#pipe'
 
       - name: Build externals
+        run: npm run build:externals
+
+      - name: Run is-next-compat
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NODE_TARGET_VERSION: ${{ env.NODE_CURRENT_VERSION }}
-
-        run: npm run build:externals
-
-      - name: Run is-next-compat
         run: |
           mkfifo '#pipe'
           tee --append /tmp/output.txt < '#pipe' &
