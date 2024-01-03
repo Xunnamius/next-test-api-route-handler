@@ -45,7 +45,7 @@ Next.js][4] and Node.js. Go forth and test confidently!
 <div align="center">
 
 ✨ <a href="https://github.com/vercel/next.js"><img
-src="https://api.ergodark.com/badges/is-next-compat" /></a> ✨
+src="https://xunn.at/ntarh-compat" /></a> ✨
 
 </div>
 

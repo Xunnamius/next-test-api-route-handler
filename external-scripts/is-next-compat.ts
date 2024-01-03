@@ -1,11 +1,14 @@
 // ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
+
 import { Octokit } from '@octokit/rest';
 import debugFactory from 'debug';
 import execa from 'execa';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
-import { name as pkgName, version as pkgVersion } from 'package.json';
 import { satisfies as satisfiesRange, validRange } from 'semver';
+import { suppressWarnings } from 'suppress-node-warnings';
+
+import { name as pkgName, version as pkgVersion } from 'package.json';
 
 import type { ExecaError } from 'execa';
 
@@ -16,6 +19,8 @@ const debug = debugFactory(`${pkgName}:is-next-compat`);
 
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
+
+suppressWarnings(['DeprecationWarning', 'ExperimentalWarning']);
 
 /**
  * Detect if this tool was invoked in the context of an integration test
@@ -57,11 +62,11 @@ const setCompatFlagTo = async (version: string) => {
 
           // ? Update database
           await client
-            .db()
+            .db('pkg-compat')
             .collection('flags')
             .updateOne(
-              { compat: { $exists: true } },
-              { $set: { compat: version } },
+              { name: 'ntarh-next' },
+              { $set: { value: version } },
               { upsert: true }
             );
 
@@ -95,9 +100,9 @@ const getLastTestedVersion = async () => {
         (
           await client
             .db()
-            .collection<{ compat: string }>('flags')
-            .findOne({ compat: { $exists: true } })
-        )?.compat || '';
+            .collection<{ name: string; value: string }>('flags')
+            .findOne({ name: 'ntarh-next' })
+        )?.value || '';
 
       await client.close();
     } else debug('skipped database last tested version access (no MONGODB_URI)');

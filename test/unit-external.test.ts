@@ -146,8 +146,8 @@ it('handles setCompatFlagTo rejection', async () => {
       await protectedImport({ expectedExitCode: 2 });
 
       expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-        { compat: { $exists: true } },
-        { $set: { compat: mockLatestRelease } },
+        { name: 'ntarh-next' },
+        { $set: { value: mockLatestRelease } },
         { upsert: true }
       );
     },
@@ -168,7 +168,7 @@ it('handles getLastTestedVersion rejection', async () => {
       await protectedImport({ expectedExitCode: 2 });
 
       expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        compat: { $exists: true }
+        name: 'ntarh-next'
       });
       expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
     },
@@ -234,18 +234,18 @@ it('runs tests regardless of latest version #1', async () => {
     async () => {
       mockLatestRelease = '100.99.0';
       mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-        Promise.resolve({ compat: mockLatestRelease })
+        Promise.resolve({ name: 'ntarh-next', value: mockLatestRelease })
       );
 
       await protectedImport({ expectedExitCode: 0 });
 
       expect(mockedExeca).toHaveBeenCalledTimes(4);
       expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        compat: { $exists: true }
+        name: 'ntarh-next'
       });
       expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-        { compat: { $exists: true } },
-        { $set: { compat: mockLatestRelease } },
+        { name: 'ntarh-next' },
+        { $set: { value: mockLatestRelease } },
         { upsert: true }
       );
     },
@@ -260,18 +260,18 @@ it('runs tests regardless of latest version #2', async () => {
     async () => {
       mockLatestRelease = '100.99.0';
       mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-        Promise.resolve({ compat: '99.100.0' })
+        Promise.resolve({ name: 'ntarh-next', value: '99.100.0' })
       );
 
       await protectedImport({ expectedExitCode: 0 });
 
       expect(mockedExeca).toHaveBeenCalledTimes(4);
       expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        compat: { $exists: true }
+        name: 'ntarh-next'
       });
       expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-        { compat: { $exists: true } },
-        { $set: { compat: mockLatestRelease } },
+        { name: 'ntarh-next' },
+        { $set: { value: mockLatestRelease } },
         { upsert: true }
       );
     },
@@ -286,18 +286,18 @@ it('runs tests regardless of latest version #3', async () => {
     async () => {
       mockLatestRelease = '100.100.0';
       mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-        Promise.resolve({ compat: '' })
+        Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
       );
 
       await protectedImport({ expectedExitCode: 0 });
 
       expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        compat: { $exists: true }
+        name: 'ntarh-next'
       });
       expect(mockedExeca).toHaveBeenCalledTimes(4);
       expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-        { compat: { $exists: true } },
-        { $set: { compat: mockLatestRelease } },
+        { name: 'ntarh-next' },
+        { $set: { value: mockLatestRelease } },
         { upsert: true }
       );
     },
@@ -311,7 +311,7 @@ it('runs without any environment variables', async () => {
   await withMockedEnv(async () => {
     mockLatestRelease = '100.100.0';
     mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-      Promise.resolve({ compat: '' })
+      Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
     );
 
     await protectedImport({ expectedExitCode: 0 });
@@ -328,7 +328,7 @@ it('runs with version string prepended with "v"', async () => {
   await withMockedEnv(async () => {
     mockLatestRelease = 'v100.100.0';
     mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-      Promise.resolve({ compat: '' })
+      Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
     );
 
     await protectedImport({ expectedExitCode: 0 });
@@ -344,7 +344,7 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
 
   mockLatestRelease = '199.198.197';
   mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-    Promise.resolve({ compat: '' })
+    Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
   );
 
   await withMockedEnv(
@@ -367,8 +367,8 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
   );
 
   expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-    { compat: { $exists: true } },
-    { $set: { compat: mockLatestRelease } },
+    { name: 'ntarh-next' },
+    { $set: { value: mockLatestRelease } },
     { upsert: true }
   );
 });

@@ -215,6 +215,7 @@
     "source-map-support": "^0.5.21",
     "spellchecker": "^3.7.1",
     "strip-ansi": "^6.0.1",
+    "suppress-node-warnings": "^1.0.0",
     "text-extensions": "^2.4.0",
     "toss-expression": "^0.1.2",
     "tsconfig-replace-paths": "^0.0.14",

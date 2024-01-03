@@ -894,6 +894,7 @@ export function webpackTestFixture(): MockFixture {
       await run('npx', ['webpack'], { cwd: context.root, reject: true });
 
       const { code, stdout, stderr } = await run('node', [
+        '--no-warnings',
         `${context.root}/dist/index.js`
       ]);
 
@@ -944,10 +945,14 @@ export function nodeImportAndRunTestFixture(): MockFixture {
 
       context.treeOutput = await getTreeOutput(context);
 
-      const { code, stdout, stderr } = await run(bin, [...args, targetPath], {
-        cwd: context.root,
-        ...options
-      });
+      const { code, stdout, stderr } = await run(
+        bin,
+        ['--no-warnings', ...args, targetPath],
+        {
+          cwd: context.root,
+          ...options
+        }
+      );
 
       context.testResult = {
         code,
