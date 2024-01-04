@@ -97,7 +97,7 @@ jobs:
         run: |
           mkfifo '#pipe'
           tee --append /tmp/output.txt < '#pipe' &
-          node external-scripts/bin/is-next-compat.js > '#pipe' 2>&1
+          node --no-warnings external-scripts/bin/is-next-compat.js > '#pipe' 2>&1
           rm '#pipe'
 
       - name: Upload output artifact

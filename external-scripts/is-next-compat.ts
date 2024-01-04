@@ -6,7 +6,6 @@ import execa from 'execa';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
 import { satisfies as satisfiesRange, validRange } from 'semver';
-import { suppressWarnings } from 'suppress-node-warnings';
 
 import { name as pkgName, version as pkgVersion } from 'package.json';
 
@@ -19,8 +18,6 @@ const debug = debugFactory(`${pkgName}:is-next-compat`);
 
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
-
-suppressWarnings(['DeprecationWarning', 'ExperimentalWarning']);
 
 /**
  * Detect if this tool was invoked in the context of an integration test
