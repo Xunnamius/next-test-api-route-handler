@@ -258,7 +258,9 @@ export async function testApiHandler<NextResponseJsonType = any>({
         if (!addr || typeof addr === 'string') {
           reject(
             new Error(
-              'assertion failed unexpectedly: server did not return AddressInfo instance'
+              `assertion failed unexpectedly: expected AddressInfo instance, got: ${String(
+                addr
+              )}`
             )
           );
         } else {
