@@ -322,7 +322,7 @@ describe('::testApiHandler', () => {
 
       http.createServer = (...args: unknown[]) => {
         const server = oldCreateServer(...args);
-        server.address = () => undefined;
+        server.address = () => void 'undefined-x';
         return server;
       };
 
