@@ -322,22 +322,26 @@ describe('::testApiHandler', () => {
 
       http.createServer = (...args: unknown[]) => {
         const server = oldCreateServer(...args);
-        server.address = () => void 'undefined-x';
+        server.address = () => undefined;
         return server;
       };
 
       return http;
     });
 
-    await expect(
-      importNtarh()({
-        handler: getHandler(),
-        test: async ({ fetch }) => void (await fetch())
-      })
-    ).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'assertion failed unexpectedly: server did not return AddressInfo instance'
-      )
-    });
+    try {
+      await expect(
+        importNtarh()({
+          handler: getHandler(),
+          test: async ({ fetch }) => void (await fetch())
+        })
+      ).rejects.toMatchObject({
+        message: expect.stringContaining(
+          'assertion failed unexpectedly: server did not return AddressInfo instance'
+        )
+      });
+    } finally {
+      jest.dontMock('node:http');
+    }
   });
 });
