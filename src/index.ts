@@ -259,9 +259,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           console.error(server);
           reject(
             new Error(
-              `assertion failed unexpectedly: expected AddressInfo instance, got: ${String(
-                addr
-              )}`
+              'assertion failed unexpectedly: server did not return AddressInfo instance'
             )
           );
         } else {
