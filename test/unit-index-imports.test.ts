@@ -47,11 +47,11 @@ jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
 
           if (meta.shouldFail) {
             throw new Error(`fake import failure E`);
-          } else if (key == 'apiResolver') {
+          } else if (key === 'apiResolver') {
             return getMockResolver(meta);
-          } else if (key == '__esModule') {
+          } else if (key === '__esModule') {
             return true;
-          } else if (key == 'then') {
+          } else if (key === 'then') {
             return this;
           }
           // ? Mocks are hoisted above imports, so account for that
@@ -73,7 +73,7 @@ jest.mock(
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure D`);
-            } else if (key == 'apiResolver') {
+            } else if (key === 'apiResolver') {
               return getMockResolver(meta);
             }
           } else throw new Error('proxy D invoked too early');
@@ -96,7 +96,7 @@ jest.mock(
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure C`);
-            } else if (key == 'apiResolver') {
+            } else if (key === 'apiResolver') {
               return getMockResolver(meta);
             }
           } else throw new Error('proxy C invoked too early');
@@ -119,7 +119,7 @@ jest.mock(
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure B`);
-            } else if (key == 'apiResolver') {
+            } else if (key === 'apiResolver') {
               return getMockResolver(meta);
             }
           } else throw new Error('proxy B invoked too early');
@@ -142,7 +142,7 @@ jest.mock(
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure A`);
-            } else if (key == 'apiResolver') {
+            } else if (key === 'apiResolver') {
               return getMockResolver(meta);
             }
           } else throw new Error('proxy A invoked too early');

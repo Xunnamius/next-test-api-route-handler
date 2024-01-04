@@ -17,11 +17,11 @@ import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/
  *
  * Current default headers:
  *
- * - `x-msw-bypass: true`
+ * - `x-msw-intention: bypass`
  */
 const addDefaultHeaders = (headers: Headers) => {
-  if (!headers.has('x-msw-bypass')) {
-    headers.set('x-msw-bypass', 'true');
+  if (!headers.has('x-msw-intention')) {
+    headers.set('x-msw-intention', 'bypass');
   }
 
   return headers;
