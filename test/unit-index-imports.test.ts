@@ -316,32 +316,24 @@ describe('::testApiHandler', () => {
   it('sanity checks addr value when server starts listening', async () => {
     expect.hasAssertions();
 
-    jest.doMock('node:http', () => {
-      const http = jest.requireActual('node:http');
-      const oldCreateServer = http.createServer;
+    const http = require('node:http');
+    const oldCreateServer = http.createServer;
 
-      http.createServer = (...args: unknown[]) => {
-        const server = oldCreateServer(...args);
-        server.address = () => undefined;
-        return server;
-      };
-
-      return http;
+    jest.spyOn(http, 'createServer').mockImplementation((...args: unknown[]) => {
+      const server = oldCreateServer(...args);
+      server.address = () => undefined;
+      return server;
     });
 
-    try {
-      await expect(
-        importNtarh()({
-          handler: getHandler(),
-          test: async ({ fetch }) => void (await fetch())
-        })
-      ).rejects.toMatchObject({
-        message: expect.stringContaining(
-          'assertion failed unexpectedly: server did not return AddressInfo instance'
-        )
-      });
-    } finally {
-      jest.dontMock('node:http');
-    }
+    await expect(
+      importNtarh()({
+        handler: getHandler(),
+        test: async ({ fetch }) => void (await fetch())
+      })
+    ).rejects.toMatchObject({
+      message: expect.stringContaining(
+        'assertion failed unexpectedly: server did not return AddressInfo instance'
+      )
+    });
   });
 });
