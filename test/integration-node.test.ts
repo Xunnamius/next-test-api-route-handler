@@ -1,4 +1,7 @@
 /* eslint-disable jest/no-conditional-in-test */
+
+// * These tests ensure NTARH is importable and functions in both ESM and CJS
+
 import debugFactory from 'debug';
 import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package';
 

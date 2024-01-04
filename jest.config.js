@@ -14,7 +14,7 @@ module.exports = {
     60 *
     (process.env.VSCODE_INSPECTOR_OPTIONS
       ? 60 * 24
-      : process.platform == 'win32'
+      : process.platform === 'win32'
         ? 10
         : 5),
   // ? Minimum of 2 concurrent tests executed at once; maximum of cpu cores - 1

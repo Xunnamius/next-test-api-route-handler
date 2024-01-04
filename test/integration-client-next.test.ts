@@ -1,4 +1,7 @@
 /* eslint-disable jest/no-conditional-in-test, jest/no-conditional-expect */
+
+// * These tests ensure NTARH and Next.js integrate as expected
+
 import debugFactory from 'debug';
 import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package';
 import stripAnsi from 'strip-ansi';

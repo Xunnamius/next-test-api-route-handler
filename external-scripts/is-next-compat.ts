@@ -201,6 +201,6 @@ const invoked = async () => {
 };
 
 export default invoked().catch((error: Error | string) => {
-  debug.extend('error')(typeof error == 'string' ? error : error.message);
+  debug.extend('error')(typeof error === 'string' ? error : error.message);
   process.exitCode = 2;
 });

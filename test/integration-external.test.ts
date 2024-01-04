@@ -1,4 +1,7 @@
 /* eslint-disable jest/no-conditional-in-test */
+
+// * These are smoke tests to ensure the externals are runnable
+
 import debugFactory from 'debug';
 import { peerDependencies, name as pkgName } from 'package';
 

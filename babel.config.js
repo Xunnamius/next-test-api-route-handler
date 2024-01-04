@@ -58,7 +58,7 @@ module.exports = {
         'explicit-exports-references'
       ]
     },
-    // * Used when NODE_ENV == production (usually for generating types w/ tsc)
+    // * Used when NODE_ENV === production (usually for generating types w/ tsc)
     production: {
       presets: [
         [
