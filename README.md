@@ -281,7 +281,7 @@ For example:
 ```typescript
 import { http, passthrough, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { testApiHandler } from 'universe/index';
+import { testApiHandler } from 'next-test-api-route-handler';
 
 const server = setupServer(/* ... */);
 
