@@ -29,13 +29,12 @@ Confidently test your Next.js API routes in an isolated Next-like environment
 
 # next-test-api-route-handler
 
-Trying to unit test your Next.js API route handlers? Want to avoid hacking
-something together with express/node-mocks-http and writing a bunch of boring
-test infra just to get some unit tests working? Tired of having to deal with
-mocked [`NextRequest`][1] and [`NextResponse`][2] objects in your [app
-router][3] handlers? Want your [pages router][4] handlers to receive _actual_
-[`NextApiRequest`][5] and [`NextApiResponse`][5] objects? Then look no further!
-🤩
+Trying to unit test your Next.js API routes? Tired of hacking something together
+with express/node-mocks-http and writing a bunch of boring test infra just to
+get some passing unit tests? Want your [App Router][1] handlers to receive
+_actual_ [`NextRequest`][2]/[`NextResponse`][3] objects? Want your [Pages
+Router][4] handlers to receive _actual_
+[`NextApiRequest`][5]/[`NextApiResponse`][5] objects? Then look no further! 🤩
 
 [`next-test-api-route-handler`][x-badge-repo-link] (NTARH) uses Next.js's
 internal API resolver to precisely emulate API route handling. To guarantee
@@ -816,6 +815,17 @@ to test my APIs and NTARH was born 🙂
 Of course, this all was back before the app router or edge routes existed. NTARH
 got app router and edge route support in version 4.
 
+My hope is that, eventually, NTARH will be obsoleted due to Vercel providing
+developers with some officially supported tooling/hooks (in the vein of
+[instrumentation.ts][39]) for _lightweight_ route execution, where handlers are
+passed the actual `NextX` versions of `Request` and `Response` while our unit
+tests still complete in under one second (that is: no spinning up the entire
+Next.js runtime to just to run a single test in isolation). It doesn't seem like
+it'd be so tough to surface the Pages Router's [`apiResolver`][40], for
+instance, perhaps under something like `import { ... } from 'next/test'`, and
+maybe wrap it to present a more streamlined interface. This is essentially what
+NTARH does.
+
 ### Published Package Details
 
 This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
@@ -993,9 +1003,9 @@ specification. Contributions of any kind welcome!
   https://github.com/xunnamius/next-test-api-route-handler/compare
 [x-repo-sponsor]: https://github.com/sponsors/Xunnamius
 [x-repo-support]: /.github/SUPPORT.md
-[1]: https://nextjs.org/docs/app/api-reference/functions/next-request
-[2]: https://nextjs.org/docs/app/api-reference/functions/next-response
-[3]: https://nextjs.org/docs/app/building-your-application/routing
+[1]: https://nextjs.org/docs/app/building-your-application/routing
+[2]: https://nextjs.org/docs/app/api-reference/functions/next-request
+[3]: https://nextjs.org/docs/app/api-reference/functions/next-response
 [4]: https://nextjs.org/docs/api-routes/introduction
 [5]: https://nextjs.org/docs/basic-features/typescript#api-routes
 [6]:
@@ -1038,3 +1048,7 @@ specification. Contributions of any kind welcome!
   https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
 [38]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
+[39]:
+  https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
+[40]:
+  https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321
