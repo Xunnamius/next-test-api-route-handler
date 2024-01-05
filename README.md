@@ -263,18 +263,18 @@ await testApiHandler({
 ### `test`
 
 A function that returns a promise (or async) where test assertions can be run.
-This function receives one destructured parameter: `fetch`, which is a simple
-[node-fetch][13] instance. Use this to send HTTP requests to the handler under
-test.
+This function receives one destructured parameter: `fetch`, which is a wrapper
+around Node's [global fetch][13] function. Use this to send HTTP requests to the
+handler under test.
 
-**Note that `fetch`'s url parameter, _i.e. the first parameter in
-[`fetch(...)`][14]_, is omitted.**
+**Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in
+`fetch(...)`][14]_, is omitted.**
 
-As of version `3.1.0`, NTARH adds the [`x-msw-intention: bypass`][15] header to
-all requests by default. If necessary, you can override this behavior by setting
-the header to some other value (e.g. `"none"`) via `fetch`'s `customInit`
-parameter (not `requestPatcher`). This comes in handy when testing functionality
-like [arbitrary response redirection][16].
+As of version `3.1.0`, NTARH adds the [`x-msw-intention: bypass`][15] header
+(formerly `x-msw-bypass`) to all requests by default. If necessary, you can
+override this behavior by setting the header to some other value (e.g. `"none"`)
+via `fetch`'s `customInit` parameter (not `requestPatcher`). This comes in handy
+when testing functionality like [arbitrary response redirection][16].
 
 For example:
 
@@ -888,8 +888,8 @@ specification. Contributions of any kind welcome!
 [11]: https://en.wikipedia.org/wiki/Query_string
 [12]:
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
-[13]: https://www.npmjs.com/package/node-fetch
-[14]: https://github.com/node-fetch/node-fetch#post-with-json
+[13]: https://nodejs.org/dist/latest-v18.x/docs/api/globals.html#fetch
+[14]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#resource
 [15]:
   https://github.com/mswjs/msw/blob/a037e3a3f4f4d4cc712d2b3867b3410e4bcfaad6/src/core/bypass.ts#L33C29-L33C44
 [16]:

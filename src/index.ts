@@ -3,10 +3,8 @@ import { createServer } from 'node:http';
 import { parse as parseUrl } from 'node:url';
 
 import { parse as parseCookieHeader } from 'cookie';
-import fetch, { Headers } from 'node-fetch';
 
 import type { NextApiHandler } from 'next';
-import type { Response as FetchReturnValue, RequestInit } from 'node-fetch';
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 
 import type { apiResolver as NextApiResolver } from 'next/dist/server/api-utils/node/api-resolver';
@@ -30,10 +28,8 @@ const addDefaultHeaders = (headers: Headers) => {
 let apiResolver: typeof NextApiResolver | null = null;
 
 export type FetchReturnType<NextResponseJsonType> = Promise<
-  Omit<FetchReturnValue, 'json'> & {
-    json: (
-      ...args: Parameters<FetchReturnValue['json']>
-    ) => Promise<NextResponseJsonType>;
+  Omit<Response, 'json'> & {
+    json: (...args: Parameters<Response['json']>) => Promise<NextResponseJsonType>;
     cookies: ReturnType<typeof parseCookieHeader>[];
   }
 >;
@@ -286,21 +282,32 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 get: () => {
                   // @ts-expect-error: lazy getter guarantees this will be set
                   delete res.cookies;
-                  res.cookies = [res.headers.raw()['set-cookie'] || []]
-                    .flat()
-                    .map((header) =>
-                      Object.fromEntries(
-                        Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
-                          return [
-                            [String(k), v],
-                            [String(k).toLowerCase(), v]
-                          ];
-                        })
-                      )
-                    );
+                  res.cookies = [res.headers.getSetCookie() || []].flat().map((header) =>
+                    Object.fromEntries(
+                      Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
+                        return [
+                          [String(k), v],
+                          [String(k).toLowerCase(), v]
+                        ];
+                      })
+                    )
+                  );
                   return res.cookies;
                 }
               });
+
+              const oldJson = res.json.bind(res);
+              // ? What is this? Well, when ditching node-fetch for the internal
+              // ? fetch, the way Jest uses node's vm package results in the
+              // ? internals returning objects from a different realm than the
+              // ? objects created within the vm instance (like the one in which
+              // ? jest tests are executed). What this extra step does is take
+              // ? the object returned from res.json(), which is from an outside
+              // ? realm, and "summons" it into the current vm realm. Without
+              // ? this step, matchers like .toStrictEqual(...) will fail with a
+              // ? "serializes to the same string" error.
+              res.json = async () => Object.assign({}, await oldJson());
+
               return res;
             }
           );

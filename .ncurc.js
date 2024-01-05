@@ -7,9 +7,6 @@ module.exports = {
     // ? Pin the non-broken version of glob
     'glob',
     // ? Pin the CJS version of execa
-    'execa',
-    // ? Pin the CJS version of node-fetch (and its types)
-    'node-fetch',
-    '@types/node-fetch'
+    'execa'
   ]
 };

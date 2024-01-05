@@ -1,5 +1,4 @@
 import { parse, serialize } from 'cookie';
-import { Headers } from 'node-fetch';
 
 import { testApiHandler } from '../src/index';
 import { withMockedOutput } from './setup';
