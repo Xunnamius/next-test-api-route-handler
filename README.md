@@ -29,16 +29,18 @@ Confidently test your Next.js API routes in an isolated Next-like environment
 
 # next-test-api-route-handler
 
-Trying to unit test your [Next.js API route handlers][1]? Want to avoid mucking
-around with custom servers and writing boring test infra just to get some unit
-tests working? Want your handlers to receive _actual_ [`NextApiRequest`][2] and
-[`NextApiResponse`][2] objects rather than having to hack something together
-with express or node-mocks-http? Then look no further! 🤩
+Trying to unit test your Next.js API route handlers? Want to avoid hacking
+something together with express/node-mocks-http and writing a bunch of boring
+test infra just to get some unit tests working? Tired of having to deal with
+mocked [`NextRequest`][1] and [`NextResponse`][2] objects in your [app
+router][3] handlers? Want your [pages router][4] handlers to receive _actual_
+[`NextApiRequest`][5] and [`NextApiResponse`][5] objects? Then look no further!
+🤩
 
 [`next-test-api-route-handler`][x-badge-repo-link] (NTARH) uses Next.js's
 internal API resolver to precisely emulate API route handling. To guarantee
-stability, this package is [automatically tested][3] against [each release of
-Next.js][4] and Node.js. Go forth and test confidently!
+stability, this package is [automatically tested][6] against [each release of
+Next.js][7] and Node.js. Go forth and test confidently!
 
 <br />
 
@@ -59,16 +61,22 @@ src="https://xunn.at/ntarh-compat" /></a> ✨
 
 - [Install](#install)
 - [Usage](#usage)
+  - [Quick Start: App Router](#quick-start-app-router)
+  - [Quick Start: Edge Runtime](#quick-start-edge-runtime)
+  - [Quick Start: Pages Router](#quick-start-pages-router)
+- [API](#api)
   - [`requestPatcher`](#requestpatcher)
   - [`responsePatcher`](#responsepatcher)
   - [`paramsPatcher`](#paramspatcher)
-  - [`handler`](#handler)
+  - [`appHandler`](#apphandler)
+  - [`pagesHandler`](#pageshandler)
   - [`test`](#test)
 - [Real-World Examples](#real-world-examples)
-  - [Testing Next.js's Official Apollo Example @ `pages/api/graphql`](#testing-nextjss-official-apollo-example--pagesapigraphql)
-  - [Testing an Unreliable API Handler @ `pages/api/unreliable`](#testing-an-unreliable-api-handler--pagesapiunreliable)
-  - [Testing a Flight Search API Handler @ `pages/api/v3/flights/search`](#testing-a-flight-search-api-handler--pagesapiv3flightssearch)
+  - [Using the App API](#using-the-app-api)
+  - [Using the Pages API](#using-the-pages-api)
 - [Appendix](#appendix)
+  - [Guarding against False Negatives](#guarding-against-false-negatives)
+  - [Limitations with App Router Emulation](#limitations-with-app-router-emulation)
   - [Legacy Runtime Support](#legacy-runtime-support)
   - [Inspiration](#inspiration)
   - [Published Package Details](#published-package-details)
@@ -85,7 +93,7 @@ src="https://xunn.at/ntarh-compat" /></a> ✨
 npm install --save-dev next-test-api-route-handler
 ```
 
-> See [the appendix][5] for legacy support options.
+> See [the appendix][8] for legacy support options.
 
 ## Usage
 
@@ -99,7 +107,49 @@ import { testApiHandler } from 'next-test-api-route-handler';
 const { testApiHandler } = require('next-test-api-route-handler');
 ```
 
-Quick start:
+### Quick Start: App Router
+
+```typescript
+/* File: test/unit.test.ts */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the pages/api directory
+import * as appHandler from '../app/your-endpoint';
+
+it('does what I want', async () => {
+  await testApiHandler({
+    appHandler,
+    requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
+    test: async ({ fetch }) => {
+      const res = await fetch({ method: 'POST', body: 'data' });
+      await expect(res.json()).resolves.toStrictEqual({ hello: 'world' }); // ◄ Passes!
+    }
+  });
+});
+```
+
+### Quick Start: Edge Runtime
+
+```typescript
+/* File: test/unit.test.ts */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the pages/api directory
+import * as edgeHandler from '../app/your-edge-endpoint';
+
+it('does what I want', async () => {
+  await testApiHandler({
+    appHandler: edgeHandler,
+    requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
+    test: async ({ fetch }) => {
+      const res = await fetch({ method: 'POST', body: 'data' });
+      await expect(res.json()).resolves.toStrictEqual({ hello: 'world' }); // ◄ Passes!
+    }
+  });
+});
+```
+
+### Quick Start: Pages Router
 
 ```typescript
 /* File: test/unit.test.ts */
@@ -110,12 +160,12 @@ import endpoint, { config } from '../pages/api/your-endpoint';
 import type { PageConfig } from 'next';
 
 // Respect the Next.js config object if it's exported
-const handler: typeof endpoint & { config?: PageConfig } = endpoint;
-handler.config = config;
+const pagesHandler: typeof endpoint & { config?: PageConfig } = endpoint;
+pagesHandler.config = config;
 
 it('does what I want', async () => {
   await testApiHandler({
-    handler,
+    pagesHandler,
     requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
     test: async ({ fetch }) => {
       const res = await fetch({ method: 'POST', body: 'data' });
@@ -126,8 +176,8 @@ it('does what I want', async () => {
   // NTARH also supports typed response data via TypeScript generics:
   await testApiHandler<{ hello: string }>({
     // The next line would cause TypeScript to complain:
-    // handler: (_, res) => res.status(200).send({ hello: false }),
-    handler: (_, res) => res.status(200).send({ hello: 'world' }),
+    // pagesHandler: (_, res) => res.status(200).send({ hello: false }),
+    pagesHandler: (_, res) => res.status(200).send({ hello: 'world' }),
     requestPatcher: (req) => (req.headers = { key: process.env.SPECIAL_TOKEN }),
     test: async ({ fetch }) => {
       const res = await fetch({ method: 'POST', body: 'data' });
@@ -140,7 +190,12 @@ it('does what I want', async () => {
 });
 ```
 
-The interface for `testApiHandler` without generics looks like this:
+## API
+
+NTARH exports a single function: `testApiHandler`. The interface for
+`testApiHandler` without generics looks like this:
+
+<!-- TODO -->
 
 ```typescript
 async function testApiHandler(args: {
@@ -150,7 +205,8 @@ async function testApiHandler(args: {
   paramsPatcher?: (params: Record<string, unknown>) => void;
   params?: Record<string, unknown>;
   url?: string;
-  handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
+  appHandler: (req: NextRequest, res: NextResponse) => ???;
+  pagesHandler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
   test: (args: {
     fetch: (customInit?: RequestInit) => FetchReturnType;
   }) => Promise<void>;
@@ -159,18 +215,18 @@ async function testApiHandler(args: {
 
 ### `requestPatcher`
 
-A function that receives an [`IncomingMessage`][6]. Use this function to modify
+A function that receives an [`IncomingMessage`][9]. Use this function to modify
 the request before it's injected into Next.js's resolver. To just set the
 request url, e.g. `requestPatcher: (req) => (req.url = '/my-url?some=query')`,
 use the `url` shorthand, e.g. `url: '/my-url?some=query'`.
 
-> More often than not, [manually setting the request url is unnecessary][7].
-> Only set the url if [your handler expects it][8] or [you want to use automatic
-> query string parsing instead of `params`/`paramsPatcher`][9].
+> More often than not, [manually setting the request url is unnecessary][10].
+> Only set the url if [your handler expects it][11] or [you want to use
+> automatic query string parsing instead of `params`/`paramsPatcher`][12].
 
 ### `responsePatcher`
 
-A function that receives a [`ServerResponse`][10]. Use this function to modify
+A function that receives a [`ServerResponse`][13]. Use this function to modify
 the response before it's injected into Next.js's resolver.
 
 ### `paramsPatcher`
@@ -183,98 +239,62 @@ Due to its simplicity, favor the `params` shorthand over `paramsPatcher`. If
 both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher` will
 receive an object like `{ ...queryStringURLParams, ...params }`.
 
-> Route parameters should not be confused with [query string parameters][11],
+> Route parameters should not be confused with [query string parameters][14],
 > which are automatically parsed out from the url and added to the params object
 > before `paramsPatcher` is evaluated.
 
-### `handler`
+### `appHandler`
+
+> Use of this property is mutually exclusive with `pagesHandler`.
+
+<!-- TODO -->
+
+The actual route handler under test (usually imported from `app/*`). It should
+be (todo).
+
+```typescript
+await testApiHandler({
+  appHandler,
+  test: async ({ fetch }) =>
+    expect((await fetch({ method: 'POST' })).status).toBe(200)
+});
+```
+
+See also the section on [guarding against false negatives][15].
+
+### `pagesHandler`
+
+> Use of this property is mutually exclusive with `appHandler`.
 
 The actual route handler under test (usually imported from `pages/api/*`). It
-should be an async function that accepts [`NextApiRequest`][2] and
-[`NextApiResponse`][2] objects as its two parameters.
-
-> As of version `2.3.0`, unhandled errors in the `handler` function are kicked
-> up to Next.js to handle. This means **`testApiHandler` will NOT reject or
-> throw if an unhandled error occurs in `handler`, which includes failing Jest
-> `expect()` assertions.** Instead, the response returned by `fetch()` in your
-> `test` function will have a `HTTP 500` status [thanks to how Next.js deals
-> with unhandled errors in production][12]. Prior to `2.3.0`, NTARH's behavior
-> on unhandled errors in `handler` and elsewhere was inconsistent. Version
-> `3.0.0` further improves error handling, ensuring no errors slip by uncaught.
-
-To guard against false negatives, you can do either of the following:
-
-1. Make sure the status of the `fetch()` response is what you're expecting:
+should be an async function that accepts [`NextApiRequest`][5] and
+[`NextApiResponse`][5] objects as its two parameters.
 
 ```typescript
-const res = await fetch();
-...
-// For this test, a 403 status is what we wanted
-expect(res.status).toBe(403);
-...
-const res2 = await fetch();
-...
-// Later, we expect an "unhandled" error
-expect(res2.status).toBe(500);
-```
-
-2. If you're using version `>=3.0.0`, you can use `rejectOnHandlerError` to tell
-   NTARH to intercept unhandled handler errors and reject the promise returned
-   by `testApiHandler` _instead_ of relying on Next.js to respond with
-   `HTTP 500`. This is especially useful if you have `expect()` assertions
-   _inside_ your handler function:
-
-```typescript
-await expect(
-  testApiHandler({
-    rejectOnHandlerError: true, // <==
-    handler: (res) => {
-      res.status(200);
-      throw new Error('bad bad not good');
-    },
-    test: async ({ fetch }) => {
-      const res = await fetch();
-      // By default, res.status would be 500...
-      //expect(res.status).toBe(500);
-    }
-  })
-  // ...but since we used rejectOnHandlerError, the whole promise rejects
-  // instead
-).rejects.toThrow('bad not good');
-
 await testApiHandler({
-  rejectOnHandlerError: true, // <==
-  handler: async (res) => {
-    // Suppose this expectation fails
-    await expect(backend.getSomeStuff()).resolves.toStrictEqual(someStuff);
-  },
-  test: async ({ fetch }) => {
-    await fetch();
-    // By default, res.status would be 500 due to the failing expect(). If we
-    // don't also expect() a non-500 response status here, the failing
-    // expectation in the handler will be swallowed and the test will pass
-    // (a false negative).
-  }
+  pagesHandler,
+  test: async ({ fetch }) =>
+    expect((await fetch({ method: 'POST' })).status).toBe(200)
 });
-// ...but since we used rejectOnHandlerError, the whole promise rejects
-// and Jest reports that the test failed, which is probably what you wanted.
 ```
+
+See also the section on [guarding against false negatives][15].
 
 ### `test`
 
 A function that returns a promise (or async) where test assertions can be run.
 This function receives one destructured parameter: `fetch`, which is a wrapper
-around Node's [global fetch][13] function. Use this to send HTTP requests to the
+around Node's [global fetch][16] function. Use this to send HTTP requests to the
 handler under test.
 
 **Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in
-`fetch(...)`][14]_, is omitted.**
+`fetch(...)`][17]_, is omitted.**
 
-As of version `3.1.0`, NTARH adds the [`x-msw-intention: bypass`][15] header
+As of version `3.1.0`, NTARH adds the [`x-msw-intention: bypass`][18] header
 (formerly `x-msw-bypass`) to all requests by default. If necessary, you can
 override this behavior by setting the header to some other value (e.g. `"none"`)
 via `fetch`'s `customInit` parameter (not `requestPatcher`). This comes in handy
-when testing functionality like [arbitrary response redirection][16].
+when testing functionality like [arbitrary response redirection][19].
 
 For example:
 
@@ -304,7 +324,7 @@ it('redirects a shortened URL to the real URL', async () => {
   const realUrl = new URL(realLink);
 
   await testApiHandler({
-    handler,
+    pagesHandler,
     params: { shortId },
     test: async ({ fetch }) => {
       server.use(
@@ -330,10 +350,10 @@ it('redirects a shortened URL to the real URL', async () => {
 
 As of version `2.3.0`, the response object returned by `fetch()` includes a
 non-standard _cookies_ field containing an array of objects representing
-[`set-cookie` response header(s)][17] parsed by [the `cookie` package][18]. Use
+[`set-cookie` response header(s)][20] parsed by [the `cookie` package][21]. Use
 the _cookies_ field to easily access a response's cookie data in your tests.
 
-Here's an example taken straight from the [unit tests][19]:
+Here's an example taken straight from the [unit tests][22]:
 
 ```typescript
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -342,7 +362,7 @@ it('handles multiple set-cookie headers', async () => {
   expect.hasAssertions();
 
   await testApiHandler({
-    handler: (_, res) => {
+    pagesHandler: (_, res) => {
       // NOTE: multiple calls to setHeader('Set-Cookie', ...) overwrite previous
       res.setHeader('Set-Cookie', [
         serializeCookieHeader('access_token', '1234', { expires: new Date() }),
@@ -372,13 +392,35 @@ it('handles multiple set-cookie headers', async () => {
 
 ## Real-World Examples
 
-### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
+What follows are several examples that demonstrate NTARH's core features.
+
+### Using the App API
+
+These examples use Next.js's [App Router][23] API.
+
+#### Testing Next.js's Official Apollo Example @ `app/graphql`
+
+<!-- TODO -->
+
+#### Testing an Unreliable API Handler @ `app/unreliable`
+
+<!-- TODO -->
+
+#### Testing an Edge API Handler @ `app/edge`
+
+<!-- TODO -->
+
+### Using the Pages API
+
+These examples use Next.js's [Pages Router][24] API.
+
+#### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
 You can easily run this example yourself by copying and pasting the following
 commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][20]. Requires `curl`, `node`, and `git`.
+> [WSL][25]. Requires `curl`, `node`, and `git`.
 
 ```bash
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
@@ -395,29 +437,29 @@ curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-ap
 npx jest
 ```
 
-The above script will clone [the Next.js repository][21], install NTARH and
-configure dependencies, download [the following script][22], and run it with
-[jest][23].
+The above script will clone [the Next.js repository][26], install NTARH and
+configure dependencies, download [the following script][27], and run it with
+[jest][28].
 
-> **Note that passing the [route configuration object][24] (imported below as
+> **Note that passing the [route configuration object][29] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
-> [crucial][25] when testing Apollo endpoints!**
+> [crucial][30] when testing Apollo endpoints!**
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
 
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the pages/api directory
-import handler, { config } from '../pages/api/graphql';
+import pagesHandler, { config } from '../pages/api/graphql';
 // Respect the Next.js config object if it's exported
-handler.config = config;
+pagesHandler.config = config;
 
 describe('my-test', () => {
   it('does what I want 1', async () => {
     expect.hasAssertions();
 
     await testApiHandler({
-      handler,
+      pagesHandler,
       url: '/api/graphql', // Set the request url to the path graphql expects
       test: async ({ fetch }) => {
         const query = `query ViewerQuery {
@@ -455,13 +497,13 @@ describe('my-test', () => {
 });
 ```
 
-### Testing an Unreliable API Handler @ `pages/api/unreliable`
+#### Testing an Unreliable API Handler @ `pages/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
 10th, where status code `HTTP 555` is returned instead.
 
-How might we [test][23] that this endpoint responds with `HTTP 555` once for
+How might we [test][28] that this endpoint responds with `HTTP 555` once for
 every nine `HTTP 200` responses?
 
 ```typescript
@@ -476,8 +518,8 @@ import type { PageConfig } from 'next';
 const expectedReqPerError = 10;
 
 // Respect the Next.js config object if it's exported
-const handler: typeof endpoint & { config?: PageConfig } = endpoint;
-handler.config = config;
+const pagesHandler: typeof endpoint & { config?: PageConfig } = endpoint;
+pagesHandler.config = config;
 
 it('injects contrived errors at the required rate', async () => {
   expect.hasAssertions();
@@ -487,7 +529,7 @@ it('injects contrived errors at the required rate', async () => {
   process.env.REQUESTS_PER_CONTRIVED_ERROR = expectedReqPerError.toString();
 
   await testApiHandler({
-    handler,
+    pagesHandler,
     test: async ({ fetch }) => {
       // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
       // record the results
@@ -535,13 +577,13 @@ it('injects contrived errors at the required rate', async () => {
 });
 ```
 
-### Testing a Flight Search API Handler @ `pages/api/v3/flights/search`
+#### Testing a Flight Search API Handler @ `pages/api/v3/flights/search`
 
 Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
 query.
 
-How might we [test][23] that this endpoint returns flights in our database as
+How might we [test][28] that this endpoint returns flights in our database as
 expected?
 
 ```typescript
@@ -554,8 +596,8 @@ import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend';
 import type { PageConfig } from 'next';
 
 // Respect the Next.js config object if it's exported
-const handler: typeof endpoint & { config?: PageConfig } = endpoint;
-handler.config = config;
+const pagesHandler: typeof endpoint & { config?: PageConfig } = endpoint;
+pagesHandler.config = config;
 
 it('returns expected public flights with respect to match', async () => {
   expect.hasAssertions();
@@ -595,7 +637,7 @@ it('returns expected public flights with respect to match', async () => {
       // req.headers = { KEY };
     },
 
-    handler,
+    pagesHandler,
 
     test: async ({ fetch }) => {
       // 8 URLS from genUrl means 8 calls to fetch:
@@ -641,14 +683,14 @@ it('returns expected public flights with respect to match', async () => {
   // We expect these two to fail with 400 errors
 
   await testApiHandler({
-    handler,
+    pagesHandler,
     url: `/?match=${encode({ ffms: { $eq: 500 } })}`,
     test: async ({ fetch }) =>
       expect((await fetch({ headers: { KEY } })).status).toBe(400)
   });
 
   await testApiHandler({
-    handler,
+    pagesHandler,
     url: `/?match=${encode({ bad: 500 })}`,
     test: async ({ fetch }) =>
       expect((await fetch({ headers: { KEY } })).status).toBe(400)
@@ -656,20 +698,97 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
-Check out [the tests][26] for more examples.
+Check out [the tests][31] for more examples.
 
 ## Appendix
 
 Further documentation can be found under [`docs/`][x-repo-docs].
 
+### Guarding against False Negatives
+
+As of version `2.3.0`, unhandled errors in the `pagesHandler`/`appHandler`
+function are kicked up to Next.js to handle. This means **`testApiHandler` will
+NOT reject or throw if an unhandled error occurs in `pagesHandler`/`appHandler`,
+which includes failing Jest `expect()` assertions.** Instead, the response
+returned by `fetch()` in your `test` function will have a `HTTP 500` status
+[thanks to how Next.js deals with unhandled errors in production][32]. Prior to
+`2.3.0`, NTARH's behavior on unhandled errors and elsewhere was inconsistent.
+Version `3.0.0` further improves error handling, ensuring no errors slip by
+uncaught.
+
+To guard against false negatives, you can do either of the following:
+
+1. Make sure the status of the `fetch()` response is what you're expecting:
+
+```typescript
+const res = await fetch();
+...
+// For this test, a 403 status is what we wanted
+expect(res.status).toBe(403);
+...
+const res2 = await fetch();
+...
+// Later, we expect an "unhandled" error
+expect(res2.status).toBe(500);
+```
+
+2. If you're using version `>=3.0.0`, you can use `rejectOnHandlerError` to tell
+   NTARH to intercept unhandled handler errors and reject the promise returned
+   by `testApiHandler` _instead_ of relying on Next.js to respond with
+   `HTTP 500`. This is especially useful if you have `expect()` assertions
+   _inside_ your handler function:
+
+```typescript
+await expect(
+  testApiHandler({
+    rejectOnHandlerError: true, // <==
+    pagesHandler: (_req, res) => {
+      res.status(200);
+      throw new Error('bad bad not good');
+    },
+    test: async ({ fetch }) => {
+      const res = await fetch();
+      // By default, res.status would be 500...
+      //expect(res.status).toBe(500);
+    }
+  })
+  // ...but since we used rejectOnHandlerError, the whole promise rejects
+  // instead
+).rejects.toThrow('bad not good');
+
+await testApiHandler({
+  rejectOnHandlerError: true, // <==
+  pagesHandler: async (req, res) => {
+    // Suppose this expectation fails
+    await expect(backend.getSomeStuff()).resolves.toStrictEqual(someStuff);
+  },
+  test: async ({ fetch }) => {
+    await fetch();
+    // By default, res.status would be 500 due to the failing expect(). If we
+    // don't also expect() a non-500 response status here, the failing
+    // expectation in the handler will be swallowed and the test will pass
+    // (a false negative).
+  }
+});
+// ...but since we used rejectOnHandlerError, the whole promise rejects
+// and Jest reports that the test failed, which is probably what you wanted.
+```
+
+### Limitations with App Router Emulation
+
+<!-- TODO -->
+
 ### Legacy Runtime Support
 
-As of version `2.1.0`, NTARH is fully backwards compatible with Next.js going
-_allll_ the way back to `next@9.0.0` [when API routes were first
-introduced][27]!
+As of version `4.0.0`, NTARH supports both the App Router and the "legacy" Pages
+Router Next.js APIs.
+
+Additionally, as of version `2.1.0`, NTARH is fully backwards compatible with
+Next.js going _allll_ the way back to `next@9.0.0` [when API routes were first
+introduced][33]!
 
 If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
-`next`][28]), you might need to install `next-server` manually:
+`next`][34]), you might need to install `next-server` manually:
 
 ```shell
 npm install --save-dev next-server
@@ -677,14 +796,14 @@ npm install --save-dev next-server
 
 Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
 _and its peer dependencies_ manually. This is because [`npm@<7` does not install
-peer dependencies by default][29].
+peer dependencies by default][35].
 
 ```shell
 npm install --save-dev next@latest react
 ```
 
 > If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][30]!
+> dependencies (like `react`) that your specific Next.js version requires][36]!
 
 ### Inspiration
 
@@ -873,40 +992,46 @@ specification. Contributions of any kind welcome!
   https://github.com/xunnamius/next-test-api-route-handler/compare
 [x-repo-sponsor]: https://github.com/sponsors/Xunnamius
 [x-repo-support]: /.github/SUPPORT.md
-[1]: https://nextjs.org/docs/api-routes/introduction
-[2]: https://nextjs.org/docs/basic-features/typescript#api-routes
-[3]:
+[1]: https://nextjs.org/docs/app/api-reference/functions/next-request
+[2]: https://nextjs.org/docs/app/api-reference/functions/next-response
+[3]: https://nextjs.org/docs/app/building-your-application/routing
+[4]: https://nextjs.org/docs/api-routes/introduction
+[5]: https://nextjs.org/docs/basic-features/typescript#api-routes
+[6]:
   https://github.com/Xunnamius/next-test-api-route-handler/actions/workflows/is-next-compat.yml
-[4]: https://github.com/vercel/next.js/releases
-[5]: #legacy-runtime-support
-[6]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
-[7]:
+[7]: https://github.com/vercel/next.js/releases
+[8]: #legacy-runtime-support
+[9]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
+[10]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues/303#issuecomment-903344572
-[8]: #testing-nextjss-official-apollo-example--pagesapigraphql
-[9]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
-[10]: https://nodejs.org/api/http.html#http_class_http_serverresponse
-[11]: https://en.wikipedia.org/wiki/Query_string
-[12]:
-  https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
-[13]: https://nodejs.org/dist/latest-v18.x/docs/api/globals.html#fetch
-[14]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#resource
-[15]:
+[11]: #testing-nextjss-official-apollo-example--pagesapigraphql
+[12]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
+[13]: https://nodejs.org/api/http.html#http_class_http_serverresponse
+[14]: https://en.wikipedia.org/wiki/Query_string
+[15]: #guarding-against-false-negatives
+[16]: https://nodejs.org/dist/latest-v18.x/docs/api/globals.html#fetch
+[17]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#resource
+[18]:
   https://github.com/mswjs/msw/blob/a037e3a3f4f4d4cc712d2b3867b3410e4bcfaad6/src/core/bypass.ts#L33C29-L33C44
-[16]:
+[19]:
   https://nextjs.org/docs/api-routes/response-helpers#redirects-to-a-specified-path-or-url
-[17]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
-[18]: https://www.npmjs.com/package/cookie
-[19]: ./test/unit-index.test.ts
-[20]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-[21]: https://github.com/vercel/next.js
-[22]: ./apollo_test_raw
-[23]: https://www.npmjs.com/package/jest
-[24]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
-[25]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[26]: test/unit-index.test.ts
-[27]: https://nextjs.org/blog/next-9
-[28]: https://github.com/vercel/next.js/pull/8613
-[29]:
+[20]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+[21]: https://www.npmjs.com/package/cookie
+[22]: ./test/unit-index.test.ts
+[23]: https://nextjs.org/docs/app
+[24]: https://nextjs.org/docs/pages
+[25]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[26]: https://github.com/vercel/next.js
+[27]: ./apollo_test_raw
+[28]: https://www.npmjs.com/package/jest
+[29]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[30]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
+[31]: test/unit-index.test.ts
+[32]:
+  https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
+[33]: https://nextjs.org/blog/next-9
+[34]: https://github.com/vercel/next.js/pull/8613
+[35]:
   https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
-[30]:
+[36]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
