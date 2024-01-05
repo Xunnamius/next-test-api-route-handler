@@ -71,9 +71,9 @@ src="https://xunn.at/ntarh-compat" /></a> ✨
   - [`appHandler`](#apphandler)
   - [`pagesHandler`](#pageshandler)
   - [`test`](#test)
-- [Real-World Examples](#real-world-examples)
-  - [Using the App API](#using-the-app-api)
-  - [Using the Pages API](#using-the-pages-api)
+- [Examples](#examples)
+  - [Using the App Router](#using-the-app-router)
+  - [Using the Pages Router](#using-the-pages-router)
 - [Appendix](#appendix)
   - [Guarding against False Negatives](#guarding-against-false-negatives)
   - [Limitations with App Router Emulation](#limitations-with-app-router-emulation)
@@ -390,13 +390,14 @@ it('handles multiple set-cookie headers', async () => {
 });
 ```
 
-## Real-World Examples
+## Examples
 
-What follows are several examples that demonstrate NTARH's core features.
+What follows are several examples that demonstrate using NTARH with the [App
+Router][23] and the [Pages Router][24].
 
-### Using the App API
+### Using the App Router
 
-These examples use Next.js's [App Router][23] API.
+These examples use Next.js's [App Router][25] API.
 
 #### Testing Next.js's Official Apollo Example @ `app/graphql`
 
@@ -410,9 +411,9 @@ These examples use Next.js's [App Router][23] API.
 
 <!-- TODO -->
 
-### Using the Pages API
+### Using the Pages Router
 
-These examples use Next.js's [Pages Router][24] API.
+These examples use Next.js's [Pages Router][26] API.
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
@@ -420,7 +421,7 @@ You can easily run this example yourself by copying and pasting the following
 commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][25]. Requires `curl`, `node`, and `git`.
+> [WSL][27]. Requires `curl`, `node`, and `git`.
 
 ```bash
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
@@ -437,13 +438,13 @@ curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-ap
 npx jest
 ```
 
-The above script will clone [the Next.js repository][26], install NTARH and
-configure dependencies, download [the following script][27], and run it with
-[jest][28].
+The above script will clone [the Next.js repository][28], install NTARH and
+configure dependencies, download [the following script][29], and run it with
+[jest][30].
 
-> **Note that passing the [route configuration object][29] (imported below as
+> **Note that passing the [route configuration object][31] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
-> [crucial][30] when testing Apollo endpoints!**
+> [crucial][32] when testing Apollo endpoints!**
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
@@ -503,7 +504,7 @@ Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
 10th, where status code `HTTP 555` is returned instead.
 
-How might we [test][28] that this endpoint responds with `HTTP 555` once for
+How might we [test][30] that this endpoint responds with `HTTP 555` once for
 every nine `HTTP 200` responses?
 
 ```typescript
@@ -583,7 +584,7 @@ Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
 query.
 
-How might we [test][28] that this endpoint returns flights in our database as
+How might we [test][30] that this endpoint returns flights in our database as
 expected?
 
 ```typescript
@@ -698,7 +699,7 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
-Check out [the tests][31] for more examples.
+Check out [the tests][33] for more examples.
 
 ## Appendix
 
@@ -711,7 +712,7 @@ function are kicked up to Next.js to handle. This means **`testApiHandler` will
 NOT reject or throw if an unhandled error occurs in `pagesHandler`/`appHandler`,
 which includes failing Jest `expect()` assertions.** Instead, the response
 returned by `fetch()` in your `test` function will have a `HTTP 500` status
-[thanks to how Next.js deals with unhandled errors in production][32]. Prior to
+[thanks to how Next.js deals with unhandled errors in production][34]. Prior to
 `2.3.0`, NTARH's behavior on unhandled errors and elsewhere was inconsistent.
 Version `3.0.0` further improves error handling, ensuring no errors slip by
 uncaught.
@@ -785,10 +786,10 @@ Router Next.js APIs.
 
 Additionally, as of version `2.1.0`, NTARH is fully backwards compatible with
 Next.js going _allll_ the way back to `next@9.0.0` [when API routes were first
-introduced][33]!
+introduced][35]!
 
 If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
-`next`][34]), you might need to install `next-server` manually:
+`next`][36]), you might need to install `next-server` manually:
 
 ```shell
 npm install --save-dev next-server
@@ -796,14 +797,14 @@ npm install --save-dev next-server
 
 Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
 _and its peer dependencies_ manually. This is because [`npm@<7` does not install
-peer dependencies by default][35].
+peer dependencies by default][37].
 
 ```shell
 npm install --save-dev next@latest react
 ```
 
 > If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][36]!
+> dependencies (like `react`) that your specific Next.js version requires][38]!
 
 ### Inspiration
 
@@ -1018,20 +1019,22 @@ specification. Contributions of any kind welcome!
 [20]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
 [21]: https://www.npmjs.com/package/cookie
 [22]: ./test/unit-index.test.ts
-[23]: https://nextjs.org/docs/app
-[24]: https://nextjs.org/docs/pages
-[25]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-[26]: https://github.com/vercel/next.js
-[27]: ./apollo_test_raw
-[28]: https://www.npmjs.com/package/jest
-[29]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
-[30]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[31]: test/unit-index.test.ts
-[32]:
+[23]: #using-the-app-router
+[24]: #using-the-pages-router
+[25]: https://nextjs.org/docs/app
+[26]: https://nextjs.org/docs/pages
+[27]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[28]: https://github.com/vercel/next.js
+[29]: ./apollo_test_raw
+[30]: https://www.npmjs.com/package/jest
+[31]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[32]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
+[33]: test/unit-index.test.ts
+[34]:
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
-[33]: https://nextjs.org/blog/next-9
-[34]: https://github.com/vercel/next.js/pull/8613
-[35]:
+[35]: https://nextjs.org/blog/next-9
+[36]: https://github.com/vercel/next.js/pull/8613
+[37]:
   https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
-[36]:
+[38]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
