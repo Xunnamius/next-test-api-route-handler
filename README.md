@@ -268,7 +268,7 @@ await testApiHandler({
 });
 ```
 
-See also the section on [guarding against false negatives][16].
+See also: [`rejectOnHandlerError`][16].
 
 ### `pagesHandler`
 
@@ -286,7 +286,7 @@ await testApiHandler({
 });
 ```
 
-See also the section on [guarding against false negatives][16].
+See also: [`rejectOnHandlerError`][16].
 
 ### `test`
 
@@ -1038,7 +1038,7 @@ specification. Contributions of any kind welcome!
 [13]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
 [14]: https://nodejs.org/api/http.html#http_class_http_serverresponse
 [15]: https://en.wikipedia.org/wiki/Query_string
-[16]: #guarding-against-false-negatives
+[16]: #rejectonhandlererror
 [17]: https://nodejs.org/dist/latest-v18.x/docs/api/globals.html#fetch
 [18]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#resource
 [19]:
