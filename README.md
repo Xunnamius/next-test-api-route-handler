@@ -462,7 +462,8 @@ await testApiHandler({
   rejectOnHandlerError: true, // <==
   pagesHandler: async (req, res) => {
     // Suppose this expectation fails
-    await expect(backend.getSomeStuff()).resolves.toStrictEqual(someStuff);
+    await expect(backend.getSomeStuff(req)).resolves.toStrictEqual(someStuff);
+    res.status(200).send();
   },
   test: async ({ fetch }) => {
     await fetch();
