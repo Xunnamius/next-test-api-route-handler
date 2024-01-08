@@ -35,8 +35,6 @@
     "./package": "./package.json",
     "./package.json": "./package.json"
   },
-  "main": "./dist/src/index.js",
-  "module": "./dist/src/index.js",
   "types": "./dist/types/src/index.d.ts",
   "typesVersions": {
     "*": {
