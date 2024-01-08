@@ -33,21 +33,21 @@ Confidently test your Next.js API routes in an isolated Next-like environment
 > This documentation is for version 4 of NTARH. See [here][1] for version 3's documentation.
 
 > \[!NOTE]\
-> App Router support is still experimental and, with the next major release of Next.js
-> approaching, for the moment precarious. If you're having issues, consider adding
-> your feedback to [this discussion][2].
+> NTARH's App Router support is for the moment experimental. If you're having issues
+> with App Router emulation specifically, consider adding your feedback to [this
+> discussion][2].
 
 Trying to unit test your Next.js API routes? Tired of hacking something together
 with express/node-mocks-http and writing a bunch of boring test infra just to
-get some passing unit tests? Want your [App Router][3] handlers to receive an
+get some passing tests? Want your [App Router][3] handlers to receive an
 _actual_ [`NextRequest`][4] object? Want your [Pages Router][5] handlers to
 receive _actual_ [`NextApiRequest`][6] and [`NextApiResponse`][6] objects? Then
 look no further! 🤩
 
 [`next-test-api-route-handler`][x-badge-repo-link] (NTARH) uses Next.js's
-internal API resolver to precisely emulate API route handling. To guarantee
-stability, this package is [automatically tested][7] against [each release of
-Next.js][8] and Node.js. Go forth and test confidently!
+internal resolvers to precisely emulate route handling. To guarantee stability,
+this package is [automatically tested][7] against [each release of Next.js][8]
+and Node.js. Go forth and test confidently!
 
 <br />
 
@@ -807,8 +807,8 @@ Further documentation can be found under [`docs/`][x-repo-docs].
 
 ### Legacy Runtime Support
 
-As of version `4.0.0`, NTARH supports both the App Router and the "legacy" Pages
-Router Next.js APIs.
+As of version `4.0.0`, NTARH supports both the App Router (for `next@>=14.0.4`)
+and the "legacy" Pages Router Next.js APIs.
 
 Additionally, as of version `2.1.0`, NTARH is fully backwards compatible with
 Next.js going _allll_ the way back to `next@9.0.0` [when API routes were first
