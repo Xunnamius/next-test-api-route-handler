@@ -44,7 +44,7 @@ for details.
 
 #### Defined in
 
-[index.ts:127](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L127)
+[index.ts:127](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L127)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[index.ts:128](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L128)
+[index.ts:128](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L128)
 
 ___
 
@@ -66,13 +66,13 @@ ___
 routes. This should not be confused with query string parsing, which is
 handled by `Request` automatically.
 
-`params: { id: 'some-id' }` is shorthand for `paramsPatcher: (params) =>
-(params.id = 'some-id')`. This is useful for quickly setting many params at
+`params: { id: 'some-id' }` is shorthand for `paramsPatcher: (params) => {
+params.id = 'some-id' }`. This is useful for quickly setting many params at
 once.
 
 #### Defined in
 
-[index.ts:138](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L138)
+[index.ts:138](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L138)
 
 ___
 
@@ -80,10 +80,10 @@ ___
 
 • `Optional` **paramsPatcher**: (`params`: `Record`\<`string`, `string` \| `string`[]\>) => [`Promisable`](../README.md#promisable)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
 
-Receives `params`, an object representing "processed" dynamic route
-parameters. Modifications to `params` are passed directly to the handler.
-You can also return a custom object from this function which will replace
-`params` entirely.
+A function that receives `params`, an object representing "processed"
+dynamic route parameters. Modifications to `params` are passed directly to
+the handler. You can also return a custom object from this function which
+will replace `params` entirely.
 
 Parameter patching should not be confused with query string parsing, which
 is handled by `Request` automatically.
@@ -92,10 +92,10 @@ is handled by `Request` automatically.
 
 ▸ (`params`): [`Promisable`](../README.md#promisable)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
 
-Receives `params`, an object representing "processed" dynamic route
-parameters. Modifications to `params` are passed directly to the handler.
-You can also return a custom object from this function which will replace
-`params` entirely.
+A function that receives `params`, an object representing "processed"
+dynamic route parameters. Modifications to `params` are passed directly to
+the handler. You can also return a custom object from this function which
+will replace `params` entirely.
 
 Parameter patching should not be confused with query string parsing, which
 is handled by `Request` automatically.
@@ -112,7 +112,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:148](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L148)
+[index.ts:148](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L148)
 
 ___
 
@@ -136,7 +136,7 @@ false
 
 #### Defined in
 
-[index.ts:104](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L104)
+[index.ts:104](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L104)
 
 ___
 
@@ -176,7 +176,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Defined in
 
-[index.ts:161](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L161)
+[index.ts:161](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L161)
 
 ___
 
@@ -186,7 +186,7 @@ ___
 
 A function that receives the `Response` object returned from
 `appHandler` and returns a `Response` instance. Use this function to
-edit the response _after_ the handler runs but _before_ it's returned
+edit the response _after_ your handler runs but _before_ it's processed
 by the server.
 
 #### Type declaration
@@ -195,7 +195,7 @@ by the server.
 
 A function that receives the `Response` object returned from
 `appHandler` and returns a `Response` instance. Use this function to
-edit the response _after_ the handler runs but _before_ it's returned
+edit the response _after_ your handler runs but _before_ it's processed
 by the server.
 
 ##### Parameters
@@ -210,7 +210,7 @@ by the server.
 
 #### Defined in
 
-[index.ts:168](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L168)
+[index.ts:168](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L168)
 
 ___
 
@@ -247,7 +247,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:110](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L110)
+[index.ts:110](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L110)
 
 ___
 
@@ -260,4 +260,4 @@ NextRequest('your-url', req)`
 
 #### Defined in
 
-[index.ts:173](https://github.com/Xunnamius/next-test-api-route-handler/blob/43680d9/src/index.ts#L173)
+[index.ts:173](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L173)
