@@ -153,6 +153,10 @@ export async function testApiHandler<NextResponseJsonType = any>({
   let deferredReject: ((error?: unknown) => void) | null = null;
 
   try {
+    if (!globalThis.AsyncLocalStorage) {
+      globalThis.AsyncLocalStorage = (await import('node:async_hooks')).AsyncLocalStorage;
+    }
+
     if (!apiResolver) {
       ({ apiResolver } = await Promise.reject()
         // ? The following is for next@>=13.5.4:
