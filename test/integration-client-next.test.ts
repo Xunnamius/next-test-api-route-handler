@@ -45,7 +45,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
 });
 
 beforeAll(async () => {
-  if ((await run('test', ['-e', pkgMainPath])).code != 0) {
+  if ((await run('test', ['-e', pkgMainPath])).code !== 0) {
     debug(`unable to find main distributable: ${pkgMainPath}`);
     throw new Error('must build distributables first (try `npm run build:dist`)');
   }
@@ -103,7 +103,7 @@ ${commonSrc}
   await testApiHandler({
     handler: getHandler(),
     test: async ({ fetch }) => {
-      if((await (await fetch()).json()).works != 'working') {
+      if((await (await fetch()).json()).works!=='working') {
         throw new Error('initial promise assertion failed');
       }
     }

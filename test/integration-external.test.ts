@@ -35,7 +35,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
 });
 
 beforeAll(async () => {
-  if ((await run('test', ['-e', EXTERNAL_BIN_PATH])).code != 0) {
+  if ((await run('test', ['-e', EXTERNAL_BIN_PATH])).code !== 0) {
     debug(`unable to find external executable: ${EXTERNAL_BIN_PATH}`);
     throw new Error('must build externals first (try `npm run build:externals`)');
   }

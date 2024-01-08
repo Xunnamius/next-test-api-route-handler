@@ -846,7 +846,7 @@ export function webpackTestFixture(): MockFixture {
     name: 'webpack-test',
     description: 'setting up webpack integration test',
     setup: async (context) => {
-      if (typeof context.options.webpackVersion != 'string') {
+      if (typeof context.options.webpackVersion !== 'string') {
         throw new TypeError('invalid or missing options.webpackVersion, expected string');
       }
 
@@ -999,7 +999,7 @@ export function nodeRunTestFixture(): MockFixture {
     name: 'git-repository',
     description: 'configuring fixture root to be a git repository',
     setup: async (context) => {
-      if (context.options.setupGit && typeof context.options.setupGit != 'function') {
+      if (context.options.setupGit && typeof context.options.setupGit!=='function') {
         throw new Error('invalid or missing options.setupGit, expected function');
       }
 
@@ -1122,7 +1122,7 @@ export async function withMockedFixture<
   } as CustomizedFixtureContext & { using: CustomizedMockFixture[] };
 
   if (finalOptions.use) {
-    if (finalOptions.use?.[0]?.name != 'root') context.using.push(rootFixture());
+    if (finalOptions.use?.[0]?.name !== 'root') context.using.push(rootFixture());
     context.using = [...context.using, ...finalOptions.use];
     // ? `describe-root` fixture doesn't have to be the last one, but a fixture
     // ? with that name must be included at least once
