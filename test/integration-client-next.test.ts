@@ -3,7 +3,7 @@
 // * These tests ensure NTARH and Next.js integrate as expected
 
 import debugFactory from 'debug';
-import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package';
+import { exports as pkgExports, name as pkgName, version as pkgVersion } from 'package';
 import stripAnsi from 'strip-ansi';
 
 import {
@@ -30,7 +30,12 @@ const NEXT_VERSIONS_UNDER_TEST = [
   ['next@latest']   // ? Latest release
 ];
 
-const pkgMainPath = `${__dirname}/../${pkgMain}`;
+const pkgMainPaths = Object.values(pkgExports)
+  .map((xport) =>
+    typeof xport === 'string' ? null : `${__dirname}/../${xport.node ?? xport.default}`
+  )
+  .filter(Boolean) as string[];
+
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 
 // eslint-disable-next-line jest/require-hook
@@ -45,10 +50,16 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
 });
 
 beforeAll(async () => {
-  if ((await run('test', ['-e', pkgMainPath])).code !== 0) {
-    debug(`unable to find main distributable: ${pkgMainPath}`);
-    throw new Error('must build distributables first (try `npm run build:dist`)');
-  }
+  debug('pkgMainPaths: %O', pkgMainPaths);
+
+  await Promise.all(
+    pkgMainPaths.map(async (pkgMainPath) => {
+      if ((await run('test', ['-e', pkgMainPath])).code != 0) {
+        debug(`unable to find main distributable: ${pkgMainPath}`);
+        throw new Error('must build distributables first (try `npm run build:dist`)');
+      }
+    })
+  );
 });
 
 for (const [nextVersion, ...otherPkgVersions] of NEXT_VERSIONS_UNDER_TEST) {

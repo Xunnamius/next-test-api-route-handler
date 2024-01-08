@@ -3,7 +3,7 @@
 // * These tests ensure NTARH is importable and functions in both ESM and CJS
 
 import debugFactory from 'debug';
-import { main as pkgMain, name as pkgName, version as pkgVersion } from 'package';
+import { exports as pkgExports, name as pkgName, version as pkgVersion } from 'package';
 
 import {
   dummyNpmPackageFixture,
@@ -15,7 +15,12 @@ import {
 
 const TEST_IDENTIFIER = 'integration-node';
 
-const pkgMainPath = `${__dirname}/../${pkgMain}`;
+const pkgMainPaths = Object.values(pkgExports)
+  .map((xport) =>
+    typeof xport === 'string' ? null : `${__dirname}/../${xport.node ?? xport.default}`
+  )
+  .filter(Boolean) as string[];
+
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 
@@ -65,10 +70,16 @@ const getHandler = (status) => async (_, res) => {
 };
 
 beforeAll(async () => {
-  if ((await run('test', ['-e', pkgMainPath])).code !== 0) {
-    debug(`unable to find main distributable: ${pkgMainPath}`);
-    throw new Error('must build distributables first (try `npm run build:dist`)');
-  }
+  debug('pkgMainPaths: %O', pkgMainPaths);
+
+  await Promise.all(
+    pkgMainPaths.map(async (pkgMainPath) => {
+      if ((await run('test', ['-e', pkgMainPath])).code != 0) {
+        debug(`unable to find main distributable: ${pkgMainPath}`);
+        throw new Error('must build distributables first (try `npm run build:dist`)');
+      }
+    })
+  );
 });
 
 it('works as an ESM import', async () => {
