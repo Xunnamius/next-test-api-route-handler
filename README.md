@@ -34,8 +34,8 @@ Confidently test your Next.js API routes in an isolated Next-like environment
 
 > \[!NOTE]\
 > App Router support is still experimental and, with the next major release of Next.js
-> approaching, precarious. If you're having issues, consider adding your feedback
-> to [this discussion][2].
+> approaching, for the moment precarious. If you're having issues, consider adding
+> your feedback to [this discussion][2].
 
 Trying to unit test your Next.js API routes? Tired of hacking something together
 with express/node-mocks-http and writing a bunch of boring test infra just to
