@@ -38,7 +38,7 @@ The parameters expected by `testApiHandler` when using `pagesHandler`.
 
 #### Defined in
 
-[index.ts:192](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L192)
+[index.ts:186](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L186)
 
 ___
 
@@ -52,7 +52,7 @@ that order) as its two parameters.
 
 #### Defined in
 
-[index.ts:191](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L191)
+[index.ts:185](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L185)
 
 ___
 
@@ -70,7 +70,7 @@ once.
 
 #### Defined in
 
-[index.ts:202](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L202)
+[index.ts:196](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L196)
 
 ___
 
@@ -110,7 +110,7 @@ is handled automatically.
 
 #### Defined in
 
-[index.ts:212](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L212)
+[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L206)
 
 ___
 
@@ -139,7 +139,7 @@ false
 
 #### Defined in
 
-[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L109)
+[index.ts:103](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L103)
 
 ___
 
@@ -175,7 +175,7 @@ lowercase.**
 
 #### Defined in
 
-[index.ts:223](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L223)
+[index.ts:217](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L217)
 
 ___
 
@@ -205,7 +205,7 @@ to edit the response _before_ it's injected into the handler.
 
 #### Defined in
 
-[index.ts:228](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L228)
+[index.ts:222](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L222)
 
 ___
 
@@ -242,7 +242,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L115)
+[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L109)
 
 ___
 
@@ -255,4 +255,4 @@ ___
 
 #### Defined in
 
-[index.ts:233](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L233)
+[index.ts:227](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L227)

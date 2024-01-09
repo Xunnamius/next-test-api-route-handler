@@ -23,7 +23,7 @@ next-test-api-route-handler
 
 ### FetchReturnType
 
-Ƭ **FetchReturnType**\<`NextResponseJsonType`\>: `Promise`\<`Omit`\<`Response`, ``"json"``\> & \{ `cookies`: `ReturnType`\<typeof `parseCookieHeader`\>[] ; `json`: (...`args`: `Parameters`\<`Response`[``"json"``]\>) => `Promise`\<`NextResponseJsonType`\>  }\>
+Ƭ **FetchReturnType**\<`NextResponseJsonType`\>: `Promise`\<`Omit`\<`Response`, ``"json"``\> & \{ `cookies`: `ReturnType`\<`parse`\>[] ; `json`: (...`args`: `Parameters`\<`Response`[``"json"``]\>) => `Promise`\<`NextResponseJsonType`\>  }\>
 
 #### Type parameters
 
@@ -33,7 +33,7 @@ next-test-api-route-handler
 
 #### Defined in
 
-[index.ts:53](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L53)
+[index.ts:47](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L47)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 #### Defined in
 
-[index.ts:48](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L48)
+[index.ts:42](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L42)
 
 ## Functions
 
@@ -79,4 +79,4 @@ in a Next-like testing environment.
 
 #### Defined in
 
-[index.ts:241](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L241)
+[index.ts:235](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L235)

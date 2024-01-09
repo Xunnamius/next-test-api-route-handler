@@ -44,7 +44,7 @@ for details.
 
 #### Defined in
 
-[index.ts:132](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L132)
+[index.ts:126](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L126)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[index.ts:133](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L133)
+[index.ts:127](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L127)
 
 ___
 
@@ -72,7 +72,7 @@ once.
 
 #### Defined in
 
-[index.ts:143](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L143)
+[index.ts:137](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L137)
 
 ___
 
@@ -112,7 +112,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:153](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L153)
+[index.ts:147](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L147)
 
 ___
 
@@ -141,7 +141,7 @@ false
 
 #### Defined in
 
-[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L109)
+[index.ts:103](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L103)
 
 ___
 
@@ -181,7 +181,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Defined in
 
-[index.ts:166](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L166)
+[index.ts:160](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L160)
 
 ___
 
@@ -215,7 +215,7 @@ by the server.
 
 #### Defined in
 
-[index.ts:173](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L173)
+[index.ts:167](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L167)
 
 ___
 
@@ -252,7 +252,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L115)
+[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L109)
 
 ___
 
@@ -265,4 +265,4 @@ NextRequest('your-url', req)`
 
 #### Defined in
 
-[index.ts:178](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L178)
+[index.ts:172](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L172)
