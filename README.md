@@ -31,11 +31,11 @@ Confidently test your Next.js API routes in an isolated Next-like environment
 
 > \[!NOTE]\
 > This documentation is for version 4 of NTARH. See [here][1] for version 3's documentation.
+> See [here][2] for a simple migration guide.
 
 > \[!NOTE]\
 > NTARH's App Router support is for the moment experimental. If you're having issues
-> with App Router emulation specifically, consider adding your feedback to [this
-> discussion][2].
+> with App Router emulation specifically, consider adding your feedback [here][2].
 
 Trying to unit test your Next.js API routes? Tired of hacking something together
 with express/node-mocks-http and writing a bunch of boring test infra just to
