@@ -157,14 +157,16 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    * `NextRequest`, it will be wrapped with `NextRequest`, e.g. `new
    * NextRequest(returnedRequest, { ... })`.
    */
-  requestPatcher?: (request: import('next/server').NextRequest) => Promisable<Request>;
+  requestPatcher?: (
+    request: import('next/server').NextRequest
+  ) => Promisable<void | Request>;
   /**
    * A function that receives the `Response` object returned from
    * `appHandler` and returns a `Response` instance. Use this function to
    * edit the response _after_ your handler runs but _before_ it's processed
    * by the server.
    */
-  responsePatcher?: (res: Response) => Promisable<Response>;
+  responsePatcher?: (res: Response) => Promisable<void | Response>;
   /**
    * `url: 'your-url'` is shorthand for `requestPatcher: (req) => new
    * NextRequest('your-url', req)`
