@@ -481,6 +481,16 @@ export async function testApiHandler<NextResponseJsonType = any>({
             renderOpts: { experimental: {} } as any
           });
 
+          const response = await (rejectOnHandlerError
+            ? response_
+            : response_.catch((error: unknown) => {
+                // * We essentially copy what the Pages Router apiResolver does,
+                // * which is also what the App Router does too but elsewhere.
+                // eslint-disable-next-line no-console
+                console.error(error);
+                return new Response('Internal Server Error', { status: 500 });
+              }));
+
           return (await responsePatcher?.(response)) || response;
         } catch (error) {
           handleError(undefined, error, deferredReject);
