@@ -549,10 +549,9 @@ If you're only setting the request url, use the `url` shorthand instead:
 > ⪢ API reference: [`responsePatcher`][37]
 
 `responsePatcher` is a function that receives the [`Response`][38] object
-returned from `appHandler` and returns a [`Response`][38] instance.
-
-Use this function to edit the response _after_ your handler runs but _before_
-it's processed by the server.
+returned from `appHandler` and returns a [`Response`][38] instance. Use this
+function to edit the response _after_ your handler runs but _before_ it's
+processed by the server.
 
 #### 🔷 Using `pagesHandler`
 
