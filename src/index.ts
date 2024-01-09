@@ -418,6 +418,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   function createAppRouterServer() {
     const { createServerAdapter } = require('@whatwg-node/server');
     const { NextRequest } = require('next/server');
+    type NextRequest_ = import('next/server').NextRequest;
 
     return createServer(
       createServerAdapter(async (request: Request) => {
@@ -430,14 +431,17 @@ export async function testApiHandler<NextResponseJsonType = any>({
             );
           }
 
-          const nextRequest = await (async (req) => {
-            const patchedRequest = (await requestPatcher?.(req)) || req;
-            return patchedRequest instanceof NextRequest
-              ? patchedRequest
-              : new NextRequest(patchedRequest, {
-                  // https://github.com/nodejs/node/issues/46221
-                  duplex: 'half'
-                });
+          const nextRequest = await (async (request_) => {
+            const patchedRequest = (await requestPatcher?.(request_)) || request_;
+            const nextRequest_: NextRequest_ =
+              patchedRequest instanceof NextRequest
+                ? patchedRequest
+                : new NextRequest(patchedRequest, {
+                    // https://github.com/nodejs/node/issues/46221
+                    duplex: 'half'
+                  });
+
+            return nextRequest_;
           })(
             new NextRequest(
               url || request.url,
@@ -450,7 +454,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 // https://github.com/nodejs/node/issues/46221
                 duplex: 'half'
               }
-            )
+            ) as NextRequest_
           );
 
           const rawParameters = { ...params };
