@@ -168,8 +168,8 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    */
   responsePatcher?: (res: Response) => Promisable<void | Response>;
   /**
-   * `url: 'your-url'` is shorthand for `requestPatcher: (req) => new
-   * NextRequest('your-url', req)`
+   * `url: 'your-url'` is shorthand for `requestPatcher: (request) => new
+   * NextRequest('your-url', request)`
    */
   url?: string;
 }
