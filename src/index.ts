@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/prefer-ts-expect-error */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import assert from 'node:assert';
-import { parse as parseUrl } from 'node:url';
 
 import {
   createServer,
@@ -11,11 +9,7 @@ import {
   type ServerResponse
 } from 'node:http';
 
-import { createServerAdapter } from '@whatwg-node/server';
-import { parse as parseCookieHeader } from 'cookie';
-import { type NextApiHandler } from 'next';
-import { NextRequest } from 'next/server';
-
+import type { NextApiHandler } from 'next';
 import type { apiResolver as NextPagesResolver } from 'next/dist/server/api-utils/node/api-resolver';
 
 import type {
@@ -53,7 +47,7 @@ export type Promisable<Promised> = Promised | Promise<Promised>;
 export type FetchReturnType<NextResponseJsonType> = Promise<
   Omit<Response, 'json'> & {
     json: (...args: Parameters<Response['json']>) => Promise<NextResponseJsonType>;
-    cookies: ReturnType<typeof parseCookieHeader>[];
+    cookies: ReturnType<typeof import('cookie').parse>[];
   }
 >;
 
@@ -163,7 +157,7 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    * `NextRequest`, it will be wrapped with `NextRequest`, e.g. `new
    * NextRequest(returnedRequest, { ... })`.
    */
-  requestPatcher?: (request: NextRequest) => Promisable<Request>;
+  requestPatcher?: (request: import('next/server').NextRequest) => Promisable<Request>;
   /**
    * A function that receives the `Response` object returned from
    * `appHandler` and returns a `Response` instance. Use this function to
@@ -265,7 +259,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
     }
 
-    if (!apiResolver) {
+    if (pagesHandler && !apiResolver) {
       tryImport.importErrors = [];
 
       ({ apiResolver } = await Promise.reject()
@@ -304,7 +298,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       }
     }
 
-    if (!AppRouteRouteModule) {
+    if (appHandler && !AppRouteRouteModule) {
       tryImport.importErrors = [];
 
       ({ AppRouteRouteModule } = await Promise.reject()
@@ -373,6 +367,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
                   configurable: true,
                   enumerable: true,
                   get: () => {
+                    const { parse: parseCookieHeader } = require('cookie');
                     // @ts-expect-error: lazy getter guarantees this will be set
                     delete res.cookies;
                     res.cookies = [res.headers.getSetCookie() || []]
@@ -381,8 +376,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
                         Object.fromEntries(
                           Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
                             return [
-                              [String(k), v],
-                              [String(k).toLowerCase(), v]
+                              [String(k), String(v)],
+                              [String(k).toLowerCase(), String(v)]
                             ];
                           })
                         )
@@ -415,6 +410,9 @@ export async function testApiHandler<NextResponseJsonType = any>({
   }
 
   function createAppRouterServer() {
+    const { createServerAdapter } = require('@whatwg-node/server');
+    const { NextRequest } = require('next/server');
+
     return createServer(
       createServerAdapter(async (request: Request) => {
         try {
@@ -431,7 +429,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
             return patchedRequest instanceof NextRequest
               ? patchedRequest
               : new NextRequest(patchedRequest, {
-                  // @ts-ignore-next: https://github.com/nodejs/node/issues/46221
+                  // https://github.com/nodejs/node/issues/46221
                   duplex: 'half'
                 });
           })(
@@ -443,7 +441,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
                */
               {
                 ...request,
-                // @ts-ignore-next: https://github.com/nodejs/node/issues/46221
+                // https://github.com/nodejs/node/issues/46221
                 duplex: 'half'
               }
             )
@@ -475,7 +473,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           // @ts-expect-error: we do what we want
           process.env.NODE_ENV = oldNodeEnv;
 
-          const response = await appRouteRouteModule.handle(nextRequest, {
+          const response_ = appRouteRouteModule.handle(nextRequest, {
             params: finalParameters,
             prerenderManifest: {} as any,
             renderOpts: { experimental: {} } as any
@@ -494,7 +492,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
           return (await responsePatcher?.(response)) || response;
         } catch (error) {
           handleError(undefined, error, deferredReject);
-          return new Response('Internal Server Error', { status: 500 });
         }
       })
     );
@@ -512,6 +509,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
         Promise.resolve(requestPatcher?.(req))
           .then(() => responsePatcher?.(res))
           .then(async () => {
+            const { parse: parseUrl } = require('node:url');
             const rawParameters = { ...parseUrl(req.url || '', true).query, ...params };
             return (await paramsPatcher?.(rawParameters)) || rawParameters;
           })
