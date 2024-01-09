@@ -38,7 +38,7 @@ The parameters expected by `testApiHandler` when using `pagesHandler`.
 
 #### Defined in
 
-[index.ts:187](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L187)
+[index.ts:192](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L192)
 
 ___
 
@@ -52,7 +52,7 @@ that order) as its two parameters.
 
 #### Defined in
 
-[index.ts:186](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L186)
+[index.ts:191](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L191)
 
 ___
 
@@ -70,7 +70,7 @@ once.
 
 #### Defined in
 
-[index.ts:197](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L197)
+[index.ts:202](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L202)
 
 ___
 
@@ -110,7 +110,7 @@ is handled automatically.
 
 #### Defined in
 
-[index.ts:207](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L207)
+[index.ts:212](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L212)
 
 ___
 
@@ -121,6 +121,11 @@ ___
 If `false`, errors thrown from within a handler are kicked up to Next.js's
 resolver to deal with, which is what would happen in production. If `true`,
 the [testApiHandler](../README.md#testapihandler) function will reject immediately instead.
+
+You should use `rejectOnHandlerError` whenever you want to manually handle
+an error that bubbles up from your handler (which is especially true if
+you're using `expect` _within_ your handler) or when you notice a false
+negative despite exceptions being thrown.
 
 **`Default`**
 
@@ -134,7 +139,7 @@ false
 
 #### Defined in
 
-[index.ts:104](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L104)
+[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L109)
 
 ___
 
@@ -170,7 +175,7 @@ lowercase.**
 
 #### Defined in
 
-[index.ts:218](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L218)
+[index.ts:223](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L223)
 
 ___
 
@@ -200,7 +205,7 @@ to edit the response _before_ it's injected into the handler.
 
 #### Defined in
 
-[index.ts:223](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L223)
+[index.ts:228](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L228)
 
 ___
 
@@ -237,7 +242,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:110](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L110)
+[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L115)
 
 ___
 
@@ -250,4 +255,4 @@ ___
 
 #### Defined in
 
-[index.ts:228](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L228)
+[index.ts:233](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L233)

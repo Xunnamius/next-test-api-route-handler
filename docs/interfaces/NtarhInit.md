@@ -33,6 +33,11 @@ If `false`, errors thrown from within a handler are kicked up to Next.js's
 resolver to deal with, which is what would happen in production. If `true`,
 the [testApiHandler](../README.md#testapihandler) function will reject immediately instead.
 
+You should use `rejectOnHandlerError` whenever you want to manually handle
+an error that bubbles up from your handler (which is especially true if
+you're using `expect` _within_ your handler) or when you notice a false
+negative despite exceptions being thrown.
+
 **`Default`**
 
 ```ts
@@ -41,7 +46,7 @@ false
 
 #### Defined in
 
-[index.ts:104](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L104)
+[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L109)
 
 ___
 
@@ -74,4 +79,4 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:110](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L110)
+[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L115)

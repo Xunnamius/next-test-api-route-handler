@@ -44,7 +44,7 @@ for details.
 
 #### Defined in
 
-[index.ts:127](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L127)
+[index.ts:132](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L132)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[index.ts:128](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L128)
+[index.ts:133](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L133)
 
 ___
 
@@ -72,7 +72,7 @@ once.
 
 #### Defined in
 
-[index.ts:138](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L138)
+[index.ts:143](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L143)
 
 ___
 
@@ -112,7 +112,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:148](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L148)
+[index.ts:153](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L153)
 
 ___
 
@@ -123,6 +123,11 @@ ___
 If `false`, errors thrown from within a handler are kicked up to Next.js's
 resolver to deal with, which is what would happen in production. If `true`,
 the [testApiHandler](../README.md#testapihandler) function will reject immediately instead.
+
+You should use `rejectOnHandlerError` whenever you want to manually handle
+an error that bubbles up from your handler (which is especially true if
+you're using `expect` _within_ your handler) or when you notice a false
+negative despite exceptions being thrown.
 
 **`Default`**
 
@@ -136,7 +141,7 @@ false
 
 #### Defined in
 
-[index.ts:104](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L104)
+[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L109)
 
 ___
 
@@ -176,7 +181,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Defined in
 
-[index.ts:161](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L161)
+[index.ts:166](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L166)
 
 ___
 
@@ -210,7 +215,7 @@ by the server.
 
 #### Defined in
 
-[index.ts:168](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L168)
+[index.ts:173](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L173)
 
 ___
 
@@ -247,7 +252,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:110](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L110)
+[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L115)
 
 ___
 
@@ -260,4 +265,4 @@ NextRequest('your-url', req)`
 
 #### Defined in
 
-[index.ts:173](https://github.com/Xunnamius/next-test-api-route-handler/blob/7ba22ec/src/index.ts#L173)
+[index.ts:178](https://github.com/Xunnamius/next-test-api-route-handler/blob/e34a900/src/index.ts#L178)
