@@ -254,6 +254,12 @@ export async function testApiHandler<NextResponseJsonType = any>({
   let server: Server | null = null;
   let deferredReject: ((error?: unknown) => void) | null = null;
 
+  if (!!pagesHandler === !!appHandler) {
+    throw new TypeError(
+      'next-test-api-route-handler (NTARH) initialization failed: you must provide exactly one of: pagesHandler, appHandler'
+    );
+  }
+
   try {
     if (!globalThis.AsyncLocalStorage) {
       globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
