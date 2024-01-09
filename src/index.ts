@@ -181,8 +181,12 @@ export interface NtarhInitPagesRouter<NextResponseJsonType = unknown>
    * The actual Pages Router route handler under test. It should be an async
    * function that accepts `NextApiRequest` and `NextApiResult` objects (in
    * that order) as its two parameters.
+   *
+   * Note that type checking for `res.send` and similar methods was retired in
+   * NTARH@4. Only the `response.json` method returned by NTARH's fetch wrapper
+   * will have a typed result.
    */
-  pagesHandler: NextApiHandler<NextResponseJsonType>;
+  pagesHandler: NextApiHandler<any>;
   appHandler?: undefined;
   /**
    * `params` is passed directly to the handler and represents processed dynamic

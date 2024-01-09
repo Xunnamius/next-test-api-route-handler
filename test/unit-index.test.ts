@@ -566,7 +566,10 @@ describe('::testApiHandler', () => {
 
       await testApiHandler<{ a: number }>({
         pagesHandler: async (_, res) => {
-          // @ts-expect-error: b does not exist (this test "fails" if no TS error)
+          // ? Formerly we would expect an error to be thrown here, but in
+          // ? NTARH@4 we've relaxed the type checking so that only fetch::json
+          // ? is affected. I believe this leads to more accurate and more
+          // ? useful type checking for NTARH users.
           res.send({ b: 1 });
         },
         test: async ({ fetch }) => {
