@@ -2,16 +2,14 @@
 
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the pages/api directory
-import handler, { config } from '../pages/api/graphql';
-// Respect the Next.js config object if it's exported
-handler.config = config;
+import * as pagesHandler from '../pages/api/graphql';
 
 describe('my-test', () => {
   it('does what I want 1', async () => {
     expect.hasAssertions();
 
     await testApiHandler({
-      handler,
+      pagesHandler,
       url: '/api/graphql', // Set the request url to the path graphql expects
       test: async ({ fetch }) => {
         const query = `query ViewerQuery {
@@ -43,7 +41,7 @@ describe('my-test', () => {
     expect.hasAssertions();
 
     await testApiHandler({
-      handler,
+      pagesHandler,
       url: '/api/graphql', // Set the request url to the path graphql expects
       test: async ({ fetch }) => {
         const query = `query ViewerQuery {
@@ -75,7 +73,7 @@ describe('my-test', () => {
     expect.hasAssertions();
 
     await testApiHandler({
-      handler,
+      pagesHandler,
       url: '/api/graphql', // Set the request url to the path graphql expects
       test: async ({ fetch }) => {
         const query = `query ViewerQuery {
