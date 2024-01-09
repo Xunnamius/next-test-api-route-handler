@@ -625,9 +625,11 @@ first argument.
 What follows are several examples that demonstrate using NTARH with the [App
 Router][47] and the [Pages Router][48].
 
+Check out [the tests][49] for even more examples.
+
 ### Using the App Router
 
-These examples use Next.js's [App Router][49] API.
+These examples use Next.js's [App Router][50] API.
 
 #### Testing Next.js's Official Apollo Example @ `app/graphql`
 
@@ -649,7 +651,7 @@ These examples use Next.js's [App Router][49] API.
 
 ### Using the Pages Router
 
-These examples use Next.js's [Pages Router][50] API.
+These examples use Next.js's [Pages Router][51] API.
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
@@ -657,7 +659,7 @@ You can easily run this example yourself by copying and pasting the following
 commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][51]. Requires `curl`, `node`, and `git`.
+> [WSL][52]. Requires `curl`, `node`, and `git`.
 
 ```bash
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
@@ -674,13 +676,13 @@ curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-ap
 npx jest
 ```
 
-The above script will clone [the Next.js repository][52], install NTARH and
-configure dependencies, download [the following script][53], and run it with
-[jest][54].
+The above script will clone [the Next.js repository][53], install NTARH and
+configure dependencies, download [the following script][54], and run it with
+[jest][55].
 
-> **Note that passing the [route configuration object][55] (imported below as
+> **Note that passing the [route configuration object][56] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
-> [crucial][56] when testing Apollo endpoints!**
+> [crucial][57] when testing Apollo endpoints!**
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
@@ -740,7 +742,7 @@ Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
 10th, where status code `HTTP 555` is returned instead.
 
-How might we [test][54] that this endpoint responds with `HTTP 555` once for
+How might we [test][55] that this endpoint responds with `HTTP 555` once for
 every nine `HTTP 200` responses?
 
 ```typescript
@@ -820,7 +822,7 @@ Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
 query.
 
-How might we [test][54] that this endpoint returns flights in our database as
+How might we [test][55] that this endpoint returns flights in our database as
 expected?
 
 ```typescript
@@ -935,26 +937,26 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
-Check out [the tests][57] for more examples.
-
 ## Appendix
 
 Further documentation can be found under [`docs/`][x-repo-docs].
 
 ### Limitations with App Router and Edge Runtime Emulation
 
-<!-- TODO: "Edge" runtime is not actually using the real edge runtime (vm) -->
-<!-- TODO: No Next.js features external to API routing and handling will be available -->
-
-No Next.js features will be available that are external to processing API routes
-and executing their handlers. This includes anything react-related.
+Since NTARH is meant for unit testing API routes rather than faithfully
+recreating Next.js functionality, NTARH's feature set comes with some caveats.
+Namely: no Next.js features will be available that are external to processing
+API routes and executing their handlers. This includes anything react-related.
 
 Further, any support NTARH appears to have for any "[edge runtime][58]" beyond
 what is provided by [`AppRouteRouteModule`][59] is merely cosmetic. **Your tests
 will always run in Node.js** (or your runner of choice) and never in a different
 runtime, realm, or VM. This means unit testing like with NTARH must be done in
-addition to, not as a substitute for more holistic testing practices (e.g.
+addition to, and not in lieu of, more holistic testing practices (e.g.
 end-to-end).
+
+If you're having trouble with your App Router routes, consider [opening a new
+issue][x-repo-choose-new-issue]!
 
 ### Legacy Runtime Support
 
@@ -1254,15 +1256,15 @@ specification. Contributions of any kind welcome!
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#params
 [47]: #using-the-app-router
 [48]: #using-the-pages-router
-[49]: https://nextjs.org/docs/app
-[50]: https://nextjs.org/docs/pages
-[51]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-[52]: https://github.com/vercel/next.js
-[53]: ./apollo_test_raw
-[54]: https://www.npmjs.com/package/jest
-[55]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
-[56]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[57]: test/unit-index.test.ts
+[49]: test/unit-index.test.ts
+[50]: https://nextjs.org/docs/app
+[51]: https://nextjs.org/docs/pages
+[52]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[53]: https://github.com/vercel/next.js
+[54]: ./apollo_test_raw
+[55]: https://www.npmjs.com/package/jest
+[56]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[57]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
 [58]:
   https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
 [59]:
