@@ -28,57 +28,118 @@ afterEach(() => {
 
 afterAll(() => server.close());
 
-it('bypasses msw by default', async () => {
-  expect.hasAssertions();
+describe('<app router>', () => {
+  it('bypasses msw by default', async () => {
+    expect.hasAssertions();
 
-  await testApiHandler({
-    rejectOnHandlerError: true,
-    handler(_, res) {
-      res.status(200).send({ from: 'ntarh' });
-    },
-    async test({ fetch }) {
-      const res = await fetch({ method: 'POST' });
-      const json = await res.json();
+    await testApiHandler({
+      rejectOnHandlerError: true,
+      appHandler: {
+        GET() {
+          return Response.json({ from: 'ntarh' }, { status: 200 });
+        }
+      },
+      async test({ fetch }) {
+        const res = await fetch({ method: 'GET' });
+        const json = await res.json();
 
-      expect(json).toStrictEqual({ from: 'ntarh' });
-    }
+        expect(json).toStrictEqual({ from: 'ntarh' });
+      }
+    });
+  });
+
+  it('does not bypass msw if header is explicitly disabled (README example)', async () => {
+    expect.hasAssertions();
+
+    // e.g. https://xunn.at/gg => https://www.google.com/search?q=next-test-api-route-handler
+    // shortId would be "gg"
+    // realLink would be https://www.google.com/search?q=next-test-api-route-handler
+
+    const { shortId, realLink } = getUriEntry();
+    const realUrl = new URL(realLink);
+
+    await testApiHandler({
+      appHandler,
+      params: { shortId },
+      test: async ({ fetch }) => {
+        server.use(
+          http.get('*', async ({ request }) => {
+            return request.url === realUrl.href
+              ? HttpResponse.json({ it: 'worked' }, { status: 200 })
+              : passthrough();
+          })
+        );
+
+        const res = await fetch({
+          headers: { 'x-msw-intention': 'none' } // <==
+        });
+
+        await expect(res.json()).resolves.toMatchObject({ it: 'worked' });
+        expect(res.status).toBe(200);
+      }
+    });
   });
 });
 
-it('does not bypass msw if header is explicitly disabled (README example)', async () => {
-  expect.hasAssertions();
+describe('<pages router>', () => {
+  it('bypasses msw by default', async () => {
+    expect.hasAssertions();
 
-  // e.g. https://xunn.at/gg => https://www.google.com/search?q=next-test-api-route-handler
-  // shortId would be "gg"
-  // realLink would be https://www.google.com/search?q=next-test-api-route-handler
+    await testApiHandler({
+      rejectOnHandlerError: true,
+      pagesHandler(_, res) {
+        res.status(200).send({ from: 'ntarh' });
+      },
+      async test({ fetch }) {
+        const res = await fetch({ method: 'POST' });
+        const json = await res.json();
 
-  const { shortId, realLink } = getUriEntry();
-  const realUrl = new URL(realLink);
+        expect(json).toStrictEqual({ from: 'ntarh' });
+      }
+    });
+  });
 
-  await testApiHandler({
-    handler,
-    params: { shortId },
-    test: async ({ fetch }) => {
-      server.use(
-        http.get('*', async ({ request }) => {
-          return request.url === realUrl.href
-            ? HttpResponse.json({ it: 'worked' }, { status: 200 })
-            : passthrough();
-        })
-      );
+  it('does not bypass msw if header is explicitly disabled (README example)', async () => {
+    expect.hasAssertions();
 
-      const res = await fetch({
-        headers: { 'x-msw-intention': 'none' } // <==
-      });
+    // e.g. https://xunn.at/gg => https://www.google.com/search?q=next-test-api-route-handler
+    // shortId would be "gg"
+    // realLink would be https://www.google.com/search?q=next-test-api-route-handler
 
-      await expect(res.json()).resolves.toMatchObject({ it: 'worked' });
-      expect(res.status).toBe(200);
-    }
+    const { shortId, realLink } = getUriEntry();
+    const realUrl = new URL(realLink);
+
+    await testApiHandler({
+      pagesHandler,
+      params: { shortId },
+      test: async ({ fetch }) => {
+        server.use(
+          http.get('*', async ({ request }) => {
+            return request.url === realUrl.href
+              ? HttpResponse.json({ it: 'worked' }, { status: 200 })
+              : passthrough();
+          })
+        );
+
+        const res = await fetch({
+          headers: { 'x-msw-intention': 'none' } // <==
+        });
+
+        await expect(res.json()).resolves.toMatchObject({ it: 'worked' });
+        expect(res.status).toBe(200);
+      }
+    });
   });
 });
+
+const appHandler = {
+  async GET() {
+    return Response.json(await (await fetch(getUriEntry().realLink)).json());
+  }
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function handler(_: any, res: any) {
+async function pagesHandler(_: any, res: any) {
   return res.status(200).send(await (await fetch(getUriEntry().realLink)).json());
 }
 

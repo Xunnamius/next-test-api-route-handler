@@ -852,7 +852,7 @@ it('returns expected public flights with respect to match', async () => {
   // against our handler. Query strings are parsed by NTARH automatically.
   //
   // NOTE: setting the request url manually using encode(), while valid, is
-  // unnecessary here; we could have used `params` or `paramPatcher` to do this
+  // unnecessary here; we could have used `params` or `paramsPatcher` to do this
   // more easily without explicitly setting a dummy request url.
   //
   // Example URI for `https://site.io/path?param=yes` would be `/path?param=yes`

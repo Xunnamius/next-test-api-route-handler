@@ -52,7 +52,7 @@ jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
           } else if (key === '__esModule') {
             return true;
           } else if (key === 'then') {
-            return this;
+            return undefined;
           }
           // ? Mocks are hoisted above imports, so account for that
         } else throw new Error('proxy E invoked too early');
@@ -192,7 +192,7 @@ const getMockResolver = (meta: {
 const importNtarh = () =>
   isolatedImport<typeof import('../src/index')>({ path: '../src/index' }).testApiHandler;
 
-const getHandler =
+const getPagesHandler =
   (status?: number) => async (_: NextApiRequest, res: NextApiResponse) => {
     res.status(status ?? 200).send({ hello: 'world' });
   };
@@ -230,7 +230,7 @@ describe('::testApiHandler', () => {
       // eslint-disable-next-line no-await-in-loop
       await expect(
         importNtarh()({
-          handler: getHandler(),
+          pagesHandler: getPagesHandler(),
           test: async ({ fetch }) => {
             expect((await fetch()).status).toBe(200);
           }
@@ -273,7 +273,7 @@ describe('::testApiHandler', () => {
         // eslint-disable-next-line no-await-in-loop
         await expect(
           importNtarh()({
-            handler: getHandler(),
+            pagesHandler: getPagesHandler(),
             test: async ({ fetch }) => void (await fetch())
           })
         ).rejects.toMatchObject({
@@ -303,7 +303,7 @@ describe('::testApiHandler', () => {
 
     await expect(
       importNtarh()({
-        handler: getHandler(),
+        pagesHandler: getPagesHandler(),
         test: async ({ fetch }) => void (await fetch())
       })
     ).rejects.toMatchObject({
@@ -327,7 +327,7 @@ describe('::testApiHandler', () => {
 
     await expect(
       importNtarh()({
-        handler: getHandler(),
+        pagesHandler: getPagesHandler(),
         test: async ({ fetch }) => void (await fetch())
       })
     ).rejects.toMatchObject({
