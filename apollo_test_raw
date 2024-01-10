@@ -4,7 +4,7 @@ import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the pages/api directory
 import * as pagesHandler from '../pages/api/graphql';
 
-describe('my-test', () => {
+describe('my-test (pages router)', () => {
   it('does what I want 1', async () => {
     expect.hasAssertions();
 
@@ -25,9 +25,7 @@ describe('my-test', () => {
           headers: {
             'content-type': 'application/json' // Must use correct content type
           },
-          body: JSON.stringify({
-            query
-          })
+          body: JSON.stringify({ query })
         });
 
         await expect(res.json()).resolves.toStrictEqual({
@@ -57,9 +55,7 @@ describe('my-test', () => {
           headers: {
             'content-type': 'application/json' // Must use correct content type
           },
-          body: JSON.stringify({
-            query
-          })
+          body: JSON.stringify({ query })
         });
 
         await expect(res.json()).resolves.toStrictEqual({
@@ -89,9 +85,7 @@ describe('my-test', () => {
           headers: {
             'content-type': 'application/json' // Must use correct content type
           },
-          body: JSON.stringify({
-            query
-          })
+          body: JSON.stringify({ query })
         });
 
         await expect(res.json()).resolves.toStrictEqual({
