@@ -515,7 +515,12 @@ export async function testApiHandler<NextResponseJsonType = any>({
           const response_ = appRouteRouteModule.handle(nextRequest, {
             params: finalParameters,
             prerenderManifest: {} as any,
-            renderOpts: { experimental: {} } as any
+            renderOpts: {
+              // ? Next.js poos the bed if we don't include this
+              experimental: {},
+              // ? Next.js tries to do things it shouldn't unless we add this
+              supportsDynamicHTML: true
+            } as any
           });
 
           const response = await (rejectOnHandlerError
