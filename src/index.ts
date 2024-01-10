@@ -18,6 +18,13 @@ import type {
 } from 'next/dist/server/future/route-modules/app-route/module';
 
 /**
+ * This is the default "pretty" URL that resolvers will associate with requests
+ * from our dummy HTTP server. We use this to hide the uglier localhost url as
+ * an implementation detail.
+ */
+const defaultNextRequestMockUrl = 'ntarh://testApiHandler';
+
+/**
  * This function is responsible for adding the headers sent along with every
  * fetch request by default. Headers that already exist will not be overwritten.
  *
@@ -430,44 +437,46 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
   function createAppRouterServer() {
     const { createServerAdapter } = require('@whatwg-node/server');
-    const { NextRequest } = require('next/server');
-    type NextRequest_ = import('next/server').NextRequest;
+    type NextRequest_ = typeof import('next/server').NextRequest;
+    const NextRequest = require('next/server').NextRequest as NextRequest_;
 
     return createServer(
       createServerAdapter(async (request: Request) => {
         try {
           assert(appHandler !== undefined);
 
-          if (typeof AppRouteRouteModule !== 'function') {
-            throw new TypeError(
-              'assertion failed unexpectedly: AppRouteRouteModule was not a constructor (function)'
-            );
-          }
+          // ? Mocking __NEXT_NO_MIDDLEWARE_URL_NORMALIZE here gets NextRequest
+          // ? to avoid normalizing our URLs, keeping them exactly as given.
+          const nextRequest = await mockEnvVariable(
+            '__NEXT_NO_MIDDLEWARE_URL_NORMALIZE',
+            'true',
+            async () => {
+              const rawRequest = new NextRequest(
+                url || defaultNextRequestMockUrl,
+                /**
+                 * See: RequestData from next/dist/server/web/types.d.ts
+                 * See also: https://stackoverflow.com/a/57014050/1367414
+                 */
+                {
+                  ...request,
+                  // https://github.com/nodejs/node/issues/46221
+                  // @ts-expect-error: TS types are not yet updated
+                  duplex: 'half'
+                }
+              );
 
-          const nextRequest = await (async (request_) => {
-            const patchedRequest = (await requestPatcher?.(request_)) || request_;
-            const nextRequest_: NextRequest_ =
-              patchedRequest instanceof NextRequest
-                ? patchedRequest
-                : new NextRequest(patchedRequest, {
-                    // https://github.com/nodejs/node/issues/46221
-                    duplex: 'half'
-                  });
+              const patchedRequest = (await requestPatcher?.(rawRequest)) || rawRequest;
+              const finalRequest =
+                patchedRequest instanceof NextRequest
+                  ? patchedRequest
+                  : new NextRequest(patchedRequest, {
+                      // https://github.com/nodejs/node/issues/46221
+                      // @ts-expect-error: TS types are not yet updated
+                      duplex: 'half'
+                    });
 
-            return nextRequest_;
-          })(
-            new NextRequest(
-              url || request.url,
-              /**
-               * See: RequestData from next/dist/server/web/types.d.ts
-               * See also: https://stackoverflow.com/a/57014050/1367414
-               */
-              {
-                ...request,
-                // https://github.com/nodejs/node/issues/46221
-                duplex: 'half'
-              }
-            ) as NextRequest_
+              return finalRequest;
+            }
           );
 
           const rawParameters = { ...params };
