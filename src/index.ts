@@ -556,9 +556,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       try {
         assert(pagesHandler !== undefined);
 
-        if (url) {
-          req.url = url;
-        }
+        req.url = url || defaultNextRequestMockUrl;
 
         Promise.resolve(requestPatcher?.(req))
           .then(() => responsePatcher?.(res))

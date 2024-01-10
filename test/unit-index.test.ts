@@ -865,7 +865,9 @@ describe('::testApiHandler', () => {
         },
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(350);
-          await expect((await fetch()).json()).resolves.toStrictEqual({ url: '/' });
+          await expect((await fetch()).json()).resolves.toStrictEqual({
+            url: 'ntarh://testApiHandler'
+          });
         }
       });
 
