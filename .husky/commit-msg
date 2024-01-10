@@ -1,6 +1,13 @@
 #!/bin/sh
 . "$(dirname $0)/_/husky.sh"
 
+beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
+
+if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
+  echo 'husky-hook::commit-msg: skipped commit-msg hook due to rebase'
+  exit 0
+fi
+
 npx commitlint -e
 if [ -z $GAC_VERIFY_SIMPLE ]; then npm run test; fi
 echo
