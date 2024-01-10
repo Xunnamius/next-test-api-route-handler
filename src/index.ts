@@ -81,7 +81,9 @@ const handleError = (
   error: unknown,
   deferredReject: ((error: unknown) => unknown) | null
 ) => {
-  // ? Prevent tests that crash the server from hanging
+  // ? Prevent tests that crash the server from hanging. This might be a
+  // ? Jest-specific (or maybe VM-module-specific) issue since it doesn't happen
+  // ? when you run NTARH in Node.js without Jest (i.e. the integration tests).
   if (res && !res.writableEnded) {
     res.end();
   }
@@ -444,8 +446,9 @@ export async function testApiHandler<NextResponseJsonType = any>({
     type NextRequest_ = typeof import('next/server').NextRequest;
     const NextRequest = require('next/server').NextRequest as NextRequest_;
 
-    return createServer(
-      createServerAdapter(async (request: Request) => {
+    return createServer((req, res) => {
+      const originalRes = res;
+      return createServerAdapter(async (request: Request) => {
         try {
           assert(appHandler !== undefined);
 
@@ -542,10 +545,10 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
           return (await responsePatcher?.(response)) || response;
         } catch (error) {
-          handleError(undefined, error, deferredReject);
+          handleError(originalRes, error, deferredReject);
         }
-      })
-    );
+      })(req, res);
+    });
   }
 
   function createPagesRouterServer() {
