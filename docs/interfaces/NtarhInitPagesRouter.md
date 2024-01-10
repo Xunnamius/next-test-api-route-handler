@@ -38,21 +38,25 @@ The parameters expected by `testApiHandler` when using `pagesHandler`.
 
 #### Defined in
 
-[index.ts:186](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L186)
+[index.ts:208](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L208)
 
 ___
 
 ### pagesHandler
 
-• **pagesHandler**: `NextApiHandler`\<`NextResponseJsonType`\>
+• **pagesHandler**: `NextApiHandler`\<`any`\>
 
 The actual Pages Router route handler under test. It should be an async
 function that accepts `NextApiRequest` and `NextApiResult` objects (in
 that order) as its two parameters.
 
+Note that type checking for `res.send` and similar methods was retired in
+NTARH@4. Only the `response.json` method returned by NTARH's fetch wrapper
+will have a typed result.
+
 #### Defined in
 
-[index.ts:185](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L185)
+[index.ts:207](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L207)
 
 ___
 
@@ -70,7 +74,7 @@ once.
 
 #### Defined in
 
-[index.ts:196](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L196)
+[index.ts:218](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L218)
 
 ___
 
@@ -110,7 +114,7 @@ is handled automatically.
 
 #### Defined in
 
-[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L206)
+[index.ts:228](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L228)
 
 ___
 
@@ -139,7 +143,7 @@ false
 
 #### Defined in
 
-[index.ts:103](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L103)
+[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L115)
 
 ___
 
@@ -175,7 +179,7 @@ lowercase.**
 
 #### Defined in
 
-[index.ts:217](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L217)
+[index.ts:239](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L239)
 
 ___
 
@@ -205,7 +209,7 @@ to edit the response _before_ it's injected into the handler.
 
 #### Defined in
 
-[index.ts:222](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L222)
+[index.ts:244](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L244)
 
 ___
 
@@ -242,7 +246,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L109)
+[index.ts:121](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L121)
 
 ___
 
@@ -255,4 +259,4 @@ ___
 
 #### Defined in
 
-[index.ts:227](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L227)
+[index.ts:249](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L249)

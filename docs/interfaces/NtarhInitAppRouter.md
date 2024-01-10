@@ -44,7 +44,7 @@ for details.
 
 #### Defined in
 
-[index.ts:126](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L126)
+[index.ts:138](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L138)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[index.ts:127](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L127)
+[index.ts:139](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L139)
 
 ___
 
@@ -72,7 +72,7 @@ once.
 
 #### Defined in
 
-[index.ts:137](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L137)
+[index.ts:149](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L149)
 
 ___
 
@@ -112,7 +112,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:147](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L147)
+[index.ts:159](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L159)
 
 ___
 
@@ -141,13 +141,13 @@ false
 
 #### Defined in
 
-[index.ts:103](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L103)
+[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L115)
 
 ___
 
 ### requestPatcher
 
-• `Optional` **requestPatcher**: (`request`: `NextRequest`) => [`Promisable`](../README.md#promisable)\<`Request`\>
+• `Optional` **requestPatcher**: (`request`: `NextRequest`) => [`Promisable`](../README.md#promisable)\<`void` \| `Request`\>
 
 A function that receives a `NextRequest` object and returns a `Request`
 instance. Use this function to edit the request _before_ it's injected
@@ -159,7 +159,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Type declaration
 
-▸ (`request`): [`Promisable`](../README.md#promisable)\<`Request`\>
+▸ (`request`): [`Promisable`](../README.md#promisable)\<`void` \| `Request`\>
 
 A function that receives a `NextRequest` object and returns a `Request`
 instance. Use this function to edit the request _before_ it's injected
@@ -177,31 +177,39 @@ NextRequest(returnedRequest, { ... })`.
 
 ##### Returns
 
-[`Promisable`](../README.md#promisable)\<`Request`\>
+[`Promisable`](../README.md#promisable)\<`void` \| `Request`\>
 
 #### Defined in
 
-[index.ts:160](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L160)
+[index.ts:172](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L172)
 
 ___
 
 ### responsePatcher
 
-• `Optional` **responsePatcher**: (`res`: `Response`) => [`Promisable`](../README.md#promisable)\<`Response`\>
+• `Optional` **responsePatcher**: (`res`: `Response`) => [`Promisable`](../README.md#promisable)\<`void` \| `Response`\>
 
-A function that receives the `Response` object returned from
-`appHandler` and returns a `Response` instance. Use this function to
-edit the response _after_ your handler runs but _before_ it's processed
-by the server.
+A function that receives the `Response` object returned from `appHandler`
+and returns a `Response` instance. Use this function to edit the response
+_after_ your handler runs but _before_ it's processed by the server.
+
+Note that `responsePatcher` is called even in the case of exceptions,
+including _unhandled exceptions_ (for which Next.js returns an HTTP 500
+response). The only time `responsePatcher` is not called is when an
+unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 #### Type declaration
 
-▸ (`res`): [`Promisable`](../README.md#promisable)\<`Response`\>
+▸ (`res`): [`Promisable`](../README.md#promisable)\<`void` \| `Response`\>
 
-A function that receives the `Response` object returned from
-`appHandler` and returns a `Response` instance. Use this function to
-edit the response _after_ your handler runs but _before_ it's processed
-by the server.
+A function that receives the `Response` object returned from `appHandler`
+and returns a `Response` instance. Use this function to edit the response
+_after_ your handler runs but _before_ it's processed by the server.
+
+Note that `responsePatcher` is called even in the case of exceptions,
+including _unhandled exceptions_ (for which Next.js returns an HTTP 500
+response). The only time `responsePatcher` is not called is when an
+unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 ##### Parameters
 
@@ -211,11 +219,11 @@ by the server.
 
 ##### Returns
 
-[`Promisable`](../README.md#promisable)\<`Response`\>
+[`Promisable`](../README.md#promisable)\<`void` \| `Response`\>
 
 #### Defined in
 
-[index.ts:167](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L167)
+[index.ts:185](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L185)
 
 ___
 
@@ -252,7 +260,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:109](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L109)
+[index.ts:121](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L121)
 
 ___
 
@@ -260,9 +268,9 @@ ___
 
 • `Optional` **url**: `string`
 
-`url: 'your-url'` is shorthand for `requestPatcher: (req) => new
-NextRequest('your-url', req)`
+`url: 'your-url'` is shorthand for `requestPatcher: (request) => new
+NextRequest('your-url', request)`
 
 #### Defined in
 
-[index.ts:172](https://github.com/Xunnamius/next-test-api-route-handler/blob/eec4955/src/index.ts#L172)
+[index.ts:190](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L190)
