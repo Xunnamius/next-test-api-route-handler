@@ -578,3 +578,18 @@ export async function testApiHandler<NextResponseJsonType = any>({
 function returnUndefinedIfEmptyObject<T extends object>(o: T) {
   return Object.keys(o).length ? o : undefined;
 }
+
+async function mockEnvVariable<T>(
+  name: string,
+  updatedValue: string | undefined,
+  callback: () => T
+): Promise<T> {
+  const oldEnvVariable = process.env[name];
+  process.env[name] = updatedValue;
+
+  try {
+    return await callback();
+  } finally {
+    process.env[name] = oldEnvVariable;
+  }
+}
