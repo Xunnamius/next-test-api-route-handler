@@ -36,6 +36,11 @@ const addDefaultHeaders = (headers: Headers) => {
 let apiResolver: typeof NextPagesResolver | null = null;
 let AppRouteRouteModule: typeof NextAppResolver | null = null;
 
+// ? We track the original global fetch function because Next.js patches it
+// ? upon import (I'm not sure where or when), so we need to restore it before
+// ? the end-developer's test function runs.
+const originalGlobalFetch = fetch;
+
 /**
  * @internal
  */
@@ -359,57 +364,65 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
     await new Promise((resolve, reject) => {
       deferredReject = reject;
+
       Promise.resolve(
         test({
-          fetch: async (customInit?: RequestInit) => {
-            const init: RequestInit = {
-              ...customInit,
-              headers: addDefaultHeaders(new Headers(customInit?.headers))
-            };
-            return (fetch(localUrl, init) as FetchReturnType<NextResponseJsonType>).then(
-              (res) => {
-                // ? Lazy load (on demand) the contents of the `cookies` field
-                Object.defineProperty(res, 'cookies', {
-                  configurable: true,
-                  enumerable: true,
-                  get: () => {
-                    const { parse: parseCookieHeader } = require('cookie');
-                    // @ts-expect-error: lazy getter guarantees this will be set
-                    delete res.cookies;
-                    res.cookies = [res.headers.getSetCookie() || []]
-                      .flat()
-                      .map((header) =>
-                        Object.fromEntries(
-                          Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
-                            return [
-                              [String(k), String(v)],
-                              [String(k).toLowerCase(), String(v)]
-                            ];
-                          })
-                        )
-                      );
-                    return res.cookies;
-                  }
-                });
-
-                const oldJson = res.json.bind(res);
-                // ? What is this? Well, when ditching node-fetch for the internal
-                // ? fetch, the way Jest uses node's vm package results in the
-                // ? internals returning objects from a different realm than the
-                // ? objects created within the vm instance (like the one in which
-                // ? jest tests are executed). What this extra step does is take
-                // ? the object returned from res.json(), which is from an outside
-                // ? realm, and "summons" it into the current vm realm. Without
-                // ? this step, matchers like .toStrictEqual(...) will fail with a
-                // ? "serializes to the same string" error.
-                res.json = async () => Object.assign({}, await oldJson());
-
-                return res;
-              }
-            );
-          }
+          fetch: Object.assign(fetch_, {
+            // ? We do this here so we can track what the global fetch function
+            // ? is doing. This lets us deal with Next.js patching global fetch.
+            get _ntarhOriginalGlobalFetch() {
+              return originalGlobalFetch;
+            }
+          })
         })
       ).then(resolve, reject);
+
+      async function fetch_(customInit?: RequestInit) {
+        const init: RequestInit = {
+          ...customInit,
+          headers: addDefaultHeaders(new Headers(customInit?.headers))
+        };
+
+        return (
+          originalGlobalFetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
+        ).then((res) => {
+          // ? Lazy load (on demand) the contents of the `cookies` field
+          Object.defineProperty(res, 'cookies', {
+            configurable: true,
+            enumerable: true,
+            get: () => {
+              const { parse: parseCookieHeader } = require('cookie');
+              // @ts-expect-error: lazy getter guarantees this will be set
+              delete res.cookies;
+              res.cookies = [res.headers.getSetCookie() || []].flat().map((header) =>
+                Object.fromEntries(
+                  Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
+                    return [
+                      [String(k), String(v)],
+                      [String(k).toLowerCase(), String(v)]
+                    ];
+                  })
+                )
+              );
+              return res.cookies;
+            }
+          });
+
+          const oldJson = res.json.bind(res);
+          // ? What is this? Well, when ditching node-fetch for the internal
+          // ? fetch, the way Jest uses node's vm package results in the
+          // ? internals returning objects from a different realm than the
+          // ? objects created within the vm instance (like the one in which
+          // ? jest tests are executed). What this extra step does is take
+          // ? the object returned from res.json(), which is from an outside
+          // ? realm, and "summons" it into the current vm realm. Without
+          // ? this step, matchers like .toStrictEqual(...) will fail with a
+          // ? "serializes to the same string" error.
+          res.json = async () => Object.assign({}, await oldJson());
+
+          return res;
+        });
+      }
     });
   } finally {
     server?.close();
