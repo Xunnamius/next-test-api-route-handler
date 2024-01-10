@@ -12,7 +12,7 @@ const EXTERNAL_BIN_PATH = `${__dirname}/../external-scripts/bin/is-next-compat.j
 
 const debugId = `${pkgName}:*`;
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
-const runExternal = runnerFactory('node', [EXTERNAL_BIN_PATH]);
+const runExternal = runnerFactory('node', ['--no-warnings', EXTERNAL_BIN_PATH]);
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   // ? We use _is_next_compat_test_mode to prevent the external script (compiled
@@ -51,13 +51,7 @@ it('runs silent by default', async () => {
 
     if (!process.env.DEBUG) {
       // eslint-disable-next-line jest/no-conditional-expect
-      expect(
-        // ? Remove outputs caused by Node's experimental warnings
-        // TODO: replace with suppression package
-        stderr
-          .replaceAll(/^.*? (ExperimentalWarning:|--trace-warnings) .*?$/gm, '')
-          .trim()
-      ).toBeEmpty();
+      expect(stderr).toBeEmpty();
     }
 
     expect(code).toBe(0);
