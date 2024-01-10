@@ -485,25 +485,32 @@ export async function testApiHandler<NextResponseJsonType = any>({
             (await paramsPatcher?.(rawParameters)) || rawParameters
           );
 
-          const oldNodeEnv = process.env.NODE_ENV;
-          // @ts-expect-error: we do what we want
-          process.env.NODE_ENV = 'development';
+          // ? Mocking NODE_ENV here gets AppRouteRouteModule to spit out useful
+          // ? debug info to the end developer.
+          const appRouteRouteModule = await mockEnvVariable(
+            'NODE_ENV',
+            'development',
+            () => {
+              if (typeof AppRouteRouteModule !== 'function') {
+                throw new TypeError(
+                  'assertion failed unexpectedly: AppRouteRouteModule was not a constructor (function)'
+                );
+              }
 
-          const appRouteRouteModule = new AppRouteRouteModule({
-            definition: {
-              kind: 'APP_ROUTE' as any,
-              page: '/route',
-              pathname: 'ntarh://testApiHandler',
-              filename: 'route',
-              bundlePath: 'app/route'
-            },
-            nextConfigOutput: undefined,
-            resolvedPagePath: 'ntarh://testApiHandler',
-            userland: appHandler
-          });
-
-          // @ts-expect-error: we do what we want
-          process.env.NODE_ENV = oldNodeEnv;
+              return new AppRouteRouteModule({
+                definition: {
+                  kind: 'APP_ROUTE' as any,
+                  page: '/route',
+                  pathname: 'ntarh://testApiHandler',
+                  filename: 'route',
+                  bundlePath: 'app/route'
+                },
+                nextConfigOutput: undefined,
+                resolvedPagePath: 'ntarh://testApiHandler',
+                userland: appHandler
+              });
+            }
+          );
 
           const response_ = appRouteRouteModule.handle(nextRequest, {
             params: finalParameters,
