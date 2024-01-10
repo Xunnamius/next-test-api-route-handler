@@ -121,7 +121,7 @@ const { testApiHandler } = require('next-test-api-route-handler');
 
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the app directory
-import * as appHandler from '../app/your-endpoint';
+import * as appHandler from '../app/your-endpoint/route';
 
 it('does what I want', async () => {
   await testApiHandler({
@@ -152,10 +152,11 @@ it('does what I want', async () => {
 
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the app directory
-import * as edgeHandler from '../app/your-edge-endpoint';
+import * as edgeHandler from '../app/your-edge-endpoint/route';
 
 it('does what I want', async function () {
-  await testApiHandler({
+  // NTARH supports optionally typed response data via TypeScript generics:
+  await testApiHandler<{ success: boolean }>({
     // Only appHandler supports edge functions. The pagesHandler prop does not!
     appHandler: edgeHandler,
     // requestPatcher is optional
@@ -163,6 +164,8 @@ it('does what I want', async function () {
       return new Request(request, { body: dummyStream, duplex: 'half' });
     },
     async test({ fetch }) {
+      // The next line would cause TypeScript to complain:
+      // const { luck: success } = await (await fetch()).json();
       await expect((await fetch()).json()).resolves.toStrictEqual({
         success: true // ◄ Passes!
       });
@@ -181,19 +184,9 @@ import { testApiHandler } from 'next-test-api-route-handler';
 import * as pagesHandler from '../pages/api/your-endpoint';
 
 it('does what I want', async () => {
-  await testApiHandler({
-    pagesHandler,
-    test: async ({ fetch }) => {
-      const res = await fetch({ method: 'POST', body: 'data' });
-      await expect(res.json()).resolves.toStrictEqual({ hello: 'world' }); // ◄ Passes!
-    }
-  });
-
-  // NTARH also supports typed response data via TypeScript generics:
+  // NTARH supports optionally typed response data via TypeScript generics:
   await testApiHandler<{ hello: string }>({
-    // The next line would cause TypeScript to complain:
-    // pagesHandler: (_, res) => res.status(200).send({ hello: false }),
-    pagesHandler: (_, res) => res.status(200).send({ hello: 'world' }),
+    pagesHandler,
     requestPatcher: (req) => {
       req.headers = { key: process.env.SPECIAL_TOKEN };
     },
@@ -631,7 +624,7 @@ Check out [the tests][49] for even more examples.
 
 These examples use Next.js's [App Router][50] API.
 
-#### Testing Next.js's Official Apollo Example @ `app/graphql`
+#### Testing @gregrickaby's Unofficial Next.js App Router Example @ `app/api/weather`
 
 <!-- TODO -->
 
@@ -643,7 +636,7 @@ These examples use Next.js's [App Router][50] API.
 
 (todo)
 
-#### Testing an Edge API Handler @ `app/edge`
+#### Testing a Flight Search API Handler (Edge Runtime) @ `app/v3/flights/search/edge`
 
 <!-- TODO -->
 
@@ -689,11 +682,9 @@ configure dependencies, download [the following script][54], and run it with
 
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the pages/api directory
-import pagesHandler, { config } from '../pages/api/graphql';
-// Respect the Next.js config object if it's exported
-pagesHandler.config = config;
+import * as pagesHandler from '../pages/api/graphql';
 
-describe('my-test', () => {
+describe('my-test (pages router)', () => {
   it('does what I want 1', async () => {
     expect.hasAssertions();
 
@@ -714,9 +705,7 @@ describe('my-test', () => {
           headers: {
             'content-type': 'application/json' // Must use correct content type
           },
-          body: JSON.stringify({
-            query
-          })
+          body: JSON.stringify({ query })
         });
 
         await expect(res.json()).resolves.toStrictEqual({
