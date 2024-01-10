@@ -173,10 +173,14 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
     request: import('next/server').NextRequest
   ) => Promisable<void | Request>;
   /**
-   * A function that receives the `Response` object returned from
-   * `appHandler` and returns a `Response` instance. Use this function to
-   * edit the response _after_ your handler runs but _before_ it's processed
-   * by the server.
+   * A function that receives the `Response` object returned from `appHandler`
+   * and returns a `Response` instance. Use this function to edit the response
+   * _after_ your handler runs but _before_ it's processed by the server.
+   *
+   * Note that `responsePatcher` is called even in the case of exceptions,
+   * including _unhandled exceptions_ (for which Next.js returns an HTTP 500
+   * response). The only time `responsePatcher` is not called is when an
+   * unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
    */
   responsePatcher?: (res: Response) => Promisable<void | Response>;
   /**
