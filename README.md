@@ -946,17 +946,22 @@ Further documentation can be found under [`docs/`][x-repo-docs].
 Since NTARH is meant for unit testing API routes rather than faithfully
 recreating Next.js functionality, NTARH's feature set comes with some caveats.
 Namely: no Next.js features will be available that are external to processing
-API routes and executing their handlers. This includes anything react-related.
+API routes and executing their handlers. This includes [middleware][58],
+[metadata][59], [static assets][60], [OpenTelemetry][61] and
+[instrumentation][62], [caching][63], [styling][64], [server actions and
+mutations][65], and anything related to React or [components][66].
 
-Further, any support NTARH appears to have for any "[edge runtime][58]" beyond
-what is provided by [`AppRouteRouteModule`][59] is merely cosmetic. **Your tests
-will always run in Node.js** (or your runner of choice) and never in a different
-runtime, realm, or VM. This means unit testing like with NTARH must be done in
-addition to, and not in lieu of, more holistic testing practices (e.g.
-end-to-end).
+NTARH is for testing your API route handlers only.
 
-If you're having trouble with your App Router routes, consider [opening a new
-issue][x-repo-choose-new-issue]!
+Further, any support NTARH appears to have for any "[edge runtime][67]" (or any
+other runtime) beyond what is provided by [`AppRouteRouteModule`][68] is merely
+cosmetic. **Your tests will always run in Node.js** (or your runner of choice)
+and never in a different runtime, realm, or VM. This means unit testing like
+with NTARH must be done in addition to, and not in lieu of, more holistic
+testing practices (e.g. [end-to-end][69]).
+
+If you're having trouble with your App Router and/or Edge Runtime routes,
+consider [opening a new issue][x-repo-choose-new-issue]!
 
 ### Legacy Runtime Support
 
@@ -965,10 +970,10 @@ and the "legacy" Pages Router Next.js APIs.
 
 Additionally, as of version `2.1.0`, NTARH is fully backwards compatible with
 Next.js going _allll_ the way back to `next@9.0.0` [when API routes were first
-introduced][60]!
+introduced][70]!
 
 If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
-`next`][61]), you might need to install `next-server` manually:
+`next`][71]), you might need to install `next-server` manually:
 
 ```shell
 npm install --save-dev next-server
@@ -976,14 +981,14 @@ npm install --save-dev next-server
 
 Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
 _and its peer dependencies_ manually. This is because [`npm@<7` does not install
-peer dependencies by default][62].
+peer dependencies by default][72].
 
 ```shell
 npm install --save-dev next@latest react
 ```
 
 > If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][63]!
+> dependencies (like `react`) that your specific Next.js version requires][73]!
 
 ### Inspiration
 
@@ -1003,8 +1008,8 @@ ballooning the execution time of the tests. That is: no spinning up the entire
 Next.js runtime just to run a single test in isolation.
 
 It doesn't seem like it'd be such a lift to surface a wrapped version of the
-Pages Router's [`apiResolver`][64] function and a pared-down subclass of the App
-Router's [`AppRouteRouteModule`][59], both accessible with something like
+Pages Router's [`apiResolver`][74] function and a pared-down subclass of the App
+Router's [`AppRouteRouteModule`][68], both accessible with something like
 `import { ... } from 'next/test'`. This is essentially what NTARH does.
 
 ### Published Package Details
@@ -1186,7 +1191,8 @@ specification. Contributions of any kind welcome!
 [x-repo-support]: /.github/SUPPORT.md
 [1]:
   https://github.com/Xunnamius/next-test-api-route-handler/tree/v3.2.0#next-test-api-route-handler
-[2]: https://github.com/Xunnamius/next-test-api-route-handler/discussions/953
+[2]:
+  https://github.com/Xunnamius/next-test-api-route-handler/discussions/953#migration-guide
 [3]: https://nextjs.org/docs/app/building-your-application/routing
 [4]: https://nextjs.org/docs/app/api-reference/functions/next-request
 [5]: https://nextjs.org/docs/api-routes/introduction
@@ -1265,15 +1271,30 @@ specification. Contributions of any kind welcome!
 [55]: https://www.npmjs.com/package/jest
 [56]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
 [57]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[58]:
-  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
-[59]:
-  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
-[60]: https://nextjs.org/blog/next-9
-[61]: https://github.com/vercel/next.js/pull/8613
+[58]: https://nextjs.org/docs/app/building-your-application/routing/middleware
+[59]: https://nextjs.org/docs/app/building-your-application/optimizing#metadata
+[60]:
+  https://nextjs.org/docs/app/building-your-application/optimizing#static-assets
+[61]:
+  https://nextjs.org/docs/pages/building-your-application/optimizing/open-telemetry
 [62]:
+  https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
+[63]: https://nextjs.org/docs/app/building-your-application/caching
+[64]: https://nextjs.org/docs/app/building-your-application/styling
+[65]:
+  https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations
+[66]: https://nextjs.org/docs/app/api-reference/components
+[67]:
+  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
+[68]:
+  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
+[69]:
+  https://nextjs.org/docs/app/building-your-application/testing#types-of-tests
+[70]: https://nextjs.org/blog/next-9
+[71]: https://github.com/vercel/next.js/pull/8613
+[72]:
   https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
-[63]:
+[73]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
-[64]:
+[74]:
   https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321
