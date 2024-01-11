@@ -1,4 +1,4 @@
-name: run-apollo-example
+name: run-apollo-pages-example
 
 on:
   workflow_dispatch: # * Treated like a scheduled run
@@ -29,9 +29,9 @@ jobs:
       - name: Report mode statuses
         run: |
           if [ -n "$DEBUG" ]; then
-            echo "RUN-APOLLO-EXAMPLE IS RUNNING IN DEBUG MODE ($DEBUG)"
+            echo "RUN-APOLLO-PAGES-EXAMPLE IS RUNNING IN DEBUG MODE ($DEBUG)"
           else
-            echo '(run-apollo-example is not running in debug mode)'
+            echo '(run-apollo-pages-example is not running in debug mode)'
           fi
 
       - name: Gather metadata
@@ -54,7 +54,7 @@ jobs:
           git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
           cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
           npm install --force
-          npm install --force next-test-api-route-handler@${{ github.event.inputs.dist-tag }} jest babel-jest @babel/core @babel/preset-env graphql-tools --force
+          npm install --force next-test-api-route-handler@${{ github.event.inputs.dist-tag }} jest babel-jest @babel/core @babel/preset-env --force
           # You could test with an older version of Next.js if you want, e.g.:
           # npm install next@9.0.6 --force
           # Or even older:

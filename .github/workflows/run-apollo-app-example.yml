@@ -1,0 +1,65 @@
+name: run-apollo-app-example
+
+on:
+  workflow_dispatch: # * Treated like a scheduled run
+    inputs:
+      dist-tag:
+        type: string
+        description: NTARH version to test
+        required: true
+        default: 'latest'
+  schedule:
+    - cron: '30 */6 * * *'
+
+env:
+  # * Selectively enable debugger verbose output in the pipeline
+  # ? See also: https://www.npmjs.com/package/debug#wildcards
+  # DEBUG: 'next-test-api-route-handler:*'
+  NODE_CURRENT_VERSION: 21.x
+  NODE_OLDER_VERSIONS: '"18.x", "20.x"'
+
+jobs:
+  metadata:
+    name: 'gather-metadata'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
+    steps:
+      - name: Report mode statuses
+        run: |
+          if [ -n "$DEBUG" ]; then
+            echo "RUN-APOLLO-APP-EXAMPLE IS RUNNING IN DEBUG MODE ($DEBUG)"
+          else
+            echo '(run-apollo-app-example is not running in debug mode)'
+          fi
+
+      - name: Gather metadata
+        id: set-matrix
+        run: |
+          echo "::set-output name=node-matrix::{\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
+          ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
+
+  check-compat:
+    runs-on: ubuntu-latest
+    needs: metadata
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+    steps:
+      - name: Run apollo terminal example
+        # https://bit.ly/38702j0
+        run: |
+          git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
+          cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
+          npm install --force
+          npm install --force next-test-api-route-handler@${{ github.event.inputs.dist-tag }} jest babel-jest @babel/core @babel/preset-env graphql-tools --force
+          # You could test with an older version of Next.js if you want, e.g.:
+          # npm install next@9.0.6 --force
+          # Or even older:
+          # npm install next@9.0.0 next-server --force
+          echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
+          mkdir test
+          curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/${{ github.sha }}/apollo_test_raw
+          npx jest

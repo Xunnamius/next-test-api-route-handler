@@ -1,0 +1,76 @@
+/* File: tests/my.test.js */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the app/api directory
+import * as appHandler from '../app/api/graphql/route';
+
+describe('my-test (app router)', () => {
+  it('does what I want 1', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      appHandler,
+      test: async ({ fetch }) => {
+        const query = `query { hello }`;
+
+        const res = await fetch({
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json' // Must use correct content type
+          },
+          body: JSON.stringify({ query })
+        });
+
+        await expect(res.json()).resolves.toStrictEqual({
+          data: { hello: 'world' }
+        });
+      }
+    });
+  });
+
+  it('does what I want 2', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      appHandler,
+      test: async ({ fetch }) => {
+        const query = `query { hello }`;
+
+        const res = await fetch({
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json' // Must use correct content type
+          },
+          body: JSON.stringify({ query })
+        });
+
+        await expect(res.json()).resolves.toStrictEqual({
+          data: { hello: 'world' }
+        });
+      }
+    });
+  });
+
+  it('does what I want 3', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      appHandler,
+      test: async ({ fetch }) => {
+        const query = `query { hello }`;
+
+        const res = await fetch({
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json' // Must use correct content type
+          },
+          body: JSON.stringify({ query })
+        });
+
+        await expect(res.json()).resolves.toStrictEqual({
+          data: { hello: 'world' }
+        });
+      }
+    });
+  });
+});

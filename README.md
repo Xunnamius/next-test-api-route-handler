@@ -635,21 +635,107 @@ Check out [the tests][49] for even more examples.
 
 These examples use Next.js's [App Router][50] API.
 
-#### Testing @gregrickaby's Unofficial Next.js App Router Example @ `app/api/weather`
+#### Testing Apollo's Official Next.js Integration @ `app/api/graphql`
 
-<!-- TODO -->
+This example is based on
+[the official Apollo Next.js App Router integration](https://www.npmjs.com/package/@as-integrations/next/v/3.0.0#app-router-route-handlers).
+You can easily run it yourself by copying and pasting the following commands
+into your terminal.
+
+> The following should be run in a nix-like environment. On Windows, that's
+> [WSL][52]. Requires `curl`, `node`, and `git`.
+
+```bash
+mkdir -p /tmp/ntarh-test/test
+cd /tmp/ntarh-test
+npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env --force
+echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
+mkdir -p app/api/graphql
+curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route
+curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test
+npx jest
+```
+
+The above script creates a new temporary directory, installs NTARH and
+configures dependencies, downloads the [app route](./apollo_test_raw_app_route)
+and [jest test](./apollo_test_raw_app_test) files shown below, and runs the test
+using [jest][55].
+
+```typescript
+/* File: app/api/graphql/route.js */
+
+import { ApolloServer } from '@apollo/server';
+import { startServerAndCreateNextHandler } from '@as-integrations/next';
+import { gql } from 'graphql-tag';
+
+const resolvers = {
+  Query: {
+    hello: () => 'world'
+  }
+};
+
+const typeDefs = gql`
+  type Query {
+    hello: String
+  }
+`;
+
+const server = new ApolloServer({
+  resolvers,
+  typeDefs
+});
+
+const handler = startServerAndCreateNextHandler(server);
+
+export { handler as GET, handler as POST };
+```
+
+```typescript
+/* File: tests/my.test.js */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the app/api directory
+import * as appHandler from '../app/api/graphql/route';
+
+describe('my-test (app router)', () => {
+  it('does what I want 1', async () => {
+    expect.hasAssertions();
+
+    await testApiHandler({
+      appHandler,
+      test: async ({ fetch }) => {
+        const query = `query { hello }`;
+
+        const res = await fetch({
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json' // Must use correct content type
+          },
+          body: JSON.stringify({ query })
+        });
+
+        await expect(res.json()).resolves.toStrictEqual({
+          data: { hello: 'world' }
+        });
+      }
+    });
+  });
+
+  it('does what I want 2', async () => {
+    // Exactly the same as the above...
+  });
+
+  it('does what I want 3', async () => {
+    // Exactly the same as the above...
+  });
+});
+```
+
+#### Testing Clerk.dev Authentication Integration @ `app/api/authed`
 
 (todo)
 
-#### Testing an Unreliable API Handler @ `app/unreliable`
-
-<!-- TODO -->
-
-(todo)
-
-#### Testing a Flight Search API Handler (Edge Runtime) @ `app/v3/flights/search/edge`
-
-<!-- TODO -->
+#### Testing an Unreliable Handler on the Edge @ `app/api/v3/flights/search`
 
 (todo)
 
@@ -659,8 +745,10 @@ These examples use Next.js's [Pages Router][51] API.
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-You can easily run this example yourself by copying and pasting the following
-commands into your terminal.
+This example is based on
+[the official Next.js Apollo integration](https://github.com/vercel/next.js/tree/deprecated-main/examples/api-routes-apollo-server-and-client).
+You can easily run it yourself by copying and pasting the following commands
+into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
 > [WSL][52]. Requires `curl`, `node`, and `git`.
@@ -669,7 +757,7 @@ commands into your terminal.
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
 cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
 npm install --force
-npm install --force next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env graphql-tools --force
+npm install --force next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env --force
 # You could test with an older version of Next.js if you want, e.g.:
 # npm install next@9.0.6 --force
 # Or even older:
@@ -680,13 +768,13 @@ curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-ap
 npx jest
 ```
 
-The above script will clone [the Next.js repository][53], install NTARH and
-configure dependencies, download [the following script][54], and run it with
+The above script clones [the Next.js repository][53], installs NTARH and
+configures dependencies, downloads [the following script][54], and runs it using
 [jest][55].
 
 > **Note that passing the [route configuration object][56] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
-> [crucial][57] when testing Apollo endpoints!**
+> [crucial][57] when testing Apollo endpoints _using the Pages Router_!**
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
@@ -736,7 +824,7 @@ describe('my-test (pages router)', () => {
 });
 ```
 
-#### Testing an Unreliable API Handler @ `pages/api/unreliable`
+#### Testing an Unreliable Handler @ `pages/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
@@ -816,7 +904,7 @@ it('injects contrived errors at the required rate', async () => {
 });
 ```
 
-#### Testing a Flight Search API Handler @ `pages/api/v3/flights/search`
+#### Testing an Authenticated Flight Search Handler @ `pages/api/v3/flights/search`
 
 Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
@@ -1235,7 +1323,7 @@ specification. Contributions of any kind welcome!
 [28]:
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
 [29]: #testing-nextjss-official-apollo-example--pagesapigraphql
-[30]: #testing-a-flight-search-api-handler--pagesapiv3flightssearch
+[30]: #testing-an-authenticated-flight-search-handler--pagesapiv3flightssearch
 [31]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#requestpatcher
 [32]:
