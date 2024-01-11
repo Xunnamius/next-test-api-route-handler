@@ -40,12 +40,15 @@ infra just to get some passing tests? And what does a "passing test" mean anyway
 when your handlers aren't receiving _actual_ [`NextRequest`][3] objects and
 aren't being run by Next.js itself?
 
-Does it vex you that your tests explode when your [App Router][4] handlers call
+> Next.js patches the global `fetch` function, for instance. If your tests
+> aren't doing the same, you're making space for bugs!
+
+Is it vexing that everything explodes when your [App Router][4] handlers call
 `headers()` or `cookies()` or any of the other route-specific [helper
 functions][5]? Or maybe you want your [Pages Router][6] handlers to receive
 _actual_ [`NextApiRequest`][7] and [`NextApiResponse`][7] objects?
 
-Still here? Then look no further! 🤩
+Sound interesting? Then want no longer! 🤩
 
 [`next-test-api-route-handler`][x-badge-repo-link] (NTARH) uses Next.js's
 internal resolvers to precisely emulate route handling. To guarantee stability,
