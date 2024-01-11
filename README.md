@@ -772,19 +772,28 @@ nine `HTTP 200` responses?
 
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the app/api directory
-import * as appHandler from '../app/api/unreliable';
+import * as edgeHandler from '../app/api/unreliable';
 
 const expectedReqPerError = 10;
 
 it('injects contrived errors at the required rate', async () => {
   expect.hasAssertions();
 
-  // Signal to the endpoint (which is configurable) that there should be 1
+  // Signal to the edge endpoint (which is configurable) that there should be 1
   // error among every 10 requests
   process.env.REQUESTS_PER_CONTRIVED_ERROR = expectedReqPerError.toString();
 
   await testApiHandler({
-    appHandler,
+    appHandler: edgeHandler,
+    requestPatcher(request) {
+      // Our edge handler expects Next.js to provide geo and ip data with the
+      // request, so let's add some. This is also where you'd mock/emulate the
+      // effects of any Next.js middleware
+      return new NextRequest(request, {
+        geo: { city: 'Chicago', country: 'United States' },
+        ip: '110.10.77.7'
+      });
+    },
     test: async ({ fetch }) => {
       // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
       // record the results
@@ -863,9 +872,10 @@ The above script clones [the Next.js repository][61], installs NTARH and
 configures dependencies, downloads the [jest test][62] file shown below, and
 runs it using [jest][56].
 
-> **Note that passing the [route configuration object][63] (imported below as
-> `config`) through to NTARH and setting `request.url` to the proper value is
-> [crucial][64] when testing Apollo endpoints _using the Pages Router_!**
+> \[!IMPORTANT]\
+> Note that passing the [route configuration object][63] (imported below as `config`)
+> through to NTARH and setting `request.url` to the proper value is **[crucial][64]**
+> when testing Apollo endpoints using the Pages Router!
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
