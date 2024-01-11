@@ -631,6 +631,25 @@ describe('::testApiHandler', () => {
       });
     });
 
+    it('does not misplace request body', async () => {
+      expect.hasAssertions();
+
+      const body = JSON.stringify({ hello: 'world!' });
+
+      await testApiHandler({
+        appHandler: {
+          async POST(request) {
+            return new Response(await request.text());
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'POST', body });
+          expect(res.status).toBe(200);
+          await expect(res.text()).resolves.toBe(body);
+        }
+      });
+    });
+
     it('resolves on errors from handler function by default or if rejectOnHandlerError is false or not provided', async () => {
       expect.hasAssertions();
 
@@ -1241,6 +1260,23 @@ describe('::testApiHandler', () => {
           expect(mockedCookieParse).toHaveBeenCalledTimes(4);
           expect(res.cookies).toBeArrayOfSize(2);
           expect(mockedCookieParse).toHaveBeenCalledTimes(4);
+        }
+      });
+    });
+
+    it('does not misplace request body', async () => {
+      expect.hasAssertions();
+
+      const body = JSON.stringify({ hello: 'world!' });
+
+      await testApiHandler({
+        pagesHandler: (req, res) => {
+          res.status(200).send(req.body);
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'POST', body });
+          expect(res.status).toBe(200);
+          await expect(res.text()).resolves.toBe(body);
         }
       });
     });

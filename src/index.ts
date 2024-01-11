@@ -454,13 +454,17 @@ export async function testApiHandler<NextResponseJsonType = any>({
   }
 
   function createAppRouterServer() {
-    const { createServerAdapter } = require('@whatwg-node/server');
+    // ? Keep these imports local so older Next.js versions don't choke and die.
+    type CreateServerAdapter = typeof import('@whatwg-node/server').createServerAdapter;
+    const createServerAdapter = require('@whatwg-node/server')
+      .createServerAdapter as CreateServerAdapter;
+
     type NextRequest_ = typeof import('next/server').NextRequest;
     const NextRequest = require('next/server').NextRequest as NextRequest_;
 
     return createServer((req, res) => {
       const originalRes = res;
-      return createServerAdapter(async (request: Request) => {
+      return createServerAdapter(async (request) => {
         try {
           assert(appHandler !== undefined);
 
@@ -478,6 +482,13 @@ export async function testApiHandler<NextResponseJsonType = any>({
                  */
                 {
                   ...request,
+                  body:
+                    request.body !== null
+                      ? readableStreamFromAsyncIterable(
+                          // ? body claims to be a ReadableStream, but it's not.
+                          request.body as unknown as AsyncIterable<any>
+                        )
+                      : null,
                   // https://github.com/nodejs/node/issues/46221
                   // @ts-expect-error: TS types are not yet updated
                   duplex: 'half'
@@ -558,6 +569,19 @@ export async function testApiHandler<NextResponseJsonType = any>({
           return (await responsePatcher?.(response)) || response;
         } catch (error) {
           handleError(originalRes, error, deferredReject);
+
+          // ? This line (i.e. "await ... setImmediate(...));") allows the
+          // ? event loop to service the rejection caused by deferredReject(...)
+          // ? before continuing the execution of this function.
+          await new Promise((resolve) => setImmediate(resolve));
+
+          // ? Unless they're stepping through deep code, end developers should
+          // ? never encounter this response since deferredReject rejects first.
+          return new Response(
+            '[NTARH Internal Server Error]: an error occurred during this test that caused testApiHandler to reject (i.e. rejectOnHandlerError === true). This response was returned as a courtesy so your handler does not potentially hang forever. Error: ' +
+              String(error),
+            { status: 500 }
+          );
         }
       })(req, res);
     });
@@ -574,7 +598,11 @@ export async function testApiHandler<NextResponseJsonType = any>({
           .then(() => responsePatcher?.(res))
           .then(async () => {
             const { parse: parseUrl } = require('node:url');
-            const rawParameters = { ...parseUrl(req.url || '', true).query, ...params };
+            const rawParameters: Record<string, unknown> = {
+              ...parseUrl(req.url || '', true).query,
+              ...params
+            };
+
             return (await paramsPatcher?.(rawParameters)) || rawParameters;
           })
           .then((finalParameters) => {
@@ -633,4 +661,42 @@ async function mockEnvVariable<T>(
   } finally {
     process.env[name] = oldEnvVariable;
   }
+}
+
+// ? The Node devs gated the essential ReadableStream.from(...) behind Node@20,
+// ? and Readable.toWeb(...) just doesn't work properly for whatever lame
+// ? reason, so f**k it we'll do it live.
+// * https://github.com/nodejs/node/blob/d102d16e98a8845cba96157b6396bd448241e47c/lib/internal/webstreams/readablestream.js#L1309
+function readableStreamFromAsyncIterable(
+  iterable: AsyncIterable<any> | null | undefined
+) {
+  if (iterable === undefined || iterable === null) {
+    return;
+  }
+
+  const asyncIterator = iterable[Symbol.asyncIterator]();
+
+  return new ReadableStream(
+    {
+      // ? Node's own internal implementation does this, so we'll do it too.
+      start: () => {},
+      async pull(controller) {
+        const nextChunk = await asyncIterator.next();
+
+        if (nextChunk.done) {
+          controller.close();
+        } else {
+          controller.enqueue(nextChunk.value);
+        }
+      },
+      async cancel(reason) {
+        await asyncIterator.return?.(reason);
+        return undefined;
+      }
+    },
+    {
+      // ? Node's own internal implementation does this, so we'll do it too.
+      highWaterMark: 0
+    }
+  );
 }
