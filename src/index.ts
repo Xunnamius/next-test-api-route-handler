@@ -206,7 +206,7 @@ export interface NtarhInitPagesRouter<NextResponseJsonType = unknown>
    * NTARH@4. Only the `response.json` method returned by NTARH's fetch wrapper
    * will have a typed result.
    */
-  pagesHandler: NextApiHandler<any>;
+  pagesHandler: NextApiHandler<any> | { default: NextApiHandler<any> };
   appHandler?: undefined;
   /**
    * `params` is passed directly to the handler and represents processed dynamic
@@ -263,7 +263,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   paramsPatcher,
   params,
   url,
-  pagesHandler,
+  pagesHandler: pagesHandler_,
   appHandler,
   test
 }:
@@ -272,11 +272,11 @@ export async function testApiHandler<NextResponseJsonType = any>({
   let server: Server | null = null;
   let deferredReject: ((error?: unknown) => void) | null = null;
 
-  if (!!pagesHandler === !!appHandler) {
-    throw new TypeError(
-      'next-test-api-route-handler (NTARH) initialization failed: you must provide exactly one of: pagesHandler, appHandler'
-    );
-  }
+  // ? Normalize pagesHandler into a NextApiHandler (ESM<=>CJS interop)
+  const pagesHandler =
+    pagesHandler_ && typeof pagesHandler_ === 'object' && 'default' in pagesHandler_
+      ? Object.assign(pagesHandler_.default, pagesHandler_)
+      : pagesHandler_;
 
   try {
     if (!globalThis.AsyncLocalStorage) {
@@ -554,7 +554,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   function createPagesRouterServer() {
     return createServer((req, res) => {
       try {
-        assert(pagesHandler !== undefined);
+        assert(pagesHandler_ !== undefined);
 
         req.url = url || defaultNextRequestMockUrl;
 
