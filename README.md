@@ -395,14 +395,17 @@ it('handles multiple set-cookie headers', async () => {
 
   await testApiHandler({
     pagesHandler: (_, res) => {
-      // NOTE: multiple calls to setHeader('Set-Cookie', ...) overwrite previous
-      res.setHeader('Set-Cookie', [
-        serializeCookieHeader('access_token', '1234', { expires: new Date() }),
-        serializeCookieHeader('REFRESH_TOKEN', '5678')
-      ]);
-      res.status(200).send({});
-      // NOTE: if using node@>=14, you can use a more fluent interface, i.e.:
-      // res.setHeader(...).status(200).send({});
+      // Multiple calls to setHeader('Set-Cookie', ...) overwrite previous, so
+      // we have to set the Set-Cookie header properly
+      res
+        .setHeader('Set-Cookie', [
+          serializeCookieHeader('access_token', '1234', {
+            expires: new Date()
+          }),
+          serializeCookieHeader('REFRESH_TOKEN', '5678')
+        ])
+        .status(200)
+        .send({});
     },
     test: async ({ fetch }) => {
       expect((await fetch()).status).toBe(200);
