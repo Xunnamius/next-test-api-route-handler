@@ -283,6 +283,12 @@ export async function testApiHandler<NextResponseJsonType = any>({
       globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
     }
 
+    if (!!pagesHandler_ === !!appHandler) {
+      throw new TypeError(
+        'next-test-api-route-handler (NTARH) initialization failed: you must provide exactly one of: pagesHandler, appHandler'
+      );
+    }
+
     if (pagesHandler && !apiResolver) {
       tryImport.importErrors = [];
 
