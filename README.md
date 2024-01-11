@@ -573,10 +573,10 @@ Use this function to edit the response _before_ it's injected into the handler.
 ### `paramsPatcher` (`params`)
 
 `paramsPatcher` is a function that receives an object representing "processed"
-dynamic routes.
+[dynamic segments][42] (aka: routes, slugs).
 
 For example, to test a handler normally accessible from `/api/user/:id` requires
-passing that handler a value for the "id" [dynamic segment][42]:
+passing that handler a value for the "id" dynamic segment:
 
 ```typescript
 {
