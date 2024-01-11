@@ -46,7 +46,7 @@ false
 
 #### Defined in
 
-[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L115)
+[index.ts:117](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L117)
 
 ___
 
@@ -79,4 +79,4 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:121](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L121)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L123)

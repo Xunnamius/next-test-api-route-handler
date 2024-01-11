@@ -38,13 +38,13 @@ The parameters expected by `testApiHandler` when using `pagesHandler`.
 
 #### Defined in
 
-[index.ts:208](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L208)
+[index.ts:210](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L210)
 
 ___
 
 ### pagesHandler
 
-• **pagesHandler**: `NextApiHandler`\<`any`\>
+• **pagesHandler**: `NextApiHandler`\<`any`\> \| \{ `default`: `NextApiHandler`\<`any`\>  }
 
 The actual Pages Router route handler under test. It should be an async
 function that accepts `NextApiRequest` and `NextApiResult` objects (in
@@ -56,7 +56,7 @@ will have a typed result.
 
 #### Defined in
 
-[index.ts:207](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L207)
+[index.ts:209](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L209)
 
 ___
 
@@ -74,7 +74,7 @@ once.
 
 #### Defined in
 
-[index.ts:218](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L218)
+[index.ts:220](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L220)
 
 ___
 
@@ -114,7 +114,7 @@ is handled automatically.
 
 #### Defined in
 
-[index.ts:228](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L228)
+[index.ts:230](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L230)
 
 ___
 
@@ -143,7 +143,7 @@ false
 
 #### Defined in
 
-[index.ts:115](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L115)
+[index.ts:117](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L117)
 
 ___
 
@@ -179,7 +179,7 @@ lowercase.**
 
 #### Defined in
 
-[index.ts:239](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L239)
+[index.ts:241](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L241)
 
 ___
 
@@ -209,7 +209,7 @@ to edit the response _before_ it's injected into the handler.
 
 #### Defined in
 
-[index.ts:244](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L244)
+[index.ts:246](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L246)
 
 ___
 
@@ -246,7 +246,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:121](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L121)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L123)
 
 ___
 
@@ -259,4 +259,4 @@ ___
 
 #### Defined in
 
-[index.ts:249](https://github.com/Xunnamius/next-test-api-route-handler/blob/ceddb7d/src/index.ts#L249)
+[index.ts:251](https://github.com/Xunnamius/next-test-api-route-handler/blob/e8ce5c7/src/index.ts#L251)
