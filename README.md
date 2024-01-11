@@ -220,8 +220,8 @@ At minimum, `options` must contain the following properties:
 For example:
 
 ```typescript
-import { headers } from 'next/headers';
 import { testApiHandler } from 'next-test-api-route-handler';
+import { headers } from 'next/headers';
 
 await testApiHandler({
   appHandler: {
@@ -331,9 +331,9 @@ value (e.g. `"none"`) via `fetch`'s `customInit` parameter (not
 For example:
 
 ```typescript
+import { testApiHandler } from 'next-test-api-route-handler';
 import { http, passthrough, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { testApiHandler } from 'next-test-api-route-handler';
 
 const server = setupServer(/* ... */);
 
@@ -436,7 +436,7 @@ function are kicked up to Next.js to handle.
 Instead, the response returned by `fetch()` in your `test` function will have a
 `HTTP 500` status [thanks to how Next.js deals with unhandled errors in
 production][29]. Prior to `2.3.0`, NTARH's behavior on unhandled errors and
-elsewhere was inconsistent. Version `3.0.0` further improves error handling,
+elsewhere was inconsistent. Version `3.0.0` further improved error handling,
 ensuring no errors slip by uncaught.
 
 To guard against false negatives, you can do either of the following:
@@ -735,21 +735,110 @@ describe('my-test (app router)', () => {
 });
 ```
 
-#### Testing Clerk.dev Authentication Integration @ `app/api/authed`
+#### Testing Clerk's Official Next.js Integration @ `app/api/authed`
 
-(todo)
+Suppose we have an _authenticated_ API endpoint built using [Clerk's quick-start
+guide for Next.js][57], or perhaps [from their official demo repo][58].
 
-#### Testing an Unreliable Handler on the Edge @ `app/api/v3/flights/search`
+How might we test that this endpoint behaves as we expect?
 
-(todo)
+```typescript
+/* File: test/unit.test.ts */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+import * as appHandler from '../app/api/authed/route';
+
+it('', async () => {
+  expect.hasAssertions();
+
+  await testApiHandler({
+    appHandler,
+    test: async ({ fetch }) => // TODO
+  });
+});
+```
+
+#### Testing an Unreliable Handler on the Edge @ `app/api/unreliable`
+
+Suppose we have an API endpoint we use to test our application's error handling.
+The endpoint responds with status code `HTTP 200` for every request except the
+10th, where status code `HTTP 555` is returned instead.
+
+How might we test that this endpoint responds with `HTTP 555` once for every
+nine `HTTP 200` responses?
+
+```typescript
+/* File: test/unit.test.ts */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the app/api directory
+import * as appHandler from '../app/api/unreliable';
+
+const expectedReqPerError = 10;
+
+it('injects contrived errors at the required rate', async () => {
+  expect.hasAssertions();
+
+  // Signal to the endpoint (which is configurable) that there should be 1
+  // error among every 10 requests
+  process.env.REQUESTS_PER_CONTRIVED_ERROR = expectedReqPerError.toString();
+
+  await testApiHandler({
+    appHandler,
+    test: async ({ fetch }) => {
+      // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
+      // record the results
+      const results1 = await Promise.all(
+        [
+          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
+            fetch({ method: 'GET' })
+          ),
+          fetch({ method: 'POST' }),
+          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
+            fetch({ method: 'PUT' })
+          ),
+          fetch({ method: 'DELETE' })
+        ].map((p) => p.then((r) => r.status))
+      );
+
+      process.env.REQUESTS_PER_CONTRIVED_ERROR = '0';
+
+      // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and record the
+      // results
+      const results2 = await Promise.all(
+        Array.from({ length: expectedReqPerError }).map(() =>
+          fetch().then((r) => r.status)
+        )
+      );
+
+      // We expect results1 to be an array with eighteen `200`s and two
+      // `555`s in any order
+      //
+      // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
+      // because responses could be received out of order
+      expect(results1).toIncludeSameMembers([
+        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
+        555,
+        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
+        555
+      ]);
+
+      // We expect results2 to be an array with ten `200`s
+      expect(results2).toStrictEqual([
+        ...Array.from({ length: expectedReqPerError }).map(() => 200)
+      ]);
+    }
+  });
+});
+```
 
 ### Using the Pages Router
 
-These examples use Next.js's [Pages Router][57] API.
+These examples use Next.js's [Pages Router][59] API.
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-This example is based on [the official Next.js Apollo integration][58]. You can
+This example is based on [the official Next.js Apollo integration][60]. You can
 easily run it yourself by copying and pasting the following commands into your
 terminal.
 
@@ -771,13 +860,13 @@ curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-ap
 npx jest
 ```
 
-The above script clones [the Next.js repository][59], installs NTARH and
-configures dependencies, downloads [the following script][60], and runs it using
-[jest][56].
+The above script clones [the Next.js repository][61], installs NTARH and
+configures dependencies, downloads the [jest test][62] file shown below, and
+runs it using [jest][56].
 
-> **Note that passing the [route configuration object][61] (imported below as
+> **Note that passing the [route configuration object][63] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value is
-> [crucial][62] when testing Apollo endpoints _using the Pages Router_!**
+> [crucial][64] when testing Apollo endpoints _using the Pages Router_!**
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/my.test.js */
@@ -833,23 +922,17 @@ Suppose we have an API endpoint we use to test our application's error handling.
 The endpoint responds with status code `HTTP 200` for every request except the
 10th, where status code `HTTP 555` is returned instead.
 
-How might we [test][56] that this endpoint responds with `HTTP 555` once for
-every nine `HTTP 200` responses?
+How might we test that this endpoint responds with `HTTP 555` once for every
+nine `HTTP 200` responses?
 
 ```typescript
 /* File: test/unit.test.ts */
 
-// Import the handler under test from the pages/api directory
-import endpoint, { config } from '../pages/api/unreliable';
 import { testApiHandler } from 'next-test-api-route-handler';
-
-import type { PageConfig } from 'next';
+// Import the handler under test from the pages/api directory
+import * as pagesHandler from '../pages/api/unreliable';
 
 const expectedReqPerError = 10;
-
-// Respect the Next.js config object if it's exported
-const pagesHandler: typeof endpoint & { config?: PageConfig } = endpoint;
-pagesHandler.config = config;
 
 it('injects contrived errors at the required rate', async () => {
   expect.hasAssertions();
@@ -919,15 +1002,11 @@ expected?
 ```typescript
 /* File: test/unit.test.ts */
 
-import endpoint, { config } from '../pages/api/v3/flights/search';
 import { testApiHandler } from 'next-test-api-route-handler';
 import { DUMMY_API_KEY as KEY, getFlightData, RESULT_SIZE } from '../backend';
+import * as pagesHandler from '../pages/api/v3/flights/search';
 
 import type { PageConfig } from 'next';
-
-// Respect the Next.js config object if it's exported
-const pagesHandler: typeof endpoint & { config?: PageConfig } = endpoint;
-pagesHandler.config = config;
 
 it('returns expected public flights with respect to match', async () => {
   expect.hasAssertions();
@@ -1037,22 +1116,22 @@ Further documentation can be found under [`docs/`][x-repo-docs].
 Since NTARH is meant for unit testing API routes rather than faithfully
 recreating Next.js functionality, NTARH's feature set comes with some caveats.
 Namely: no Next.js features will be available that are external to processing
-API routes and executing their handlers. This includes [middleware][63] (see
-[`requestPatcher`][64] if you need to mutate the `Request` before it gets to the
-handler under test), [metadata][65], [static assets][66], [OpenTelemetry][67]
-and [instrumentation][68], [caching][69], [styling][70], [server actions and
-mutations][71], [helper functions][5] (except: `cookies`, `fetch` (global),
+API routes and executing their handlers. This includes [middleware][65] (see
+[`requestPatcher`][66] if you need to mutate the `Request` before it gets to the
+handler under test), [metadata][67], [static assets][68], [OpenTelemetry][69]
+and [instrumentation][70], [caching][71], [styling][72], [server actions and
+mutations][73], [helper functions][5] (except: `cookies`, `fetch` (global),
 `headers`, `NextRequest`/`NextResponse`, `notFound`, `permanentRedirect`,
-`redirect`, and `userAgent`), and anything related to React or [components][72].
+`redirect`, and `userAgent`), and anything related to React or [components][74].
 
 NTARH is for testing your API route handlers only.
 
-Further, any support NTARH appears to have for any "[edge runtime][73]" (or any
-other runtime) beyond what is provided by [`AppRouteRouteModule`][74] is merely
+Further, any support NTARH appears to have for any "[edge runtime][75]" (or any
+other runtime) beyond what is provided by [`AppRouteRouteModule`][76] is merely
 cosmetic. **Your tests will always run in Node.js** (or your runner of choice)
 and never in a different runtime, realm, or VM. This means unit testing like
 with NTARH must be done in addition to, and not in lieu of, more holistic
-testing practices (e.g. [end-to-end][75]).
+testing practices (e.g. [end-to-end][77]).
 
 If you're having trouble with your App Router and/or Edge Runtime routes,
 consider [opening a new issue][x-repo-choose-new-issue]!
@@ -1064,10 +1143,10 @@ and the "legacy" Pages Router Next.js APIs.
 
 Additionally, as of version `2.1.0`, NTARH is fully backwards compatible with
 Next.js going _allll_ the way back to `next@9.0.0` [when API routes were first
-introduced][76]!
+introduced][78]!
 
 If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
-`next`][77]), you might need to install `next-server` manually:
+`next`][79]), you might need to install `next-server` manually:
 
 ```shell
 npm install --save-dev next-server
@@ -1075,14 +1154,14 @@ npm install --save-dev next-server
 
 Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
 _and its peer dependencies_ manually. This is because [`npm@<7` does not install
-peer dependencies by default][78].
+peer dependencies by default][80].
 
 ```shell
 npm install --save-dev next@latest react
 ```
 
 > If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][79]!
+> dependencies (like `react`) that your specific Next.js version requires][81]!
 
 ### Inspiration
 
@@ -1102,8 +1181,8 @@ ballooning the execution time of the tests. That is: no spinning up the entire
 Next.js runtime just to run a single test in isolation.
 
 It doesn't seem like it'd be such a lift to surface a wrapped version of the
-Pages Router's [`apiResolver`][80] function and a pared-down subclass of the App
-Router's [`AppRouteRouteModule`][74], both accessible with something like
+Pages Router's [`apiResolver`][82] function and a pared-down subclass of the App
+Router's [`AppRouteRouteModule`][76], both accessible with something like
 `import { ... } from 'next/test'`. This is essentially what NTARH does.
 
 ### Published Package Details
@@ -1365,38 +1444,40 @@ specification. Contributions of any kind welcome!
 [54]: ./apollo_test_raw_app_route
 [55]: ./apollo_test_raw_app_test
 [56]: https://www.npmjs.com/package/jest
-[57]: https://nextjs.org/docs/pages
-[58]:
+[57]: https://clerk.com/docs/quickstarts/nextjs
+[58]: https://github.com/clerk/clerk-nextjs-demo-app-router
+[59]: https://nextjs.org/docs/pages
+[60]:
   https://github.com/vercel/next.js/tree/deprecated-main/examples/api-routes-apollo-server-and-client
-[59]: https://github.com/vercel/next.js
-[60]: ./apollo_test_raw
-[61]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
-[62]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[63]: https://nextjs.org/docs/app/building-your-application/routing/middleware
-[64]: #requestpatcher-url
-[65]: https://nextjs.org/docs/app/building-your-application/optimizing#metadata
-[66]:
-  https://nextjs.org/docs/app/building-your-application/optimizing#static-assets
-[67]:
-  https://nextjs.org/docs/pages/building-your-application/optimizing/open-telemetry
+[61]: https://github.com/vercel/next.js
+[62]: ./apollo_test_raw
+[63]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[64]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
+[65]: https://nextjs.org/docs/app/building-your-application/routing/middleware
+[66]: #requestpatcher-url
+[67]: https://nextjs.org/docs/app/building-your-application/optimizing#metadata
 [68]:
+  https://nextjs.org/docs/app/building-your-application/optimizing#static-assets
+[69]:
+  https://nextjs.org/docs/pages/building-your-application/optimizing/open-telemetry
+[70]:
   https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
-[69]: https://nextjs.org/docs/app/building-your-application/caching
-[70]: https://nextjs.org/docs/app/building-your-application/styling
-[71]:
-  https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations
-[72]: https://nextjs.org/docs/app/api-reference/components
+[71]: https://nextjs.org/docs/app/building-your-application/caching
+[72]: https://nextjs.org/docs/app/building-your-application/styling
 [73]:
-  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
-[74]:
-  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
+  https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations
+[74]: https://nextjs.org/docs/app/api-reference/components
 [75]:
+  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
+[76]:
+  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
+[77]:
   https://nextjs.org/docs/app/building-your-application/testing#types-of-tests
-[76]: https://nextjs.org/blog/next-9
-[77]: https://github.com/vercel/next.js/pull/8613
-[78]:
-  https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
-[79]:
-  https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
+[78]: https://nextjs.org/blog/next-9
+[79]: https://github.com/vercel/next.js/pull/8613
 [80]:
+  https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
+[81]:
+  https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
+[82]:
   https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321
