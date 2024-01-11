@@ -437,7 +437,10 @@ export async function testApiHandler<NextResponseJsonType = any>({
           // ? realm, and "summons" it into the current vm realm. Without
           // ? this step, matchers like .toStrictEqual(...) will fail with a
           // ? "serializes to the same string" error.
-          res.json = async () => Object.assign({}, await oldJson());
+          // ?
+          // ? Why can't we use Object.assign(...) or spread syntax instead?
+          // ? Because we need a deep clone (but faster than structuredClone).
+          res.json = async () => JSON.parse(JSON.stringify(await oldJson()));
 
           return res;
         });
