@@ -915,80 +915,6 @@ describe('my-test (pages router)', () => {
 });
 ```
 
-#### Testing an Unreliable Handler @ `pages/api/unreliable`
-
-Suppose we have an API endpoint we use to test our application's error handling.
-The endpoint responds with status code `HTTP 200` for every request except the
-10th, where status code `HTTP 555` is returned instead.
-
-How might we test that this endpoint responds with `HTTP 555` once for every
-nine `HTTP 200` responses?
-
-```typescript
-/* File: test/unit.test.ts */
-
-import { testApiHandler } from 'next-test-api-route-handler';
-// Import the handler under test from the pages/api directory
-import * as pagesHandler from '../pages/api/unreliable';
-
-const expectedReqPerError = 10;
-
-it('injects contrived errors at the required rate', async () => {
-  expect.hasAssertions();
-
-  // Signal to the endpoint (which is configurable) that there should be 1
-  // error among every 10 requests
-  process.env.REQUESTS_PER_CONTRIVED_ERROR = expectedReqPerError.toString();
-
-  await testApiHandler({
-    pagesHandler,
-    test: async ({ fetch }) => {
-      // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
-      // record the results
-      const results1 = await Promise.all(
-        [
-          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
-            fetch({ method: 'GET' })
-          ),
-          fetch({ method: 'POST' }),
-          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
-            fetch({ method: 'PUT' })
-          ),
-          fetch({ method: 'DELETE' })
-        ].map((p) => p.then((r) => r.status))
-      );
-
-      process.env.REQUESTS_PER_CONTRIVED_ERROR = '0';
-
-      // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and record the
-      // results
-      const results2 = await Promise.all(
-        Array.from({ length: expectedReqPerError }).map(() =>
-          fetch().then((r) => r.status)
-        )
-      );
-
-      // We expect results1 to be an array with eighteen `200`s and two
-      // `555`s in any order
-      //
-      // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
-      // because responses could be received out of order
-      expect(results1).toIncludeSameMembers([
-        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
-        555,
-        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
-        555
-      ]);
-
-      // We expect results2 to be an array with ten `200`s
-      expect(results2).toStrictEqual([
-        ...Array.from({ length: expectedReqPerError }).map(() => 200)
-      ]);
-    }
-  });
-});
-```
-
 #### Testing an Authenticated Flight Search Handler @ `pages/api/v3/flights/search`
 
 Suppose we have an _authenticated_ API endpoint our application uses to search
@@ -1102,6 +1028,80 @@ it('returns expected public flights with respect to match', async () => {
     url: `/?match=${encode({ bad: 500 })}`,
     test: async ({ fetch }) =>
       expect((await fetch({ headers: { KEY } })).status).toBe(400)
+  });
+});
+```
+
+#### Testing an Unreliable Handler @ `pages/api/unreliable`
+
+Suppose we have an API endpoint we use to test our application's error handling.
+The endpoint responds with status code `HTTP 200` for every request except the
+10th, where status code `HTTP 555` is returned instead.
+
+How might we test that this endpoint responds with `HTTP 555` once for every
+nine `HTTP 200` responses?
+
+```typescript
+/* File: test/unit.test.ts */
+
+import { testApiHandler } from 'next-test-api-route-handler';
+// Import the handler under test from the pages/api directory
+import * as pagesHandler from '../pages/api/unreliable';
+
+const expectedReqPerError = 10;
+
+it('injects contrived errors at the required rate', async () => {
+  expect.hasAssertions();
+
+  // Signal to the endpoint (which is configurable) that there should be 1
+  // error among every 10 requests
+  process.env.REQUESTS_PER_CONTRIVED_ERROR = expectedReqPerError.toString();
+
+  await testApiHandler({
+    pagesHandler,
+    test: async ({ fetch }) => {
+      // Run 20 requests with REQUESTS_PER_CONTRIVED_ERROR = '10' and
+      // record the results
+      const results1 = await Promise.all(
+        [
+          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
+            fetch({ method: 'GET' })
+          ),
+          fetch({ method: 'POST' }),
+          ...Array.from({ length: expectedReqPerError - 1 }).map(() =>
+            fetch({ method: 'PUT' })
+          ),
+          fetch({ method: 'DELETE' })
+        ].map((p) => p.then((r) => r.status))
+      );
+
+      process.env.REQUESTS_PER_CONTRIVED_ERROR = '0';
+
+      // Run 10 requests with REQUESTS_PER_CONTRIVED_ERROR = '0' and record the
+      // results
+      const results2 = await Promise.all(
+        Array.from({ length: expectedReqPerError }).map(() =>
+          fetch().then((r) => r.status)
+        )
+      );
+
+      // We expect results1 to be an array with eighteen `200`s and two
+      // `555`s in any order
+      //
+      // https://github.com/jest-community/jest-extended#toincludesamemembersmembers
+      // because responses could be received out of order
+      expect(results1).toIncludeSameMembers([
+        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
+        555,
+        ...Array.from({ length: expectedReqPerError - 1 }).map(() => 200),
+        555
+      ]);
+
+      // We expect results2 to be an array with ten `200`s
+      expect(results2).toStrictEqual([
+        ...Array.from({ length: expectedReqPerError }).map(() => 200)
+      ]);
+    }
   });
 });
 ```
