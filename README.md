@@ -921,7 +921,7 @@ Suppose we have an _authenticated_ API endpoint our application uses to search
 for flights. The endpoint responds with an array of flights satisfying the
 query.
 
-How might we [test][56] that this endpoint returns flights in our database as
+How might we test that this endpoint returns flights in our database as
 expected?
 
 ```typescript
