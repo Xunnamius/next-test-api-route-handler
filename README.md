@@ -838,9 +838,8 @@ These examples use Next.js's [Pages Router][59] API.
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-This example is based on [the official Next.js Apollo integration][60]. You can
-easily run it yourself by copying and pasting the following commands into your
-terminal.
+This example uses the [official Next.js Apollo demo][60]. You can easily run it
+yourself by copying and pasting the following commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
 > [WSL][53]. Requires `curl`, `node`, and `git`.
