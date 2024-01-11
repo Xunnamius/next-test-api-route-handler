@@ -279,6 +279,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       : pagesHandler_;
 
   try {
+    // ? Next expects AsyncLocalStorage to be globally available
     if (!globalThis.AsyncLocalStorage) {
       globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
     }
@@ -289,6 +290,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       );
     }
 
+    // ? Dynamically import apiResolver only if necessary
     if (pagesHandler && !apiResolver) {
       tryImport.importErrors = [];
 
@@ -328,6 +330,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
       }
     }
 
+    // ? Dynamically import AppRouteRouteModule only if necessary
     if (appHandler && !AppRouteRouteModule) {
       tryImport.importErrors = [];
 
