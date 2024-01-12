@@ -482,13 +482,11 @@ export async function testApiHandler<NextResponseJsonType = any>({
                  */
                 {
                   ...request,
-                  body:
-                    request.body !== null
-                      ? readableStreamFromAsyncIterable(
-                          // ? body claims to be a ReadableStream, but it's not.
-                          request.body as unknown as AsyncIterable<any>
-                        )
-                      : null,
+                  body: readableStreamOrNullFromAsyncIterable(
+                    // ? request.body claims to be ReadableStream, but it's
+                    // ? actually a Node.js native stream (i.e. iterable)...
+                    request.body as unknown as AsyncIterable<any>
+                  ),
                   // https://github.com/nodejs/node/issues/46221
                   // @ts-expect-error: TS types are not yet updated
                   duplex: 'half'
@@ -667,11 +665,11 @@ async function mockEnvVariable<T>(
 // ? and Readable.toWeb(...) just doesn't work properly for whatever lame
 // ? reason, so f**k it we'll do it live.
 // * https://github.com/nodejs/node/blob/d102d16e98a8845cba96157b6396bd448241e47c/lib/internal/webstreams/readablestream.js#L1309
-function readableStreamFromAsyncIterable(
+function readableStreamOrNullFromAsyncIterable(
   iterable: AsyncIterable<any> | null | undefined
 ) {
   if (iterable === undefined || iterable === null) {
-    return;
+    return null;
   }
 
   const asyncIterator = iterable[Symbol.asyncIterator]();
