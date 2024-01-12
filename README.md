@@ -656,7 +656,7 @@ following commands into your terminal.
 ```bash
 mkdir -p /tmp/ntarh-test/test
 cd /tmp/ntarh-test
-npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env --force
+npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env
 echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
 mkdir -p app/api/graphql
 curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route
@@ -860,11 +860,11 @@ yourself by copying and pasting the following commands into your terminal.
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
 cd /tmp/ntarh-test/examples/api-routes-apollo-server-and-client
 npm install --force
-npm install --force next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env --force
+npm install --force next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env
 # You could test with an older version of Next.js if you want, e.g.:
-# npm install next@9.0.6 --force
+# npm install --force next@9.0.6
 # Or even older:
-# npm install next@9.0.0 next-server --force
+# npm install --force next@9.0.0 next-server
 echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
 mkdir test
 curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
