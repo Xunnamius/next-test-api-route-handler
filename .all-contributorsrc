@@ -170,6 +170,13 @@
       "login": "Jokinen",
       "name": "Jaakko Jokinen",
       "profile": "https://github.com/Jokinen"
+    },
+    {
+      "login": "arunsathiya",
+      "name": "Arun Sathiya",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18581859?v=4",
+      "profile": "https://arun.blog/",
+      "contributions": ["research", "code"]
     }
   ]
 }
