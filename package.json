@@ -156,7 +156,7 @@
     "lint-staged": "^15.2.0",
     "lodash.mergewith": "^4.6.2",
     "mongodb": "^6.3.0",
-    "msw": "^2.0.14",
+    "msw": "2.0.14",
     "prettier": "^3.2.1",
     "remark-capitalize-headings": "^2.0.1",
     "remark-cli": "^12.0.0",
