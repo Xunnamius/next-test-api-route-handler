@@ -46,7 +46,7 @@ let AppRouteRouteModule: typeof NextAppResolver | null = null;
 // ? We track the original global fetch function because Next.js patches it
 // ? upon import (I'm not sure where or when), so we need to restore it before
 // ? the end-developer's test function runs.
-const originalGlobalFetch = fetch;
+const originalGlobalFetch = globalThis.fetch;
 
 /**
  * @internal
@@ -453,6 +453,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
     });
   } finally {
     server?.close();
+    globalThis.fetch = originalGlobalFetch;
   }
 
   function createAppRouterServer() {
