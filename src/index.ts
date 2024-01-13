@@ -432,22 +432,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
             }
           });
 
-          const oldJson = res.json.bind(res);
-          // ? What is this? Well, when ditching node-fetch for the internal
-          // ? fetch, the way Jest uses node's vm package results in the
-          // ? internals returning objects from a different realm than the
-          // ? objects created within the vm instance (like the one in which
-          // ? jest tests are executed). What this extra step does is take
-          // ? the object returned from res.json(), which is from an outside
-          // ? realm, and "summons" it into the current vm realm. Without
-          // ? this step, matchers like .toStrictEqual(...) will fail with a
-          // ? "serializes to the same string" error.
-          // ?
-          // ? Why can't we use Object.assign(...) or spread syntax instead?
-          // ? Because we need a deep clone (but faster than structuredClone).
-          res.json = async () => JSON.parse(JSON.stringify(await oldJson()));
-
-          return res;
+          return rebindJsonMethodAsSummoner(response);
         });
       }
     });
@@ -477,23 +462,25 @@ export async function testApiHandler<NextResponseJsonType = any>({
             '__NEXT_NO_MIDDLEWARE_URL_NORMALIZE',
             'true',
             async () => {
-              const rawRequest = new NextRequest(
-                url || defaultNextRequestMockUrl,
-                /**
-                 * See: RequestData from next/dist/server/web/types.d.ts
-                 * See also: https://stackoverflow.com/a/57014050/1367414
-                 */
-                {
-                  ...request,
-                  body: readableStreamOrNullFromAsyncIterable(
-                    // ? request.body claims to be ReadableStream, but it's
-                    // ? actually a Node.js native stream (i.e. iterable)...
-                    request.body as unknown as AsyncIterable<any>
-                  ),
-                  // https://github.com/nodejs/node/issues/46221
-                  // @ts-expect-error: TS types are not yet updated
-                  duplex: 'half'
-                }
+              const rawRequest = rebindJsonMethodAsSummoner(
+                new NextRequest(
+                  url || defaultNextRequestMockUrl,
+                  /**
+                   * See: RequestData from next/dist/server/web/types.d.ts
+                   * See also: https://stackoverflow.com/a/57014050/1367414
+                   */
+                  {
+                    ...request,
+                    body: readableStreamOrNullFromAsyncIterable(
+                      // ? request.body claims to be ReadableStream, but it's
+                      // ? actually a Node.js native stream (i.e. iterable)...
+                      request.body as unknown as AsyncIterable<any>
+                    ),
+                    // https://github.com/nodejs/node/issues/46221
+                    // @ts-expect-error: TS types are not yet updated
+                    duplex: 'half'
+                  }
+                )
               );
 
               const patchedRequest = (await requestPatcher?.(rawRequest)) || rawRequest;
@@ -543,29 +530,34 @@ export async function testApiHandler<NextResponseJsonType = any>({
             }
           );
 
-          const response_ = appRouteRouteModule.handle(nextRequest, {
-            params: finalParameters,
-            prerenderManifest: {} as any,
-            renderOpts: {
-              // ? Next.js poos the bed if we don't include this
-              experimental: {},
-              // ? Next.js tries to do things it shouldn't unless we add this
-              supportsDynamicHTML: true
-            } as any
-          });
+          const response_ = appRouteRouteModule.handle(
+            rebindJsonMethodAsSummoner(nextRequest),
+            {
+              params: finalParameters,
+              prerenderManifest: {} as any,
+              renderOpts: {
+                // ? Next.js poos the bed if we don't include this
+                experimental: {},
+                // ? Next.js tries to do things it shouldn't unless we add this
+                supportsDynamicHTML: true
+              } as any
+            }
+          );
 
           // * We essentially copy what the Pages Router apiResolver does,
           // * which is also what the App Router does too but elsewhere.
-          const response = await response_.catch((error: unknown) => {
-            // eslint-disable-next-line no-console
-            console.error(error);
+          const response = rebindJsonMethodAsSummoner(
+            await response_.catch((error: unknown) => {
+              // eslint-disable-next-line no-console
+              console.error(error);
 
-            if (rejectOnHandlerError) {
-              throw error;
-            } else {
-              return new Response('Internal Server Error', { status: 500 });
-            }
-          });
+              if (rejectOnHandlerError) {
+                throw error;
+              } else {
+                return new Response('Internal Server Error', { status: 500 });
+              }
+            })
+          );
 
           return (await responsePatcher?.(response)) || response;
         } catch (error) {
@@ -700,4 +692,30 @@ function readableStreamOrNullFromAsyncIterable(
       highWaterMark: 0
     }
   );
+}
+
+/**
+ * What is this? Well, when ditching node-fetch for the internal fetch, the way
+ * Jest uses node's vm package results in the internals returning objects from a
+ * different realm than the objects created within the vm instance (like the one
+ * in which jest tests are executed). What this extra step does is take the
+ * object returned from res.json(), which is from an outside realm, and
+ * "summons" it into the current vm realm. Without this step, matchers like
+ * .toStrictEqual(...) will fail with a "serializes to the same string" error.
+ *
+ * @internal
+ */
+function rebindJsonMethodAsSummoner<T extends Response | Request>(communication: T): T {
+  // @ts-expect-error: a hidden property
+  if (!communication.__ntarhPatched) {
+    communication.json = async () => {
+      const text = await communication.text();
+      return JSON.parse(text);
+    };
+
+    // @ts-expect-error: a hidden property
+    communication.__ntarhPatched = true;
+  }
+
+  return communication;
 }
