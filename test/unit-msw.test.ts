@@ -2,12 +2,13 @@
 
 import { HttpResponse, http, passthrough } from 'msw';
 import { setupServer } from 'msw/node';
+
 import { testApiHandler } from 'universe/index';
 
 const server = setupServer(
-  http.all('*', async ({ request: req, params }) => {
-    const { method, headers } = req;
-    const body = await req.text();
+  http.all('*', async ({ request, params }) => {
+    const { method, headers } = request;
+    const body = await request.text();
 
     return HttpResponse.json(
       { method, headers: Array.from(headers), params, body },

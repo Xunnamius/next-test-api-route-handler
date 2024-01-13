@@ -23,6 +23,11 @@ beforeEach(() => {
   mockedCookieSerialize.mockImplementation(cookie.serialize);
 });
 
+afterEach(() => {
+  // ? Undo what Next.js does to the global fetch function
+  globalThis.fetch = originalGlobalFetch;
+});
+
 describe('::testApiHandler', () => {
   describe('<app router>', () => {
     const getHandler = (status?: number) => ({
@@ -55,7 +60,7 @@ describe('::testApiHandler', () => {
       });
     });
 
-    it('does not expose patched global fetch function outside handler', async () => {
+    it('uses cached global fetch as ::test({ fetch }) param', async () => {
       expect.hasAssertions();
       expect(
         // @ts-expect-error: a hidden property
@@ -99,95 +104,6 @@ describe('::testApiHandler', () => {
           expect(ran).toBeTrue();
         }
       });
-
-      expect(
-        // @ts-expect-error: a hidden property
-        fetch.__nextPatched
-      ).toBeUndefined();
-    });
-
-    it('still restores original fetch after test finishes when an error occurs', async () => {
-      expect.hasAssertions();
-
-      expect(
-        // @ts-expect-error: a hidden property
-        fetch.__nextPatched
-      ).toBeUndefined();
-
-      await withMockedOutput(async ({ errorSpy }) => {
-        await expect(
-          testApiHandler({
-            rejectOnHandlerError: true,
-            appHandler: {
-              async GET() {
-                throw new Error('bad');
-              }
-            },
-            test: async ({ fetch }) => void (await fetch())
-          })
-        ).toReject();
-
-        expect(
-          // @ts-expect-error: a hidden property
-          fetch.__nextPatched
-        ).toBeUndefined();
-
-        await expect(
-          testApiHandler({
-            rejectOnHandlerError: true,
-            appHandler: {
-              async GET() {
-                throw new Error('bad');
-              }
-            },
-            test: async ({ fetch }) => void (await fetch())
-          })
-        ).toReject();
-
-        expect(
-          // @ts-expect-error: a hidden property
-          fetch.__nextPatched
-        ).toBeUndefined();
-        await expect(
-          testApiHandler({
-            rejectOnHandlerError: true,
-            appHandler: {
-              async GET() {
-                return Response.json({});
-              }
-            },
-            test: async () => {
-              throw new Error('bad');
-            }
-          })
-        ).toReject();
-
-        expect(
-          // @ts-expect-error: a hidden property
-          fetch.__nextPatched
-        ).toBeUndefined();
-
-        await expect(
-          testApiHandler({
-            rejectOnHandlerError: true,
-            appHandler: {
-              async GET() {
-                return Response.json({});
-              }
-            },
-            test: async () => {
-              throw new Error('bad');
-            }
-          })
-        ).toReject();
-
-        expect(errorSpy).toHaveBeenCalledTimes(2);
-      });
-
-      expect(
-        // @ts-expect-error: a hidden property
-        fetch.__nextPatched
-      ).toBeUndefined();
     });
 
     it('respects url string', async () => {

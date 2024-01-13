@@ -438,7 +438,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
     });
   } finally {
     server?.close();
-    globalThis.fetch = originalGlobalFetch;
   }
 
   function createAppRouterServer() {
