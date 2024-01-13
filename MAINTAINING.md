@@ -97,14 +97,14 @@ npm run lint:all
 # 4. Build distributables.
 npm run build:dist
 
-# 5. Build auxiliary documentation.
-npm run build:docs
-
-# 6. Build any external executables (used in GitHub Actions workflows).
+# 5. Build any external executables (used in GitHub Actions workflows).
 npm run build:externals
 
-# 7. Format all files.
+# 6. Format all files.
 npm run format
+
+# 7. Build auxiliary documentation (AFTER format so line numbers are correct).
+npm run build:docs
 
 # 8. Run all possible tests and generate coverage information.
 npm run test:all
