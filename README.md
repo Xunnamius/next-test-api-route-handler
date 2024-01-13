@@ -764,14 +764,13 @@ How might we test that this endpoint functions as we expect?
 ```typescript
 /* File: test/unit.test.ts */
 
-import * as Clerk from '@clerk/nextjs';
 import { testApiHandler } from 'next-test-api-route-handler';
-
 import * as appHandler from './app/api/authed/route';
 
-let mockedClerkAuthReturnValue:
-  | Partial<ReturnType<(typeof Clerk)['auth']>>
-  | undefined = undefined;
+import type { auth } from '@clerk/nextjs';
+
+let mockedClerkAuthReturnValue: Partial<ReturnType<typeof auth>> | undefined =
+  undefined;
 
 jest.mock('@clerk/nextjs', () => {
   return {
@@ -820,8 +819,8 @@ it('returns isAuthed: false and nothing else when unauthenticated', async () => 
 
 If you're feeling more adventurous, you can turn this unit test into an
 _integration_ test by calling [`authMiddleware`][58] in `requestPatcher` instead
-of mocking `@clerk/nextjs`. For insight into what you'd need to mock to make
-this work, check out [Clerk's own tests][59].
+of mocking `@clerk/nextjs`. For insight into what you'd need to do to make this
+work, check out [Clerk's own tests][59].
 
 #### Testing an Unreliable Handler on the Edge @ `app/api/unreliable`
 
