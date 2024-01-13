@@ -5,7 +5,12 @@
 import debugFactory from 'debug';
 import { peerDependencies, name as pkgName } from 'package';
 
-import { dummyNpmPackageFixture, mockFixtureFactory, run, runnerFactory } from './setup';
+import {
+  dummyNpmPackageFixture,
+  mockFixtureFactory,
+  run,
+  runnerFactory
+} from 'testverse/setup';
 
 const TEST_IDENTIFIER = 'integration-externals';
 const EXTERNAL_BIN_PATH = `${__dirname}/../external-scripts/bin/is-next-compat.js`;

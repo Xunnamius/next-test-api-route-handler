@@ -12,7 +12,7 @@ import {
   nodeImportAndRunTestFixture,
   npmCopySelfFixture,
   run
-} from './setup';
+} from 'testverse/setup';
 
 const TEST_IDENTIFIER = 'integration-client-next';
 

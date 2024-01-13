@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-conditional-expect */
 /* eslint-disable jest/no-conditional-in-test */
 /* eslint-disable jest/no-untyped-mock-factory */
-import { isolatedImport } from './setup';
+import { isolatedImport } from 'testverse/setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { IncomingMessage, ServerResponse } from 'node:http';

@@ -5,7 +5,7 @@ import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
 import { name as pkgName, version as pkgVersion } from 'package';
 
-import { protectedImportFactory, withMockedEnv } from './setup';
+import { protectedImportFactory, withMockedEnv } from 'testverse/setup';
 
 // TODO: fix this import
 // @ts-expect-error: broken import from node10; needs fixing

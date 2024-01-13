@@ -1,13 +1,15 @@
+/* eslint-disable jest/prefer-strict-equal */
 import { parse, serialize } from 'cookie';
 
-import { testApiHandler } from '../src/index';
-import { withMockedOutput } from './setup';
+import { withMockedOutput } from 'testverse/setup';
+import { testApiHandler } from 'universe/index';
 
 // TODO: fix this import
 // @ts-expect-error: broken import from node10; needs fixing
 import { asMockedFunction } from '@xunnamius/jest-types';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
 jest.mock('cookie');
 
@@ -19,11 +21,6 @@ const originalGlobalFetch = fetch;
 beforeEach(() => {
   mockedCookieParse.mockImplementation(cookie.parse);
   mockedCookieSerialize.mockImplementation(cookie.serialize);
-});
-
-afterEach(() => {
-  // ? Undo what Next.js does to the global fetch function
-  globalThis.fetch = originalGlobalFetch;
 });
 
 describe('::testApiHandler', () => {
@@ -102,6 +99,95 @@ describe('::testApiHandler', () => {
           expect(ran).toBeTrue();
         }
       });
+
+      expect(
+        // @ts-expect-error: a hidden property
+        fetch.__nextPatched
+      ).toBeUndefined();
+    });
+
+    it('still restores original fetch after test finishes when an error occurs', async () => {
+      expect.hasAssertions();
+
+      expect(
+        // @ts-expect-error: a hidden property
+        fetch.__nextPatched
+      ).toBeUndefined();
+
+      await withMockedOutput(async ({ errorSpy }) => {
+        await expect(
+          testApiHandler({
+            rejectOnHandlerError: true,
+            appHandler: {
+              async GET() {
+                throw new Error('bad');
+              }
+            },
+            test: async ({ fetch }) => void (await fetch())
+          })
+        ).toReject();
+
+        expect(
+          // @ts-expect-error: a hidden property
+          fetch.__nextPatched
+        ).toBeUndefined();
+
+        await expect(
+          testApiHandler({
+            rejectOnHandlerError: true,
+            appHandler: {
+              async GET() {
+                throw new Error('bad');
+              }
+            },
+            test: async ({ fetch }) => void (await fetch())
+          })
+        ).toReject();
+
+        expect(
+          // @ts-expect-error: a hidden property
+          fetch.__nextPatched
+        ).toBeUndefined();
+        await expect(
+          testApiHandler({
+            rejectOnHandlerError: true,
+            appHandler: {
+              async GET() {
+                return Response.json({});
+              }
+            },
+            test: async () => {
+              throw new Error('bad');
+            }
+          })
+        ).toReject();
+
+        expect(
+          // @ts-expect-error: a hidden property
+          fetch.__nextPatched
+        ).toBeUndefined();
+
+        await expect(
+          testApiHandler({
+            rejectOnHandlerError: true,
+            appHandler: {
+              async GET() {
+                return Response.json({});
+              }
+            },
+            test: async () => {
+              throw new Error('bad');
+            }
+          })
+        ).toReject();
+
+        expect(errorSpy).toHaveBeenCalledTimes(2);
+      });
+
+      expect(
+        // @ts-expect-error: a hidden property
+        fetch.__nextPatched
+      ).toBeUndefined();
     });
 
     it('respects url string', async () => {
@@ -485,6 +571,138 @@ describe('::testApiHandler', () => {
       });
     });
 
+    it('supports returning void, object, and Promise from paramsPatcher', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        paramsPatcher(parameters) {
+          parameters.a = 'a';
+          return undefined;
+        },
+        appHandler: {
+          GET(_request, { params }) {
+            expect(params).toStrictEqual({
+              a: 'a'
+            });
+
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async paramsPatcher(parameters) {
+          parameters.a = 'a';
+          return undefined;
+        },
+        appHandler: {
+          GET(_request, { params }) {
+            expect(params).toStrictEqual({
+              a: 'a'
+            });
+
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        paramsPatcher: () => ({ obj: 'ect' }),
+        appHandler: {
+          GET(_request, { params }) {
+            expect(params).toStrictEqual({
+              obj: 'ect'
+            });
+
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        paramsPatcher(_parameters) {
+          return Promise.resolve({ obj: 'ect' });
+        },
+        appHandler: {
+          GET(_request, { params }) {
+            expect(params).toStrictEqual({
+              obj: 'ect'
+            });
+
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+    });
+
+    it('supports returning void, Request, and Promise from requestPatcher', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        requestPatcher() {
+          return undefined;
+        },
+        appHandler: {
+          async GET(request) {
+            expect(request.url).toBe('ntarh://testApiHandler');
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        requestPatcher(request) {
+          return new Request(request);
+        },
+        appHandler: {
+          async GET(request) {
+            expect(request.url).toBe('ntarh://testApiHandler');
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        requestPatcher() {
+          return Promise.resolve(undefined);
+        },
+        appHandler: {
+          async GET(request) {
+            expect(request.url).toBe('ntarh://testApiHandler');
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async requestPatcher(request) {
+          return new Request(request);
+        },
+        appHandler: {
+          async GET(request) {
+            expect(request.url).toBe('ntarh://testApiHandler');
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+    });
+
     it('does nothing to params if paramsPatcher is a noop', async () => {
       expect.hasAssertions();
 
@@ -501,6 +719,342 @@ describe('::testApiHandler', () => {
           }
         },
         test: async ({ fetch }) => void (await fetch())
+      });
+    });
+
+    it('supports returning void, Response, and Promise from responsePatcher', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        responsePatcher() {
+          return undefined;
+        },
+        appHandler: {
+          async GET() {
+            return Response.json({ unchanged: true });
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          await expect(res.json()).resolves.toStrictEqual({ unchanged: true });
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        responsePatcher() {
+          return Response.json({ unchanged: false });
+        },
+        appHandler: {
+          async GET() {
+            return Response.json({ unchanged: true });
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          await expect(res.json()).resolves.toStrictEqual({ unchanged: false });
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        responsePatcher() {
+          return Promise.resolve(undefined);
+        },
+        appHandler: {
+          async GET() {
+            return Response.json({ unchanged: true });
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          await expect(res.json()).resolves.toStrictEqual({ unchanged: true });
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async responsePatcher() {
+          return Response.json({ unchanged: false });
+        },
+        appHandler: {
+          async GET() {
+            return Response.json({ unchanged: true });
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          await expect(res.json()).resolves.toStrictEqual({ unchanged: false });
+        }
+      });
+    });
+
+    it('makes no changes to process.env that are externally visible', async () => {
+      expect.hasAssertions();
+
+      const originalProcessEnvClone = JSON.parse(JSON.stringify(process.env));
+      expect(process.env).toEqual(originalProcessEnvClone);
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET() {
+            expect(process.env).toEqual(originalProcessEnvClone);
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => {
+          await fetch();
+          expect(process.env).toEqual(originalProcessEnvClone);
+        }
+      });
+
+      expect(process.env).toEqual(originalProcessEnvClone);
+    });
+
+    it('is not a problem that fetch is called multiple times with multiple Next.js helper functions called', async () => {
+      expect.hasAssertions();
+
+      // * Make sure we're not sharing state between fetch calls
+
+      let count = 0;
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          GET(request) {
+            return Response.json({
+              [++count]: 'count',
+              count,
+              hcount: request.headers.get('x-hcount'),
+              ccount: request.cookies.get('__ccount')?.value
+            });
+          }
+        },
+        test: async ({ fetch }) => {
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 1: 'count', count: 1, hcount: '1', ccount: '1' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 2: 'count', count: 2, hcount: '2', ccount: '2' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 3: 'count', count: 3, hcount: '3', ccount: '3' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 4: 'count', count: 4, hcount: '4', ccount: '4' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 5: 'count', count: 5, hcount: '5', ccount: '5' });
+        }
+      });
+    });
+
+    it('supports all relevant NextRequest and NextResponse methods', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET(request) {
+            request.cookies.set('x-set', 'yes');
+
+            expect(request.cookies.get('x-set')).toStrictEqual({
+              name: 'x-set',
+              value: 'yes'
+            });
+
+            expect(request.cookies.get('__has')).toStrictEqual({
+              name: '__has',
+              value: 'yes'
+            });
+
+            expect(request.nextUrl.protocol).toBe('ntarh:');
+            expect(request.ip).toBeFalsy();
+            expect(request.geo).toBeEmptyObject();
+
+            return new Response();
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: { cookie: '__has=yes' } });
+          expect(res.cookies).toStrictEqual([]);
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET() {
+            const response = NextResponse.json({ hello: 'world' });
+            response.cookies.set('__has', 'yes');
+            return response;
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          expect(res.cookies).toStrictEqual([expect.objectContaining({ __has: 'yes' })]);
+          await expect(res.json()).resolves.toStrictEqual({ hello: 'world' });
+
+          expect(res.ok).toBeTrue();
+          expect(res.redirected).toBeFalse();
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET() {
+            return NextResponse.redirect('ntarh://somewhere-else');
+          }
+        },
+        responsePatcher(response) {
+          expect(String(response.status)).toStartWith('3');
+          return Response.json({ tested: true });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          await expect(res.json()).resolves.toStrictEqual({ tested: true });
+        }
+      });
+    });
+
+    it('supports all relevant Next.js helper functions', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET() {
+            return Response.json({
+              c: (await import('next/headers.js')).cookies().get('__c')?.value,
+              h: (await import('next/headers.js')).headers().get('__h')
+            });
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: { __h: 'i', cookie: '__c=d' } });
+          const json = await res.json();
+          expect(json).toStrictEqual({ c: 'd', h: 'i' });
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET() {
+            return (await import('next/navigation.js')).redirect(
+              'ntarh://somewhere-else'
+            );
+          }
+        },
+        responsePatcher(response) {
+          expect(String(response.status)).toStartWith('3');
+          return Response.json({ tested: true });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          await expect(res.json()).resolves.toStrictEqual({ tested: true });
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET() {
+            return (await import('next/navigation.js')).permanentRedirect(
+              'ntarh://somewhere-else'
+            );
+          }
+        },
+        responsePatcher(response) {
+          expect(String(response.status)).toStartWith('3');
+          return Response.json({ tested: true });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          await expect(res.json()).resolves.toStrictEqual({ tested: true });
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          async GET() {
+            return (await import('next/navigation.js')).notFound();
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          expect(res.status).toBe(404);
+        }
+      });
+    });
+
+    it('summons ::json() result for: requestPatcher, responsePatcher, appHandler, and fetch response', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async requestPatcher(request) {
+          await expect(request.json()).resolves.toStrictEqual({});
+          return new Request(request, { body: '{}' });
+        },
+        async responsePatcher(response) {
+          await expect(response.json()).resolves.toStrictEqual({});
+          return Response.json({});
+        },
+        appHandler: {
+          async POST(request: Request) {
+            await expect(request.json()).resolves.toStrictEqual({});
+            return Response.json({});
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'POST', body: '{}' });
+          await expect(res.json()).resolves.toStrictEqual({});
+        }
       });
     });
 
@@ -569,7 +1123,7 @@ describe('::testApiHandler', () => {
       });
     });
 
-    it('response.cookies is lazily defined', async () => {
+    it('response.cookies (from fetch) is lazily defined', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -650,6 +1204,56 @@ describe('::testApiHandler', () => {
       });
     });
 
+    it('handles all supported HTTP methods', async () => {
+      expect.hasAssertions();
+
+      const sharedHandler = async (request: Request) => {
+        if (['POST', 'PUT', 'PATCH'].includes(request.method)) {
+          await expect(request.json()).resolves.toStrictEqual({ method: request.method });
+        }
+
+        return Response.json({ method: request.method });
+      };
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        appHandler: {
+          GET: sharedHandler,
+          POST: sharedHandler,
+          PUT: sharedHandler,
+          PATCH: sharedHandler,
+          DELETE: sharedHandler,
+          HEAD: sharedHandler,
+          OPTIONS: sharedHandler
+        },
+        test: async ({ fetch }) => {
+          let res = await fetch({ method: 'GET' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'GET' });
+
+          res = await fetch({ method: 'POST', body: JSON.stringify({ method: 'POST' }) });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'POST' });
+
+          res = await fetch({ method: 'PUT', body: JSON.stringify({ method: 'PUT' }) });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'PUT' });
+
+          res = await fetch({
+            method: 'PATCH',
+            body: JSON.stringify({ method: 'PATCH' })
+          });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'PATCH' });
+
+          res = await fetch({ method: 'DELETE' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'DELETE' });
+
+          res = await fetch({ method: 'HEAD' });
+          await expect(res.text()).resolves.toBe('');
+
+          res = await fetch({ method: 'OPTIONS' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'OPTIONS' });
+        }
+      });
+    });
+
     it('resolves on errors from handler function by default or if rejectOnHandlerError is false or not provided', async () => {
       expect.hasAssertions();
 
@@ -687,6 +1291,52 @@ describe('::testApiHandler', () => {
 
         expect(errorSpy).toHaveBeenCalledTimes(2);
       });
+    });
+
+    it('rejects on errors from patcher functions', async () => {
+      expect.hasAssertions();
+
+      await expect(
+        testApiHandler({
+          requestPatcher() {
+            throw new Error('bad');
+          },
+          appHandler: {
+            async GET() {
+              return Response.json({});
+            }
+          },
+          test: async ({ fetch }) => void (await fetch())
+        })
+      ).rejects.toMatchObject({ message: 'bad' });
+
+      await expect(
+        testApiHandler({
+          responsePatcher() {
+            throw new Error('bad');
+          },
+          appHandler: {
+            async GET() {
+              return Response.json({});
+            }
+          },
+          test: async ({ fetch }) => void (await fetch())
+        })
+      ).rejects.toMatchObject({ message: 'bad' });
+
+      await expect(
+        testApiHandler({
+          paramsPatcher() {
+            throw new Error('bad');
+          },
+          appHandler: {
+            async GET() {
+              return Response.json({});
+            }
+          },
+          test: async ({ fetch }) => void (await fetch())
+        })
+      ).rejects.toMatchObject({ message: 'bad' });
     });
 
     it('rejects on errors from test function', async () => {
@@ -1151,6 +1801,232 @@ describe('::testApiHandler', () => {
       });
     });
 
+    it('supports returning void, object, and Promise from paramsPatcher', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        paramsPatcher(parameters) {
+          parameters.a = 'a';
+          return undefined;
+        },
+        async pagesHandler(req, res) {
+          expect(req.query).toStrictEqual({ a: 'a' });
+          res.send({});
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async paramsPatcher(parameters) {
+          parameters.a = 'a';
+          return undefined;
+        },
+        async pagesHandler(req, res) {
+          expect(req.query).toStrictEqual({ a: 'a' });
+          res.send({});
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        paramsPatcher: () => ({ obj: 'ect' }),
+        async pagesHandler(req, res) {
+          expect(req.query).toStrictEqual({ obj: 'ect' });
+          res.send({});
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        paramsPatcher(_parameters) {
+          return Promise.resolve({ obj: 'ect' });
+        },
+        async pagesHandler(req, res) {
+          expect(req.query).toStrictEqual({ obj: 'ect' });
+          res.send({});
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+    });
+
+    it('does nothing to params if paramsPatcher is a noop', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        params: { a: 'thing' },
+        paramsPatcher(_parameters) {
+          return undefined;
+        },
+        async pagesHandler(req, res) {
+          expect(req.query).toStrictEqual({ a: 'thing' });
+          res.send({});
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+    });
+
+    it('supports returning void and Promise from requestPatcher and responsePatcher', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        requestPatcher(req) {
+          req.url = 'ntarh://changed';
+          return undefined;
+        },
+        async pagesHandler(req, res) {
+          expect(req.url).toBe('ntarh://changed');
+          res.send({});
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        requestPatcher(req) {
+          req.url = 'ntarh://changed';
+          return Promise.resolve(undefined);
+        },
+        async pagesHandler(req, res) {
+          expect(req.url).toBe('ntarh://changed');
+          res.send({});
+        },
+        test: async ({ fetch }) => void (await fetch())
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        responsePatcher(res) {
+          res.statusCode = 505;
+          return undefined;
+        },
+        async pagesHandler(req, res) {
+          expect(req.url).toBe('ntarh://testApiHandler');
+          res.send({});
+        },
+        test: async ({ fetch }) => {
+          expect((await fetch()).status).toBe(505);
+        }
+      });
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async responsePatcher(res) {
+          res.statusCode = 505;
+          return undefined;
+        },
+        async pagesHandler(req, res) {
+          expect(req.url).toBe('ntarh://testApiHandler');
+          res.send({});
+        },
+        test: async ({ fetch }) => {
+          expect((await fetch()).status).toBe(505);
+        }
+      });
+    });
+
+    it('makes no changes to process.env that are externally visible', async () => {
+      expect.hasAssertions();
+
+      const originalProcessEnvClone = JSON.parse(JSON.stringify(process.env));
+      expect(process.env).toEqual(originalProcessEnvClone);
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async pagesHandler(_req, res) {
+          expect(process.env).toEqual(originalProcessEnvClone);
+          res.send({});
+        },
+        test: async ({ fetch }) => {
+          await fetch();
+          expect(process.env).toEqual(originalProcessEnvClone);
+        }
+      });
+
+      expect(process.env).toEqual(originalProcessEnvClone);
+    });
+
+    it('is not a problem that fetch is called multiple times', async () => {
+      expect.hasAssertions();
+
+      // * Make sure we're not sharing state between fetch calls
+
+      let count = 0;
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async pagesHandler(req, res) {
+          res.status(200).send({
+            [++count]: 'count',
+            count,
+            hcount: req.headers['x-hcount'],
+            ccount: req.cookies['__ccount']
+          });
+        },
+        test: async ({ fetch }) => {
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 1: 'count', count: 1, hcount: '1', ccount: '1' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 2: 'count', count: 2, hcount: '2', ccount: '2' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 3: 'count', count: 3, hcount: '3', ccount: '3' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 4: 'count', count: 4, hcount: '4', ccount: '4' });
+
+          await expect(
+            (
+              await fetch({
+                headers: {
+                  cookie: `__ccount=${count + 1}`,
+                  'x-hcount': String(count + 1)
+                }
+              })
+            ).json()
+          ).resolves.toStrictEqual({ 5: 'count', count: 5, hcount: '5', ccount: '5' });
+        }
+      });
+    });
+
     it("respects route handler's config property", async () => {
       expect.hasAssertions();
 
@@ -1167,6 +2043,22 @@ describe('::testApiHandler', () => {
           expect((await fetch({ method: 'POST', body: 'more than 1 byte' })).status).toBe(
             413
           );
+        }
+      });
+    });
+
+    it('summons ::json() result for: fetch response', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async pagesHandler(req, res) {
+          res.send({});
+          expect(req.body).toBe('{}');
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'POST', body: '{}' });
+          await expect(res.json()).resolves.toStrictEqual({});
         }
       });
     });
@@ -1222,7 +2114,7 @@ describe('::testApiHandler', () => {
       });
     });
 
-    it('response.cookies is lazily defined', async () => {
+    it('response.cookies (from fetch) is lazily defined', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -1281,6 +2173,39 @@ describe('::testApiHandler', () => {
       });
     });
 
+    it('handles all supported HTTP methods', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        async pagesHandler(req, res) {
+          res.status(200).send({ method: req.method });
+        },
+        test: async ({ fetch }) => {
+          let res = await fetch({ method: 'GET' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'GET' });
+
+          res = await fetch({ method: 'POST' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'POST' });
+
+          res = await fetch({ method: 'PUT' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'PUT' });
+
+          res = await fetch({ method: 'PATCH' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'PATCH' });
+
+          res = await fetch({ method: 'DELETE' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'DELETE' });
+
+          res = await fetch({ method: 'HEAD' });
+          await expect(res.text()).resolves.toBe('');
+
+          res = await fetch({ method: 'OPTIONS' });
+          await expect(res.json()).resolves.toStrictEqual({ method: 'OPTIONS' });
+        }
+      });
+    });
+
     it('resolves on errors from handler function by default or if rejectOnHandlerError is false or not provided', async () => {
       expect.hasAssertions();
 
@@ -1328,6 +2253,46 @@ describe('::testApiHandler', () => {
 
         expect(errorSpy).toHaveBeenCalledTimes(3);
       });
+    });
+
+    it('rejects on errors from patcher functions', async () => {
+      expect.hasAssertions();
+
+      await expect(
+        testApiHandler({
+          requestPatcher() {
+            throw new Error('bad');
+          },
+          async pagesHandler(_req, res) {
+            res.send({});
+          },
+          test: async ({ fetch }) => void (await fetch())
+        })
+      ).rejects.toMatchObject({ message: 'bad' });
+
+      await expect(
+        testApiHandler({
+          responsePatcher() {
+            throw new Error('bad');
+          },
+          async pagesHandler(_req, res) {
+            res.send({});
+          },
+          test: async ({ fetch }) => void (await fetch())
+        })
+      ).rejects.toMatchObject({ message: 'bad' });
+
+      await expect(
+        testApiHandler({
+          paramsPatcher() {
+            throw new Error('bad');
+          },
+          async pagesHandler(_req, res) {
+            res.send({});
+          },
+          test: async ({ fetch }) => void (await fetch())
+        })
+      ).rejects.toMatchObject({ message: 'bad' });
     });
 
     it('rejects on errors from test function', async () => {

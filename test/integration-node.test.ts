@@ -11,7 +11,7 @@ import {
   nodeImportAndRunTestFixture,
   npmLinkSelfFixture,
   run
-} from './setup';
+} from 'testverse/setup';
 
 const TEST_IDENTIFIER = 'integration-node';
 
@@ -129,6 +129,14 @@ describe('<app router>', () => {
     );
   });
 
+  it('supports namespace import as value for appRouter in CJS', async () => {
+    expect.hasAssertions();
+  });
+
+  it('supports namespace import as value for appRouter in ESM', async () => {
+    expect.hasAssertions();
+  });
+
   it('does not hang (500ms limit) on exception in handler function', async () => {
     expect.hasAssertions();
     await runTest(
@@ -207,6 +215,14 @@ describe('<pages router>', () => {
         expect(context.testResult?.code).toBe(0);
       }
     );
+  });
+
+  it('supports namespace import as value for pagesRouter in CJS', async () => {
+    expect.hasAssertions();
+  });
+
+  it('supports namespace import as value for pagesRouter in ESM', async () => {
+    expect.hasAssertions();
   });
 
   it('does not hang (500ms limit) on exception in handler function', async () => {
