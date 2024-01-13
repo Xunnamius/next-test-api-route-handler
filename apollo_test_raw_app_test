@@ -1,4 +1,4 @@
-/* File: tests/my.test.js */
+/* File: tests/integration.test.js */
 
 import { testApiHandler } from 'next-test-api-route-handler';
 // Import the handler under test from the app/api directory

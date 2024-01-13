@@ -57,5 +57,5 @@ jobs:
           echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
           mkdir -p app/api/graphql
           curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route
-          curl -o test/my.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test
+          curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test
           npx jest
