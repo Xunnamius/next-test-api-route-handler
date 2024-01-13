@@ -509,9 +509,9 @@ await testApiHandler({
 ### `requestPatcher` (`url`)
 
 > \[!TIP]\
-> When using `requestPatcher`, manually setting the request url is usually unnecessary.
-> Only set the url if [your handler expects it][30] or [you want to rely on query
-> string parsing instead of `params`/`paramsPatcher`][31].
+> Manually setting the request url is usually unnecessary. Only set the url if [your
+> handler expects it][30] or [you want to rely on query string parsing instead of
+> `params`/`paramsPatcher`][31].
 
 #### 💎 Using `appHandler`
 
@@ -520,6 +520,11 @@ await testApiHandler({
 `requestPatcher` is a function that receives a [`NextRequest`][3] object and
 returns a [`Request`][34] instance. Use this function to edit the request
 _before_ it's injected into the handler.
+
+> \[!CAUTION]\
+> Be wary returning a brand new `Request` from `requestPatcher`, especially one that
+> is missing standard headers added by `fetch(...)`. If you're getting strange JSON-related
+> errors or hanging tests, ensure this is not the cause.
 
 The returned [`Request`][34] instance will be wrapped with [`NextRequest`][3] if
 it is not already an instance of [`NextRequest`][3]:
@@ -1189,13 +1194,14 @@ Further documentation can be found under [`docs/`][x-repo-docs].
 Since NTARH is meant for unit testing API routes rather than faithfully
 recreating Next.js functionality, NTARH's feature set comes with some caveats.
 Namely: no Next.js features will be available that are external to processing
-API routes and executing their handlers. This includes [middleware][66] (see
-[`requestPatcher`][67] if you need to mutate the `Request` before it gets to the
-handler under test), [metadata][68], [static assets][69], [OpenTelemetry][70]
-and [instrumentation][71], [caching][72], [styling][73], [server actions and
-mutations][74], [helper functions][5] (except: `cookies`, `fetch` (global),
-`headers`, `NextRequest`/`NextResponse`, `notFound`, `permanentRedirect`,
-`redirect`, and `userAgent`), and anything related to React or [components][75].
+API routes and executing their handlers. This includes [middleware][66] and
+`NextResponse.next` (see [`requestPatcher`][67] if you need to mutate the
+`Request` before it gets to the handler under test), [metadata][68], [static
+assets][69], [OpenTelemetry][70] and [instrumentation][71], [caching][72],
+[styling][73], [server actions and mutations][74], [helper functions][5]
+(except: `cookies`, `fetch` (global), `headers`, `NextRequest`, `NextResponse`,
+`notFound`, `permanentRedirect`, `redirect`, and `userAgent`), and anything
+related to React or [components][75].
 
 NTARH is for testing your API route handlers only.
 
