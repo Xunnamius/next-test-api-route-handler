@@ -407,26 +407,28 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
         return (
           originalGlobalFetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
-        ).then((res) => {
+        ).then((response) => {
           // ? Lazy load (on demand) the contents of the `cookies` field
-          Object.defineProperty(res, 'cookies', {
+          Object.defineProperty(response, 'cookies', {
             configurable: true,
             enumerable: true,
             get: () => {
               const { parse: parseCookieHeader } = require('cookie');
               // @ts-expect-error: lazy getter guarantees this will be set
-              delete res.cookies;
-              res.cookies = [res.headers.getSetCookie() || []].flat().map((header) =>
-                Object.fromEntries(
-                  Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
-                    return [
-                      [String(k), String(v)],
-                      [String(k).toLowerCase(), String(v)]
-                    ];
-                  })
-                )
-              );
-              return res.cookies;
+              delete response.cookies;
+              response.cookies = [response.headers.getSetCookie() || []]
+                .flat()
+                .map((header) =>
+                  Object.fromEntries(
+                    Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
+                      return [
+                        [String(k), String(v)],
+                        [String(k).toLowerCase(), String(v)]
+                      ];
+                    })
+                  )
+                );
+              return response.cookies;
             }
           });
 
