@@ -29,7 +29,7 @@ const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 debug(`nodeVersion: "${nodeVersion}"`);
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
-  performCleanup: false,
+  performCleanup: true,
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
   },
