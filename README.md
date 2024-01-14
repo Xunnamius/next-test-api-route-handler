@@ -137,7 +137,7 @@ it('does what I want', async () => {
       request.headers.set('key', process.env.SPECIAL_TOKEN);
     },
     // responsePatcher is optional
-    responsePatcher(response) {
+    async responsePatcher(response) {
       const json = await response.json();
       return Reponse.json(
         json.apiSuccess ? { hello: 'world!' } : { goodbye: 'cruel world' }
@@ -167,7 +167,10 @@ it('does what I want', async function () {
     appHandler: edgeHandler,
     // requestPatcher is optional
     requestPatcher(request) {
-      return new Request(request, { body: dummyStream, duplex: 'half' });
+      return new Request(request, {
+        body: dummyReadableStream,
+        duplex: 'half'
+      });
     },
     async test({ fetch }) {
       // The next line would cause TypeScript to complain:
@@ -236,7 +239,7 @@ await testApiHandler({
       );
     }
   },
-  test({ fetch }) {
+  async test({ fetch }) {
     await expect(
       (await fetch({ headers: { 'x-hello': 'world' } })).json()
     ).resolves.toStrictEqual({
@@ -528,20 +531,20 @@ _before_ it's injected into the handler.
 > errors or hanging tests, ensure this is not the cause.
 
 The returned [`Request`][35] instance will be wrapped with [`NextRequest`][3] if
-it is not already an instance of [`NextRequest`][3]:
+it is not already an instance of [`NextRequest`][3], i.e.:
 
 ```typescript
-const returnedRequest = requestPatcher( ... );
+const returnedRequest = (await requestPatcher?.(request)) || request;
 const nextRequest = new NextRequest(returnedRequest, { ... });
 ```
 
 If you're only setting the request url, use the `url` shorthand instead:
 
 ```typescript
-{
-  // requestPatcher: (req) => new Request('/my-url?some=query', req),
-  url: '/my-url?some=query',
-}
+await testApiHandler({
+  // requestPatcher: (request) => new Request('/my-url?some=query', request),
+  url: '/my-url?some=query'
+});
 ```
 
 #### 🔷 Using `pagesHandler`
@@ -555,10 +558,10 @@ resolver.
 If you're only setting the request url, use the `url` shorthand instead:
 
 ```typescript
-{
+await testApiHandler({
   // requestPatcher: (req) => { req.url = '/my-url?some=query'; }
-  url: '/my-url?some=query',
-}
+  url: '/my-url?some=query'
+});
 ```
 
 ### `responsePatcher`
@@ -588,29 +591,29 @@ For example, to test a handler normally accessible from `/api/user/:id` requires
 passing that handler a value for the "id" dynamic segment:
 
 ```typescript
-{
+await testApiHandler({
   paramsPatcher(params) {
     params.id = 'test-id';
   }
-}
+});
 ```
 
 Or:
 
 ```typescript
-{
-  paramsPatcher: (params) => ({ id: 'test-id' });
-}
+await testApiHandler({
+  paramsPatcher: (params) => ({ id: 'test-id' })
+});
 ```
 
 Parameters can also be passed using the `params` shorthand:
 
 ```typescript
-{
+await testApiHandler({
   params: {
-    id: 'test-id';
+    id: 'test-id'
   }
-}
+});
 ```
 
 > \[!TIP]\
