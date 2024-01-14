@@ -1252,8 +1252,8 @@ and then restore it after each test:
 ```typescript
 const originalGlobalFetch = fetch;
 
-afterEach(() => {
-  // ? Undo what Next.js does to the global fetch function
+afterEach(function () {
+  // Undo what Next.js does to the global fetch function
   globalThis.fetch = originalGlobalFetch;
 });
 ```
