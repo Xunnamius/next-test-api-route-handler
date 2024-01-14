@@ -67,6 +67,7 @@ export type FetchReturnType<NextResponseJsonType> = Promise<
 // ? will only be invoked the first time this script is imported.
 const tryImport = ((path: string) => (error?: Error) => {
   if (error) {
+    /* istanbul ignore next */
     tryImport.importErrors = tryImport.importErrors ?? [];
     tryImport.importErrors.push(error);
   }
@@ -273,6 +274,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
   let deferredReject: ((error?: unknown) => void) | null = null;
 
   // ? Normalize pagesHandler into a NextApiHandler (ESM<=>CJS interop)
+  /* istanbul ignore next */
   const pagesHandler =
     pagesHandler_ && typeof pagesHandler_ === 'object' && 'default' in pagesHandler_
       ? Object.assign(pagesHandler_.default, pagesHandler_)
@@ -416,18 +418,16 @@ export async function testApiHandler<NextResponseJsonType = any>({
               const { parse: parseCookieHeader } = require('cookie');
               // @ts-expect-error: lazy getter guarantees this will be set
               delete response.cookies;
-              response.cookies = [response.headers.getSetCookie() || []]
-                .flat()
-                .map((header) =>
-                  Object.fromEntries(
-                    Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
-                      return [
-                        [String(k), String(v)],
-                        [String(k).toLowerCase(), String(v)]
-                      ];
-                    })
-                  )
-                );
+              response.cookies = response.headers.getSetCookie().map((header) =>
+                Object.fromEntries(
+                  Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
+                    return [
+                      [String(k), String(v)],
+                      [String(k).toLowerCase(), String(v)]
+                    ];
+                  })
+                )
+              );
               return response.cookies;
             }
           });
@@ -681,6 +681,7 @@ function readableStreamOrNullFromAsyncIterable(
           controller.enqueue(nextChunk.value);
         }
       },
+      /* istanbul ignore next */
       async cancel(reason) {
         await asyncIterator.return?.(reason);
         return undefined;

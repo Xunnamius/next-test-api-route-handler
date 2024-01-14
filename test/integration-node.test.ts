@@ -6,6 +6,7 @@ import debugFactory from 'debug';
 import { exports as pkgExports, name as pkgName, version as pkgVersion } from 'package';
 
 import {
+  dummyFilesFixture,
   dummyNpmPackageFixture,
   mockFixtureFactory,
   nodeImportAndRunTestFixture,
@@ -28,53 +29,73 @@ const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 debug(`nodeVersion: "${nodeVersion}"`);
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
-  performCleanup: true,
+  performCleanup: false,
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
   },
-  use: [dummyNpmPackageFixture(), npmLinkSelfFixture(), nodeImportAndRunTestFixture()]
+  use: [
+    dummyNpmPackageFixture(),
+    npmLinkSelfFixture(),
+    dummyFilesFixture(),
+    nodeImportAndRunTestFixture()
+  ]
 });
 
-const runTest = async (
-  importAs: 'import-as-esm' | 'import-as-cjs',
-  router: 'app' | 'pages',
-  handlerCode: string,
-  testCode: string,
-  testFixtureFn: Parameters<typeof withMockedFixture>[0]
-) => {
-  const importAsEsm = importAs === 'import-as-esm';
+const runTest = async ({
+  importAs,
+  additionalImports,
+  routerType,
+  handlerCode,
+  testCode,
+  testFixtureFn
+}: {
+  importAs: 'esm' | 'cjs';
+  additionalImports?: string;
+  routerType: 'app' | 'pages';
+  handlerCode: string;
+  testCode: string;
+  testFixtureFn: Parameters<typeof withMockedFixture>[0];
+}) => {
+  const importAsEsm = importAs === 'esm';
   const indexPath = `src/index.${importAsEsm ? 'm' : ''}js`;
+  const routePath = `src/route.${importAsEsm ? 'm' : ''}js`;
+
+  const initialFileContents = {
+    [indexPath]: additionalImports ? `${additionalImports}\n` : '',
+    [routePath]: additionalImports ? `${additionalImports}\n` : ''
+  };
+
+  initialFileContents[indexPath] += importAsEsm
+    ? `import { testApiHandler } from '${pkgName}';\nimport * as handler from '../${routePath}';`
+    : `const { testApiHandler } = require('${pkgName}');\nconst handler = require('../${routePath}');`;
+
+  initialFileContents[indexPath] += `
+(async () => {
+  await testApiHandler({
+    ${routerType === 'app' ? 'appHandler' : 'pagesHandler'}: handler,
+    test: async ({ fetch }) => ${testCode}
+  });
+})();`;
+
+  initialFileContents[routePath] +=
+    routerType === 'app'
+      ? `
+${importAsEsm ? 'export const ' : 'module.exports.'}GET = function(request, context) {
+  ${handlerCode}
+};`
+      : `
+${importAsEsm ? 'export default ' : 'module.exports ='} async function(req, res) {
+  ${handlerCode}
+};`;
 
   await withMockedFixture(
     async (context) => {
-      if (!context.testResult) throw new Error('must use node-import-test fixture');
+      if (!context.testResult)
+        throw new Error('must use node-import-and-run-test fixture');
       await testFixtureFn(context);
     },
     {
-      initialFileContents: {
-        [indexPath]:
-          (importAsEsm
-            ? `import { testApiHandler } from '${pkgName}';`
-            : `const { testApiHandler } = require('${pkgName}');`) +
-          (router === 'app'
-            ? `
-const getHandler = (status) => ({
-  GET(request) {
-    ${handlerCode}
-  }
-});`
-            : `
-const getHandler = (status) => async (_, res) => {
-  ${handlerCode}
-};`) +
-          `
-(async () => {
-  await testApiHandler({
-    ${router === 'app' ? 'appHandler' : 'pagesHandler'}: getHandler(),
-    test: async ({ fetch }) => ${testCode}
-  });
-})();`
-      }
+      initialFileContents
     }
   );
 };
@@ -93,14 +114,14 @@ beforeAll(async () => {
 });
 
 describe('<app router>', () => {
-  it('works as an ESM import', async () => {
+  it('works as ESM using namespace import', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-esm',
-      'app',
-      `return Response.json({ works: 'working' }, { status: status || 200 });`,
-      `console.log((await (await fetch()).json()).works)`,
-      async (context) => {
+    await runTest({
+      importAs: 'esm',
+      routerType: 'app',
+      handlerCode: `return Response.json({ works: 'working' });`,
+      testCode: `console.log((await (await fetch()).json()).works)`,
+      testFixtureFn: async (context) => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
@@ -108,17 +129,18 @@ describe('<app router>', () => {
         expect(context.testResult?.stdout).toBe('working');
         expect(context.testResult?.code).toBe(0);
       }
-    );
+    });
   });
 
-  it('works as a CJS require(...)', async () => {
+  it('works as CJS using bare require(...)', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-cjs',
-      'app',
-      `return Response.json({ works: 'working' }, { status: status || 200 });`,
-      `console.log((await (await fetch()).json()).works)`,
-      async (context) => {
+
+    await runTest({
+      importAs: 'cjs',
+      routerType: 'app',
+      handlerCode: `return Response.json({ works: 'working' });`,
+      testCode: `console.log((await (await fetch()).json()).works)`,
+      testFixtureFn: async (context) => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
@@ -126,25 +148,17 @@ describe('<app router>', () => {
         expect(context.testResult?.stdout).toBe('working');
         expect(context.testResult?.code).toBe(0);
       }
-    );
-  });
-
-  it('supports namespace import as value for appRouter in CJS', async () => {
-    expect.hasAssertions();
-  });
-
-  it('supports namespace import as value for appRouter in ESM', async () => {
-    expect.hasAssertions();
+    });
   });
 
   it('does not hang (500ms limit) on exception in handler function', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-cjs',
-      'app',
-      `throw new Error('BadBadNotGood');`,
-      `console.log(await (await fetch()).text())`,
-      async (context) => {
+    await runTest({
+      importAs: 'cjs',
+      routerType: 'app',
+      handlerCode: `throw new Error('BadBadNotGood');`,
+      testCode: `console.log(await (await fetch()).text())`,
+      testFixtureFn: async (context) => {
         debug('(expecting stdout to be "Internal Server Error")');
         debug('(expecting stderr to contain "BadBadNotGood")');
         debug('(expecting exit code to be zero)');
@@ -155,17 +169,17 @@ describe('<app router>', () => {
         );
         expect(context.testResult?.code).toBe(0);
       }
-    );
+    });
   }, 500);
 
   it('does not hang (500ms limit) on exception in test function', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-cjs',
-      'app',
-      `return Response.json({ works: 'working' }, { status: status || 200 });`,
-      `{ throw new Error('BadBadNotGood'); }`,
-      async (context) => {
+    await runTest({
+      importAs: 'cjs',
+      routerType: 'app',
+      handlerCode: `return Response.json({ works: 'working' });`,
+      testCode: `{ throw new Error('BadBadNotGood'); }`,
+      testFixtureFn: async (context) => {
         debug('(expecting exit code to be non-zero)');
         debug('(expecting stdout to be "")');
         debug('(expecting stderr to contain "BadBadNotGood")');
@@ -176,19 +190,19 @@ describe('<app router>', () => {
           expect.stringContaining('Error: BadBadNotGood')
         );
       }
-    );
+    });
   }, 500);
 });
 
 describe('<pages router>', () => {
-  it('works as an ESM import', async () => {
+  it('works as ESM using namespace import', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-esm',
-      'pages',
-      `res.status(status || 200).send({ works: 'working' });`,
-      `console.log((await (await fetch()).json()).works)`,
-      async (context) => {
+    await runTest({
+      importAs: 'esm',
+      routerType: 'pages',
+      handlerCode: `res.status(200).send({ works: 'working' });`,
+      testCode: `console.log((await (await fetch()).json()).works)`,
+      testFixtureFn: async (context) => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
@@ -196,17 +210,17 @@ describe('<pages router>', () => {
         expect(context.testResult?.stdout).toBe('working');
         expect(context.testResult?.code).toBe(0);
       }
-    );
+    });
   });
 
-  it('works as a CJS require(...)', async () => {
+  it('works as CJS using bare require(...)', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-cjs',
-      'pages',
-      `res.status(status || 200).send({ works: 'working' });`,
-      `console.log((await (await fetch()).json()).works)`,
-      async (context) => {
+    await runTest({
+      importAs: 'cjs',
+      routerType: 'pages',
+      handlerCode: `res.status(200).send({ works: 'working' });`,
+      testCode: `console.log((await (await fetch()).json()).works)`,
+      testFixtureFn: async (context) => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
@@ -214,25 +228,17 @@ describe('<pages router>', () => {
         expect(context.testResult?.stdout).toBe('working');
         expect(context.testResult?.code).toBe(0);
       }
-    );
-  });
-
-  it('supports namespace import as value for pagesRouter in CJS', async () => {
-    expect.hasAssertions();
-  });
-
-  it('supports namespace import as value for pagesRouter in ESM', async () => {
-    expect.hasAssertions();
+    });
   });
 
   it('does not hang (500ms limit) on exception in handler function', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-cjs',
-      'pages',
-      `throw new Error('BadBadNotGood');`,
-      `console.log(await (await fetch()).text())`,
-      async (context) => {
+    await runTest({
+      importAs: 'cjs',
+      routerType: 'pages',
+      handlerCode: `throw new Error('BadBadNotGood');`,
+      testCode: `console.log(await (await fetch()).text())`,
+      testFixtureFn: async (context) => {
         debug('(expecting stdout to be "Internal Server Error")');
         debug('(expecting stderr to contain "BadBadNotGood")');
         debug('(expecting exit code to be zero)');
@@ -243,17 +249,17 @@ describe('<pages router>', () => {
         );
         expect(context.testResult?.code).toBe(0);
       }
-    );
+    });
   }, 500);
 
   it('does not hang (500ms limit) on exception in test function', async () => {
     expect.hasAssertions();
-    await runTest(
-      'import-as-cjs',
-      'pages',
-      `res.status(status || 200).send({ works: 'working' });`,
-      `{ throw new Error('BadBadNotGood'); }`,
-      async (context) => {
+    await runTest({
+      importAs: 'cjs',
+      routerType: 'pages',
+      handlerCode: `res.status(200).send({ works: 'working' });`,
+      testCode: `{ throw new Error('BadBadNotGood'); }`,
+      testFixtureFn: async (context) => {
         debug('(expecting exit code to be non-zero)');
         debug('(expecting stdout to be "")');
         debug('(expecting stderr to contain "BadBadNotGood")');
@@ -264,6 +270,6 @@ describe('<pages router>', () => {
           expect.stringContaining('Error: BadBadNotGood')
         );
       }
-    );
+    });
   }, 500);
 });

@@ -92,7 +92,8 @@ const getHandler = (status) => async (_, res) => {
 
         await withMockedFixture(
           async (context) => {
-            if (!context.testResult) throw new Error('must use node-import-test fixture');
+            if (!context.testResult)
+              throw new Error('must use node-import-and-run-test fixture');
 
             if (esm) {
               debug('(expecting stderr to be "")');
@@ -206,7 +207,8 @@ it('fails fast (no jest timeout) when using App Router and incompatible Next.js 
 
   await withMockedFixture(
     async (context) => {
-      if (!context.testResult) throw new Error('must use node-import-test fixture');
+      if (!context.testResult)
+        throw new Error('must use node-import-and-run-test fixture');
 
       debug('(expecting stderr not to contain "Exceeded timeout")');
       expect(context.testResult.stderr).not.toStrictEqual(
@@ -291,7 +293,8 @@ it('fails fast (no jest timeout) when using Rages Router and incompatible Next.j
 
   await withMockedFixture(
     async (context) => {
-      if (!context.testResult) throw new Error('must use node-import-test fixture');
+      if (!context.testResult)
+        throw new Error('must use node-import-and-run-test fixture');
 
       debug('(expecting stderr not to contain "Exceeded timeout")');
       expect(context.testResult.stderr).not.toStrictEqual(

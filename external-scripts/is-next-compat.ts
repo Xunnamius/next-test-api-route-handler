@@ -163,6 +163,7 @@ const invoked = async () => {
 
   const latestReleaseVersion = vlatest.replace(/^v/, '');
   debug(`saw latest release version "${latestReleaseVersion}"`);
+
   if (!latestReleaseVersion) throw new Error('could not find latest Next.js version');
 
   const { filename: path } = findPackageJson(process.cwd()).next();

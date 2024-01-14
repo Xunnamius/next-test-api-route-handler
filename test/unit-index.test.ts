@@ -29,6 +29,21 @@ afterEach(() => {
 });
 
 describe('::testApiHandler', () => {
+  it('throws when attempting to pass both pagesHandler and appHandler', async () => {
+    expect.hasAssertions();
+
+    await expect(
+      // @ts-expect-error: testing bad args
+      testApiHandler({
+        appHandler: {},
+        pagesHandler: () => undefined,
+        test: async ({ fetch }) => void (await fetch())
+      })
+    ).rejects.toMatchObject({
+      message: expect.stringContaining('initialization failed:')
+    });
+  });
+
   describe('<app router>', () => {
     const getHandler = (status?: number) => ({
       async GET() {

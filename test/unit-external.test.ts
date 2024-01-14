@@ -197,6 +197,21 @@ it('handles missing package.json', async () => {
   );
 });
 
+it('handles missing latestRelease', async () => {
+  expect.hasAssertions();
+
+  await withMockedEnv(
+    async () => {
+      mockLatestRelease = '';
+
+      await protectedImport({ expectedExitCode: 2 });
+      expect(mockedFindPackageJson).not.toHaveBeenCalled();
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
+    },
+    { MONGODB_URI: 'fake-uri' }
+  );
+});
+
 it('handles compatibility test failure', async () => {
   expect.hasAssertions();
 
