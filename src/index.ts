@@ -83,6 +83,19 @@ const AppRouteRouteModule = findNextjsInternalResolver<
 // ? the end-developer's test function runs.
 const originalGlobalFetch = globalThis.fetch;
 
+const dummyArgsForAppRouteRouteModule = {
+  definition: {
+    kind: 'APP_ROUTE' as any,
+    page: '/route',
+    pathname: 'ntarh://testApiHandler',
+    filename: 'route',
+    bundlePath: 'app/route'
+  },
+  nextConfigOutput: undefined,
+  resolvedPagePath: 'ntarh://testApiHandler',
+  userland: {}
+};
+
 /**
  * @internal
  */
@@ -438,15 +451,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
               }
 
               return new AppRouteRouteModule({
-                definition: {
-                  kind: 'APP_ROUTE' as any,
-                  page: '/route',
-                  pathname: 'ntarh://testApiHandler',
-                  filename: 'route',
-                  bundlePath: 'app/route'
-                },
-                nextConfigOutput: undefined,
-                resolvedPagePath: 'ntarh://testApiHandler',
+                ...dummyArgsForAppRouteRouteModule,
                 userland: appHandler
               });
             }
