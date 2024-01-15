@@ -678,7 +678,8 @@ function findNextjsInternalResolver<T = NonNullable<unknown>>(
       errors.push(
         isNativeError(error)
           ? error.message.split(/(?<=')( imported)? from ('|\S)/)[0].split(`\nRequire`)[0]
-          : String(error)
+          : /* istanbul ignore next */
+            String(error)
       );
     }
   }
@@ -710,6 +711,7 @@ function handleError(
   // ? Prevent tests that crash the server from hanging. This might be a
   // ? Jest-specific (or maybe VM-module-specific) issue since it doesn't happen
   // ? when you run NTARH in Node.js without Jest (i.e. the integration tests).
+  /* istanbul ignore else */
   if (res && !res.writableEnded) {
     res.end();
   }
