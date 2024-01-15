@@ -230,7 +230,7 @@ At minimum, `options` must contain the following properties:
 
 For example:
 
-> \[!IMPORTANT]\
+> \[!CAUTION]\
 > Ensuring `testApiHandler` is imported [_before_][12] any Next.js package (like
 > `'next/headers'` below) is crucial to the proper function of NTARH. Doing otherwise
 > will result in undefined behavior.
