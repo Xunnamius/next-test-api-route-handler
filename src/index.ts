@@ -12,6 +12,16 @@ import {
 
 import type { NextApiHandler } from 'next';
 
+// ? Next expects AsyncLocalStorage to be globally available IMMEDIATELY! So
+// ? this line should happen before any imports of Next.js packages.
+// ! Unfortunately, due to the way Next.js is written, even at this point it is
+// ! often too late to add AsyncLocalStorage to globalThis for Next.js to
+// ! pickup. This is why the usage instructions recommend hoisting NTARH to
+// ! be the first import.
+if (!globalThis.AsyncLocalStorage) {
+  globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
+}
+
 /**
  * This is the default "pretty" URL that resolvers will associate with requests
  * from our dummy HTTP server. We use this to hide the uglier localhost url as
@@ -270,11 +280,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
       : pagesHandler_;
 
   try {
-    // ? Next expects AsyncLocalStorage to be globally available
-    if (!globalThis.AsyncLocalStorage) {
-      globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
-    }
-
     if (!!pagesHandler_ === !!appHandler) {
       throw new TypeError(
         'next-test-api-route-handler (NTARH) initialization failed: you must provide exactly one of: pagesHandler, appHandler'
