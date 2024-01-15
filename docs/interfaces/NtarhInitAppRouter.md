@@ -44,7 +44,7 @@ for details.
 
 #### Defined in
 
-[index.ts:153](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L153)
+[index.ts:153](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L153)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[index.ts:154](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L154)
+[index.ts:154](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L154)
 
 ___
 
@@ -72,7 +72,7 @@ once.
 
 #### Defined in
 
-[index.ts:164](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L164)
+[index.ts:164](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L164)
 
 ___
 
@@ -112,7 +112,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:174](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L174)
+[index.ts:174](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L174)
 
 ___
 
@@ -141,7 +141,7 @@ false
 
 #### Defined in
 
-[index.ts:130](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L130)
+[index.ts:130](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L130)
 
 ___
 
@@ -181,7 +181,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Defined in
 
-[index.ts:187](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L187)
+[index.ts:187](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L187)
 
 ___
 
@@ -223,7 +223,7 @@ unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 #### Defined in
 
-[index.ts:200](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L200)
+[index.ts:200](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L200)
 
 ___
 
@@ -260,7 +260,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:136](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L136)
+[index.ts:136](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L136)
 
 ___
 
@@ -273,4 +273,4 @@ NextRequest('your-url', request)`
 
 #### Defined in
 
-[index.ts:205](https://github.com/Xunnamius/next-test-api-route-handler/blob/ee63b2b/src/index.ts#L205)
+[index.ts:205](https://github.com/Xunnamius/next-test-api-route-handler/blob/6538d02/src/index.ts#L205)
