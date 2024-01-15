@@ -47,7 +47,7 @@ const altApiResolverPaths: string[] = [
   'next/dist/server/api-utils/node.js'
 ];
 
-// ! vvv TOP MOCKS vvv
+// * vvv TOP MOCKS vvv * \\
 
 // ! Only the TOP MOCKS should be { virtual: false }. The others must be
 // ! { virtual: true }
@@ -100,15 +100,15 @@ jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
   );
 });
 
-// ! ^^^ TOP MOCKS ^^^
+// * ^^^ TOP MOCKS ^^^ * \\
 
-// ! vvv REMAINING AppRouteRouteModule MOCKS vvv
+// * vvv REMAINING AppRouteRouteModule MOCKS vvv * \\
 
 // * None so far!
 
-// ! ^^^ REMAINING AppRouteRouteModule MOCKS ^^^
+// * ^^^ REMAINING AppRouteRouteModule MOCKS ^^^ * \\
 
-// ! vvv REMAINING apiResolver MOCKS vvv
+// * vvv REMAINING apiResolver MOCKS vvv * \\
 
 jest.mock(
   'next/dist/server/api-utils/node.js',
@@ -202,7 +202,7 @@ jest.mock(
   { virtual: true }
 );
 
-// ! ^^^ REMAINING apiResolver MOCKS ^^^
+// * ^^^ REMAINING apiResolver MOCKS ^^^ * \\
 
 const mockApiResolverPaths = [...altApiResolverPaths, actualApiResolverPath].reverse();
 const mockAppRouteRouteModulePaths = [

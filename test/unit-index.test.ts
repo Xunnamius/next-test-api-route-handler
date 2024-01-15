@@ -1,15 +1,17 @@
 /* eslint-disable jest/prefer-strict-equal */
+import { testApiHandler } from 'universe/index';
+
 import { parse, serialize } from 'cookie';
+import { cookies, headers } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 import { withMockedOutput } from 'testverse/setup';
-import { testApiHandler } from 'universe/index';
 
 // TODO: fix this import
 // @ts-expect-error: broken import from node10; needs fixing
 import { asMockedFunction } from '@xunnamius/jest-types';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { NextResponse } from 'next/server';
 
 jest.mock('cookie');
 
@@ -899,8 +901,8 @@ describe('::testApiHandler', () => {
         appHandler: {
           async GET() {
             return Response.json({
-              c: (await import('next/headers.js')).cookies().get('__c')?.value,
-              h: (await import('next/headers.js')).headers().get('__h')
+              c: cookies().get('__c')?.value,
+              h: headers().get('__h')
             });
           }
         },
