@@ -10,7 +10,11 @@ import {
   dummyNpmPackageFixture,
   mockFixtureFactory,
   nodeImportAndRunTestFixture,
-  npmLinkSelfFixture,
+  // TODO: add recommendation to documentation of published fixture packages
+  // TODO: that npmCopySelfFixture is for projects with peer deps,
+  // TODO: npmLinkSelfFixture can be dangerous to use in that case (something
+  // TODO: akin to the dual package hazard)
+  npmCopySelfFixture,
   run
 } from 'testverse/setup';
 
@@ -35,7 +39,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   },
   use: [
     dummyNpmPackageFixture(),
-    npmLinkSelfFixture(),
+    npmCopySelfFixture(),
     dummyFilesFixture(),
     nodeImportAndRunTestFixture()
   ]
@@ -151,7 +155,7 @@ describe('<app router>', () => {
     });
   });
 
-  it('does not hang (500ms limit) on exception in handler function', async () => {
+  it('does not hang on exception in handler function (probably requires SSD)', async () => {
     expect.hasAssertions();
     await runTest({
       importAs: 'cjs',
@@ -170,9 +174,9 @@ describe('<app router>', () => {
         expect(context.testResult?.code).toBe(0);
       }
     });
-  }, 500);
+  }, 10_000);
 
-  it('does not hang (500ms limit) on exception in test function', async () => {
+  it('does not hang on exception in test function (probably requires SSD)', async () => {
     expect.hasAssertions();
     await runTest({
       importAs: 'cjs',
@@ -191,7 +195,7 @@ describe('<app router>', () => {
         );
       }
     });
-  }, 500);
+  }, 10_000);
 });
 
 describe('<pages router>', () => {
@@ -231,7 +235,7 @@ describe('<pages router>', () => {
     });
   });
 
-  it('does not hang (500ms limit) on exception in handler function', async () => {
+  it('does not hang on exception in handler function (probably requires SSD)', async () => {
     expect.hasAssertions();
     await runTest({
       importAs: 'cjs',
@@ -250,9 +254,9 @@ describe('<pages router>', () => {
         expect(context.testResult?.code).toBe(0);
       }
     });
-  }, 500);
+  }, 10_000);
 
-  it('does not hang (500ms limit) on exception in test function', async () => {
+  it('does not hang on exception in test function (probably requires SSD)', async () => {
     expect.hasAssertions();
     await runTest({
       importAs: 'cjs',
@@ -271,5 +275,5 @@ describe('<pages router>', () => {
         );
       }
     });
-  }, 500);
+  }, 10_000);
 });

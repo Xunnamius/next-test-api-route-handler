@@ -771,15 +771,13 @@ export function npmCopySelfFixture(): MockFixture {
         throw new Error(`expected "${destPkgJson}" to exist`);
       }
 
-      // TODO: only optionally remove peer dependencies from the install loop
-      // TODO: (and by default they should NOT? be removed, unlike below).
-      // TODO: Same deal with dev dependencies (except removed by default).
-      const {
-        peerDependencies: _,
-        devDependencies: __,
-        ...dummyPkgJson
-      } = JSON.parse(await readFile({ path: destPkgJson, context }));
+      const { devDependencies: __, ...dummyPkgJson } = JSON.parse(
+        await readFile({ path: destPkgJson, context })
+      );
 
+      // TODO: only optionally remove peer dependencies from the install loop
+      // TODO: (and by default they should NOT be removed, like below).
+      // TODO: Same deal with dev dependencies (except removed by default).
       const installTargets = {
         ...dummyPkgJson.dependencies,
         ...Object.fromEntries(
