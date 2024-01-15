@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 import assert from 'node:assert';
+import { isNativeError } from 'node:util/types';
 
 import {
   createServer,
@@ -10,12 +11,6 @@ import {
 } from 'node:http';
 
 import type { NextApiHandler } from 'next';
-import type { apiResolver as NextPagesResolver } from 'next/dist/server/api-utils/node/api-resolver';
-
-import type {
-  AppRouteRouteModule as NextAppResolver,
-  AppRouteUserlandModule as NextAppRoute
-} from 'next/dist/server/future/route-modules/app-route/module';
 
 /**
  * This is the default "pretty" URL that resolvers will associate with requests
@@ -40,8 +35,38 @@ const addDefaultHeaders = (headers: Headers) => {
   return headers;
 };
 
-let apiResolver: typeof NextPagesResolver | null = null;
-let AppRouteRouteModule: typeof NextAppResolver | null = null;
+/**
+ * @internal
+ */
+const $importFailed = Symbol('import-failed');
+
+// * vvv FIND NEXTJS INTERNAL RESOLVERS vvv * \\
+
+const apiResolver = findNextjsInternalResolver<
+  // * Copied from the first line in the possibleLocations array below
+  typeof import('next/dist/server/api-utils/node/api-resolver').apiResolver
+>('apiResolver', [
+  // ? The following is for next@>=13.5.4:
+  'next/dist/server/api-utils/node/api-resolver.js',
+  // ? The following is for next@<13.5.4 >=12.1.0:
+  'next/dist/server/api-utils/node.js',
+  // ? The following is for next@<12.1.0 >=11.1.0:
+  'next/dist/server/api-utils.js',
+  // ? The following is for next@<11.1.0 >=9.0.6:
+  'next/dist/next-server/server/api-utils.js',
+  // ? The following is for next@<9.0.6 >= 9.0.0:
+  'next-server/dist/server/api-utils.js'
+]);
+
+const AppRouteRouteModule = findNextjsInternalResolver<
+  // * Copied from the first line in the possibleLocations array below
+  typeof import('next/dist/server/future/route-modules/app-route/module').AppRouteRouteModule
+>('AppRouteRouteModule', [
+  // ? The following is for next@>=14.0.4:
+  'next/dist/server/future/route-modules/app-route/module.js'
+]);
+
+// * ^^^ FIND NEXTJS INTERNAL RESOLVERS ^^^ * \\
 
 // ? We track the original global fetch function because Next.js patches it
 // ? upon import (I'm not sure where or when), so we need to restore it before
@@ -62,42 +87,6 @@ export type FetchReturnType<NextResponseJsonType> = Promise<
     cookies: ReturnType<typeof import('cookie').parse>[];
   }
 >;
-
-// ? The result of this function is memoized by the caller, so this function
-// ? will only be invoked the first time this script is imported.
-const tryImport = ((path: string) => (error?: Error) => {
-  if (error) {
-    /* istanbul ignore next */
-    tryImport.importErrors = tryImport.importErrors ?? [];
-    tryImport.importErrors.push(error);
-  }
-
-  return require(path);
-}) as ((path: string) => (error?: Error) => Promise<any>) & {
-  importErrors: Error[];
-};
-
-const handleError = (
-  res: ServerResponse | undefined,
-  error: unknown,
-  deferredReject: ((error: unknown) => unknown) | null
-) => {
-  // ? Prevent tests that crash the server from hanging. This might be a
-  // ? Jest-specific (or maybe VM-module-specific) issue since it doesn't happen
-  // ? when you run NTARH in Node.js without Jest (i.e. the integration tests).
-  if (res && !res.writableEnded) {
-    res.end();
-  }
-
-  // ? Throwing at the point this function was called would not normally cause
-  // ? testApiHandler to reject because createServer (an EventEmitter) only
-  // ? accepts non-async event handlers which swallow errors from async
-  // ? functions (which is why `void` is used instead of `await` below). So
-  // ? we'll have to get creative! How about: defer rejections manually?
-  /* istanbul ignore else */
-  if (deferredReject) deferredReject(error);
-  else throw error;
-};
 
 /**
  * @internal
@@ -138,7 +127,7 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    * documentation](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
    * for details.
    */
-  appHandler: NextAppRoute;
+  appHandler: import('next/dist/server/future/route-modules/app-route/module').AppRouteUserlandModule;
   pagesHandler?: undefined;
   /**
    * `params` is passed directly to the handler and represents processed dynamic
@@ -292,80 +281,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
       );
     }
 
-    // ? Dynamically import apiResolver only if necessary
-    if (pagesHandler && !apiResolver) {
-      tryImport.importErrors = [];
-
-      ({ apiResolver } = await Promise.reject()
-        // ? The following is for next@>=13.5.4:
-        .catch(tryImport('next/dist/server/api-utils/node/api-resolver.js'))
-        // ? The following is for next@<13.5.4 >=12.1.0:
-        .catch(tryImport('next/dist/server/api-utils/node.js'))
-        // ? The following is for next@<12.1.0 >=11.1.0:
-        .catch(tryImport('next/dist/server/api-utils.js'))
-        // ? The following is for next@<11.1.0 >=9.0.6:
-        .catch(tryImport('next/dist/next-server/server/api-utils.js'))
-        // ? The following is for next@<9.0.6 >= 9.0.0:
-        .catch(tryImport('next-server/dist/server/api-utils.js'))
-        .catch((error) => (tryImport.importErrors.push(error), { apiResolver: null })));
-
-      if (!apiResolver) {
-        const importErrors = tryImport.importErrors
-          .map(
-            (error) =>
-              error.message
-                .split(/(?<=')( imported)? from ('|\S)/)[0]
-                .split(`\nRequire`)[0]
-          )
-          .join('\n    - ');
-
-        tryImport.importErrors = [];
-        // prettier-ignore
-        throw new Error(
-          `next-test-api-route-handler (NTARH) failed to import apiResolver` +
-            `\n\n  This is usually caused by:` +
-            `\n\n    1. Using a Node version that is end-of-life (review legacy install instructions)` +
-              `\n    2. NTARH and the version of Next.js you installed are actually incompatible (please submit a bug report)` +
-            `\n\n  Failed import attempts:` +
-            `\n\n    - ${importErrors}`
-        );
-      }
-    }
-
-    // ? Dynamically import AppRouteRouteModule only if necessary
-    if (appHandler && !AppRouteRouteModule) {
-      tryImport.importErrors = [];
-
-      ({ AppRouteRouteModule } = await Promise.reject()
-        // ? The following is for next@>=14.0.4:
-        .catch(tryImport('next/dist/server/future/route-modules/app-route/module.js'))
-        .catch(
-          (error) => (tryImport.importErrors.push(error), { AppRouteRouteModule: null })
-        ));
-
-      if (!AppRouteRouteModule) {
-        const importErrors = tryImport.importErrors
-          .map(
-            (error) =>
-              error.message
-                .split(/(?<=')( imported)? from ('|\S)/)[0]
-                .split(`\nRequire`)[0]
-          )
-          .join('\n    - ');
-
-        tryImport.importErrors = [];
-        // prettier-ignore
-        throw new Error(
-          `next-test-api-route-handler (NTARH) failed to import AppRouteRouteModule` +
-            `\n\n  This is usually caused by:` +
-            `\n\n    1. Using a Node version that is end-of-life (review legacy install instructions)` +
-              `\n    2. NTARH and the version of Next.js you installed are actually incompatible (please submit a bug report)` +
-            `\n\n  Failed import attempts:` +
-            `\n\n    - ${importErrors}`
-        );
-      }
-    }
-
     server = pagesHandler ? createPagesRouterServer() : createAppRouterServer();
 
     const port = await new Promise<number>((resolve, reject) => {
@@ -509,9 +424,12 @@ export async function testApiHandler<NextResponseJsonType = any>({
             'development',
             () => {
               if (typeof AppRouteRouteModule !== 'function') {
-                throw new TypeError(
+                assert(
+                  AppRouteRouteModule?.[$importFailed],
                   'assertion failed unexpectedly: AppRouteRouteModule was not a constructor (function)'
                 );
+
+                throw AppRouteRouteModule[$importFailed];
               }
 
               return new AppRouteRouteModule({
@@ -599,9 +517,12 @@ export async function testApiHandler<NextResponseJsonType = any>({
           })
           .then((finalParameters) => {
             if (typeof apiResolver !== 'function') {
-              throw new TypeError(
+              assert(
+                apiResolver?.[$importFailed],
                 'assertion failed unexpectedly: apiResolver was not a function'
               );
+
+              throw apiResolver[$importFailed];
             }
 
             /**
@@ -640,6 +561,9 @@ function returnUndefinedIfEmptyObject<T extends object>(o: T) {
   return Object.keys(o).length ? o : undefined;
 }
 
+/**
+ * @internal
+ */
 async function mockEnvVariable<T>(
   name: string,
   updatedValue: string | undefined,
@@ -655,10 +579,15 @@ async function mockEnvVariable<T>(
   }
 }
 
-// ? The Node devs gated the essential ReadableStream.from(...) behind Node@20,
-// ? and Readable.toWeb(...) just doesn't work properly for whatever lame
-// ? reason, so f**k it we'll do it live.
-// * https://github.com/nodejs/node/blob/d102d16e98a8845cba96157b6396bd448241e47c/lib/internal/webstreams/readablestream.js#L1309
+/**
+ * The Node devs gated the essential ReadableStream.from(...) behind Node@20,
+ * and Readable.toWeb(...) just doesn't work properly for whatever lame reason,
+ * so f**k it we'll do it live.
+ *
+ * * https://github.com/nodejs/node/blob/d102d16e98a8845cba96157b6396bd448241e47c/lib/internal/webstreams/readablestream.js#L1309
+ *
+ * @internal
+ */
 function readableStreamOrNullFromAsyncIterable(
   iterable: AsyncIterable<any> | null | undefined
 ) {
@@ -718,4 +647,69 @@ function rebindJsonMethodAsSummoner<T extends Response | Request>(communication:
   }
 
   return communication;
+}
+
+/**
+ * Attempt to find and import a Nextjs internal export.
+ */
+function findNextjsInternalResolver<T = NonNullable<unknown>>(
+  exportedName: string,
+  possibleLocations: string[]
+) {
+  const errors: string[] = [];
+  let imported: T | undefined = undefined;
+
+  for (const path of possibleLocations) {
+    try {
+      const { [exportedName]: xport } = require(path);
+      imported = xport;
+      break;
+    } catch (error) {
+      errors.push(
+        isNativeError(error)
+          ? error.message.split(/(?<=')( imported)? from ('|\S)/)[0].split(`\nRequire`)[0]
+          : String(error)
+      );
+    }
+  }
+
+  return (
+    imported ?? {
+      [$importFailed]: new Error(
+        // prettier-ignore
+        `next-test-api-route-handler (NTARH) failed to import ${exportedName}` +
+        `\n\n  This is usually caused by:` +
+        `\n\n    1. Using a Node version that is end-of-life (review legacy install instructions)` +
+          `\n    2. NTARH and the version of Next.js you installed are actually incompatible (please check documentation and/or submit a bug report)` +
+        `\n\n  Failed import attempts:` +
+        `\n\n    - ${errors.join('\n    - ')}`
+      )
+    }
+  );
+}
+
+/**
+ *
+ * @internal
+ */
+function handleError(
+  res: ServerResponse | undefined,
+  error: unknown,
+  deferredReject: ((error: unknown) => unknown) | null
+) {
+  // ? Prevent tests that crash the server from hanging. This might be a
+  // ? Jest-specific (or maybe VM-module-specific) issue since it doesn't happen
+  // ? when you run NTARH in Node.js without Jest (i.e. the integration tests).
+  if (res && !res.writableEnded) {
+    res.end();
+  }
+
+  // ? Throwing at the point this function was called would not normally cause
+  // ? testApiHandler to reject because createServer (an EventEmitter) only
+  // ? accepts non-async event handlers which swallow errors from async
+  // ? functions (which is why `void` is used instead of `await` below). So
+  // ? we'll have to get creative! How about: defer rejections manually?
+  /* istanbul ignore else */
+  if (deferredReject) deferredReject(error);
+  else throw error;
 }
