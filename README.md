@@ -885,11 +885,14 @@ it('returns isAuthed: true and a userId when authenticated', async () => {
       get GET() {
         return async function (...args: Parameters<typeof appHandler.GET>) {
           const request = args.at(0) as unknown as NextRequest;
-          const middlewareResponse = await middleware(request, {} as any);
+          const middlewareResponse = await middleware(request, {
+            /* ... */
+          });
 
           // Make sure we're not being redirected to the sign in page since
-          // this should be a publicly available endpoint
-          expect(middlewareResponse.headers.get('location')).toBeUndefined();
+          // this is a publicly available endpoint
+          expect(middlewareResponse.headers.get('location')).toBeNull();
+          expect(middlewareResponse.ok).toBe(true);
 
           const handlerResponse = await appHandler.GET(...args);
 
