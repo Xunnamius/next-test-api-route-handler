@@ -83,19 +83,6 @@ const AppRouteRouteModule = findNextjsInternalResolver<
 // ? the end-developer's test function runs.
 const originalGlobalFetch = globalThis.fetch;
 
-const dummyArgsForAppRouteRouteModule = {
-  definition: {
-    kind: 'APP_ROUTE' as any,
-    page: '/route',
-    pathname: 'ntarh://testApiHandler',
-    filename: 'route',
-    bundlePath: 'app/route'
-  },
-  nextConfigOutput: undefined,
-  resolvedPagePath: 'ntarh://testApiHandler',
-  userland: {}
-};
-
 /**
  * @internal
  */
@@ -451,7 +438,15 @@ export async function testApiHandler<NextResponseJsonType = any>({
               }
 
               return new AppRouteRouteModule({
-                ...dummyArgsForAppRouteRouteModule,
+                definition: {
+                  kind: 'APP_ROUTE' as any,
+                  page: '/route',
+                  pathname: 'ntarh://testApiHandler',
+                  filename: 'route',
+                  bundlePath: 'app/route'
+                },
+                nextConfigOutput: undefined,
+                resolvedPagePath: 'ntarh://testApiHandler',
                 userland: appHandler
               });
             }
@@ -461,13 +456,21 @@ export async function testApiHandler<NextResponseJsonType = any>({
             rebindJsonMethodAsSummoner(nextRequest),
             {
               params: finalParameters,
-              prerenderManifest: {} as any,
+              prerenderManifest: {
+                version: 4,
+                routes: {},
+                dynamicRoutes: {},
+                notFoundRoutes: [],
+                preview: {} as any
+              },
               renderOpts: {
                 // ? Next.js poos the bed if we don't include this
-                experimental: {},
+                experimental: {
+                  ppr: false
+                },
                 // ? Next.js tries to do things it shouldn't unless we add this
                 supportsDynamicHTML: true
-              } as any
+              }
             }
           );
 
