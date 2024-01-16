@@ -464,11 +464,15 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 preview: {} as any
               },
               renderOpts: {
-                // ? Next.js poos the bed if we don't include this
                 experimental: {
                   ppr: false
                 },
                 // ? Next.js tries to do things it shouldn't unless we add this
+                supportsDynamicHTML: true
+              },
+              // ? Next.js poos the bed if we don't include this
+              // @ts-expect-error: the types for renderOpts are wrong!
+              staticGenerationContext: {
                 supportsDynamicHTML: true
               }
             }
