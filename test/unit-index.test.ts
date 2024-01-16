@@ -137,7 +137,7 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(350);
           await expect((await fetch()).json()).resolves.toStrictEqual({
-            url: 'ntarh://testApiHandler'
+            url: 'ntarh://testApiHandler/'
           });
         }
       });
@@ -152,7 +152,7 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(350);
           await expect((await fetch()).json()).resolves.toStrictEqual({
-            url: 'ntarh://my-url'
+            url: 'ntarh://my-url/'
           });
         }
       });
@@ -199,6 +199,42 @@ describe('::testApiHandler', () => {
           expect((await fetch({ method: 'POST' })).status).toBe(555);
           await expect((await fetch({ method: 'POST' })).json()).resolves.toStrictEqual({
             data: 'secret'
+          });
+        }
+      });
+    });
+
+    it('replaces empty pathname with "/" for given URL', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        url: 'ntarh://my-path-no-slash',
+        appHandler: {
+          async GET(request) {
+            expect(request.nextUrl.pathname).toBe('/');
+            return Response.json({ url: request.url }, { status: 200 });
+          }
+        },
+        test: async ({ fetch }) => {
+          expect((await fetch()).status).toBe(200);
+          await expect((await fetch()).json()).resolves.toStrictEqual({
+            url: 'ntarh://my-path-no-slash/'
+          });
+        }
+      });
+
+      await testApiHandler({
+        url: 'ntarh://my-url',
+        appHandler: {
+          async GET(request) {
+            return Response.json({ url: request.url }, { status: 350 });
+          }
+        },
+        test: async ({ fetch }) => {
+          expect((await fetch()).status).toBe(350);
+          await expect((await fetch()).json()).resolves.toStrictEqual({
+            url: 'ntarh://my-url/'
           });
         }
       });
@@ -586,7 +622,7 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(request) {
-            expect(request.url).toBe('ntarh://testApiHandler');
+            expect(request.url).toBe('ntarh://testApiHandler/');
             return Response.json({});
           }
         },
@@ -600,7 +636,7 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(request) {
-            expect(request.url).toBe('ntarh://testApiHandler');
+            expect(request.url).toBe('ntarh://testApiHandler/');
             return Response.json({});
           }
         },
@@ -614,7 +650,7 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(request) {
-            expect(request.url).toBe('ntarh://testApiHandler');
+            expect(request.url).toBe('ntarh://testApiHandler/');
             return Response.json({});
           }
         },
@@ -628,7 +664,7 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(request) {
-            expect(request.url).toBe('ntarh://testApiHandler');
+            expect(request.url).toBe('ntarh://testApiHandler/');
             return Response.json({});
           }
         },
@@ -1468,7 +1504,7 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(350);
           await expect((await fetch()).json()).resolves.toStrictEqual({
-            url: 'ntarh://testApiHandler'
+            url: 'ntarh://testApiHandler/'
           });
         }
       });
@@ -1839,7 +1875,7 @@ describe('::testApiHandler', () => {
           return undefined;
         },
         async pagesHandler(req, res) {
-          expect(req.url).toBe('ntarh://testApiHandler');
+          expect(req.url).toBe('ntarh://testApiHandler/');
           res.send({});
         },
         test: async ({ fetch }) => {
@@ -1854,7 +1890,7 @@ describe('::testApiHandler', () => {
           return undefined;
         },
         async pagesHandler(req, res) {
-          expect(req.url).toBe('ntarh://testApiHandler');
+          expect(req.url).toBe('ntarh://testApiHandler/');
           res.send({});
         },
         test: async ({ fetch }) => {

@@ -27,7 +27,7 @@ if (!globalThis.AsyncLocalStorage) {
  * from our dummy HTTP server. We use this to hide the uglier localhost url as
  * an implementation detail.
  */
-const defaultNextRequestMockUrl = 'ntarh://testApiHandler';
+const defaultNextRequestMockUrl = 'ntarh://testApiHandler/';
 
 /**
  * This function is responsible for adding the headers sent along with every
@@ -374,47 +374,38 @@ export async function testApiHandler<NextResponseJsonType = any>({
       return createServerAdapter(async (request) => {
         try {
           assert(appHandler !== undefined);
-
-          // ? Mocking __NEXT_NO_MIDDLEWARE_URL_NORMALIZE here gets NextRequest
-          // ? to avoid normalizing our URLs, keeping them exactly as given.
-          const nextRequest = await mockEnvVariable(
-            '__NEXT_NO_MIDDLEWARE_URL_NORMALIZE',
-            'true',
-            async () => {
-              const rawRequest = rebindJsonMethodAsSummoner(
-                new NextRequest(
-                  url || defaultNextRequestMockUrl,
-                  /**
-                   * See: RequestData from next/dist/server/web/types.d.ts
-                   * See also: https://stackoverflow.com/a/57014050/1367414
-                   */
-                  {
-                    ...request,
-                    body: readableStreamOrNullFromAsyncIterable(
-                      // ? request.body claims to be ReadableStream, but it's
-                      // ? actually a Node.js native stream (i.e. iterable)...
-                      request.body as unknown as AsyncIterable<any>
-                    ),
-                    // https://github.com/nodejs/node/issues/46221
-                    // @ts-expect-error: TS types are not yet updated
-                    duplex: 'half'
-                  }
-                )
-              );
-
-              const patchedRequest = (await requestPatcher?.(rawRequest)) || rawRequest;
-              const finalRequest =
-                patchedRequest instanceof NextRequest
-                  ? patchedRequest
-                  : new NextRequest(patchedRequest, {
-                      // https://github.com/nodejs/node/issues/46221
-                      // @ts-expect-error: TS types are not yet updated
-                      duplex: 'half'
-                    });
-
-              return finalRequest;
-            }
+          const rawRequest = rebindJsonMethodAsSummoner(
+            new NextRequest(
+              normalizeUrlForceTrailingSlashIfPathnameEmpty(
+                url || defaultNextRequestMockUrl
+              ),
+              /**
+               * See: RequestData from next/dist/server/web/types.d.ts
+               * See also: https://stackoverflow.com/a/57014050/1367414
+               */
+              {
+                ...request,
+                body: readableStreamOrNullFromAsyncIterable(
+                  // ? request.body claims to be ReadableStream, but it's
+                  // ? actually a Node.js native stream (i.e. iterable)...
+                  request.body as unknown as AsyncIterable<any>
+                ),
+                // https://github.com/nodejs/node/issues/46221
+                // @ts-expect-error: TS types are not yet updated
+                duplex: 'half'
+              }
+            )
           );
+
+          const patchedRequest = (await requestPatcher?.(rawRequest)) || rawRequest;
+          const nextRequest =
+            patchedRequest instanceof NextRequest
+              ? patchedRequest
+              : new NextRequest(patchedRequest, {
+                  // https://github.com/nodejs/node/issues/46221
+                  // @ts-expect-error: TS types are not yet updated
+                  duplex: 'half'
+                });
 
           const rawParameters = { ...params };
 
@@ -731,4 +722,13 @@ function handleError(
   /* istanbul ignore else */
   if (deferredReject) deferredReject(error);
   else throw error;
+}
+
+/**
+ * @internal
+ */
+function normalizeUrlForceTrailingSlashIfPathnameEmpty(url: string) {
+  const url_ = new URL(url);
+  url_.pathname ||= '/';
+  return url_.toString();
 }
