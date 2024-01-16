@@ -787,7 +787,7 @@ How might we test that this endpoint functions as we expect?
 /* File: test/unit.test.ts */
 
 import { testApiHandler } from 'next-test-api-route-handler';
-import * as appHandler from './app/api/authed/route';
+import * as appHandler from '../app/api/authed/route';
 
 import type { auth } from '@clerk/nextjs';
 
@@ -842,31 +842,43 @@ it('returns isAuthed: false and nothing else when unauthenticated', async () => 
 If you're feeling more adventurous, you can transform this unit test into an
 _integration_ test (like the Apollo example above) by calling Clerk's
 [`authMiddleware`][61] function in `appHandler` instead of mocking
-`@clerk/nextjs`:
+`@clerk/nextjs`. What follows is a good starting point:
 
 ```typescript
 // This integration test also requires your Clerk dashboard is setup in test
-// mode and your authentication information is available in process.env.
+// mode and your Clerk secret key information is available in process.env. Said
+// information must be available BEFORE any Clerk packages are imported!
 
-/* ... */
-import { authMiddleware } from '@clerk/nextjs';
-import { DUMMY_CLERK_USER_ID } from '../constants';
+/* ... same imports as before ... */
+// Also import our Next.js middleware
+import { default as middleware } from '../middleware';
+// And we want to keep our types as tight as we can too
+import type { NextRequest } from 'next/server';
+
+const DUMMY_CLERK_USER_ID = 'user_2aqlGWnjdTRRbbBk9OdBHHbniyK';
 
 it('returns isAuthed: true and a userId when authenticated', async () => {
   expect.hasAssertions();
 
   await testApiHandler({
+    rejectOnHandlerError: true,
     appHandler: {
       get GET() {
-        return function (request, context) {
-          const middlewareResponse = await authMiddleware()(request, {
-            /* ... */
-          });
+        return async function (...args: Parameters<typeof appHandler.GET>) {
+          const request = args.at(0) as unknown as NextRequest;
+          const middlewareResponse = await middleware(request, {} as any);
 
-          // Perhaps check middlewareResponse.ok == true and
-          // middlewareResponse.redirected == false and anything else you expect
+          // Make sure we're not being redirected to the sign in page since
+          // this is a publicly available endpoint
+          expect(middlewareResponse.headers.get('location')).toBeUndefined();
 
-          return appHandler.GET(request, context);
+          const handlerResponse = await appHandler.GET(...args);
+
+          // You could run some expectations here (since rejectOnHandlerError is
+          // true), or you can run your remaining expectations in the test
+          // function below. Either way is fine.
+
+          return handlerResponse;
         };
       }
     },
@@ -877,7 +889,6 @@ it('returns isAuthed: true and a userId when authenticated', async () => {
       });
     }
   });
-});
 
 /* ... */
 ```
