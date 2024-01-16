@@ -839,10 +839,55 @@ it('returns isAuthed: false and nothing else when unauthenticated', async () => 
 });
 ```
 
-If you're feeling more adventurous, you can turn this unit test into an
-_integration_ test by calling [`authMiddleware`][61] in `requestPatcher` instead
-of mocking `@clerk/nextjs`. For insight into what you'd need to do to make this
-work, check out [Clerk's own tests][62].
+If you're feeling more adventurous, you can transform this unit test into an
+_integration_ test (like the Apollo example above) by calling Clerk's
+[`authMiddleware`][61] function in `appHandler` instead of mocking
+`@clerk/nextjs`:
+
+```typescript
+// This integration test also requires your Clerk dashboard is setup in test
+// mode and your authentication information is available in process.env.
+
+/* ... */
+import { authMiddleware } from '@clerk/nextjs';
+import { DUMMY_CLERK_USER_ID } from '../constants';
+
+it('returns isAuthed: true and a userId when authenticated', async () => {
+  expect.hasAssertions();
+
+  await testApiHandler({
+    appHandler: {
+      get GET() {
+        return function (request, context) {
+          const middlewareResponse = await authMiddleware()(request, {
+            /* ... */
+          });
+
+          // Perhaps check middlewareResponse.ok == true and
+          // middlewareResponse.redirected == false and anything else you expect
+
+          return appHandler.GET(request, context);
+        };
+      }
+    },
+    test: async ({ fetch }) => {
+      await expect((await fetch()).json()).resolves.toStrictEqual({
+        isAuthed: true,
+        userId: DUMMY_CLERK_USER_ID
+      });
+    }
+  });
+});
+
+/* ... */
+```
+
+You can also try calling [`authMiddleware`][61] in `requestPatcher`; however,
+Clerk's middleware does its magic by importing the `headers` helper function
+from `'next/headers'`, and **only functions invoked within `appHandler` have
+access to the storage context that allows Next.js's helper functions to work**.
+For insight into what you'd need to do to make [`authMiddleware`][61] callable
+in `requestPatcher`, check out [Clerk's own tests][62].
 
 #### Testing an Unreliable Handler on the Edge @ `app/api/unreliable`
 
