@@ -1466,7 +1466,7 @@ more information.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-23-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-24-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1511,6 +1511,7 @@ key][x-repo-all-contributors-emojis]):
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/tolivturnstile"><img src="https://avatars.githubusercontent.com/u/121887214?v=4?s=100" width="100px;" alt="Tony"/><br /><sub><b>Tony</b></sub></a><br /><a href="#research-tolivturnstile" title="Research">🔬</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/Jokinen"><img src="https://avatars.githubusercontent.com/u/9090689?v=4?s=100" width="100px;" alt="Jaakko Jokinen"/><br /><sub><b>Jaakko Jokinen</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3AJokinen" title="Bug reports">🐛</a> <a href="#research-Jokinen" title="Research">🔬</a> <a href="#ideas-Jokinen" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://arun.blog/"><img src="https://avatars.githubusercontent.com/u/18581859?v=4?s=100" width="100px;" alt="Arun Sathiya"/><br /><sub><b>Arun Sathiya</b></sub></a><br /><a href="#research-arunsathiya" title="Research">🔬</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=arunsathiya" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/scottsymm"><img src="https://avatars.githubusercontent.com/u/274599?v=4?s=100" width="100px;" alt="Scott Symmank"/><br /><sub><b>Scott Symmank</b></sub></a><br /><a href="#research-scottsymm" title="Research">🔬</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Ascottsymm" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
   <tfoot>

@@ -177,6 +177,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/18581859?v=4",
       "profile": "https://arun.blog/",
       "contributions": ["research", "code"]
+    },
+    {
+      "login": "scottsymm",
+      "name": "Scott Symmank",
+      "avatar_url": "https://avatars.githubusercontent.com/u/274599?v=4",
+      "profile": "https://github.com/scottsymm",
+      "contributions": ["research", "bug"]
     }
   ]
 }
