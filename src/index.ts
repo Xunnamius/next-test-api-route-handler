@@ -289,7 +289,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
     server = pagesHandler ? createPagesRouterServer() : createAppRouterServer();
 
     const port = await new Promise<number>((resolve, reject) => {
-      server?.listen(() => {
+      server?.listen(0, 'localhost', undefined, () => {
         const addr = server?.address();
 
         if (!addr || typeof addr === 'string') {
