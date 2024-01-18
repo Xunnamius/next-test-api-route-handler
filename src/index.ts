@@ -358,6 +358,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
     });
   } finally {
     server?.close();
+    server?.closeAllConnections();
   }
 
   function createAppRouterServer() {
