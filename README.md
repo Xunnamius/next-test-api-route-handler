@@ -147,7 +147,7 @@ it('does what I want', async () => {
     // responsePatcher is optional
     async responsePatcher(response) {
       const json = await response.json();
-      return Reponse.json(
+      return Response.json(
         json.apiSuccess ? { hello: 'world!' } : { goodbye: 'cruel world' }
       );
     },
