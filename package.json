@@ -66,14 +66,14 @@
     "test": "npm run test:unit --",
     "test:all": "npx attw --pack . && echo && NODE_OPTIONS='--no-warnings' NODE_ENV=test jest --coverage",
     "test:e2e": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest 'e2e.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
-    "test:integration": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest '/integration.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
-    "test:integration:client": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest '/integration-client.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
-    "test:integration:compile": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest '/integration-compile.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
-    "test:integration:externals": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest '/integration-external.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
-    "test:integration:node": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest '/integration-node.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
+    "test:integration": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest 'integration.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
+    "test:integration:client": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest 'integration-client.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
+    "test:integration:compile": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest 'integration-compile.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
+    "test:integration:externals": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest 'integration-external.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
+    "test:integration:node": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest 'integration-node.*?\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'",
     "test:repeat:all": "npm run __test:repeat:all --silent",
     "test:repeat:unit": "npm run __test:repeat:unit --silent",
-    "test:unit": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest '/unit-.*\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'"
+    "test:unit": "NODE_OPTIONS='--no-warnings' NODE_ENV=test jest 'unit-.*\\.test\\.tsx?' --testPathIgnorePatterns '/dist/'"
   },
   "config": {
     "plugin-build": {
