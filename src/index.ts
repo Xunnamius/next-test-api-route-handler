@@ -372,7 +372,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
     return createServer((req, res) => {
       const originalRes = res;
-      return createServerAdapter(async (request) => {
+      void createServerAdapter(async (request) => {
         try {
           assert(appHandler !== undefined);
           const rawRequest = rebindJsonMethodAsSummoner(
@@ -718,8 +718,9 @@ function handleError(
   // ? Throwing at the point this function was called would not normally cause
   // ? testApiHandler to reject because createServer (an EventEmitter) only
   // ? accepts non-async event handlers which swallow errors from async
-  // ? functions (which is why `void` is used instead of `await` below). So
-  // ? we'll have to get creative! How about: defer rejections manually?
+  // ? functions (which is why `void` is used instead of `await` when calling
+  // ? `createServerAdapter` and `apiResolver`). So we'll have to get creative!
+  // ? How about: defer rejections manually?
   /* istanbul ignore else */
   if (deferredReject) deferredReject(error);
   else throw error;
