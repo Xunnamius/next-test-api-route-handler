@@ -184,6 +184,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/274599?v=4",
       "profile": "https://github.com/scottsymm",
       "contributions": ["research", "bug"]
+    },
+    {
+      "login": "matiasdecarli",
+      "name": "Matias De Carli",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2442390?v=4",
+      "profile": "https://github.com/matiasdecarli",
+      "contributions": ["doc"]
     }
   ]
 }
