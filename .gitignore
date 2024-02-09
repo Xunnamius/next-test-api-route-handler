@@ -1,16 +1,34 @@
+# Ignore temporary files by giving them a special name
 *.ignore
 *.ignore.*
 ignore.*
+
+# Ignore sensitive files
+.env
+.npmrc
+*.local
+
+# Ignore transpiled source (used for advanced debugging)
+.transpiled
+
+# Ignore any external scripts
+external-scripts/bin
+
+# Ignore build artifacts
 *.tsbuildinfo
 dist
 build
+.vercel
+.next
+next-env.d.ts
+coverage
+
+# Ignore local configuration
 .vscode
 !.vscode/launch.example.json
-.vercel
-.env
-.npmrc
-external-scripts/bin
-next-env.d.ts
+
+# Ignore node_modules
 node_modules
-coverage
+
+# Ignore random nothingness
 .DS_Store
