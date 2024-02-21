@@ -88,7 +88,7 @@
     "core-js": "^3.35.1"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.13.8",
+    "@arethetypeswrong/cli": "^0.14.0",
     "@babel/cli": "^7.23.9",
     "@babel/core": "^7.23.9",
     "@babel/eslint-parser": "^7.23.10",
