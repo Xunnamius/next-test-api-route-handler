@@ -62,6 +62,8 @@ and Node.js. Go forth and test confidently!
 ✨ <a href="https://github.com/vercel/next.js"><img
 src="https://xunn.at/ntarh-compat" /></a> ✨
 
+<sub>Note that App Router support begins with `next@14.0.4` ([why?](https://github.com/Xunnamius/next-test-api-route-handler?tab=readme-ov-file#legacy-runtime-support))</sub>
+
 </div>
 
 <br />
