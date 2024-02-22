@@ -1365,14 +1365,19 @@ import in any test file][12].
 ### Legacy Runtime Support
 
 As of version `4.0.0`, NTARH supports both the App Router (for `next@>=14.0.4`)
-and the "legacy" Pages Router Next.js APIs.
+and the "legacy" Pages Router Next.js APIs. However, due to the code churn with
+`next@13`, NTARH's support for the App Router begins at `next@14.0.4`. See
+[here](https://github.com/Xunnamius/next-test-api-route-handler/issues/999#issuecomment-1956787672)
+and [here](https://github.com/Xunnamius/next-test-api-route-handler/discussions/953)
+for more information.
 
-Additionally, as of version `2.1.0`, NTARH is fully backwards compatible with
-Next.js going _allll_ the way back to `next@9.0.0` [when API routes were first
-introduced][87]!
+Additionally, as of version `2.1.0`, NTARH's Pages Router support is fully
+backwards compatible with Next.js going _allll_ the way back to `next@9.0.0`
+[when API routes were first introduced][87]!
 
-If you're working with `next@<9.0.6` (so: [before `next-server` was merged into
-`next`][88]), you might need to install `next-server` manually:
+If you're working with the Pages Router and `next@<9.0.6` (so: [before
+`next-server` was merged into `next`][88]), you might need to install
+`next-server` manually:
 
 ```shell
 npm install --save-dev next-server
