@@ -1375,14 +1375,14 @@ import in any test file][13].
 As of version `4.0.0`, NTARH supports both the App Router (for `next@>=14.0.4`)
 and the "legacy" Pages Router Next.js APIs. However, due to the code churn with
 `next@13`, NTARH's support for the App Router begins at `next@14.0.4`. See
-[here][89] and [here][90] for more information.
+[here][10] and [here][89] for more information.
 
 Additionally, as of version `2.1.0`, NTARH's Pages Router support is fully
 backwards compatible with Next.js going _allll_ the way back to `next@9.0.0`
-[when API routes were first introduced][91]!
+[when API routes were first introduced][90]!
 
 If you're working with the Pages Router and `next@<9.0.6` (so: [before
-`next-server` was merged into `next`][92]), you might need to install
+`next-server` was merged into `next`][91]), you might need to install
 `next-server` manually:
 
 ```shell
@@ -1391,14 +1391,14 @@ npm install --save-dev next-server
 
 Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
 _and its peer dependencies_ manually. This is because [`npm@<7` does not install
-peer dependencies by default][93].
+peer dependencies by default][92].
 
 ```shell
 npm install --save-dev next@latest react
 ```
 
 > If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][94]!
+> dependencies (like `react`) that your specific Next.js version requires][93]!
 
 ### Inspiration
 
@@ -1418,7 +1418,7 @@ ballooning the execution time of the tests. That is: no spinning up the entire
 Next.js runtime just to run a single test in isolation.
 
 It doesn't seem like it'd be such a lift to surface a wrapped version of the
-Pages Router's [`apiResolver`][95] function and a pared-down subclass of the App
+Pages Router's [`apiResolver`][94] function and a pared-down subclass of the App
 Router's [`AppRouteRouteModule`][84], both accessible with something like
 `import { ... } from 'next/test'`. This is essentially what NTARH does.
 
@@ -1621,7 +1621,7 @@ specification. Contributions of any kind welcome!
   https://github.com/Xunnamius/next-test-api-route-handler/actions/workflows/is-next-compat.yml
 [9]: https://github.com/vercel/next.js/releases
 [10]:
-  https://github.com/Xunnamius/next-test-api-route-handler/issues/999#issuecomment-1956121270
+  https://github.com/Xunnamius/next-test-api-route-handler/issues/999#issuecomment-1956787672
 [11]: #legacy-runtime-support
 [12]: #working-around-global-asynclocalstorage-availability
 [13]: #usage
@@ -1732,14 +1732,12 @@ specification. Contributions of any kind welcome!
 [86]: https://github.com/vercel/next.js/discussions/46722
 [87]: https://github.com/mswjs/msw/issues/1644
 [88]: https://github.com/mswjs/msw
-[89]:
-  https://github.com/Xunnamius/next-test-api-route-handler/issues/999#issuecomment-1956787672
-[90]: https://github.com/Xunnamius/next-test-api-route-handler/discussions/953
-[91]: https://nextjs.org/blog/next-9
-[92]: https://github.com/vercel/next.js/pull/8613
-[93]:
+[89]: https://github.com/Xunnamius/next-test-api-route-handler/discussions/953
+[90]: https://nextjs.org/blog/next-9
+[91]: https://github.com/vercel/next.js/pull/8613
+[92]:
   https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
-[94]:
+[93]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
-[95]:
+[94]:
   https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321
