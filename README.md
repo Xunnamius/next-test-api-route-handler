@@ -563,6 +563,17 @@ await testApiHandler({
 });
 ```
 
+> \[!NOTE]\
+> Unlike the Pages Router, the App Router relies on the WHATWG Request class, which
+> uses the WHATWG URL class internally. Said class does not support creating relative
+> URLs (i.e. `new URL(url)`). This will never work anywhere, not just with NTARH/Next.js.
+> If you want to set the request url to some custom value, pass a dummy absolute
+> url instead. For example:
+>
+> `new NextRequest('https://dummy-host/my-url?some=query, { ... })` >
+> `new NextRequest('ntarh://dummy-host/my-url?some=query, { ... })` >
+> `new NextRequest('ntarh:///my-url, { ... })`
+
 ##### URL `pathname` Normalization
 
 By default, when initializing the `NextRequest` passed to your handler, if a URL
@@ -1522,7 +1533,7 @@ key][x-repo-all-contributors-emojis]):
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/matiasdecarli"><img src="https://avatars.githubusercontent.com/u/2442390?v=4?s=100" width="100px;" alt="Matias De Carli"/><br /><sub><b>Matias De Carli</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=matiasdecarli" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/kingstarfly"><img src="https://avatars.githubusercontent.com/u/38955962?v=4?s=100" width="100px;" alt="Xing Xiang"/><br /><sub><b>Xing Xiang</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=kingstarfly" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://www.kaarlej.com/"><img src="https://avatars.githubusercontent.com/u/117437182?v=4?s=100" width="100px;" alt="Kaarle Järvinen"/><br /><sub><b>Kaarle Järvinen</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3AKaarleJ" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://rorysaur.blog/"><img src="https://avatars.githubusercontent.com/u/4686089?v=4?s=100" width="100px;" alt="Rory Ou"/><br /><sub><b>Rory Ou</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=rorysaur" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://rorysaur.blog/"><img src="https://avatars.githubusercontent.com/u/4686089?v=4?s=100" width="100px;" alt="Rory Ou"/><br /><sub><b>Rory Ou</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Arorysaur" title="Bug reports">🐛</a> <a href="#research-rorysaur" title="Research">🔬</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=rorysaur" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://twitter.com/snaka"><img src="https://avatars.githubusercontent.com/u/19329?v=4?s=100" width="100px;" alt="Shinji Nakamatsu"/><br /><sub><b>Shinji Nakamatsu</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=snaka" title="Documentation">📖</a></td>
     </tr>
   </tbody>
