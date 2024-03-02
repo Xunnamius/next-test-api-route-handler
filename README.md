@@ -558,7 +558,7 @@ If you're only setting the request url, use the `url` shorthand instead:
 
 ```typescript
 await testApiHandler({
-  // requestPatcher: (request) => new Request('/my-url?some=query', request),
+  // requestPatcher: (request) => new Request('ntarh:///my-url?some=query', request),
   url: '/my-url?some=query'
 });
 ```
@@ -567,14 +567,15 @@ await testApiHandler({
 > Unlike the Pages Router's `NextApiRequest` type, the App Router's `NextRequest`
 > class [does not support relative URLs][39]. Therefore, whenever you pass a relative
 > url string via the `url` shorthand (e.g. `{ url: '/my-url?some=query' }`), NTARH
-> will wrap that url like so: `new URL(url, 'ntarh://')`. This will result in your
-> requests having urls like `ntarh:///my-url?some=query`.
+> will wrap that url like so: `new URL(url, 'ntarh://')`. In this case, your requests
+> will have urls like `ntarh:///my-url?some=query`.
 
-##### URL `pathname` Normalization
+##### URL Normalization
 
-By default, when initializing the `NextRequest` passed to your handler, if a URL
-with an empty `pathname` is encountered, NTARH sets said URL's `pathname` to
-`"/"` on your behalf.
+By default, when initializing the `NextRequest` object passed to your handler,
+if a URL with an empty `pathname` is encountered, NTARH sets said URL's
+`pathname` to `"/"` on your behalf. Additionally, if said URL is missing `host`
+and/or `protocol`, NTARH sets `host` to `""` and `protocol` to `"ntarh:"`.
 
 If you want your handler to receive the URL string and resulting
 `NextRequest::nextUrl` object exactly as you've typed it, use `requestPatcher`,
