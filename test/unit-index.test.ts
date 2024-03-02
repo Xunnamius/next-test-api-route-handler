@@ -3,6 +3,7 @@ import { testApiHandler } from 'universe/index';
 
 import { parse, serialize } from 'cookie';
 import { cookies, headers } from 'next/headers';
+import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { withMockedOutput } from 'testverse/setup';
@@ -948,7 +949,7 @@ describe('::testApiHandler', () => {
       });
     });
 
-    it('supports all relevant Next.js helper functions', async () => {
+    it('supports all relevant Next.js helper functions (including redirects)', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -972,18 +973,12 @@ describe('::testApiHandler', () => {
         rejectOnHandlerError: true,
         appHandler: {
           async GET() {
-            return (await import('next/navigation.js')).redirect(
-              'ntarh://somewhere-else'
-            );
+            return redirect('/somewhere-else');
           }
-        },
-        responsePatcher(response) {
-          expect(String(response.status)).toStartWith('3');
-          return Response.json({ tested: true });
         },
         test: async ({ fetch }) => {
           const res = await fetch();
-          await expect(res.json()).resolves.toStrictEqual({ tested: true });
+          expect(res.status).toBe(307);
         }
       });
 
@@ -991,18 +986,12 @@ describe('::testApiHandler', () => {
         rejectOnHandlerError: true,
         appHandler: {
           async GET() {
-            return (await import('next/navigation.js')).permanentRedirect(
-              'ntarh://somewhere-else'
-            );
+            return permanentRedirect('ntarh://somewhere-else');
           }
-        },
-        responsePatcher(response) {
-          expect(String(response.status)).toStartWith('3');
-          return Response.json({ tested: true });
         },
         test: async ({ fetch }) => {
           const res = await fetch();
-          await expect(res.json()).resolves.toStrictEqual({ tested: true });
+          expect(res.status).toBe(308);
         }
       });
 
@@ -1010,7 +999,7 @@ describe('::testApiHandler', () => {
         rejectOnHandlerError: true,
         appHandler: {
           async GET() {
-            return (await import('next/navigation.js')).notFound();
+            return notFound();
           }
         },
         test: async ({ fetch }) => {
@@ -2263,6 +2252,50 @@ describe('::testApiHandler', () => {
         ).resolves.toBeUndefined();
 
         expect(errorSpy).toHaveBeenCalledTimes(3);
+      });
+    });
+
+    it('does not cause infinite redirection when testing redirects', async () => {
+      expect.hasAssertions();
+
+      await testApiHandler({
+        pagesHandler: (_, res) => void res.redirect(308, '/redirected'),
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'GET' });
+          expect(res.status).toBe(308);
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: (_, res) => void res.redirect(307, '/redirected'),
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'GET' });
+          expect(res.status).toBe(307);
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: (_, res) => void res.redirect(303, '/redirected'),
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'GET' });
+          expect(res.status).toBe(303);
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: (_, res) => void res.redirect(302, '/redirected'),
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'GET' });
+          expect(res.status).toBe(302);
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: (_, res) => void res.redirect(301, '/redirected'),
+        test: async ({ fetch }) => {
+          const res = await fetch({ method: 'GET' });
+          expect(res.status).toBe(301);
+        }
       });
     });
 

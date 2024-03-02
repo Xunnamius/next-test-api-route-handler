@@ -336,16 +336,26 @@ handler under test.
 > Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in `fetch(...)`][24]_,
 > is omitted.
 
+#### ⚙ Handling Redirections
+
+Starting with version `4.0.4`, NTARH sets the [`fetch(...)` `options`][25]
+parameter's [`redirect` property to `'manual'`][26] by default. This prevents
+the WHATWG/undici `fetch` function from throwing a
+`fetch failed`/`redirect count exceeded` error.
+
+If you want to change this value, call `fetch` with your own custom `options`
+parameter, e.g. `fetch({ redirect: 'error' })`.
+
 #### ⚙ Compatibility with Mock Service Worker
 
 Starting with version `4.0.0`, NTARH ships with [Mock Service Worker
-(msw@2)][25] support by adding the [`x-msw-intention: bypass`][26] header
+(msw@2)][27] support by adding the [`x-msw-intention: bypass`][28] header
 (formerly `x-msw-bypass` since version `3.1.0`) to all requests.
 
 If necessary, you can override this behavior by setting the header to some other
 value (e.g. `"none"`) via `fetch`'s `customInit` parameter (not
 `requestPatcher`). This comes in handy when testing functionality like
-[arbitrary response redirection][27] (or via the [Pages Router][28]).
+[arbitrary response redirection][29] (or via the [Pages Router][30]).
 
 For example:
 
@@ -401,10 +411,10 @@ it('redirects a shortened URL to the real URL', async () => {
 
 As of version `2.3.0`, the response object returned by `fetch()` includes a
 non-standard _cookies_ field containing an array of objects representing
-[`set-cookie` response header(s)][29] parsed by [the `cookie` package][30]. Use
+[`set-cookie` response header(s)][31] parsed by [the `cookie` package][32]. Use
 the _cookies_ field to easily access a response's cookie data in your tests.
 
-Here's an example taken straight from the [unit tests][31]:
+Here's an example taken straight from the [unit tests][33]:
 
 ```typescript
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -446,7 +456,7 @@ it('handles multiple set-cookie headers', async () => {
 
 ### `rejectOnHandlerError`
 
-> ⪢ API reference: [`rejectOnHandlerError`][32]
+> ⪢ API reference: [`rejectOnHandlerError`][34]
 
 As of version `2.3.0`, unhandled errors in the `pagesHandler`/`appHandler`
 function are kicked up to Next.js to handle.
@@ -457,7 +467,7 @@ function are kicked up to Next.js to handle.
 
 Instead, the response returned by `fetch()` in your `test` function will have a
 `HTTP 500` status [thanks to how Next.js deals with unhandled errors in
-production][33]. Prior to `2.3.0`, NTARH's behavior on unhandled errors and
+production][35]. Prior to `2.3.0`, NTARH's behavior on unhandled errors and
 elsewhere was inconsistent. Version `3.0.0` further improved error handling,
 ensuring no errors slip by uncaught.
 
@@ -529,15 +539,15 @@ await testApiHandler({
 
 > \[!TIP]\
 > Manually setting the request url is usually unnecessary. Only set the url if [your
-> handler expects it][34] or [you want to rely on query string parsing instead of
-> `params`/`paramsPatcher`][35].
+> handler expects it][36] or [you want to rely on query string parsing instead of
+> `params`/`paramsPatcher`][37].
 
 #### 💎 Using `appHandler`
 
-> ⪢ API reference: [`requestPatcher`][36], [`url`][37]
+> ⪢ API reference: [`requestPatcher`][38], [`url`][39]
 
 `requestPatcher` is a function that receives a [`NextRequest`][3] object and
-returns a [`Request`][38] instance. Use this function to edit the request
+returns a [`Request`][40] instance. Use this function to edit the request
 _before_ it's injected into the handler.
 
 > \[!CAUTION]\
@@ -546,7 +556,7 @@ _before_ it's injected into the handler.
 > standard headers added by `fetch(...)`. If you're getting strange JSON-related
 > errors or hanging tests, ensure this is not the cause.
 
-The returned [`Request`][38] instance will be wrapped with [`NextRequest`][3] if
+The returned [`Request`][40] instance will be wrapped with [`NextRequest`][3] if
 it is not already an instance of [`NextRequest`][3], i.e.:
 
 ```typescript
@@ -565,7 +575,7 @@ await testApiHandler({
 
 > \[!NOTE]\
 > Unlike the Pages Router's `NextApiRequest` type, the App Router's `NextRequest`
-> class [does not support relative URLs][39]. Therefore, whenever you pass a relative
+> class [does not support relative URLs][41]. Therefore, whenever you pass a relative
 > url string via the `url` shorthand (e.g. `{ url: '/my-url?some=query' }`), NTARH
 > will wrap that url like so: `new URL(url, 'ntarh://')`. In this case, your requests
 > will have urls like `ntarh:///my-url?some=query`.
@@ -583,9 +593,9 @@ which is executed after NTARH does URL normalization.
 
 #### 🔷 Using `pagesHandler`
 
-> ⪢ API reference: [`requestPatcher`][40], [`url`][41]
+> ⪢ API reference: [`requestPatcher`][42], [`url`][43]
 
-`requestPatcher` is a function that receives an [`IncomingMessage`][42]. Use
+`requestPatcher` is a function that receives an [`IncomingMessage`][44]. Use
 this function to modify the request _before_ it's injected into Next.js's
 resolver.
 
@@ -598,30 +608,30 @@ await testApiHandler({
 });
 ```
 
-Note that, unlike with [the `URL` class][43], the `url` string can be relative.
+Note that, unlike with [the `URL` class][45], the `url` string can be relative.
 
 ### `responsePatcher`
 
 #### 💎 Using `appHandler`
 
-> ⪢ API reference: [`responsePatcher`][44]
+> ⪢ API reference: [`responsePatcher`][46]
 
-`responsePatcher` is a function that receives the [`Response`][45] object
-returned from `appHandler` and returns a [`Response`][45] instance. Use this
+`responsePatcher` is a function that receives the [`Response`][47] object
+returned from `appHandler` and returns a [`Response`][47] instance. Use this
 function to edit the response _after_ your handler runs but _before_ it's
 processed by the server.
 
 #### 🔷 Using `pagesHandler`
 
-> ⪢ API reference: [`responsePatcher`][46]
+> ⪢ API reference: [`responsePatcher`][48]
 
-`responsePatcher` is a function that receives a [`ServerResponse`][47] object.
+`responsePatcher` is a function that receives a [`ServerResponse`][49] object.
 Use this function to edit the response _before_ it's injected into the handler.
 
 ### `paramsPatcher` (`params`)
 
 `paramsPatcher` is a function that receives an object representing "processed"
-[dynamic segments][48] (aka: routes, slugs).
+[dynamic segments][50] (aka: routes, slugs).
 
 For example, to test a handler normally accessible from `/api/user/:id` requires
 passing that handler a value for the "id" dynamic segment:
@@ -657,46 +667,46 @@ await testApiHandler({
 
 #### 💎 Using `appHandler`
 
-> ⪢ API reference: [`paramsPatcher`][49], [`params`][50]
+> ⪢ API reference: [`paramsPatcher`][51], [`params`][52]
 
 If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
 will receive `params` as its first argument.
 
-> Route parameters should not be confused with [query string parameters][51],
+> Route parameters should not be confused with [query string parameters][53],
 > which are automatically parsed out from the url and made available via the
 > [`NextRequest`][3] argument passed to your handler.
 
 #### 🔷 Using `pagesHandler`
 
-> ⪢ API reference: [`paramsPatcher`][52], [`params`][53]
+> ⪢ API reference: [`paramsPatcher`][54], [`params`][55]
 
 If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
 will receive an object like `{ ...queryStringURLParams, ...params }` as its
 first argument.
 
-> Route parameters should not be confused with [query string parameters][51],
+> Route parameters should not be confused with [query string parameters][53],
 > which are automatically parsed out from the url and added to the `params`
 > object before `paramsPatcher` is evaluated.
 
 ## Examples
 
 What follows are several examples that demonstrate using NTARH with the [App
-Router][54] and the [Pages Router][55].
+Router][56] and the [Pages Router][57].
 
-Check out [the tests][56] for even more examples.
+Check out [the tests][58] for even more examples.
 
 ### Using the App Router
 
-These examples use Next.js's [App Router][57] API.
+These examples use Next.js's [App Router][59] API.
 
 #### Testing Apollo's Official Next.js Integration @ `app/api/graphql`
 
 This example is based on [the official Apollo Next.js App Router
-integration][58]. You can run it yourself by copying and pasting the following
+integration][60]. You can run it yourself by copying and pasting the following
 commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][59]. Requires `curl`, `node`, and `git`.
+> [WSL][61]. Requires `curl`, `node`, and `git`.
 
 ```bash
 mkdir -p /tmp/ntarh-test/test
@@ -710,8 +720,8 @@ npx jest
 ```
 
 This script creates a new temporary directory, installs NTARH and configures
-dependencies, downloads the [app route][60] and [jest test][61] files shown
-below, and runs the test using [jest][62].
+dependencies, downloads the [app route][62] and [jest test][63] files shown
+below, and runs the test using [jest][64].
 
 The following is our new app route:
 
@@ -791,8 +801,8 @@ describe('my-test (app router)', () => {
 #### Testing Clerk's Official Next.js Integration @ `app/api/authed`
 
 Suppose we created a new _authenticated_ API endpoint at `app/api/authed` by
-[cloning the Clerk App Router demo repo][63] and following [Clerk's quick-start
-guide for Next.js][64]:
+[cloning the Clerk App Router demo repo][65] and following [Clerk's quick-start
+guide for Next.js][66]:
 
 ```typescript
 /* File: app/api/authed/route.ts */
@@ -865,7 +875,7 @@ it('returns isAuthed: false and nothing else when unauthenticated', async () => 
 
 If you're feeling more adventurous, you can transform this unit test into an
 _integration_ test (like the Apollo example above) by calling Clerk's
-[`authMiddleware`][65] function in `appHandler` instead of mocking
+[`authMiddleware`][67] function in `appHandler` instead of mocking
 `@clerk/nextjs`:
 
 ```typescript
@@ -926,12 +936,12 @@ it('returns isAuthed: true and a userId when authenticated', async () => {
 /* ... */
 ```
 
-You can also try calling [`authMiddleware`][65] in `requestPatcher`; however,
+You can also try calling [`authMiddleware`][67] in `requestPatcher`; however,
 Clerk's middleware does its magic by importing the `headers` helper function
 from `'next/headers'`, and **only functions invoked within `appHandler` have
 access to the storage context that allows Next.js's helper functions to work**.
-For insight into what you'd need to do to make [`authMiddleware`][65] callable
-in `requestPatcher`, check out [Clerk's own tests][66].
+For insight into what you'd need to do to make [`authMiddleware`][67] callable
+in `requestPatcher`, check out [Clerk's own tests][68].
 
 #### Testing an Unreliable Handler on the Edge @ `app/api/unreliable`
 
@@ -1018,15 +1028,15 @@ it('injects contrived errors at the required rate', async () => {
 
 ### Using the Pages Router
 
-These examples use Next.js's [Pages Router][67] API.
+These examples use Next.js's [Pages Router][69] API.
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-This example uses the [official Next.js Apollo demo][68]. You can easily run it
+This example uses the [official Next.js Apollo demo][70]. You can easily run it
 yourself by copying and pasting the following commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][59]. Requires `curl`, `node`, and `git`.
+> [WSL][61]. Requires `curl`, `node`, and `git`.
 
 ```bash
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
@@ -1043,13 +1053,13 @@ curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/nex
 npx jest
 ```
 
-This script clones [the Next.js repository][69], installs NTARH and configures
-dependencies, downloads the [jest test][70] file shown below, and runs it using
-[jest][62] to ensure our route integrates with Apollo correctly.
+This script clones [the Next.js repository][71], installs NTARH and configures
+dependencies, downloads the [jest test][72] file shown below, and runs it using
+[jest][64] to ensure our route integrates with Apollo correctly.
 
 > \[!IMPORTANT]\
-> Note that passing the [route configuration object][71] (imported below as `config`)
-> through to NTARH and setting `request.url` to the proper value [may be necessary][72]
+> Note that passing the [route configuration object][73] (imported below as `config`)
+> through to NTARH and setting `request.url` to the proper value [may be necessary][74]
 > when testing Apollo endpoints using the Pages Router.
 
 ```typescript
@@ -1300,23 +1310,23 @@ Further documentation can be found under [`docs/`][x-repo-docs].
 Since NTARH is meant for unit testing API routes rather than faithfully
 recreating Next.js functionality, NTARH's feature set comes with some caveats.
 Namely: no Next.js features will be available that are external to processing
-API routes and executing their handlers. This includes [middleware][73] and
-`NextResponse.next` (see [`requestPatcher`][74] if you need to mutate the
-`Request` before it gets to the handler under test), [metadata][75], [static
-assets][76], [OpenTelemetry][77] and [instrumentation][78], [caching][79],
-[styling][80], [server actions and mutations][81], [helper functions][5]
+API routes and executing their handlers. This includes [middleware][75] and
+`NextResponse.next` (see [`requestPatcher`][76] if you need to mutate the
+`Request` before it gets to the handler under test), [metadata][77], [static
+assets][78], [OpenTelemetry][79] and [instrumentation][80], [caching][81],
+[styling][82], [server actions and mutations][83], [helper functions][5]
 (except: `cookies`, `fetch` (global), `headers`, `NextRequest`, `NextResponse`,
 `notFound`, `permanentRedirect`, `redirect`, and `userAgent`), and anything
-related to React or [components][82].
+related to React or [components][84].
 
 NTARH is for testing your API route handlers only.
 
-Further, any support NTARH appears to have for any "[edge runtime][83]" (or any
-other runtime) beyond what is provided by [`AppRouteRouteModule`][84] is merely
+Further, any support NTARH appears to have for any "[edge runtime][85]" (or any
+other runtime) beyond what is provided by [`AppRouteRouteModule`][86] is merely
 cosmetic. **Your tests will always run in Node.js** (or your runner of choice)
 and never in a different runtime, realm, or VM. This means unit testing like
 with NTARH must be done in addition to, and not in lieu of, more holistic
-testing practices (e.g. [end-to-end][85]).
+testing practices (e.g. [end-to-end][87]).
 
 If you're having trouble with your App Router and/or Edge Runtime routes,
 consider [opening a new issue][x-repo-choose-new-issue]!
@@ -1327,18 +1337,18 @@ consider [opening a new issue][x-repo-choose-new-issue]!
 > (via `npm run dev` or something similar), the middleware will still run on
 > Node.js.
 >
-> Next.js's middleware limitation is discussed at length [here][86].
+> Next.js's middleware limitation is discussed at length [here][88].
 
 #### Working around the App Router Patching the Global `fetch` Function
 
 Next.js's current App Router implementation mutates the global `fetch` function,
-redefining it entirely. This can cause [problems][87] in testing environments
+redefining it entirely. This can cause [problems][89] in testing environments
 where the global `fetch` is to be mocked by something else.
 
 Internally, NTARH sidesteps this issue entirely by caching the value of
 `globalThis.fetch` upon import. This also means NTARH completely sidesteps other
 tools that rely on interception through rewriting the global `fetch` function,
-such as [Mock Service Worker (MSW)][88]. We still include the MSW bypass headers
+such as [Mock Service Worker (MSW)][90]. We still include the MSW bypass headers
 with NTARH requests since we cannot guarantee that NTARH will not be imported
 _after_ MSW has finished patching global `fetch`.
 
@@ -1375,14 +1385,14 @@ import in any test file][13].
 As of version `4.0.0`, NTARH supports both the App Router (for `next@>=14.0.4`)
 and the "legacy" Pages Router Next.js APIs. However, due to the code churn with
 `next@13`, NTARH's support for the App Router begins at `next@14.0.4`. See
-[here][10] and [here][89] for more information.
+[here][10] and [here][91] for more information.
 
 Additionally, as of version `2.1.0`, NTARH's Pages Router support is fully
 backwards compatible with Next.js going _allll_ the way back to `next@9.0.0`
-[when API routes were first introduced][90]!
+[when API routes were first introduced][92]!
 
 If you're working with the Pages Router and `next@<9.0.6` (so: [before
-`next-server` was merged into `next`][91]), you might need to install
+`next-server` was merged into `next`][93]), you might need to install
 `next-server` manually:
 
 ```shell
@@ -1391,14 +1401,14 @@ npm install --save-dev next-server
 
 Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
 _and its peer dependencies_ manually. This is because [`npm@<7` does not install
-peer dependencies by default][92].
+peer dependencies by default][94].
 
 ```shell
 npm install --save-dev next@latest react
 ```
 
 > If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][93]!
+> dependencies (like `react`) that your specific Next.js version requires][95]!
 
 ### Inspiration
 
@@ -1418,8 +1428,8 @@ ballooning the execution time of the tests. That is: no spinning up the entire
 Next.js runtime just to run a single test in isolation.
 
 It doesn't seem like it'd be such a lift to surface a wrapped version of the
-Pages Router's [`apiResolver`][94] function and a pared-down subclass of the App
-Router's [`AppRouteRouteModule`][84], both accessible with something like
+Pages Router's [`apiResolver`][96] function and a pared-down subclass of the App
+Router's [`AppRouteRouteModule`][86], both accessible with something like
 `import { ... } from 'next/test'`. This is essentially what NTARH does.
 
 ### Published Package Details
@@ -1643,101 +1653,103 @@ specification. Contributions of any kind welcome!
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInit.md#test
 [23]: https://nodejs.org/dist/latest-v18.x/docs/api/globals.html#fetch
 [24]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#resource
-[25]: https://mswjs.io
-[26]:
-  https://github.com/mswjs/msw/blob/a037e3a3f4f4d4cc712d2b3867b3410e4bcfaad6/src/core/bypass.ts#L33C29-L33C44
-[27]: https://nextjs.org/docs/app/api-reference/functions/redirect
+[25]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#options
+[26]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#redirect
+[27]: https://mswjs.io
 [28]:
+  https://github.com/mswjs/msw/blob/a037e3a3f4f4d4cc712d2b3867b3410e4bcfaad6/src/core/bypass.ts#L33C29-L33C44
+[29]: https://nextjs.org/docs/app/api-reference/functions/redirect
+[30]:
   https://nextjs.org/docs/pages/building-your-application/routing/api-routes#redirects-to-a-specified-path-or-url
-[29]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
-[30]: https://www.npmjs.com/package/cookie
-[31]: ./test/unit-index.test.ts
-[32]:
+[31]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+[32]: https://www.npmjs.com/package/cookie
+[33]: ./test/unit-index.test.ts
+[34]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInit.md#rejectOnHandlerError
-[33]:
+[35]:
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
-[34]: #testing-nextjss-official-apollo-example--pagesapigraphql
-[35]: #testing-an-authenticated-flight-search-handler--pagesapiv3flightssearch
-[36]:
+[36]: #testing-nextjss-official-apollo-example--pagesapigraphql
+[37]: #testing-an-authenticated-flight-search-handler--pagesapiv3flightssearch
+[38]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#requestpatcher
-[37]:
+[39]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#url
-[38]: https://developer.mozilla.org/en-US/docs/Web/API/Request
-[39]: https://nextjs.org/docs/messages/middleware-relative-urls
-[40]:
+[40]: https://developer.mozilla.org/en-US/docs/Web/API/Request
+[41]: https://nextjs.org/docs/messages/middleware-relative-urls
+[42]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#requestpatcher
-[41]:
+[43]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#url
-[42]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
-[43]: https://developer.mozilla.org/en-US/docs/Web/API/URL/URL#url
-[44]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#responsePatcher
-[45]: https://developer.mozilla.org/en-US/docs/Web/API/Response
+[44]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
+[45]: https://developer.mozilla.org/en-US/docs/Web/API/URL/URL#url
 [46]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#responsePatcher
-[47]: https://nodejs.org/api/http.html#http_class_http_serverresponse
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#responsePatcher
+[47]: https://developer.mozilla.org/en-US/docs/Web/API/Response
 [48]:
-  https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes
-[49]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#paramsPatcher
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#responsePatcher
+[49]: https://nodejs.org/api/http.html#http_class_http_serverresponse
 [50]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#params
-[51]: https://en.wikipedia.org/wiki/Query_string
+  https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes
+[51]:
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#paramsPatcher
 [52]:
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#params
+[53]: https://en.wikipedia.org/wiki/Query_string
+[54]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#paramsPatcher
-[53]:
+[55]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#params
-[54]: #using-the-app-router
-[55]: #using-the-pages-router
-[56]: test/unit-index.test.ts
-[57]: https://nextjs.org/docs/app
-[58]:
+[56]: #using-the-app-router
+[57]: #using-the-pages-router
+[58]: test/unit-index.test.ts
+[59]: https://nextjs.org/docs/app
+[60]:
   https://www.npmjs.com/package/@as-integrations/next/v/3.0.0#app-router-route-handlers
-[59]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-[60]: ./apollo_test_raw_app_route
-[61]: ./apollo_test_raw_app_test
-[62]: https://www.npmjs.com/package/jest
-[63]: https://github.com/clerk/clerk-nextjs-demo-app-router
-[64]: https://clerk.com/docs/quickstarts/nextjs
-[65]: https://clerk.com/docs/references/nextjs/auth-middleware
-[66]:
-  https://github.com/clerk/javascript/blob/434a96ebefc550b726b417788b7bae9e41791408/packages/nextjs/src/server/authMiddleware.test.ts#L4
-[67]: https://nextjs.org/docs/pages
+[61]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[62]: ./apollo_test_raw_app_route
+[63]: ./apollo_test_raw_app_test
+[64]: https://www.npmjs.com/package/jest
+[65]: https://github.com/clerk/clerk-nextjs-demo-app-router
+[66]: https://clerk.com/docs/quickstarts/nextjs
+[67]: https://clerk.com/docs/references/nextjs/auth-middleware
 [68]:
+  https://github.com/clerk/javascript/blob/434a96ebefc550b726b417788b7bae9e41791408/packages/nextjs/src/server/authMiddleware.test.ts#L4
+[69]: https://nextjs.org/docs/pages
+[70]:
   https://github.com/vercel/next.js/tree/deprecated-main/examples/api-routes-apollo-server-and-client
-[69]: https://github.com/vercel/next.js
-[70]: ./apollo_test_raw
-[71]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
-[72]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[73]: https://nextjs.org/docs/app/building-your-application/routing/middleware
-[74]: #requestpatcher-url
-[75]: https://nextjs.org/docs/app/building-your-application/optimizing#metadata
-[76]:
-  https://nextjs.org/docs/app/building-your-application/optimizing#static-assets
-[77]:
-  https://nextjs.org/docs/pages/building-your-application/optimizing/open-telemetry
+[71]: https://github.com/vercel/next.js
+[72]: ./apollo_test_raw
+[73]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[74]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
+[75]: https://nextjs.org/docs/app/building-your-application/routing/middleware
+[76]: #requestpatcher-url
+[77]: https://nextjs.org/docs/app/building-your-application/optimizing#metadata
 [78]:
+  https://nextjs.org/docs/app/building-your-application/optimizing#static-assets
+[79]:
+  https://nextjs.org/docs/pages/building-your-application/optimizing/open-telemetry
+[80]:
   https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
-[79]: https://nextjs.org/docs/app/building-your-application/caching
-[80]: https://nextjs.org/docs/app/building-your-application/styling
-[81]:
-  https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations
-[82]: https://nextjs.org/docs/app/api-reference/components
+[81]: https://nextjs.org/docs/app/building-your-application/caching
+[82]: https://nextjs.org/docs/app/building-your-application/styling
 [83]:
-  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
-[84]:
-  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
+  https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations
+[84]: https://nextjs.org/docs/app/api-reference/components
 [85]:
+  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
+[86]:
+  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
+[87]:
   https://nextjs.org/docs/app/building-your-application/testing#types-of-tests
-[86]: https://github.com/vercel/next.js/discussions/46722
-[87]: https://github.com/mswjs/msw/issues/1644
-[88]: https://github.com/mswjs/msw
-[89]: https://github.com/Xunnamius/next-test-api-route-handler/discussions/953
-[90]: https://nextjs.org/blog/next-9
-[91]: https://github.com/vercel/next.js/pull/8613
-[92]:
-  https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
-[93]:
-  https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
+[88]: https://github.com/vercel/next.js/discussions/46722
+[89]: https://github.com/mswjs/msw/issues/1644
+[90]: https://github.com/mswjs/msw
+[91]: https://github.com/Xunnamius/next-test-api-route-handler/discussions/953
+[92]: https://nextjs.org/blog/next-9
+[93]: https://github.com/vercel/next.js/pull/8613
 [94]:
+  https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
+[95]:
+  https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
+[96]:
   https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321

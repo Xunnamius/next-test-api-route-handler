@@ -332,6 +332,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
       async function fetch_(customInit?: RequestInit) {
         const init: RequestInit = {
+          redirect: 'manual',
           ...customInit,
           headers: addDefaultHeaders(new Headers(customInit?.headers))
         };
