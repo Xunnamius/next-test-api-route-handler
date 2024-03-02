@@ -198,6 +198,27 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/38955962?v=4",
       "profile": "https://github.com/kingstarfly",
       "contributions": ["doc"]
+    },
+    {
+      "login": "KaarleJ",
+      "name": "Kaarle Järvinen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/117437182?v=4",
+      "profile": "https://www.kaarlej.com/",
+      "contributions": ["bug"]
+    },
+    {
+      "login": "rorysaur",
+      "name": "Rory Ou",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4686089?v=4",
+      "profile": "https://rorysaur.blog/",
+      "contributions": ["doc"]
+    },
+    {
+      "login": "snaka",
+      "name": "Shinji Nakamatsu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19329?v=4",
+      "profile": "https://twitter.com/snaka",
+      "contributions": ["doc"]
     }
   ]
 }

@@ -1471,7 +1471,7 @@ more information.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-26-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-29-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1521,6 +1521,9 @@ key][x-repo-all-contributors-emojis]):
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/matiasdecarli"><img src="https://avatars.githubusercontent.com/u/2442390?v=4?s=100" width="100px;" alt="Matias De Carli"/><br /><sub><b>Matias De Carli</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=matiasdecarli" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/kingstarfly"><img src="https://avatars.githubusercontent.com/u/38955962?v=4?s=100" width="100px;" alt="Xing Xiang"/><br /><sub><b>Xing Xiang</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=kingstarfly" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.kaarlej.com/"><img src="https://avatars.githubusercontent.com/u/117437182?v=4?s=100" width="100px;" alt="Kaarle Järvinen"/><br /><sub><b>Kaarle Järvinen</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3AKaarleJ" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://rorysaur.blog/"><img src="https://avatars.githubusercontent.com/u/4686089?v=4?s=100" width="100px;" alt="Rory Ou"/><br /><sub><b>Rory Ou</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=rorysaur" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://twitter.com/snaka"><img src="https://avatars.githubusercontent.com/u/19329?v=4?s=100" width="100px;" alt="Shinji Nakamatsu"/><br /><sub><b>Shinji Nakamatsu</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=snaka" title="Documentation">📖</a></td>
     </tr>
   </tbody>
   <tfoot>
