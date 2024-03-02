@@ -3,7 +3,7 @@ import { testApiHandler } from 'universe/index';
 
 import { parse, serialize } from 'cookie';
 import { cookies, headers } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { withMockedOutput } from 'testverse/setup';
 
@@ -1439,6 +1439,29 @@ describe('::testApiHandler', () => {
           // @ts-expect-error: b does not exist (this test "fails" if no TS error)
           (await (await fetch()).json()).b;
           expect(true).toBe(true);
+        }
+      });
+    });
+
+    it('does not throw any AppRouteUserlandModule-related type errors', async () => {
+      expect.hasAssertions();
+
+      const appHandler = {
+        async GET(req: NextRequest, { params }: { params: { recipeId: string } }) {
+          const { recipeId } = params;
+          expect(req).toBeDefined();
+          expect(recipeId).toBe('1');
+          return NextResponse.json({});
+        }
+      };
+
+      await testApiHandler({
+        rejectOnHandlerError: true,
+        // This test "fails" if there is a TS error (caught by CI/linting)
+        appHandler,
+        params: { recipeId: '1' },
+        async test({ fetch }) {
+          await expect(fetch()).resolves.toBeDefined();
         }
       });
     });

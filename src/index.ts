@@ -11,6 +11,7 @@ import {
 } from 'node:http';
 
 import type { NextApiHandler } from 'next';
+import type { NextRequest } from 'next/server';
 
 // ? Next expects AsyncLocalStorage to be globally available IMMEDIATELY! So
 // ? this line should happen before any imports of Next.js packages.
@@ -137,7 +138,15 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    * documentation](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
    * for details.
    */
-  appHandler: import('next/dist/server/future/route-modules/app-route/module').AppRouteUserlandModule;
+  appHandler: Omit<
+    import('next/dist/server/future/route-modules/app-route/module').AppRouteUserlandModule,
+    keyof import('next/dist/server/future/route-modules/app-route/module').AppRouteHandlers
+  > & {
+    [key in keyof import('next/dist/server/future/route-modules/app-route/module').AppRouteHandlers]?: (
+      req: NextRequest,
+      context?: any
+    ) => any;
+  };
   pagesHandler?: undefined;
   /**
    * `params` is passed directly to the handler and represents processed dynamic
