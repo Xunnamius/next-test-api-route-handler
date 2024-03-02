@@ -739,7 +739,7 @@ function handleError(
  * @internal
  */
 function normalizeUrlForceTrailingSlashIfPathnameEmpty(url: string) {
-  const url_ = new URL(url);
+  const url_ = new URL(url, 'ntarh://');
   url_.pathname ||= '/';
   return url_.toString();
 }

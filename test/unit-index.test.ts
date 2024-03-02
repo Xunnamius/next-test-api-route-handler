@@ -158,6 +158,25 @@ describe('::testApiHandler', () => {
       });
     });
 
+    it('does not reject when passed a relative url string', async () => {
+      expect.hasAssertions();
+
+      await expect(
+        testApiHandler({
+          rejectOnHandlerError: true,
+          url: '/relative-url',
+          appHandler: {
+            GET() {
+              return NextResponse.json({});
+            }
+          },
+          test: async ({ fetch }) => {
+            await fetch();
+          }
+        })
+      ).resolves.toBeUndefined();
+    });
+
     it('respects url and requestPatcher', async () => {
       expect.hasAssertions();
 
