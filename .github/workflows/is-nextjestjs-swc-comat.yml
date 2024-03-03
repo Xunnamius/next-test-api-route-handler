@@ -48,4 +48,6 @@ jobs:
           git clone https://github.com/Xunnamius/ntarh-nextjestjs-swc-compat-test
           cd ntarh-nextjestjs-swc-compat-test
           npm install --force
+          npm list --depth=0 next
+          npm list --depth=0 next-test-api-route-handler
           npx jest
