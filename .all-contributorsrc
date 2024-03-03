@@ -219,6 +219,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/19329?v=4",
       "profile": "https://twitter.com/snaka",
       "contributions": ["doc", "bug", "research"]
+    },
+    {
+      "login": "davidmytton",
+      "name": "David Mytton",
+      "avatar_url": "https://avatars.githubusercontent.com/u/117833?v=4",
+      "profile": "https://davidmytton.blog/",
+      "contributions": ["research", "bug", "data"]
     }
   ]
 }
