@@ -1,0 +1,51 @@
+name: is-nextjestjs-swc-comat
+
+on:
+  workflow_dispatch: # * Treated like a scheduled run
+  schedule:
+    - cron: '15 */6 * * *'
+
+env:
+  # * Selectively enable debugger verbose output in the pipeline
+  # ? See also: https://www.npmjs.com/package/debug#wildcards
+  # DEBUG: 'next-test-api-route-handler:*'
+  NODE_CURRENT_VERSION: 21.x
+  NODE_OLDER_VERSIONS: '"18.x", "20.x"'
+
+jobs:
+  metadata:
+    name: 'gather-metadata'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
+    steps:
+      - name: Report mode statuses
+        run: |
+          if [ -n "$DEBUG" ]; then
+            echo "IS-NEXTJESTJS-SWC-COMAT IS RUNNING IN DEBUG MODE ($DEBUG)"
+          else
+            echo '(is-nextjestjs-swc-comat is not running in debug mode)'
+          fi
+
+      - name: Gather metadata
+        id: set-matrix
+        run: |
+          echo "node-matrix={\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" >> $GITHUB_OUTPUT
+          ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_OLDER_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
+
+  check-compat:
+    runs-on: ubuntu-latest
+    needs: metadata
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+    steps:
+      - name: Run davidmytton's example repo tests
+        # https://github.com/Xunnamius/next-test-api-route-handler/discussions/983#
+        run: |
+          git clone https://github.com/Xunnamius/ntarh-nextjestjs-swc-compat-test
+          cd ntarh-nextjestjs-swc-compat-test
+          npm install --force
+          npx jest
