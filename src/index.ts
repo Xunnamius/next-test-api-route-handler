@@ -385,6 +385,21 @@ export async function testApiHandler<NextResponseJsonType = any>({
       void createServerAdapter(async (request) => {
         try {
           assert(appHandler !== undefined);
+
+          const {
+            cache,
+            credentials,
+            headers,
+            integrity,
+            keepalive,
+            method,
+            mode,
+            redirect,
+            referrer,
+            referrerPolicy,
+            signal
+          } = request;
+
           const rawRequest = rebindJsonMethodAsSummoner(
             new NextRequest(
               normalizeUrlForceTrailingSlashIfPathnameEmpty(
@@ -395,15 +410,25 @@ export async function testApiHandler<NextResponseJsonType = any>({
                * See also: https://stackoverflow.com/a/57014050/1367414
                */
               {
-                ...request,
                 body: readableStreamOrNullFromAsyncIterable(
                   // ? request.body claims to be ReadableStream, but it's
                   // ? actually a Node.js native stream (i.e. iterable)...
                   request.body as unknown as AsyncIterable<any>
                 ),
+                cache,
+                credentials,
                 // https://github.com/nodejs/node/issues/46221
-                // @ts-expect-error: TS types are not yet updated
-                duplex: 'half'
+                // @ts-expect-error: Next.js's RequestInit is lacking "duplex"
+                duplex: 'half',
+                headers,
+                integrity,
+                keepalive,
+                method,
+                mode,
+                redirect,
+                referrer,
+                referrerPolicy,
+                signal
               }
             )
           );
