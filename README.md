@@ -29,11 +29,6 @@ Confidently test your Next.js API routes in an isolated Next-like environment
 
 # next-test-api-route-handler
 
-> \[!NOTE]\
-> This documentation is for version 4 of NTARH. See [here][1] for version 3's documentation.
-> See [here][2] for a simple migration guide, or if you have issues/ideas/comments
-> concerning App Router emulation.
-
 **Trying to unit test your Next.js API routes?** Tired of hacking something
 together with express or node-mocks-http or writing a bunch of boring dummy
 infra just to get some passing tests? And what does a "passing test" mean anyway
