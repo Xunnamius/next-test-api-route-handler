@@ -46,7 +46,7 @@ false
 
 #### Defined in
 
-[index.ts:118](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L118)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L123)
 
 ___
 
@@ -62,10 +62,6 @@ one destructured parameter: `fetch`, which is equivalent to
 
 ▸ (`parameters`): [`Promisable`](../README.md#promisable)\<`void`\>
 
-`test` is a function that runs your test assertions. This function receives
-one destructured parameter: `fetch`, which is equivalent to
-`globalThis.fetch` but with the first parameter omitted.
-
 ##### Parameters
 
 | Name | Type |
@@ -79,4 +75,4 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:124](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L124)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L129)

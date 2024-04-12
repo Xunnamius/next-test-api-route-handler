@@ -44,7 +44,7 @@ for details.
 
 #### Defined in
 
-[index.ts:141](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L141)
+[index.ts:146](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L146)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[index.ts:150](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L150)
+[index.ts:155](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L155)
 
 ___
 
@@ -72,7 +72,7 @@ once.
 
 #### Defined in
 
-[index.ts:160](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L160)
+[index.ts:165](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L165)
 
 ___
 
@@ -92,14 +92,6 @@ is handled by `Request` automatically.
 
 ▸ (`params`): [`Promisable`](../README.md#promisable)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
 
-A function that receives `params`, an object representing "processed"
-dynamic route parameters. Modifications to `params` are passed directly to
-the handler. You can also return a custom object from this function which
-will replace `params` entirely.
-
-Parameter patching should not be confused with query string parsing, which
-is handled by `Request` automatically.
-
 ##### Parameters
 
 | Name | Type |
@@ -112,7 +104,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:170](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L170)
+[index.ts:175](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L175)
 
 ___
 
@@ -141,7 +133,7 @@ false
 
 #### Defined in
 
-[index.ts:118](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L118)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L123)
 
 ___
 
@@ -161,14 +153,6 @@ NextRequest(returnedRequest, { ... })`.
 
 ▸ (`request`): [`Promisable`](../README.md#promisable)\<`void` \| `Request`\>
 
-A function that receives a `NextRequest` object and returns a `Request`
-instance. Use this function to edit the request _before_ it's injected
-into the handler.
-
-If the returned `Request` instance is not also an instance of
-`NextRequest`, it will be wrapped with `NextRequest`, e.g. `new
-NextRequest(returnedRequest, { ... })`.
-
 ##### Parameters
 
 | Name | Type |
@@ -181,7 +165,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Defined in
 
-[index.ts:183](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L183)
+[index.ts:188](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L188)
 
 ___
 
@@ -202,15 +186,6 @@ unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 ▸ (`res`): [`Promisable`](../README.md#promisable)\<`void` \| `Response`\>
 
-A function that receives the `Response` object returned from `appHandler`
-and returns a `Response` instance. Use this function to edit the response
-_after_ your handler runs but _before_ it's processed by the server.
-
-Note that `responsePatcher` is called even in the case of exceptions,
-including _unhandled exceptions_ (for which Next.js returns an HTTP 500
-response). The only time `responsePatcher` is not called is when an
-unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
-
 ##### Parameters
 
 | Name | Type |
@@ -223,7 +198,7 @@ unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 #### Defined in
 
-[index.ts:196](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L196)
+[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L201)
 
 ___
 
@@ -238,10 +213,6 @@ one destructured parameter: `fetch`, which is equivalent to
 #### Type declaration
 
 ▸ (`parameters`): [`Promisable`](../README.md#promisable)\<`void`\>
-
-`test` is a function that runs your test assertions. This function receives
-one destructured parameter: `fetch`, which is equivalent to
-`globalThis.fetch` but with the first parameter omitted.
 
 ##### Parameters
 
@@ -260,7 +231,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:124](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L124)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L129)
 
 ___
 
@@ -273,4 +244,4 @@ NextRequest('your-url', request)`
 
 #### Defined in
 
-[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L201)
+[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L206)

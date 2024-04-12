@@ -38,7 +38,7 @@ The parameters expected by `testApiHandler` when using `pagesHandler`.
 
 #### Defined in
 
-[index.ts:219](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L219)
+[index.ts:224](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L224)
 
 ___
 
@@ -56,7 +56,7 @@ will have a typed result.
 
 #### Defined in
 
-[index.ts:218](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L218)
+[index.ts:223](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L223)
 
 ___
 
@@ -74,7 +74,7 @@ once.
 
 #### Defined in
 
-[index.ts:229](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L229)
+[index.ts:234](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L234)
 
 ___
 
@@ -94,14 +94,6 @@ is handled automatically.
 
 ▸ (`params`): [`Promisable`](../README.md#promisable)\<`void` \| `Record`\<`string`, `unknown`\>\>
 
-A function that receives `params`, an object representing "processed"
-dynamic route parameters. Modifications to `params` are passed directly to
-the handler. You can also return a custom object from this function which
-will replace `params` entirely.
-
-Parameter patching should not be confused with query string parsing, which
-is handled automatically.
-
 ##### Parameters
 
 | Name | Type |
@@ -114,7 +106,7 @@ is handled automatically.
 
 #### Defined in
 
-[index.ts:239](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L239)
+[index.ts:244](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L244)
 
 ___
 
@@ -143,7 +135,7 @@ false
 
 #### Defined in
 
-[index.ts:118](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L118)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L123)
 
 ___
 
@@ -161,12 +153,6 @@ lowercase.**
 
 ▸ (`request`): [`Promisable`](../README.md#promisable)\<`void`\>
 
-A function that receives an `IncomingMessage` object. Use this function
-to edit the request _before_ it's injected into the handler.
-
-**Note: all replacement `IncomingMessage.header` names must be
-lowercase.**
-
 ##### Parameters
 
 | Name | Type |
@@ -179,7 +165,7 @@ lowercase.**
 
 #### Defined in
 
-[index.ts:250](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L250)
+[index.ts:255](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L255)
 
 ___
 
@@ -194,9 +180,6 @@ to edit the response _before_ it's injected into the handler.
 
 ▸ (`res`): [`Promisable`](../README.md#promisable)\<`void`\>
 
-A function that receives a `ServerResponse` object. Use this function
-to edit the response _before_ it's injected into the handler.
-
 ##### Parameters
 
 | Name | Type |
@@ -209,7 +192,7 @@ to edit the response _before_ it's injected into the handler.
 
 #### Defined in
 
-[index.ts:255](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L255)
+[index.ts:260](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L260)
 
 ___
 
@@ -224,10 +207,6 @@ one destructured parameter: `fetch`, which is equivalent to
 #### Type declaration
 
 ▸ (`parameters`): [`Promisable`](../README.md#promisable)\<`void`\>
-
-`test` is a function that runs your test assertions. This function receives
-one destructured parameter: `fetch`, which is equivalent to
-`globalThis.fetch` but with the first parameter omitted.
 
 ##### Parameters
 
@@ -246,7 +225,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:124](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L124)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L129)
 
 ___
 
@@ -259,4 +238,4 @@ ___
 
 #### Defined in
 
-[index.ts:260](https://github.com/Xunnamius/next-test-api-route-handler/blob/50858e7/src/index.ts#L260)
+[index.ts:265](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L265)
