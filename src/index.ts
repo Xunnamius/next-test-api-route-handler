@@ -36,11 +36,16 @@ const defaultNextRequestMockUrl = 'ntarh://testApiHandler/';
  *
  * Current default headers:
  *
- * - `x-msw-intention: bypass`
+ * - `x-msw-intention: bypass` (for msw@1)
+ * - `x-msw-bypass: true`      (for msw@2)
  */
 const addDefaultHeaders = (headers: Headers) => {
   if (!headers.has('x-msw-intention')) {
     headers.set('x-msw-intention', 'bypass');
+  }
+
+  if (!headers.has('x-msw-bypass')) {
+    headers.set('x-msw-bypass', 'true');
   }
 
   return headers;

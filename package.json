@@ -224,13 +224,7 @@
     "unique-filename": "^3.0.0"
   },
   "peerDependencies": {
-    "msw": ">=2",
     "next": ">=9"
-  },
-  "peerDependenciesMeta": {
-    "msw": {
-      "optional": true
-    }
   },
   "engines": {
     "node": "^18.18.2 || ^20.10.0 || >=21.2.0"
