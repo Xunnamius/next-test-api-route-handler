@@ -83,9 +83,9 @@
     }
   },
   "dependencies": {
-    "@whatwg-node/server": "^0.9.32",
+    "@whatwg-node/server": "^0.9.33",
     "cookie": "^0.6.0",
-    "core-js": "^3.36.1"
+    "core-js": "^3.37.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.3",
@@ -96,8 +96,8 @@
     "@babel/plugin-proposal-function-bind": "^7.24.1",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
-    "@commitlint/cli": "^19.2.1",
-    "@commitlint/config-conventional": "^19.1.0",
+    "@commitlint/cli": "^19.2.2",
+    "@commitlint/config-conventional": "^19.2.2",
     "@octokit/rest": "^20.1.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^6.0.3",
