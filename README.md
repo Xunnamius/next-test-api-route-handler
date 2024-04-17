@@ -1513,7 +1513,7 @@ more information.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-30-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-31-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1567,6 +1567,9 @@ key][x-repo-all-contributors-emojis]):
       <td align="center" valign="top" width="16.66%"><a href="https://rorysaur.blog/"><img src="https://avatars.githubusercontent.com/u/4686089?v=4?s=100" width="100px;" alt="Rory Ou"/><br /><sub><b>Rory Ou</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Arorysaur" title="Bug reports">🐛</a> <a href="#research-rorysaur" title="Research">🔬</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=rorysaur" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://twitter.com/snaka"><img src="https://avatars.githubusercontent.com/u/19329?v=4?s=100" width="100px;" alt="Shinji Nakamatsu"/><br /><sub><b>Shinji Nakamatsu</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=snaka" title="Documentation">📖</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Asnaka" title="Bug reports">🐛</a> <a href="#research-snaka" title="Research">🔬</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://davidmytton.blog/"><img src="https://avatars.githubusercontent.com/u/117833?v=4?s=100" width="100px;" alt="David Mytton"/><br /><sub><b>David Mytton</b></sub></a><br /><a href="#research-davidmytton" title="Research">🔬</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Adavidmytton" title="Bug reports">🐛</a> <a href="#data-davidmytton" title="Data">🔣</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/danactive"><img src="https://avatars.githubusercontent.com/u/1093286?v=4?s=100" width="100px;" alt="Dan BROOKS"/><br /><sub><b>Dan BROOKS</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=danactive" title="Documentation">📖</a></td>
     </tr>
   </tbody>
   <tfoot>
