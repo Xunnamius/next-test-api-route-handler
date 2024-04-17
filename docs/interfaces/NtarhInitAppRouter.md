@@ -44,7 +44,7 @@ for details.
 
 #### Defined in
 
-[index.ts:146](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L146)
+[index.ts:146](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L146)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[index.ts:155](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L155)
+[index.ts:155](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L155)
 
 ___
 
@@ -72,7 +72,7 @@ once.
 
 #### Defined in
 
-[index.ts:165](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L165)
+[index.ts:165](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L165)
 
 ___
 
@@ -104,7 +104,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:175](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L175)
+[index.ts:175](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L175)
 
 ___
 
@@ -133,7 +133,7 @@ false
 
 #### Defined in
 
-[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L123)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L123)
 
 ___
 
@@ -165,7 +165,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Defined in
 
-[index.ts:188](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L188)
+[index.ts:188](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L188)
 
 ___
 
@@ -198,7 +198,7 @@ unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 #### Defined in
 
-[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L201)
+[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L201)
 
 ___
 
@@ -231,7 +231,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L129)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L129)
 
 ___
 
@@ -244,4 +244,4 @@ NextRequest('your-url', request)`
 
 #### Defined in
 
-[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L206)
+[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L206)

@@ -33,7 +33,7 @@ next-test-api-route-handler
 
 #### Defined in
 
-[index.ts:100](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L100)
+[index.ts:100](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L100)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 #### Defined in
 
-[index.ts:95](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L95)
+[index.ts:95](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L95)
 
 ## Functions
 
@@ -79,4 +79,4 @@ in a Next-like testing environment.
 
 #### Defined in
 
-[index.ts:273](https://github.com/Xunnamius/next-test-api-route-handler/blob/347d7ef86ee6e4ca40c29793fbe112498a3d4b49/src/index.ts#L273)
+[index.ts:273](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L273)
