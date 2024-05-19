@@ -1456,6 +1456,16 @@ Pages Router's [`apiResolver`][98] function and a pared-down subclass of the App
 Router's [`AppRouteRouteModule`][85], both accessible with something like
 `import { ... } from 'next/test'`. This is essentially what NTARH does.
 
+#### History: The Very _Very_ First Version of Ntarh
+
+Was looking over some ancient Next.js projects and found some of the very first
+versions of what would eventually become NTARH. My inner code hoarder requires I
+note this code's existence somewhere.
+
+Oh how far we've come 🙂
+
+![alt text][99]
+
 ### Published Package Details
 
 This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
@@ -1782,3 +1792,4 @@ specification. Contributions of any kind welcome!
   https://stackoverflow.com/questions/74945569/cannot-access-built-in-node-js-fetch-function-from-jest-tests
 [98]:
   https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321
+[99]: ./very-first-version-of-ntarh.png
