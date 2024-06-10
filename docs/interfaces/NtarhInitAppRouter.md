@@ -1,40 +1,26 @@
+[**next-test-api-route-handler**](../README.md) • **Docs**
+
+***
+
 [next-test-api-route-handler](../README.md) / NtarhInitAppRouter
 
 # Interface: NtarhInitAppRouter\<NextResponseJsonType\>
 
 The parameters expected by `testApiHandler` when using `appHandler`.
 
-## Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `NextResponseJsonType` | `unknown` |
-
-## Hierarchy
+## Extends
 
 - [`NtarhInit`](NtarhInit.md)\<`NextResponseJsonType`\>
 
-  ↳ **`NtarhInitAppRouter`**
+## Type parameters
 
-## Table of contents
-
-### Properties
-
-- [appHandler](NtarhInitAppRouter.md#apphandler)
-- [pagesHandler](NtarhInitAppRouter.md#pageshandler)
-- [params](NtarhInitAppRouter.md#params)
-- [paramsPatcher](NtarhInitAppRouter.md#paramspatcher)
-- [rejectOnHandlerError](NtarhInitAppRouter.md#rejectonhandlererror)
-- [requestPatcher](NtarhInitAppRouter.md#requestpatcher)
-- [responsePatcher](NtarhInitAppRouter.md#responsepatcher)
-- [test](NtarhInitAppRouter.md#test)
-- [url](NtarhInitAppRouter.md#url)
+• **NextResponseJsonType** = `unknown`
 
 ## Properties
 
 ### appHandler
 
-• **appHandler**: `Omit`\<`AppRouteUserlandModule`, ``"GET"`` \| ``"HEAD"`` \| ``"OPTIONS"`` \| ``"POST"`` \| ``"PUT"`` \| ``"DELETE"`` \| ``"PATCH"``\> & \{ `DELETE`: `undefined` \| (`req`: `NextRequest`, `context?`: `any`) => `any` ; `GET`: `undefined` \| (`req`: `NextRequest`, `context?`: `any`) => `any` ; `HEAD`: `undefined` \| (`req`: `NextRequest`, `context?`: `any`) => `any` ; `OPTIONS`: `undefined` \| (`req`: `NextRequest`, `context?`: `any`) => `any` ; `PATCH`: `undefined` \| (`req`: `NextRequest`, `context?`: `any`) => `any` ; `POST`: `undefined` \| (`req`: `NextRequest`, `context?`: `any`) => `any` ; `PUT`: `undefined` \| (`req`: `NextRequest`, `context?`: `any`) => `any`  }
+> **appHandler**: `Omit`\<`AppRouteUserlandModule`, `"GET"` \| `"HEAD"` \| `"OPTIONS"` \| `"POST"` \| `"PUT"` \| `"DELETE"` \| `"PATCH"`\> & `object`
 
 The actual App Router route handler under test. It should be an object
 containing one or more async functions named for valid HTTP methods and/or
@@ -42,25 +28,55 @@ a valid configuration option. See [the Next.js
 documentation](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
 for details.
 
-#### Defined in
+#### Type declaration
 
-[index.ts:146](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L146)
+##### DELETE
 
-___
+> **DELETE**: `undefined` \| (`req`, `context`?) => `any`
 
-### pagesHandler
+##### GET
 
-• `Optional` **pagesHandler**: `undefined`
+> **GET**: `undefined` \| (`req`, `context`?) => `any`
 
-#### Defined in
+##### HEAD
 
-[index.ts:155](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L155)
+> **HEAD**: `undefined` \| (`req`, `context`?) => `any`
 
-___
+##### OPTIONS
 
-### params
+> **OPTIONS**: `undefined` \| (`req`, `context`?) => `any`
 
-• `Optional` **params**: `Record`\<`string`, `string` \| `string`[]\>
+##### PATCH
+
+> **PATCH**: `undefined` \| (`req`, `context`?) => `any`
+
+##### POST
+
+> **POST**: `undefined` \| (`req`, `context`?) => `any`
+
+##### PUT
+
+> **PUT**: `undefined` \| (`req`, `context`?) => `any`
+
+#### Source
+
+[index.ts:146](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L146)
+
+***
+
+### pagesHandler?
+
+> `optional` **pagesHandler**: `undefined`
+
+#### Source
+
+[index.ts:155](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L155)
+
+***
+
+### params?
+
+> `optional` **params**: `Record`\<`string`, `string` \| `string`[]\>
 
 `params` is passed directly to the handler and represents processed dynamic
 routes. This should not be confused with query string parsing, which is
@@ -70,15 +86,15 @@ handled by `Request` automatically.
 params.id = 'some-id' }`. This is useful for quickly setting many params at
 once.
 
-#### Defined in
+#### Source
 
-[index.ts:165](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L165)
+[index.ts:165](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L165)
 
-___
+***
 
-### paramsPatcher
+### paramsPatcher()?
 
-• `Optional` **paramsPatcher**: (`params`: `Record`\<`string`, `string` \| `string`[]\>) => [`Promisable`](../README.md#promisable)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
+> `optional` **paramsPatcher**: (`params`) => [`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
 
 A function that receives `params`, an object representing "processed"
 dynamic route parameters. Modifications to `params` are passed directly to
@@ -88,40 +104,34 @@ will replace `params` entirely.
 Parameter patching should not be confused with query string parsing, which
 is handled by `Request` automatically.
 
-#### Type declaration
+#### Parameters
 
-▸ (`params`): [`Promisable`](../README.md#promisable)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
+• **params**: `Record`\<`string`, `string` \| `string`[]\>
 
-##### Parameters
+#### Returns
 
-| Name | Type |
-| :------ | :------ |
-| `params` | `Record`\<`string`, `string` \| `string`[]\> |
+[`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
 
-##### Returns
+#### Source
 
-[`Promisable`](../README.md#promisable)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
+[index.ts:175](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L175)
 
-#### Defined in
+***
 
-[index.ts:175](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L175)
+### rejectOnHandlerError?
 
-___
-
-### rejectOnHandlerError
-
-• `Optional` **rejectOnHandlerError**: `boolean`
+> `optional` **rejectOnHandlerError**: `boolean`
 
 If `false`, errors thrown from within a handler are kicked up to Next.js's
 resolver to deal with, which is what would happen in production. If `true`,
-the [testApiHandler](../README.md#testapihandler) function will reject immediately instead.
+the [testApiHandler](../functions/testApiHandler.md) function will reject immediately instead.
 
 You should use `rejectOnHandlerError` whenever you want to manually handle
 an error that bubbles up from your handler (which is especially true if
 you're using `expect` _within_ your handler) or when you notice a false
 negative despite exceptions being thrown.
 
-**`Default`**
+#### Default
 
 ```ts
 false
@@ -129,17 +139,17 @@ false
 
 #### Inherited from
 
-[NtarhInit](NtarhInit.md).[rejectOnHandlerError](NtarhInit.md#rejectonhandlererror)
+[`NtarhInit`](NtarhInit.md).[`rejectOnHandlerError`](NtarhInit.md#rejectonhandlererror)
 
-#### Defined in
+#### Source
 
-[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L123)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L123)
 
-___
+***
 
-### requestPatcher
+### requestPatcher()?
 
-• `Optional` **requestPatcher**: (`request`: `NextRequest`) => [`Promisable`](../README.md#promisable)\<`void` \| `Request`\>
+> `optional` **requestPatcher**: (`request`) => [`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Request`\>
 
 A function that receives a `NextRequest` object and returns a `Request`
 instance. Use this function to edit the request _before_ it's injected
@@ -149,29 +159,23 @@ If the returned `Request` instance is not also an instance of
 `NextRequest`, it will be wrapped with `NextRequest`, e.g. `new
 NextRequest(returnedRequest, { ... })`.
 
-#### Type declaration
+#### Parameters
 
-▸ (`request`): [`Promisable`](../README.md#promisable)\<`void` \| `Request`\>
+• **request**: `NextRequest`
 
-##### Parameters
+#### Returns
 
-| Name | Type |
-| :------ | :------ |
-| `request` | `NextRequest` |
+[`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Request`\>
 
-##### Returns
+#### Source
 
-[`Promisable`](../README.md#promisable)\<`void` \| `Request`\>
+[index.ts:188](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L188)
 
-#### Defined in
+***
 
-[index.ts:188](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L188)
+### responsePatcher()?
 
-___
-
-### responsePatcher
-
-• `Optional` **responsePatcher**: (`res`: `Response`) => [`Promisable`](../README.md#promisable)\<`void` \| `Response`\>
+> `optional` **responsePatcher**: (`res`) => [`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Response`\>
 
 A function that receives the `Response` object returned from `appHandler`
 and returns a `Response` instance. Use this function to edit the response
@@ -182,66 +186,55 @@ including _unhandled exceptions_ (for which Next.js returns an HTTP 500
 response). The only time `responsePatcher` is not called is when an
 unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
-#### Type declaration
+#### Parameters
 
-▸ (`res`): [`Promisable`](../README.md#promisable)\<`void` \| `Response`\>
+• **res**: `Response`
 
-##### Parameters
+#### Returns
 
-| Name | Type |
-| :------ | :------ |
-| `res` | `Response` |
+[`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Response`\>
 
-##### Returns
+#### Source
 
-[`Promisable`](../README.md#promisable)\<`void` \| `Response`\>
+[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L201)
 
-#### Defined in
+***
 
-[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L201)
+### test()
 
-___
-
-### test
-
-• **test**: (`parameters`: \{ `fetch`: (`customInit?`: `RequestInit`) => [`FetchReturnType`](../README.md#fetchreturntype)\<`NextResponseJsonType`\>  }) => [`Promisable`](../README.md#promisable)\<`void`\>
+> **test**: (`parameters`) => [`Promisable`](../type-aliases/Promisable.md)\<`void`\>
 
 `test` is a function that runs your test assertions. This function receives
 one destructured parameter: `fetch`, which is equivalent to
 `globalThis.fetch` but with the first parameter omitted.
 
-#### Type declaration
+#### Parameters
 
-▸ (`parameters`): [`Promisable`](../README.md#promisable)\<`void`\>
+• **parameters**
 
-##### Parameters
+• **parameters.fetch**
 
-| Name | Type |
-| :------ | :------ |
-| `parameters` | `Object` |
-| `parameters.fetch` | (`customInit?`: `RequestInit`) => [`FetchReturnType`](../README.md#fetchreturntype)\<`NextResponseJsonType`\> |
+#### Returns
 
-##### Returns
-
-[`Promisable`](../README.md#promisable)\<`void`\>
+[`Promisable`](../type-aliases/Promisable.md)\<`void`\>
 
 #### Inherited from
 
-[NtarhInit](NtarhInit.md).[test](NtarhInit.md#test)
+[`NtarhInit`](NtarhInit.md).[`test`](NtarhInit.md#test)
 
-#### Defined in
+#### Source
 
-[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L129)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L129)
 
-___
+***
 
-### url
+### url?
 
-• `Optional` **url**: `string`
+> `optional` **url**: `string`
 
 `url: 'your-url'` is shorthand for `requestPatcher: (request) => new
 NextRequest('your-url', request)`
 
-#### Defined in
+#### Source
 
-[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L206)
+[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L206)

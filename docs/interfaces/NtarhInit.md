@@ -1,78 +1,65 @@
+[**next-test-api-route-handler**](../README.md) • **Docs**
+
+***
+
 [next-test-api-route-handler](../README.md) / NtarhInit
 
 # Interface: NtarhInit\<NextResponseJsonType\>
 
+## Extended by
+
+- [`NtarhInitAppRouter`](NtarhInitAppRouter.md)
+- [`NtarhInitPagesRouter`](NtarhInitPagesRouter.md)
+
 ## Type parameters
 
-| Name | Type |
-| :------ | :------ |
-| `NextResponseJsonType` | `unknown` |
-
-## Hierarchy
-
-- **`NtarhInit`**
-
-  ↳ [`NtarhInitAppRouter`](NtarhInitAppRouter.md)
-
-  ↳ [`NtarhInitPagesRouter`](NtarhInitPagesRouter.md)
-
-## Table of contents
-
-### Properties
-
-- [rejectOnHandlerError](NtarhInit.md#rejectonhandlererror)
-- [test](NtarhInit.md#test)
+• **NextResponseJsonType** = `unknown`
 
 ## Properties
 
-### rejectOnHandlerError
+### rejectOnHandlerError?
 
-• `Optional` **rejectOnHandlerError**: `boolean`
+> `optional` **rejectOnHandlerError**: `boolean`
 
 If `false`, errors thrown from within a handler are kicked up to Next.js's
 resolver to deal with, which is what would happen in production. If `true`,
-the [testApiHandler](../README.md#testapihandler) function will reject immediately instead.
+the [testApiHandler](../functions/testApiHandler.md) function will reject immediately instead.
 
 You should use `rejectOnHandlerError` whenever you want to manually handle
 an error that bubbles up from your handler (which is especially true if
 you're using `expect` _within_ your handler) or when you notice a false
 negative despite exceptions being thrown.
 
-**`Default`**
+#### Default
 
 ```ts
 false
 ```
 
-#### Defined in
+#### Source
 
-[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L123)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L123)
 
-___
+***
 
-### test
+### test()
 
-• **test**: (`parameters`: \{ `fetch`: (`customInit?`: `RequestInit`) => [`FetchReturnType`](../README.md#fetchreturntype)\<`NextResponseJsonType`\>  }) => [`Promisable`](../README.md#promisable)\<`void`\>
+> **test**: (`parameters`) => [`Promisable`](../type-aliases/Promisable.md)\<`void`\>
 
 `test` is a function that runs your test assertions. This function receives
 one destructured parameter: `fetch`, which is equivalent to
 `globalThis.fetch` but with the first parameter omitted.
 
-#### Type declaration
+#### Parameters
 
-▸ (`parameters`): [`Promisable`](../README.md#promisable)\<`void`\>
+• **parameters**
 
-##### Parameters
+• **parameters.fetch**
 
-| Name | Type |
-| :------ | :------ |
-| `parameters` | `Object` |
-| `parameters.fetch` | (`customInit?`: `RequestInit`) => [`FetchReturnType`](../README.md#fetchreturntype)\<`NextResponseJsonType`\> |
+#### Returns
 
-##### Returns
+[`Promisable`](../type-aliases/Promisable.md)\<`void`\>
 
-[`Promisable`](../README.md#promisable)\<`void`\>
+#### Source
 
-#### Defined in
-
-[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/b7621d6b938246e73d656a1f9516def892b70ed0/src/index.ts#L129)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L129)
