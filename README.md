@@ -112,8 +112,9 @@ npm install --save-dev next-test-api-route-handler
 ## Usage
 
 > \[!IMPORTANT]\
-> **NTARH must always be the first import in your test file.** This is due to the
-> way Next.js is written and distributed. See [the appendix][11] for technical details.
+> **NTARH must always be the first import in your test file.** This is due to
+> the way Next.js is written and distributed. See [the appendix][11] for
+> technical details.
 
 ```typescript
 // ESM
@@ -233,8 +234,8 @@ For example:
 
 > \[!CAUTION]\
 > Ensuring `testApiHandler` is imported [_before_][12] any Next.js package (like
-> `'next/headers'` below) is crucial to the proper function of NTARH. Doing otherwise
-> will result in undefined behavior.
+> `'next/headers'` below) is crucial to the proper function of NTARH. Doing
+> otherwise will result in undefined behavior.
 
 ```typescript
 import { testApiHandler } from 'next-test-api-route-handler';
@@ -332,8 +333,8 @@ Node's [global fetch][22] function. Use this to send HTTP requests to the
 handler under test.
 
 > \[!CAUTION]\
-> Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in `fetch(...)`][23]_,
-> is omitted.
+> Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in
+> `fetch(...)`][23]_, is omitted.
 
 #### ⚙ Handling Redirections
 
@@ -461,8 +462,9 @@ As of version `2.3.0`, unhandled errors in the `pagesHandler`/`appHandler`
 function are kicked up to Next.js to handle.
 
 > \[!IMPORTANT]\
-> **This means `testApiHandler` will NOT reject or throw if an unhandled error occurs
-> in `pagesHandler`/`appHandler`, which typically includes failing `expect()` assertions.**
+> **This means `testApiHandler` will NOT reject or throw if an unhandled error
+> occurs in `pagesHandler`/`appHandler`, which typically includes failing
+> `expect()` assertions.**
 
 Instead, the response returned by `fetch()` in your `test` function will have a
 `HTTP 500` status [thanks to how Next.js deals with unhandled errors in
@@ -537,9 +539,9 @@ await testApiHandler({
 ### `requestPatcher` (`url`)
 
 > \[!TIP]\
-> Manually setting the request url is usually unnecessary. Only set the url if [your
-> handler expects it][35] or [you want to rely on query string parsing instead of
-> `params`/`paramsPatcher`][36].
+> Manually setting the request url is usually unnecessary. Only set the url if
+> [your handler expects it][35] or [you want to rely on query string parsing
+> instead of `params`/`paramsPatcher`][36].
 
 #### 💎 Using `appHandler`
 
@@ -550,10 +552,11 @@ returns a [`Request`][39] instance. Use this function to edit the request
 _before_ it's injected into the handler.
 
 > \[!CAUTION]\
-> Be wary returning a brand new request from `requestPatcher` (i.e. `new NextRequest(newUrl)`
-> instead of `new NextRequest(newUrl, oldRequest)`), especially one that is missing
-> standard headers added by `fetch(...)`. If you're getting strange JSON-related
-> errors or hanging tests, ensure this is not the cause.
+> Be wary returning a brand new request from `requestPatcher` (i.e.
+> `new NextRequest(newUrl)` instead of `new NextRequest(newUrl, oldRequest)`),
+> especially one that is missing standard headers added by `fetch(...)`. If
+> you're getting strange JSON-related errors or hanging tests, ensure this is
+> not the cause.
 
 The returned [`Request`][39] instance will be wrapped with [`NextRequest`][1] if
 it is not already an instance of [`NextRequest`][1], i.e.:
@@ -573,11 +576,12 @@ await testApiHandler({
 ```
 
 > \[!NOTE]\
-> Unlike the Pages Router's `NextApiRequest` type, the App Router's `NextRequest`
-> class [does not support relative URLs][40]. Therefore, whenever you pass a relative
-> url string via the `url` shorthand (e.g. `{ url: '/my-url?some=query' }`), NTARH
-> will wrap that url like so: `new URL(url, 'ntarh://')`. In this case, your requests
-> will have urls like `ntarh:///my-url?some=query`.
+> Unlike the Pages Router's `NextApiRequest` type, the App Router's
+> `NextRequest` class [does not support relative URLs][40]. Therefore, whenever
+> you pass a relative url string via the `url` shorthand (e.g.
+> `{ url: '/my-url?some=query' }`), NTARH will wrap that url like so:
+> `new URL(url, 'ntarh://')`. In this case, your requests will have urls like
+> `ntarh:///my-url?some=query`.
 
 ##### URL Normalization
 
@@ -1057,9 +1061,9 @@ dependencies, downloads the [jest test][71] file shown below, and runs it using
 [jest][63] to ensure our route integrates with Apollo correctly.
 
 > \[!IMPORTANT]\
-> Note that passing the [route configuration object][72] (imported below as `config`)
-> through to NTARH and setting `request.url` to the proper value [may be necessary][73]
-> when testing Apollo endpoints using the Pages Router.
+> Note that passing the [route configuration object][72] (imported below as
+> `config`) through to NTARH and setting `request.url` to the proper value [may
+> be necessary][73] when testing Apollo endpoints using the Pages Router.
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/integration.test.js */
