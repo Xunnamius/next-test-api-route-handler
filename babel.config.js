@@ -29,11 +29,11 @@ module.exports = {
         // ! If changed, also update these aliases in tsconfig.json,
         // ! webpack.config.js, next.config.ts, eslintrc.js, and jest.config.js
         alias: {
-          '^universe/(.*)$': './src/\\1',
-          '^multiverse/(.*)$': './lib/\\1',
-          '^testverse/(.*)$': './test/\\1',
-          '^externals/(.*)$': './external-scripts/\\1',
-          '^types/(.*)$': './types/\\1',
+          '^universe/(.*)$': String.raw`./src/\1`,
+          '^multiverse/(.*)$': String.raw`./lib/\1`,
+          '^testverse/(.*)$': String.raw`./test/\1`,
+          '^externals/(.*)$': String.raw`./external-scripts/\1`,
+          '^types/(.*)$': String.raw`./types/\1`,
           '^package$': `./package.json`
         }
       }
