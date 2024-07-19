@@ -1,7 +1,9 @@
 'use strict';
 
 const debug = require('debug')(`${require('./package.json').name}:eslint-config`);
-const plugins = ['unicorn', '@typescript-eslint', 'import'];
+const restrictedGlobals = require('confusing-browser-globals');
+
+const plugins = ['unicorn', '@typescript-eslint', 'import', 'module-resolver'];
 
 const xtends = [
   'eslint:recommended',
@@ -24,6 +26,13 @@ const rules = {
   'no-return-await': 'warn',
   'no-await-in-loop': 'warn',
   'import/no-unresolved': ['error', { commonjs: true }],
+  'module-resolver/use-alias': [
+    'error',
+    {
+      extensions: ['.ts', '.tsx', '.jsx']
+    }
+  ],
+  'no-restricted-globals': ['warn', ...restrictedGlobals],
   'no-extra-boolean-cast': 'off',
   'no-empty': 'off',
   '@typescript-eslint/camelcase': 'off',
@@ -44,7 +53,7 @@ const rules = {
     {
       argsIgnorePattern: '^_+',
       varsIgnorePattern: '^_+',
-      caughtErrorsIgnorePattern: '^ignored?\\d*$',
+      caughtErrorsIgnorePattern: String.raw`^ignored?\d*$`,
       caughtErrors: 'all'
     }
   ],
@@ -91,7 +100,8 @@ const rules = {
         env: false,
         temp: false,
         req: false,
-        res: false
+        res: false,
+        ctx: false
       },
       ignore: [/stderr/i]
     }
@@ -123,7 +133,13 @@ const rules = {
   // ? No, thanks
   'unicorn/prefer-set-has': 'off',
   // ? Nah
-  'unicorn/prefer-top-level-await': 'off'
+  'unicorn/prefer-top-level-await': 'off',
+  // ? No.
+  'unicorn/import-style': 'off',
+  // ? This rule is broken as of 05/30/2024
+  'unicorn/throw-new-error': 'off',
+  // ? I know what I'm doing, but thanks though
+  'unicorn/no-negation-in-equality-check': 'off'
 };
 
 module.exports = {
@@ -166,7 +182,8 @@ module.exports = {
         'jest/no-conditional-in-test': 'off',
         'jest/no-conditional-expect': 'off',
         'jest/prefer-each': 'off',
-        'jest/prefer-snapshot-hint': 'off'
+        'jest/prefer-snapshot-hint': 'off',
+        'jest/prefer-importing-jest-globals': 'off'
       }
     }
   ],
@@ -181,8 +198,23 @@ module.exports = {
       '@babel/eslint-parser': ['.js', '.jsx', '.cjs', '.mjs']
     },
     'import/resolver': {
-      node: {},
-      typescript: {}
+      alias: {
+        map: [
+          // ! If changed, also update these aliases in tsconfig.json,
+          // ! webpack.config.js, next.config.ts, babel.config.js, and
+          // ! jest.config.js
+          ['universe', './src'],
+          ['multiverse', './lib'],
+          ['testverse', './test'],
+          ['externals', './external-scripts'],
+          ['types', './types'],
+          ['package', './package.json']
+        ],
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
+      },
+      typescript: {},
+      'babel-module': {},
+      node: {}
     },
     'import/ignore': [
       // ? Don't go complaining about anything that we don't own
@@ -193,10 +225,10 @@ module.exports = {
   ignorePatterns: [
     'coverage',
     'dist',
-    'fixtures',
-    '__fixtures__',
-    '__snapshots__',
-    'test/integration/assets'
+    'bin',
+    'build/**/*',
+    '/next.config.js',
+    '!src/build/**/*'
   ]
 };
 
