@@ -28,7 +28,7 @@ const mockedExeca = asMockedFunction(execa);
 const mockedDebug = asMockedFunction<Debugger>();
 
 const mockedFindPackageJson = asMockedFunction(findPackageJson);
-const mockedOctokit = Octokit as unknown as jest.Mock<Octokit>;
+const mockedOctokit = jest.mocked(Octokit);
 const mockedOctokitGetLatestRelease =
   asMockedFunction<Octokit['repos']['getLatestRelease']>();
 

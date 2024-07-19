@@ -2,7 +2,6 @@ import assert from 'node:assert';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join as joinPath, resolve as resolvePath } from 'node:path';
-import { name as pkgName, version as pkgVersion } from '../package.json';
 
 import debugFactory from 'debug';
 import execa from 'execa';
@@ -13,6 +12,8 @@ import uniqueFilename from 'unique-filename';
 // ? https://github.com/jest-community/jest-extended#typescript
 import 'jest-extended';
 import 'jest-extended/all';
+
+import { files as pkgFiles, name as pkgName, version as pkgVersion } from 'package';
 
 import type { Debugger } from 'debug';
 import type { ExecaReturnValue } from 'execa';
@@ -754,14 +755,12 @@ export function npmCopySelfFixture(): MockFixture {
       'copying package.json `files` into node_modules to emulate package installation',
     setup: async (context) => {
       const root = resolvePath(__dirname, '..');
-
-      const { files: patterns } = (await import('../package.json')).default;
-
-      const sourcePaths = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
+      const sourcePaths = pkgFiles.flatMap((p) => glob.sync(p, { cwd: root, root }));
       const destinationPath = resolvePath(
         context.root,
         joinPath('node_modules', pkgName)
       );
+
       const destPkgJson = resolvePath(destinationPath, 'package.json');
 
       await mkdir({ paths: [destinationPath], context });

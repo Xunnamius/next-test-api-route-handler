@@ -782,6 +782,7 @@ describe('::testApiHandler', () => {
     it('makes no changes to process.env that are externally visible', async () => {
       expect.hasAssertions();
 
+      // eslint-disable-next-line unicorn/prefer-structured-clone
       const originalProcessEnvClone = JSON.parse(JSON.stringify(process.env));
       expect(process.env).toEqual(originalProcessEnvClone);
 
@@ -1016,6 +1017,7 @@ describe('::testApiHandler', () => {
         rejectOnHandlerError: true,
         async requestPatcher(request) {
           await expect(request.json()).resolves.toStrictEqual({});
+          // eslint-disable-next-line unicorn/no-invalid-fetch-options
           return new Request(request, { body: '{}' });
         },
         async responsePatcher(response) {
@@ -1933,6 +1935,7 @@ describe('::testApiHandler', () => {
     it('makes no changes to process.env that are externally visible', async () => {
       expect.hasAssertions();
 
+      // eslint-disable-next-line unicorn/prefer-structured-clone
       const originalProcessEnvClone = JSON.parse(JSON.stringify(process.env));
       expect(process.env).toEqual(originalProcessEnvClone);
 

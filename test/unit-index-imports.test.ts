@@ -394,7 +394,7 @@ describe('::testApiHandler', () => {
               new RegExp(
                 expectedFailureLetters
                   .map((letter) => `- fake import failure ${letter}`)
-                  .join('\\s+')
+                  .join(String.raw`\s+`)
               )
             )
           });
@@ -498,7 +498,7 @@ describe('::testApiHandler', () => {
               new RegExp(
                 expectedFailureLetters
                   .map((letter) => `- fake import failure ${letter}`)
-                  .join('\\s+')
+                  .join(String.raw`\s+`)
               )
             )
           });

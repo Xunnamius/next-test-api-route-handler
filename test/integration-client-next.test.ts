@@ -97,7 +97,7 @@ const getHandler = (status) => async (_, res) => {
 
             if (esm) {
               debug('(expecting stderr to be "")');
-              debug('(expecting stdout to be "working\\nworking\\nworking")');
+              debug(String.raw`(expecting stdout to be "working\nworking\nworking")`);
               debug('(expecting exit code to be 0)');
 
               expect(context.testResult.stderr).toBeEmpty();
