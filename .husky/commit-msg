@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname $0)/_/husky.sh"
-
 beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
 if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
