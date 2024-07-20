@@ -13,7 +13,7 @@ env:
   # * Selectively enable debugger verbose output in the pipeline
   # ? See also: https://www.npmjs.com/package/debug#wildcards
   # DEBUG: 'next-test-api-route-handler:*'
-  NODE_CURRENT_VERSION: 22.x
+  NODE_CURRENT_VERSION: >=22.5.1
   NODE_OLDER_VERSIONS: '"18.x", "20.x"'
 
 jobs:
