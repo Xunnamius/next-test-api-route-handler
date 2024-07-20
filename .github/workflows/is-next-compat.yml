@@ -45,6 +45,16 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
     steps:
+      # GitHub Actions artifacts cannot handle filenames with certain characters
+      - name: Reify metadata
+        id: reified-metadata
+        env:
+          NODE_VERSION: ${{ matrix.node }}
+        run: >
+          node -p
+          '`node-version-sanitized=${process.env.NODE_VERSION.replaceAll(
+          /[":<>|*?\\\/=,\s'"'"']/g,"-")}`' >> "$GITHUB_OUTPUT"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -104,7 +114,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: output-node-${{ matrix.node }}-${{ github.sha }}
+          name:
+            output-node-${{
+            steps.reified-metadata.outputs.node-version-sanitized }}-${{
+            github.sha }}
           path: /tmp/output.txt
           if-no-files-found: error
           retention-days: 1
