@@ -1,6 +1,5 @@
 // ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
 
-import { Octokit } from '@octokit/rest';
 import debugFactory from 'debug';
 import execa from 'execa';
 import findPackageJson from 'find-package-json';
@@ -148,6 +147,8 @@ const invoked = async () => {
   debug('connecting to GitHub');
 
   if (!process.env.GH_TOKEN) debug('warning: not using a personal access token!');
+
+  const { Octokit } = await import('@octokit/rest');
 
   const { repos } = new Octokit({
     auth: process.env.GH_TOKEN,
