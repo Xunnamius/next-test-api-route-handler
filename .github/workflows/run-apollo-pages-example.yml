@@ -59,7 +59,7 @@ jobs:
           # npm install --force next@9.0.6
           # Or even older:
           # npm install --force next@9.0.0 next-server
-          echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
+          echo 'module.exports={presets:["@babel/preset-env"]};' > babel.config.js
           mkdir test
           curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
           npx jest

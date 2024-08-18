@@ -54,7 +54,7 @@ jobs:
           mkdir -p /tmp/ntarh-test/test
           cd /tmp/ntarh-test
           npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env
-          echo 'module.exports={"presets":["next/babel"]};' > babel.config.js
+          echo 'module.exports={presets:["@babel/preset-env"]};' > babel.config.js
           mkdir -p app/api/graphql
           curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route
           curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test
