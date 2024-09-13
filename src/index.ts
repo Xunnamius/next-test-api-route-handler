@@ -302,23 +302,28 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
     server = pagesHandler ? createPagesRouterServer() : createAppRouterServer();
 
-    const port = await new Promise<number>((resolve, reject) => {
-      server?.listen(0, 'localhost', undefined, () => {
-        const addr = server?.address();
+    const { address, port } = await new Promise<{ address: string; port: number }>(
+      (resolve, reject) => {
+        server?.listen(0, 'localhost', undefined, () => {
+          const addr = server?.address();
 
-        if (!addr || typeof addr === 'string') {
-          reject(
-            new Error(
-              'assertion failed unexpectedly: server did not return AddressInfo instance'
-            )
-          );
-        } else {
-          resolve(addr.port);
-        }
-      });
-    });
+          if (!addr || typeof addr === 'string') {
+            reject(
+              new Error(
+                'assertion failed unexpectedly: server did not return AddressInfo instance'
+              )
+            );
+          } else {
+            resolve({
+              port: addr.port,
+              address: addr.family === 'IPv6' ? `[${addr.address}]` : addr.address
+            });
+          }
+        });
+      }
+    );
 
-    const localUrl = `http://localhost:${port}`;
+    const localUrl = `http://${address}:${port}`;
 
     await new Promise((resolve, reject) => {
       deferredReject = reject;
