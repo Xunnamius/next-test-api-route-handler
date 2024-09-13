@@ -4,16 +4,16 @@
 
 [next-test-api-route-handler](../README.md) / Promisable
 
-# Type alias: Promisable\<Promised\>
-
-`Internal`
+# Type Alias: Promisable\<Promised\>
 
 > **Promisable**\<`Promised`\>: `Promised` \| `Promise`\<`Promised`\>
 
-## Type parameters
+**`Internal`**
+
+## Type Parameters
 
 • **Promised**
 
-## Source
+## Defined in
 
-[index.ts:95](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L95)
+[index.ts:95](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L95)

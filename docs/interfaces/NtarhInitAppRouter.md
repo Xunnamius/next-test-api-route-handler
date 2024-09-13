@@ -12,7 +12,7 @@ The parameters expected by `testApiHandler` when using `appHandler`.
 
 - [`NtarhInit`](NtarhInit.md)\<`NextResponseJsonType`\>
 
-## Type parameters
+## Type Parameters
 
 • **NextResponseJsonType** = `unknown`
 
@@ -58,9 +58,9 @@ for details.
 
 > **PUT**: `undefined` \| (`req`, `context`?) => `any`
 
-#### Source
+#### Defined in
 
-[index.ts:146](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L146)
+[index.ts:146](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L146)
 
 ***
 
@@ -68,9 +68,9 @@ for details.
 
 > `optional` **pagesHandler**: `undefined`
 
-#### Source
+#### Defined in
 
-[index.ts:155](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L155)
+[index.ts:155](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L155)
 
 ***
 
@@ -86,9 +86,9 @@ handled by `Request` automatically.
 params.id = 'some-id' }`. This is useful for quickly setting many params at
 once.
 
-#### Source
+#### Defined in
 
-[index.ts:165](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L165)
+[index.ts:165](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L165)
 
 ***
 
@@ -112,9 +112,9 @@ is handled by `Request` automatically.
 
 [`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Record`\<`string`, `string` \| `string`[]\>\>
 
-#### Source
+#### Defined in
 
-[index.ts:175](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L175)
+[index.ts:175](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L175)
 
 ***
 
@@ -141,9 +141,9 @@ false
 
 [`NtarhInit`](NtarhInit.md).[`rejectOnHandlerError`](NtarhInit.md#rejectonhandlererror)
 
-#### Source
+#### Defined in
 
-[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L123)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L123)
 
 ***
 
@@ -167,9 +167,9 @@ NextRequest(returnedRequest, { ... })`.
 
 [`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Request`\>
 
-#### Source
+#### Defined in
 
-[index.ts:188](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L188)
+[index.ts:188](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L188)
 
 ***
 
@@ -194,9 +194,9 @@ unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 [`Promisable`](../type-aliases/Promisable.md)\<`void` \| `Response`\>
 
-#### Source
+#### Defined in
 
-[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L201)
+[index.ts:201](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L201)
 
 ***
 
@@ -222,9 +222,9 @@ one destructured parameter: `fetch`, which is equivalent to
 
 [`NtarhInit`](NtarhInit.md).[`test`](NtarhInit.md#test)
 
-#### Source
+#### Defined in
 
-[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L129)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L129)
 
 ***
 
@@ -235,6 +235,6 @@ one destructured parameter: `fetch`, which is equivalent to
 `url: 'your-url'` is shorthand for `requestPatcher: (request) => new
 NextRequest('your-url', request)`
 
-#### Source
+#### Defined in
 
-[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L206)
+[index.ts:206](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L206)

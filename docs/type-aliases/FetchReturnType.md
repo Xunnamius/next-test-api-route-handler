@@ -4,16 +4,16 @@
 
 [next-test-api-route-handler](../README.md) / FetchReturnType
 
-# Type alias: FetchReturnType\<NextResponseJsonType\>
-
-`Internal`
+# Type Alias: FetchReturnType\<NextResponseJsonType\>
 
 > **FetchReturnType**\<`NextResponseJsonType`\>: `Promise`\<`Omit`\<`Response`, `"json"`\> & `object`\>
 
-## Type parameters
+**`Internal`**
+
+## Type Parameters
 
 • **NextResponseJsonType**
 
-## Source
+## Defined in
 
-[index.ts:100](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L100)
+[index.ts:100](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L100)

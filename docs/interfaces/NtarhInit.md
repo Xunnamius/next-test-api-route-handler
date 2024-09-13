@@ -6,12 +6,14 @@
 
 # Interface: NtarhInit\<NextResponseJsonType\>
 
+**`Internal`**
+
 ## Extended by
 
 - [`NtarhInitAppRouter`](NtarhInitAppRouter.md)
 - [`NtarhInitPagesRouter`](NtarhInitPagesRouter.md)
 
-## Type parameters
+## Type Parameters
 
 • **NextResponseJsonType** = `unknown`
 
@@ -36,9 +38,9 @@ negative despite exceptions being thrown.
 false
 ```
 
-#### Source
+#### Defined in
 
-[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L123)
+[index.ts:123](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L123)
 
 ***
 
@@ -60,6 +62,6 @@ one destructured parameter: `fetch`, which is equivalent to
 
 [`Promisable`](../type-aliases/Promisable.md)\<`void`\>
 
-#### Source
+#### Defined in
 
-[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/43eec5385cb48f619257324a2fe1b54d29748ff1/src/index.ts#L129)
+[index.ts:129](https://github.com/Xunnamius/next-test-api-route-handler/blob/89d2409a8fbc9ba840b27d51fe118ce111e6c10f/src/index.ts#L129)
