@@ -98,7 +98,7 @@
     "@babel/preset-typescript": "^7.24.7",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
-    "@octokit/rest": "^21.0.2",
+    "@octokit/rest": "^20.1.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
