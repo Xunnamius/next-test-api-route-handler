@@ -139,7 +139,11 @@ const rules = {
   // ? This rule is broken as of 05/30/2024
   'unicorn/throw-new-error': 'off',
   // ? I know what I'm doing, but thanks though
-  'unicorn/no-negation-in-equality-check': 'off'
+  'unicorn/no-negation-in-equality-check': 'off',
+
+  // ? Turn these off because we're switching to unified config soon
+  '@typescript-eslint/no-unused-expressions': 'off',
+  '@typescript-eslint/no-require-imports': 'off'
 };
 
 module.exports = {
@@ -183,7 +187,10 @@ module.exports = {
         'jest/no-conditional-expect': 'off',
         'jest/prefer-each': 'off',
         'jest/prefer-snapshot-hint': 'off',
-        'jest/prefer-importing-jest-globals': 'off'
+        'jest/prefer-importing-jest-globals': 'off',
+        // ? Turn these off because we're switching to unified config soon
+        'jest/padding-around-all': 'off',
+        'jest/padding-around-expect-groups': 'off'
       }
     }
   ],
