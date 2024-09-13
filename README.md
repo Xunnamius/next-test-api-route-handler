@@ -1527,7 +1527,7 @@ more information.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-31-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-33-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1584,6 +1584,8 @@ key][x-repo-all-contributors-emojis]):
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/danactive"><img src="https://avatars.githubusercontent.com/u/1093286?v=4?s=100" width="100px;" alt="Dan BROOKS"/><br /><sub><b>Dan BROOKS</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=danactive" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/rosswilson2306"><img src="https://avatars.githubusercontent.com/u/71711192?v=4?s=100" width="100px;" alt="Ross Wilson"/><br /><sub><b>Ross Wilson</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Arosswilson2306" title="Bug reports">🐛</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=rosswilson2306" title="Code">💻</a> <a href="#research-rosswilson2306" title="Research">🔬</a> <a href="#ideas-rosswilson2306" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/bobf"><img src="https://avatars.githubusercontent.com/u/18470?v=4?s=100" width="100px;" alt="bobf"/><br /><sub><b>bobf</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Abobf" title="Bug reports">🐛</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=bobf" title="Code">💻</a> <a href="#research-bobf" title="Research">🔬</a> <a href="#ideas-bobf" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
   <tfoot>

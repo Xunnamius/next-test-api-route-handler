@@ -233,6 +233,20 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/1093286?v=4",
       "profile": "https://github.com/danactive",
       "contributions": ["doc"]
+    },
+    {
+      "login": "rosswilson2306",
+      "name": "Ross Wilson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71711192?v=4",
+      "profile": "https://github.com/rosswilson2306",
+      "contributions": ["bug", "code", "research", "ideas"]
+    },
+    {
+      "login": "bobf",
+      "name": "bobf",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18470?v=4",
+      "profile": "https://github.com/bobf",
+      "contributions": ["bug", "code", "research", "ideas"]
     }
   ]
 }
