@@ -1527,7 +1527,7 @@ more information.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-34-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-35-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1587,6 +1587,7 @@ key][x-repo-all-contributors-emojis]):
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/rosswilson2306"><img src="https://avatars.githubusercontent.com/u/71711192?v=4?s=100" width="100px;" alt="Ross Wilson"/><br /><sub><b>Ross Wilson</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Arosswilson2306" title="Bug reports">🐛</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=rosswilson2306" title="Code">💻</a> <a href="#research-rosswilson2306" title="Research">🔬</a> <a href="#ideas-rosswilson2306" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/bobf"><img src="https://avatars.githubusercontent.com/u/18470?v=4?s=100" width="100px;" alt="bobf"/><br /><sub><b>bobf</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Abobf" title="Bug reports">🐛</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=bobf" title="Code">💻</a> <a href="#research-bobf" title="Research">🔬</a> <a href="#ideas-bobf" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://www.joshmengerink.nl/"><img src="https://avatars.githubusercontent.com/u/10478429?v=4?s=100" width="100px;" alt="Josh"/><br /><sub><b>Josh</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Alordphnx" title="Bug reports">🐛</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=lordphnx" title="Code">💻</a> <a href="#research-lordphnx" title="Research">🔬</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://vexquisit.com/"><img src="https://avatars.githubusercontent.com/u/215671?v=4?s=100" width="100px;" alt="David Heidrich"/><br /><sub><b>David Heidrich</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3ABowlingX" title="Bug reports">🐛</a> <a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=BowlingX" title="Code">💻</a> <a href="#research-BowlingX" title="Research">🔬</a></td>
     </tr>
   </tbody>
   <tfoot>

@@ -254,6 +254,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/10478429?v=4",
       "profile": "https://www.joshmengerink.nl/",
       "contributions": ["bug", "code", "research"]
+    },
+    {
+      "login": "BowlingX",
+      "name": "David Heidrich",
+      "avatar_url": "https://avatars.githubusercontent.com/u/215671?v=4",
+      "profile": "https://vexquisit.com/",
+      "contributions": ["bug", "code", "research"]
     }
   ]
 }
