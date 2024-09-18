@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import assert from 'node:assert';
 import { isNativeError } from 'node:util/types';
@@ -458,7 +460,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
               ? patchedRequest
               : new NextRequest(patchedRequest, {
                   // https://github.com/nodejs/node/issues/46221
-                  // @ts-expect-error: TS types are not yet updated
+                  // @ts-expect-error: TS types are not yet updated?
                   duplex: 'half'
                 });
 
@@ -513,11 +515,13 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 experimental: {
                   ppr: false
                 },
-                // ? Next.js tries to do things it shouldn't unless we add this
+                // ? Next.js tries to do things it shouldn't unless we add these
                 supportsDynamicHTML: true
               },
-              // ? Next.js poos the bed if we don't include this
-              // @ts-expect-error: the types for renderOpts are wrong!
+              // ? Some versions of Next.js poo the bed if we don't include this
+              // ? even though it doesn't appear in the types as far as I can
+              // ? tell
+              // @ts-ignore: the types for renderOpts are wrong?!
               staticGenerationContext: {
                 supportsDynamicHTML: true
               }
