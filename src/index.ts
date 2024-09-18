@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 import assert from 'node:assert';
 import { isNativeError } from 'node:util/types';
 

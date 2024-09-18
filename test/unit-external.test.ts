@@ -1,5 +1,3 @@
-// TODO:
-// @ts-expect-error: remove this comment once we switch to the unified config
 import { Octokit } from '@octokit/rest';
 import debugFactory from 'debug';
 import execa from 'execa';
