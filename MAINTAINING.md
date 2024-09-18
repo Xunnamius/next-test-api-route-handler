@@ -110,7 +110,7 @@ npm run build:docs
 npm run test:all
 
 # 9. Upload coverage information to codecov (only if you have the proper token).
-CODECOV_TOKEN=$(npx --yes dotenv-cli -p CODECOV_TOKEN) codecov
+CODECOV_TOKEN=$(npx --yes dotenv-cli -p CODECOV_TOKEN) npx codecov
 
 # 10. Trigger semantic-release locally and generate a new release. This requires
 # having tokens for NPM and GitHub with the appropriate permissions.
