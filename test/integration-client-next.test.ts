@@ -28,6 +28,7 @@ const NEXT_VERSIONS_UNDER_TEST: [next: `next@${string}`, routerType: 'app' | 'pa
   ['next@12.0.x', 'pages'],  // ? See issue #487
   ['next@13.5.3', 'pages'],  // ? See issue #887
   ['next@14.0.4', 'both'],   // ? Ntarh guarantees App Router support here on
+  ['next@14.2.11', 'both'],  // ? See issue #1076
   ['next@latest', 'both']    // ! Latest release (must always be here)
 ];
 
