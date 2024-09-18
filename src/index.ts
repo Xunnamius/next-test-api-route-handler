@@ -588,7 +588,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
              **    apiContext: __ApiPreviewProps,
              **    propagateError: boolean,
              **    dev?: boolean,
-             **    page?: boolean
+             **    page?: boolean,
+             **    onError?: ServerOnInstrumentationRequestError
              ** )
              */
             void apiResolver(
