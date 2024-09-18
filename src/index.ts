@@ -514,12 +514,16 @@ export async function testApiHandler<NextResponseJsonType = any>({
                   ppr: false
                 },
                 // ? Next.js tries to do things it shouldn't unless we add this
-                supportsDynamicHTML: true
+                // @ts-expect-error next.js < 14.2.11
+                supportsDynamicHTML: true,
+                // from next.js 14.2.11
+                supportsDynamicResponse: true
               },
               // ? Next.js poos the bed if we don't include this
-              // @ts-expect-error: the types for renderOpts are wrong!
               staticGenerationContext: {
-                supportsDynamicHTML: true
+                supportsDynamicHTML: true,
+                // from next.js 14.2.11
+                supportsDynamicResponse: true
               }
             }
           );
