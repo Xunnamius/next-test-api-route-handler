@@ -15,6 +15,11 @@
 - [FetchReturnType](type-aliases/FetchReturnType.md)
 - [Promisable](type-aliases/Promisable.md)
 
+## Variables
+
+- [$isPatched](variables/$isPatched.md)
+- [$originalGlobalFetch](variables/$originalGlobalFetch.md)
+
 ## Functions
 
 - [testApiHandler](functions/testApiHandler.md)

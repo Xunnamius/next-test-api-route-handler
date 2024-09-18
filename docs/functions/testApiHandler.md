@@ -26,4 +26,4 @@ in a Next-like testing environment.
 
 ## Defined in
 
-[index.ts:272](https://github.com/Xunnamius/next-test-api-route-handler/blob/37c35c31591639add2ada76a3899ced1163c4aeb/src/index.ts#L272)
+[index.ts:284](https://github.com/Xunnamius/next-test-api-route-handler/blob/a461e8108624c221c70702d1068092a640a5bae5/src/index.ts#L284)
