@@ -597,7 +597,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
               res,
               finalParameters,
               pagesHandler,
-              undefined as any,
+              {} as any,
               !!rejectOnHandlerError
             ).catch((error: unknown) => handleError(res, error, deferredReject));
           })
