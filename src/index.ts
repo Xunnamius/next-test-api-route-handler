@@ -55,6 +55,16 @@ const addDefaultHeaders = (headers: Headers) => {
  */
 const $importFailed = Symbol('import-failed');
 
+/**
+ * @internal
+ */
+export const $originalGlobalFetch = Symbol('original-global-fetch-function');
+
+/**
+ * @internal
+ */
+export const $isPatched = Symbol('object-has-been-patched-by-ntarh');
+
 // * vvv FIND NEXTJS INTERNAL RESOLVERS vvv * \\
 
 const apiResolver = findNextjsInternalResolver<
@@ -332,7 +342,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           fetch: Object.assign(fetch_, {
             // ? We do this here so we can track what the global fetch function
             // ? is doing. This lets us deal with Next.js patching global fetch.
-            get _ntarhOriginalGlobalFetch() {
+            get [$originalGlobalFetch]() {
               return originalGlobalFetch;
             }
           })
@@ -690,14 +700,14 @@ function readableStreamOrNullFromAsyncIterable(
  */
 function rebindJsonMethodAsSummoner<T extends Response | Request>(communication: T): T {
   // @ts-expect-error: a hidden property
-  if (!communication.__ntarhPatched) {
+  if (!communication[$isPatched]) {
     communication.json = async () => {
       const text = await communication.text();
       return JSON.parse(text);
     };
 
     // @ts-expect-error: a hidden property
-    communication.__ntarhPatched = true;
+    communication[$isPatched] = true;
   }
 
   return communication;

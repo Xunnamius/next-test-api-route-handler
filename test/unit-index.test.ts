@@ -1,5 +1,5 @@
 /* eslint-disable jest/prefer-strict-equal */
-import { testApiHandler } from 'universe/index';
+import { testApiHandler, $originalGlobalFetch } from 'universe/index';
 
 import { parse, serialize } from 'cookie';
 import { cookies, headers } from 'next/headers';
@@ -106,17 +106,17 @@ describe('::testApiHandler', () => {
           ).toBeUndefined();
 
           // @ts-expect-error: a hidden property
-          expect(fetch._ntarhOriginalGlobalFetch).toBe(originalGlobalFetch);
+          expect(fetch[$originalGlobalFetch]).toBe(originalGlobalFetch);
 
           const pRes = fetch();
 
           // @ts-expect-error: a hidden property
-          expect(fetch._ntarhOriginalGlobalFetch).toBe(originalGlobalFetch);
+          expect(fetch[$originalGlobalFetch]).toBe(originalGlobalFetch);
 
           const res = await pRes;
 
           // @ts-expect-error: a hidden property
-          expect(fetch._ntarhOriginalGlobalFetch).toBe(originalGlobalFetch);
+          expect(fetch[$originalGlobalFetch]).toBe(originalGlobalFetch);
           expect(res.status).toBe(200);
           await expect(res.json()).resolves.toStrictEqual({ hello: 'world' });
           expect(ran).toBeTrue();
