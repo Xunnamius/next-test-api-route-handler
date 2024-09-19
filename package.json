@@ -137,7 +137,7 @@
     "doctoc": "^2.2.1",
     "dotenv": "^16.4.5",
     "edit-json-file": "^1.8.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-babel-module": "^5.3.2",
     "eslint-import-resolver-typescript": "^3.6.3",
