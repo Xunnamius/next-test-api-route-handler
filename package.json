@@ -84,7 +84,7 @@
   },
   "dependencies": {
     "@whatwg-node/server": "^0.9.49",
-    "cookie": "^0.6.0",
+    "cookie": "^0.7.0",
     "core-js": "^3.38.1"
   },
   "devDependencies": {
