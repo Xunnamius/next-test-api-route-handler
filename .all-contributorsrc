@@ -261,6 +261,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/215671?v=4",
       "profile": "https://vexquisit.com/",
       "contributions": ["bug", "code", "research"]
+    },
+    {
+      "login": "clueleaf",
+      "name": "clueleaf",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10379303?v=4",
+      "profile": "https://github.com/clueleaf",
+      "contributions": ["security"]
     }
   ]
 }
