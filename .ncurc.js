@@ -7,6 +7,8 @@ module.exports = {
     // ? Pin the non-broken version of glob
     'glob',
     // ? Pin the CJS version of execa
-    'execa'
+    'execa',
+    // ? Pin the non-broken 4th version for now
+    'remark-lint-no-inline-padding'
   ]
 };
