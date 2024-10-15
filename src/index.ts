@@ -516,6 +516,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
                   ppr: false
                 },
                 // ? Next.js tries to do things it shouldn't unless we add these
+                // @ts-ignore: the types for renderOpts are wrong?!
                 supportsDynamicHTML: true,
                 // @ts-ignore: the types for renderOpts are wrong?!
                 supportsDynamicResponse: true
