@@ -613,8 +613,6 @@ await testApiHandler({
 > `new URL(url, 'ntarh://')`. In this case, your requests will have urls like
 > `ntarh:///my-url?some=query`.
 
-<br />
-
 ##### URL Normalization
 
 By default, when initializing the `NextRequest` object passed to your handler,
