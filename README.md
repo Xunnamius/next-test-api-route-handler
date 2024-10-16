@@ -98,6 +98,8 @@ src="https://xunn.at/ntarh-compat" /></a> ✨
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 <!-- remark-ignore-end -->
 
+<br />
+
 ## Install
 
 ```shell
@@ -108,6 +110,8 @@ npm install --save-dev next-test-api-route-handler
 
 > Also see [the appendix][10] if you're using `jest` and
 > `jest-environment-jsdom`.
+
+<br />
 
 ## Usage
 
@@ -129,6 +133,8 @@ const { testApiHandler } = require('next-test-api-route-handler'); // ◄ Must b
 
 ... all other imports ...
 ```
+
+<br />
 
 ### Quick Start: App Router
 
@@ -160,6 +166,8 @@ it('does what I want', async () => {
   });
 });
 ```
+
+<br />
 
 ### Quick Start: Edge Runtime
 
@@ -193,6 +201,8 @@ it('does what I want', async function () {
 });
 ```
 
+<br />
+
 ### Quick Start: Pages Router
 
 ```typescript
@@ -219,6 +229,8 @@ it('does what I want', async () => {
   });
 });
 ```
+
+<br />
 
 ## API
 
@@ -264,6 +276,8 @@ await testApiHandler({
 });
 ```
 
+<br />
+
 ### `appHandler`
 
 > ⪢ API reference: [`appHandler`][13]
@@ -302,6 +316,8 @@ await testApiHandler({
 See also: [`rejectOnHandlerError`][18] and the section [Working Around Next.js
 `fetch` Patching][19].
 
+<br />
+
 ### `pagesHandler`
 
 > ⪢ API reference: [`pagesHandler`][20]
@@ -323,6 +339,8 @@ await testApiHandler({
 
 See also: [`rejectOnHandlerError`][18].
 
+<br />
+
 ### `test`
 
 > ⪢ API reference: [`test`][21]
@@ -336,6 +354,8 @@ handler under test.
 > Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in
 > `fetch(...)`][23]_, is omitted.
 
+<br />
+
 #### ⚙ Handling Redirections
 
 Starting with version `4.0.4`, NTARH sets the [`fetch(...)` `options`][24]
@@ -345,6 +365,8 @@ the WHATWG/undici `fetch` function from throwing a
 
 If you want to change this value, call `fetch` with your own custom `options`
 parameter, e.g. `fetch({ redirect: 'error' })`.
+
+<br />
 
 #### ⚙ Compatibility with Mock Service Worker
 
@@ -407,6 +429,8 @@ it('redirects a shortened URL to the real URL', async () => {
 });
 ```
 
+<br />
+
 #### ⚙ `response.cookies`
 
 As of version `2.3.0`, the response object returned by `fetch()` includes a
@@ -453,6 +477,8 @@ it('handles multiple set-cookie headers', async () => {
   });
 });
 ```
+
+<br />
 
 ### `rejectOnHandlerError`
 
@@ -536,12 +562,16 @@ await testApiHandler({
 // and it is reported that the test failed, which is probably what you wanted.
 ```
 
+<br />
+
 ### `requestPatcher` (`url`)
 
 > \[!TIP]\
 > Manually setting the request url is usually unnecessary. Only set the url if
 > [your handler expects it][35] or [you want to rely on query string parsing
 > instead of `params`/`paramsPatcher`][36].
+
+<br />
 
 #### 💎 Using `appHandler`
 
@@ -583,6 +613,8 @@ await testApiHandler({
 > `new URL(url, 'ntarh://')`. In this case, your requests will have urls like
 > `ntarh:///my-url?some=query`.
 
+<br />
+
 ##### URL Normalization
 
 By default, when initializing the `NextRequest` object passed to your handler,
@@ -593,6 +625,8 @@ and/or `protocol`, NTARH sets `host` to `""` and `protocol` to `"ntarh:"`.
 If you want your handler to receive the URL string and resulting
 `NextRequest::nextUrl` object exactly as you've typed it, use `requestPatcher`,
 which is executed after NTARH does URL normalization.
+
+<br />
 
 #### 🔷 Using `pagesHandler`
 
@@ -613,7 +647,11 @@ await testApiHandler({
 
 Note that, unlike with [the `URL` class][44], the `url` string can be relative.
 
+<br />
+
 ### `responsePatcher`
+
+<br />
 
 #### 💎 Using `appHandler`
 
@@ -624,12 +662,16 @@ returned from `appHandler` and returns a [`Response`][46] instance. Use this
 function to edit the response _after_ your handler runs but _before_ it's
 processed by the server.
 
+<br />
+
 #### 🔷 Using `pagesHandler`
 
 > ⪢ API reference: [`responsePatcher`][47]
 
 `responsePatcher` is a function that receives a [`ServerResponse`][48] object.
 Use this function to edit the response _before_ it's injected into the handler.
+
+<br />
 
 ### `paramsPatcher` (`params`)
 
@@ -668,6 +710,8 @@ await testApiHandler({
 > \[!TIP]\
 > Due to its simplicity, favor the `params` shorthand over `paramsPatcher`.
 
+<br />
+
 #### 💎 Using `appHandler`
 
 > ⪢ API reference: [`paramsPatcher`][50], [`params`][51]
@@ -678,6 +722,8 @@ will receive `params` as its first argument.
 > Route parameters should not be confused with [query string parameters][52],
 > which are automatically parsed out from the url and made available via the
 > [`NextRequest`][1] argument passed to your handler.
+
+<br />
 
 #### 🔷 Using `pagesHandler`
 
@@ -691,6 +737,8 @@ first argument.
 > which are automatically parsed out from the url and added to the `params`
 > object before `paramsPatcher` is evaluated.
 
+<br />
+
 ## Examples
 
 What follows are several examples that demonstrate using NTARH with the [App
@@ -698,9 +746,13 @@ Router][55] and the [Pages Router][56].
 
 Check out [the tests][57] for even more examples.
 
+<br />
+
 ### Using the App Router
 
 These examples use Next.js's [App Router][58] API.
+
+<br />
 
 #### Testing Apollo's Official Next.js Integration @ `app/api/graphql`
 
@@ -800,6 +852,8 @@ describe('my-test (app router)', () => {
   });
 });
 ```
+
+<br />
 
 #### Testing Clerk's Official Next.js Integration @ `app/api/authed`
 
@@ -946,6 +1000,8 @@ access to the storage context that allows Next.js's helper functions to work**.
 For insight into what you'd need to do to make [`authMiddleware`][66] callable
 in `requestPatcher`, check out [Clerk's own tests][67].
 
+<br />
+
 #### Testing an Unreliable Handler on the Edge @ `app/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
@@ -1029,9 +1085,13 @@ it('injects contrived errors at the required rate', async () => {
 });
 ```
 
+<br />
+
 ### Using the Pages Router
 
 These examples use Next.js's [Pages Router][68] API.
+
+<br />
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
@@ -1112,6 +1172,8 @@ describe('my-test (pages router)', () => {
   });
 });
 ```
+
+<br />
 
 #### Testing an Authenticated Flight Search Handler @ `pages/api/v3/flights/search`
 
@@ -1230,6 +1292,8 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
+<br />
+
 #### Testing an Unreliable Handler @ `pages/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
@@ -1304,9 +1368,13 @@ it('injects contrived errors at the required rate', async () => {
 });
 ```
 
+<br />
+
 ## Appendix
 
 Further documentation can be found under [`docs/`][x-repo-docs].
+
+<br />
 
 ### Limitations with App Router and Edge Runtime Emulation
 
@@ -1342,6 +1410,8 @@ consider [opening a new issue][x-repo-choose-new-issue]!
 >
 > Next.js's middleware limitation is discussed at length [here][87].
 
+<br />
+
 #### Working around the App Router Patching the Global `fetch` Function
 
 Next.js's current App Router implementation mutates the global `fetch` function,
@@ -1373,6 +1443,8 @@ afterEach(function () {
 });
 ```
 
+<br />
+
 #### Working around Global `AsyncLocalStorage` Availability
 
 `AppRouteRouteModule` and its dependents want `AsyncLocalStorage` to be
@@ -1382,6 +1454,8 @@ available globally and _immediately_. Unfortunately, Node.js does not place
 NTARH handles this by ensuring `AsyncLocalStorage` is added to `globalThis`
 before Next.js needs it. This is why [NTARH should always be the very first
 import in any test file][12].
+
+<br />
 
 ### Legacy Runtime Support
 
@@ -1413,6 +1487,8 @@ npm install --save-dev next@latest react
 > If you're also using an older version of Next.js, ensure you install the [peer
 > dependencies (like `react`) that your specific Next.js version requires][94]!
 
+<br />
+
 ### Jsdom Support
 
 Note that [jsdom does not support global fetch natively][95]. This should not be
@@ -1438,6 +1514,8 @@ test('use the node test environment for all tests in this file', () => {
 If you're dead set on using jsdom over the node testing environment with NTARH,
 see [here][96] and [here][97] for workarounds.
 
+<br />
+
 ### Inspiration
 
 I'm constantly creating things with Next.js. Most of these applications have a
@@ -1460,6 +1538,8 @@ Pages Router's [`apiResolver`][98] function and a pared-down subclass of the App
 Router's [`AppRouteRouteModule`][85], both accessible with something like
 `import { ... } from 'next/test'`. This is essentially what NTARH does.
 
+<br />
+
 #### History: The Very _Very_ First Version of Ntarh
 
 Was looking over some ancient Next.js projects and found some of the very first
@@ -1469,6 +1549,8 @@ note this code's existence somewhere.
 Oh how far we've come 🙂
 
 ![alt text][99]
+
+<br />
 
 ### Published Package Details
 
@@ -1508,9 +1590,13 @@ optimal [tree shaking][x-pkg-tree-shaking] where appropriate.
 
 </details>
 
+<br />
+
 ### License
 
 See [LICENSE][x-repo-license].
+
+<br />
 
 ## Contributing and Support
 
@@ -1521,6 +1607,8 @@ could [buy me a beer][x-repo-sponsor] 🥺 Thank you!
 
 See [CONTRIBUTING.md][x-repo-contributing] and [SUPPORT.md][x-repo-support] for
 more information.
+
+<br />
 
 ### Contributors
 
