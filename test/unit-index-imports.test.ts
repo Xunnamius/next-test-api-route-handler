@@ -1,10 +1,22 @@
 /* eslint-disable jest/no-conditional-expect */
 /* eslint-disable jest/no-conditional-in-test */
 /* eslint-disable jest/no-untyped-mock-factory */
+import { accessSync, constants as fsConstants } from 'node:fs';
+
 import { isolatedImport } from 'testverse/setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+
+// TODO: delete this function when next@15 drops
+function isAccessible(path: string) {
+  try {
+    accessSync(path, fsConstants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // * This unit test ensures that NTARH can handle missing resolver dependencies.
 // *
@@ -51,8 +63,8 @@ const altApiResolverPaths: string[] = [
 
 // * vvv TOP MOCKS vvv * \\
 
-// TODO: string swap with below once next@15 drops
 jest.mock(
+  // TODO: string swap with below once next@15 drops
   'next/dist/server/future/route-modules/app-route/module.js',
   () => {
     return new Proxy(
@@ -77,43 +89,44 @@ jest.mock(
       }
     );
   },
-  { virtual: true }
+  {
+    // TODO: remove this ugliness when next@15 drops
+    virtual: !isAccessible(
+      `${__dirname}/../node_modules/next/dist/server/future/route-modules/app-route/module.js`
+    )
+  }
 );
 
-jest.mock(
-  'next/dist/server/api-utils/node/api-resolver.js',
-  () => {
-    return new Proxy(
-      {},
-      {
-        get: function (_, key) {
-          if (mockApiResolverPaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockApiResolverPaths.at(-5)!];
+jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
+  return new Proxy(
+    {},
+    {
+      get: function (_, key) {
+        if (mockApiResolverPaths && mockResolversMetadata) {
+          const meta = mockResolversMetadata[mockApiResolverPaths.at(-5)!];
 
-            if (meta.shouldFail) {
-              throw new Error(`fake import failure E`);
-            } else if (key === 'apiResolver') {
-              return getMockApiResolver(meta);
-            } else if (key === '__esModule') {
-              return true;
-            } else if (key === 'then') {
-              return undefined;
-            }
-            // ? Mocks are hoisted above imports, so account for that
-          } else throw new Error('proxy E invoked too early');
-        }
+          if (meta.shouldFail) {
+            throw new Error(`fake import failure E`);
+          } else if (key === 'apiResolver') {
+            return getMockApiResolver(meta);
+          } else if (key === '__esModule') {
+            return true;
+          } else if (key === 'then') {
+            return undefined;
+          }
+          // ? Mocks are hoisted above imports, so account for that
+        } else throw new Error('proxy E invoked too early');
       }
-    );
-  },
-  { virtual: true }
-);
+    }
+  );
+});
 
 // * ^^^ TOP MOCKS ^^^ * \\
 
 // * vvv REMAINING AppRouteRouteModule MOCKS vvv * \\
 
 jest.mock(
-  // TODO: string swaps with above once next@15 drops
+  // TODO: string swap with above once next@15 drops
   'next/dist/server/route-modules/app-route/module.js',
   () => {
     return new Proxy(
@@ -133,7 +146,41 @@ jest.mock(
       }
     );
   },
-  { virtual: true }
+  {
+    // TODO: remove this ugliness (replace w/ always virtual) when next@15 drops
+    virtual: !isAccessible(
+      `${__dirname}/../node_modules/next/dist/server/route-modules/app-route/module.js`
+    )
+  }
+);
+
+// TODO: delete this whole block when next@15 drops (needed b/c of some obscure jest bug)
+jest.mock(
+  '/repos/next-test-api-route-handler/node_modules/next/dist/server/route-modules/app-route/module.js',
+  () => {
+    return new Proxy(
+      {},
+      {
+        get: function (_, key) {
+          if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
+            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-1)!];
+
+            if (meta.shouldFail) {
+              throw new Error(`fake import failure AA`);
+            } else if (key === 'AppRouteRouteModule') {
+              return getMockAppRouteRouteModule(meta);
+            }
+          } else throw new Error('proxy AA invoked too early');
+        }
+      }
+    );
+  },
+  {
+    // TODO: remove this ugliness (replace w/ always virtual) when next@15 drops
+    virtual: !isAccessible(
+      `${__dirname}/../node_modules/next/dist/server/route-modules/app-route/module.js`
+    )
+  }
 );
 
 // * ^^^ REMAINING AppRouteRouteModule MOCKS ^^^ * \\
@@ -295,7 +342,8 @@ const getMockAppRouteRouteModule = (meta: {
 };
 
 const importNtarh = () =>
-  isolatedImport<typeof import('../src/index')>({ path: '../src/index' }).testApiHandler;
+  isolatedImport<typeof import('universe/index')>({ path: 'universe/index' })
+    .testApiHandler;
 
 const getPagesHandler =
   (status = 200) =>
