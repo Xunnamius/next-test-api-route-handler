@@ -16,20 +16,31 @@ import {
 
 const TEST_IDENTIFIER = 'integration-client-next';
 
-/* prettier-ignore */
-const NEXT_VERSIONS_UNDER_TEST: [next: `next@${string}`, routerType: 'app' | 'pages' | 'both'][] = [
+const NEXT_VERSIONS_UNDER_TEST: [
+  next: `next@${string}`,
+  routerType: 'app' | 'pages' | 'both',
+  additionalConfig?: { extraInstalls?: string[] }
+][] = [
   // * [next@version, routerType]
-  ['next@9.0.0', 'pages'],   // ? Earliest compat release
-  ['next@^9', 'pages'],      // ? Latest version 9 release
-  ['next@10.1.x', 'pages'],  // ? See issue #184
-  ['next@^10', 'pages'],     // ? Latest version 10 release
-  ['next@11.0.x', 'pages'],  // ? See issue #295
-  ['next@^11', 'pages'],     // ? Latest version 11 release
-  ['next@12.0.x', 'pages'],  // ? See issue #487
-  ['next@13.5.3', 'pages'],  // ? See issue #887
-  ['next@14.0.4', 'both'],   // ? Ntarh guarantees App Router support here on
-  ['next@14.2.11', 'both'],  // ? See issue #1076
-  ['next@latest', 'both']    // ! Latest release (must always be here)
+  ['next@9.0.0', 'pages'], //   ? Earliest compat release
+  ['next@^9', 'pages'], //      ? Latest version 9 release
+  ['next@10.1.x', 'pages'], //  ? See issue #184
+  ['next@^10', 'pages'], //     ? Latest version 10 release
+  ['next@11.0.x', 'pages'], //  ? See issue #295
+  ['next@^11', 'pages'], //     ? Latest version 11 release
+  ['next@12.0.x', 'pages'], //  ? See issue #487
+  ['next@13.5.3', 'pages'], //  ? See issue #887
+  ['next@14.0.4', 'both'], //   ? Ntarh guarantees App Router support here on
+  ['next@14.2.11', 'both'], //  ? See issue #1076
+  // TODO: update/remove next entry when next@15 drops
+  [
+    'next@15.0.0-rc.1', //      ? Added preemptively
+    'app',
+    {
+      extraInstalls: ['react@19.0.0-rc-cd22717c-20241013']
+    }
+  ],
+  ['next@latest', 'both'] //    ! Latest release (must always be here and last)
 ];
 
 const pkgMainPaths = Object.values(pkgExports)
@@ -64,7 +75,11 @@ beforeAll(async () => {
   );
 });
 
-for (const [nextVersion, routerType_] of NEXT_VERSIONS_UNDER_TEST) {
+for (const [
+  nextVersion,
+  routerType_,
+  { extraInstalls = [] } = {}
+] of NEXT_VERSIONS_UNDER_TEST) {
   const routerTypes: ['app'] | ['pages'] | ['app', 'pages'] =
     routerType_ === 'both' ? ['app', 'pages'] : [routerType_];
 
@@ -151,7 +166,7 @@ ${commonSrc}
   });
 })();`
                 },
-                npmInstall: [nextVersion]
+                npmInstall: [nextVersion, ...extraInstalls]
               }
             : {
                 initialFileContents: {
@@ -189,7 +204,7 @@ it('does what I want 3', async () => {
   });
 });`
                 },
-                npmInstall: ['jest', nextVersion],
+                npmInstall: ['jest', nextVersion, ...extraInstalls],
                 runWith: {
                   binary: 'npx',
                   args: ['jest']

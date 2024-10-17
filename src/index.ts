@@ -87,10 +87,17 @@ const apiResolver = findNextjsInternalResolver<
 
 const AppRouteRouteModule = findNextjsInternalResolver<
   // * Copied from the first line in the possibleLocations array below
+  // TODO:
+  // @ts-expect-error: remove this error expectation when next@15 drops
   typeof import('next/dist/server/future/route-modules/app-route/module').AppRouteRouteModule
 >('AppRouteRouteModule', [
+  // TODO: make this the last element in the array once next@15 drops
   // ? The following is for next@>=14.0.4:
-  'next/dist/server/future/route-modules/app-route/module.js'
+  'next/dist/server/future/route-modules/app-route/module.js',
+
+  // TODO: make this the first element in the array once next@15 drops
+  // ? The following is for next@>=15.0.0-rc.1:
+  'next/dist/server/route-modules/app-route/module.js'
 ]);
 
 // * ^^^ FIND NEXTJS INTERNAL RESOLVERS ^^^ * \\
@@ -155,9 +162,15 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    * for details.
    */
   appHandler: Omit<
+    // TODO:
+    // @ts-expect-error: remove this error expectation when next@15 drops
     import('next/dist/server/future/route-modules/app-route/module').AppRouteUserlandModule,
+    // TODO:
+    // @ts-expect-error: remove this error expectation when next@15 drops
     keyof import('next/dist/server/future/route-modules/app-route/module').AppRouteHandlers
   > & {
+    // TODO:
+    // @ts-expect-error: remove this error expectation when next@15 drops
     [key in keyof import('next/dist/server/future/route-modules/app-route/module').AppRouteHandlers]?: (
       req: NextRequest,
       context?: any

@@ -21,14 +21,17 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 // *    fail letter
 
 // ? The currently correct import path for the apiResolver function.
-// * AA (-1)
+// * AA (-2)
+// TODO: becomes BB (-1) once next@15 drops
 const actualAppRouteRouteModulePath =
   'next/dist/server/future/route-modules/app-route/module.js';
 // ? Defunct import paths listed by discovery date in ascending order. That is:
 // ? previous actualAppRouteRouteModulePaths should be appended to the end of
 // ? this array.
 const altAppRouteRouteModulePaths: string[] = [
-  // * None so far!
+  // * BB (-1)
+  // TODO: becomes AA (-2) once next@15 drops
+  'next/dist/server/route-modules/app-route/module.js'
 ];
 
 // ? The currently correct import path for the apiResolver function.
@@ -52,6 +55,7 @@ const altApiResolverPaths: string[] = [
 // ! Only the TOP MOCKS should be { virtual: false }. The others must be
 // ! { virtual: true }
 
+// TODO: swap with BB (-1) once next@15 drops
 jest.mock('next/dist/server/future/route-modules/app-route/module.js', () => {
   return new Proxy(
     {},
@@ -104,7 +108,29 @@ jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
 
 // * vvv REMAINING AppRouteRouteModule MOCKS vvv * \\
 
-// * None so far!
+jest.mock(
+  // TODO: swap with AA (-2) once next@15 drops
+  'next/dist/server/api-utils/node.js',
+  () => {
+    return new Proxy(
+      {},
+      {
+        get: function (_, key) {
+          if (mockApiResolverPaths && mockResolversMetadata) {
+            const meta = mockResolversMetadata[mockApiResolverPaths.at(-1)!];
+
+            if (meta.shouldFail) {
+              throw new Error(`fake import failure BB`);
+            } else if (key === 'AppRouteRouteModule') {
+              return getMockAppRouteRouteModule(meta);
+            }
+          } else throw new Error('proxy BB invoked too early');
+        }
+      }
+    );
+  },
+  { virtual: true }
+);
 
 // * ^^^ REMAINING AppRouteRouteModule MOCKS ^^^ * \\
 

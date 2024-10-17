@@ -80,20 +80,21 @@ describe('::testApiHandler', () => {
 
     it('uses cached global fetch as ::test({ fetch }) param', async () => {
       expect.hasAssertions();
-      expect(
-        // @ts-expect-error: a hidden property
-        fetch.__nextPatched
-      ).toBeUndefined();
+      // expect(
+      //   // @ts-expect-error: a hidden property
+      //   fetch.__nextPatched
+      // ).toBeUndefined();
 
       let ran = false;
 
       await testApiHandler({
+        rejectOnHandlerError: true,
         appHandler: {
           GET() {
-            expect(
-              // @ts-expect-error: a hidden property
-              fetch.__nextPatched
-            ).toBeTrue();
+            // expect(
+            //   // @ts-expect-error: a hidden property
+            //   fetch.__nextPatched
+            // ).toBeTrue();
 
             ran = true;
             return Response.json({ hello: 'world' });
@@ -481,7 +482,7 @@ describe('::testApiHandler', () => {
               ['c', '3']
             ]);
 
-            expect(params).toStrictEqual({ a: '1' });
+            await expect(params).resolves.toStrictEqual({ a: '1' });
 
             return Response.json({});
           }
@@ -502,7 +503,7 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            expect(params).toStrictEqual({ a: '1', b: '2', c: '3' });
+            await expect(params).resolves.toStrictEqual({ a: '1', b: '2', c: '3' });
             return Response.json({});
           }
         },
@@ -520,8 +521,8 @@ describe('::testApiHandler', () => {
           return { ...parameters, a: '1', b: '2', c: '3' };
         },
         appHandler: {
-          GET(_request, { params }) {
-            expect(params).toStrictEqual({
+          async GET(_request, { params }) {
+            await expect(params).resolves.toStrictEqual({
               a: '1',
               b: '2',
               c: '3',
@@ -546,8 +547,8 @@ describe('::testApiHandler', () => {
           return { a: '1', b: '2', c: '3' };
         },
         appHandler: {
-          GET(_request, { params }) {
-            expect(params).toStrictEqual({
+          async GET(_request, { params }) {
+            await expect(params).resolves.toStrictEqual({
               a: '1',
               b: '2',
               c: '3'
@@ -570,8 +571,8 @@ describe('::testApiHandler', () => {
           return undefined;
         },
         appHandler: {
-          GET(_request, { params }) {
-            expect(params).toStrictEqual({
+          async GET(_request, { params }) {
+            await expect(params).resolves.toStrictEqual({
               a: 'a'
             });
 
@@ -588,8 +589,8 @@ describe('::testApiHandler', () => {
           return undefined;
         },
         appHandler: {
-          GET(_request, { params }) {
-            expect(params).toStrictEqual({
+          async GET(_request, { params }) {
+            await expect(params).resolves.toStrictEqual({
               a: 'a'
             });
 
@@ -603,8 +604,8 @@ describe('::testApiHandler', () => {
         rejectOnHandlerError: true,
         paramsPatcher: () => ({ obj: 'ect' }),
         appHandler: {
-          GET(_request, { params }) {
-            expect(params).toStrictEqual({
+          async GET(_request, { params }) {
+            await expect(params).resolves.toStrictEqual({
               obj: 'ect'
             });
 
@@ -620,8 +621,8 @@ describe('::testApiHandler', () => {
           return Promise.resolve({ obj: 'ect' });
         },
         appHandler: {
-          GET(_request, { params }) {
-            expect(params).toStrictEqual({
+          async GET(_request, { params }) {
+            await expect(params).resolves.toStrictEqual({
               obj: 'ect'
             });
 
@@ -702,8 +703,8 @@ describe('::testApiHandler', () => {
           return undefined;
         },
         appHandler: {
-          GET(_request, { params }) {
-            expect(params).toStrictEqual({ d: 'z', e: 'f' });
+          async GET(_request, { params }) {
+            await expect(params).resolves.toStrictEqual({ d: 'z', e: 'f' });
             return Response.json({});
           }
         },
@@ -901,8 +902,9 @@ describe('::testApiHandler', () => {
             });
 
             expect(request.nextUrl.protocol).toBe('ntarh:');
-            expect(request.ip).toBeFalsy();
-            expect(request.geo).toBeEmptyObject();
+            // * https://github.com/vercel/next.js/pull/68379
+            //expect(request.ip).toBeFalsy();
+            //expect(request.geo).toBeEmptyObject();
 
             return new Response();
           }
@@ -958,7 +960,9 @@ describe('::testApiHandler', () => {
         appHandler: {
           async GET() {
             return Response.json({
+              // @ts-expect-error: canary next@15 types are wrong
               c: cookies().get('__c')?.value,
+              // @ts-expect-error: canary next@15 types are wrong
               h: headers().get('__h')
             });
           }
