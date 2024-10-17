@@ -15,8 +15,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 // *    and update comments
 // * 3. Duplicate current top jest.mock(...) call for AppRouteRouteModule and/or
 // *    apiResolver
-// * 4. Change 2nd jest.mock(...) call for AppRouteRouteModule and/or
-// *    apiResolver to be virtual and remove extra key logic
+// * 4. Remove extra key logic from duplicated jest.mock(...) call
 // * 5. Change top jest.mock(...) call(s) to correct path, update path index and
 // *    fail letter
 
@@ -52,57 +51,62 @@ const altApiResolverPaths: string[] = [
 
 // * vvv TOP MOCKS vvv * \\
 
-// ! Only the TOP MOCKS should be { virtual: false }. The others must be
-// ! { virtual: true }
-
 // TODO: string swap with below once next@15 drops
-jest.mock('next/dist/server/future/route-modules/app-route/module.js', () => {
-  return new Proxy(
-    {},
-    {
-      get: function (_, key) {
-        if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
-          const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-2)!];
+jest.mock(
+  'next/dist/server/future/route-modules/app-route/module.js',
+  () => {
+    return new Proxy(
+      {},
+      {
+        get: function (_, key) {
+          if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
+            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-2)!];
 
-          if (meta.shouldFail) {
-            throw new Error(`fake import failure BB`);
-          } else if (key === 'AppRouteRouteModule') {
-            return getMockAppRouteRouteModule(meta);
-          } else if (key === '__esModule') {
-            return true;
-          } else if (key === 'then') {
-            return undefined;
-          }
-          // ? Mocks are hoisted above imports, so account for that
-        } else throw new Error('proxy BB invoked too early');
+            if (meta.shouldFail) {
+              throw new Error(`fake import failure BB`);
+            } else if (key === 'AppRouteRouteModule') {
+              return getMockAppRouteRouteModule(meta);
+            } else if (key === '__esModule') {
+              return true;
+            } else if (key === 'then') {
+              return undefined;
+            }
+            // ? Mocks are hoisted above imports, so account for that
+          } else throw new Error('proxy BB invoked too early');
+        }
       }
-    }
-  );
-});
+    );
+  },
+  { virtual: true }
+);
 
-jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
-  return new Proxy(
-    {},
-    {
-      get: function (_, key) {
-        if (mockApiResolverPaths && mockResolversMetadata) {
-          const meta = mockResolversMetadata[mockApiResolverPaths.at(-5)!];
+jest.mock(
+  'next/dist/server/api-utils/node/api-resolver.js',
+  () => {
+    return new Proxy(
+      {},
+      {
+        get: function (_, key) {
+          if (mockApiResolverPaths && mockResolversMetadata) {
+            const meta = mockResolversMetadata[mockApiResolverPaths.at(-5)!];
 
-          if (meta.shouldFail) {
-            throw new Error(`fake import failure E`);
-          } else if (key === 'apiResolver') {
-            return getMockApiResolver(meta);
-          } else if (key === '__esModule') {
-            return true;
-          } else if (key === 'then') {
-            return undefined;
-          }
-          // ? Mocks are hoisted above imports, so account for that
-        } else throw new Error('proxy E invoked too early');
+            if (meta.shouldFail) {
+              throw new Error(`fake import failure E`);
+            } else if (key === 'apiResolver') {
+              return getMockApiResolver(meta);
+            } else if (key === '__esModule') {
+              return true;
+            } else if (key === 'then') {
+              return undefined;
+            }
+            // ? Mocks are hoisted above imports, so account for that
+          } else throw new Error('proxy E invoked too early');
+        }
       }
-    }
-  );
-});
+    );
+  },
+  { virtual: true }
+);
 
 // * ^^^ TOP MOCKS ^^^ * \\
 
