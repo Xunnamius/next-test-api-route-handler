@@ -112,7 +112,7 @@
     "@types/lodash.ismatch": "^4.4.9",
     "@types/lodash.mergewith": "^4.6.9",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "^22.7.5",
+    "@types/node": "^22.7.6",
     "@types/semver": "^7.5.8",
     "@types/test-listen": "^1.1.2",
     "@types/webpack": "^5.28.5",
@@ -218,7 +218,7 @@
     "toss-expression": "^0.1.2",
     "tsconfig-replace-paths": "^0.0.14",
     "type-fest": "^4.26.1",
-    "typedoc": "^0.26.9",
+    "typedoc": "^0.26.10",
     "typedoc-plugin-markdown": "^4.2.9",
     "typescript": "^5.6.3",
     "unique-filename": "^4.0.0"
