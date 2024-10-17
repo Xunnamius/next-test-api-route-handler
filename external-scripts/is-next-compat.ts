@@ -182,7 +182,9 @@ const invoked = async () => {
     '--no-save',
     '--force',
     `next@${latestReleaseVersion}`,
-    'react'
+    // !!!
+    // TODO: need to remove the explicit react install after next@15 drops
+    'react@19.0.0-rc-cd22717c-20241013'
   ]);
 
   debug('running compatibility tests');
