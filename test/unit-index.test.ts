@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable jest/prefer-strict-equal */
+// TODO: re-enable ban-ts-comment and prefer-ts-expect-error after next@15 drops
 import { testApiHandler, $originalGlobalFetch } from 'universe/index';
 
 import { parse, serialize } from 'cookie';
@@ -8,7 +11,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { withMockedOutput } from 'testverse/setup';
 
-// TODO: fix this import
+// TODO: fix this import once @-xun/jest drops
 // @ts-expect-error: broken import from node10; needs fixing
 import { asMockedFunction } from '@xunnamius/jest-types';
 
@@ -482,7 +485,9 @@ describe('::testApiHandler', () => {
               ['c', '3']
             ]);
 
-            await expect(params).resolves.toStrictEqual({ a: '1' });
+            //await expect(params).resolves.toStrictEqual({ a: '1' });
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({ a: '1' });
 
             return Response.json({});
           }
@@ -503,7 +508,9 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({ a: '1', b: '2', c: '3' });
+            //await expect(params).resolves.toStrictEqual({ a: '1', b: '2', c: '3' });
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({ a: '1', b: '2', c: '3' });
             return Response.json({});
           }
         },
@@ -522,7 +529,9 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({
+            //await expect(params).resolves.toStrictEqual({
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({
               a: '1',
               b: '2',
               c: '3',
@@ -548,7 +557,9 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({
+            //await expect(params).resolves.toStrictEqual({
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({
               a: '1',
               b: '2',
               c: '3'
@@ -572,7 +583,9 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({
+            //await expect(params).resolves.toStrictEqual({
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({
               a: 'a'
             });
 
@@ -590,7 +603,9 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({
+            //await expect(params).resolves.toStrictEqual({
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({
               a: 'a'
             });
 
@@ -605,7 +620,9 @@ describe('::testApiHandler', () => {
         paramsPatcher: () => ({ obj: 'ect' }),
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({
+            //await expect(params).resolves.toStrictEqual({
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({
               obj: 'ect'
             });
 
@@ -622,7 +639,9 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({
+            //await expect(params).resolves.toStrictEqual({
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({
               obj: 'ect'
             });
 
@@ -704,7 +723,9 @@ describe('::testApiHandler', () => {
         },
         appHandler: {
           async GET(_request, { params }) {
-            await expect(params).resolves.toStrictEqual({ d: 'z', e: 'f' });
+            //await expect(params).resolves.toStrictEqual({ d: 'z', e: 'f' });
+            // eslint-disable-next-line jest/prefer-expect-resolves
+            expect(await params).toStrictEqual({ d: 'z', e: 'f' });
             return Response.json({});
           }
         },
@@ -960,9 +981,11 @@ describe('::testApiHandler', () => {
         appHandler: {
           async GET() {
             return Response.json({
-              // @ts-expect-error: canary next@15 types are wrong
+              // TODO:
+              // @ts-ignore-error: canary next@15 types are wrong
               c: cookies().get('__c')?.value,
-              // @ts-expect-error: canary next@15 types are wrong
+              // TODO:
+              // @ts-ignore-error: canary next@15 types are wrong
               h: headers().get('__h')
             });
           }

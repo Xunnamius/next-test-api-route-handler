@@ -21,16 +21,16 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 // *    fail letter
 
 // ? The currently correct import path for the apiResolver function.
-// * AA (-2)
-// TODO: becomes BB (-1) once next@15 drops
+// * BB (-2)
+// TODO: becomes AA (-1) once next@15 drops
 const actualAppRouteRouteModulePath =
   'next/dist/server/future/route-modules/app-route/module.js';
 // ? Defunct import paths listed by discovery date in ascending order. That is:
 // ? previous actualAppRouteRouteModulePaths should be appended to the end of
 // ? this array.
 const altAppRouteRouteModulePaths: string[] = [
-  // * BB (-1)
-  // TODO: becomes AA (-2) once next@15 drops
+  // * AA (-1)
+  // TODO: becomes BB (-2) once next@15 drops
   'next/dist/server/route-modules/app-route/module.js'
 ];
 
@@ -55,17 +55,17 @@ const altApiResolverPaths: string[] = [
 // ! Only the TOP MOCKS should be { virtual: false }. The others must be
 // ! { virtual: true }
 
-// TODO: swap with BB (-1) once next@15 drops
+// TODO: string swap with below once next@15 drops
 jest.mock('next/dist/server/future/route-modules/app-route/module.js', () => {
   return new Proxy(
     {},
     {
       get: function (_, key) {
         if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
-          const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-1)!];
+          const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-2)!];
 
           if (meta.shouldFail) {
-            throw new Error(`fake import failure AA`);
+            throw new Error(`fake import failure BB`);
           } else if (key === 'AppRouteRouteModule') {
             return getMockAppRouteRouteModule(meta);
           } else if (key === '__esModule') {
@@ -74,7 +74,7 @@ jest.mock('next/dist/server/future/route-modules/app-route/module.js', () => {
             return undefined;
           }
           // ? Mocks are hoisted above imports, so account for that
-        } else throw new Error('proxy AA invoked too early');
+        } else throw new Error('proxy BB invoked too early');
       }
     }
   );
@@ -109,22 +109,22 @@ jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
 // * vvv REMAINING AppRouteRouteModule MOCKS vvv * \\
 
 jest.mock(
-  // TODO: swap with AA (-2) once next@15 drops
-  'next/dist/server/api-utils/node.js',
+  // TODO: string swaps with above once next@15 drops
+  'next/dist/server/route-modules/app-route/module.js',
   () => {
     return new Proxy(
       {},
       {
         get: function (_, key) {
-          if (mockApiResolverPaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockApiResolverPaths.at(-1)!];
+          if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
+            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-1)!];
 
             if (meta.shouldFail) {
-              throw new Error(`fake import failure BB`);
+              throw new Error(`fake import failure AA`);
             } else if (key === 'AppRouteRouteModule') {
               return getMockAppRouteRouteModule(meta);
             }
-          } else throw new Error('proxy BB invoked too early');
+          } else throw new Error('proxy AA invoked too early');
         }
       }
     );
@@ -419,7 +419,7 @@ describe('::testApiHandler', () => {
             message: expect.stringMatching(
               new RegExp(
                 expectedFailureLetters
-                  .map((letter) => `- fake import failure ${letter}`)
+                  .map((letter) => `- fake import failure ${letter.repeat(2)}`)
                   .join(String.raw`\s+`)
               )
             )
