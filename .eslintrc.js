@@ -26,12 +26,6 @@ const rules = {
   'no-return-await': 'warn',
   'no-await-in-loop': 'warn',
   'import/no-unresolved': ['error', { commonjs: true }],
-  'module-resolver/use-alias': [
-    'error',
-    {
-      extensions: ['.ts', '.tsx', '.jsx']
-    }
-  ],
   'no-restricted-globals': ['warn', ...restrictedGlobals],
   'no-extra-boolean-cast': 'off',
   'no-empty': 'off',
