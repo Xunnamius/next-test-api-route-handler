@@ -714,10 +714,17 @@ await testApiHandler({
 
 > ⪢ API reference: [`paramsPatcher`][50], [`params`][51]
 
+> \[!IMPORTANT]
+>
+> Note that, starting with `next@15`, it appears the `params` object passed to
+> handlers via the context parameter [is now a (Frankensteinian) promise][52].
+> This means tests like `expect(params).toStrictEqual(...)` may no longer work
+> unless `params` is first `await`-ed.
+
 If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
 will receive `params` as its first argument.
 
-> Route parameters should not be confused with [query string parameters][52],
+> Route parameters should not be confused with [query string parameters][53],
 > which are automatically parsed out from the url and made available via the
 > [`NextRequest`][1] argument passed to your handler.
 
@@ -725,13 +732,13 @@ will receive `params` as its first argument.
 
 #### 🔷 Using `pagesHandler`
 
-> ⪢ API reference: [`paramsPatcher`][53], [`params`][54]
+> ⪢ API reference: [`paramsPatcher`][54], [`params`][55]
 
 If both `paramsPatcher` and the `params` shorthand are used, `paramsPatcher`
 will receive an object like `{ ...queryStringURLParams, ...params }` as its
 first argument.
 
-> Route parameters should not be confused with [query string parameters][52],
+> Route parameters should not be confused with [query string parameters][53],
 > which are automatically parsed out from the url and added to the `params`
 > object before `paramsPatcher` is evaluated.
 
@@ -740,26 +747,26 @@ first argument.
 ## Examples
 
 What follows are several examples that demonstrate using NTARH with the [App
-Router][55] and the [Pages Router][56].
+Router][56] and the [Pages Router][57].
 
-Check out [the tests][57] for even more examples.
+Check out [the tests][58] for even more examples.
 
 <br />
 
 ### Using the App Router
 
-These examples use Next.js's [App Router][58] API.
+These examples use Next.js's [App Router][59] API.
 
 <br />
 
 #### Testing Apollo's Official Next.js Integration @ `app/api/graphql`
 
 This example is based on [the official Apollo Next.js App Router
-integration][59]. You can run it yourself by copying and pasting the following
+integration][60]. You can run it yourself by copying and pasting the following
 commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][60]. Requires `curl`, `node`, and `git`.
+> [WSL][61]. Requires `curl`, `node`, and `git`.
 
 ```bash
 mkdir -p /tmp/ntarh-test/test
@@ -773,8 +780,8 @@ npx jest
 ```
 
 This script creates a new temporary directory, installs NTARH and configures
-dependencies, downloads the [app route][61] and [jest test][62] files shown
-below, and runs the test using [jest][63].
+dependencies, downloads the [app route][62] and [jest test][63] files shown
+below, and runs the test using [jest][64].
 
 The following is our new app route:
 
@@ -856,8 +863,8 @@ describe('my-test (app router)', () => {
 #### Testing Clerk's Official Next.js Integration @ `app/api/authed`
 
 Suppose we created a new _authenticated_ API endpoint at `app/api/authed` by
-[cloning the Clerk App Router demo repo][64] and following [Clerk's quick-start
-guide for Next.js][65]:
+[cloning the Clerk App Router demo repo][65] and following [Clerk's quick-start
+guide for Next.js][66]:
 
 ```typescript
 /* File: app/api/authed/route.ts */
@@ -930,7 +937,7 @@ it('returns isAuthed: false and nothing else when unauthenticated', async () => 
 
 If you're feeling more adventurous, you can transform this unit test into an
 _integration_ test (like the Apollo example above) by calling Clerk's
-[`authMiddleware`][66] function in `appHandler` instead of mocking
+[`authMiddleware`][67] function in `appHandler` instead of mocking
 `@clerk/nextjs`:
 
 ```typescript
@@ -991,12 +998,12 @@ it('returns isAuthed: true and a userId when authenticated', async () => {
 /* ... */
 ```
 
-You can also try calling [`authMiddleware`][66] in `requestPatcher`; however,
+You can also try calling [`authMiddleware`][67] in `requestPatcher`; however,
 Clerk's middleware does its magic by importing the `headers` helper function
 from `'next/headers'`, and **only functions invoked within `appHandler` have
 access to the storage context that allows Next.js's helper functions to work**.
-For insight into what you'd need to do to make [`authMiddleware`][66] callable
-in `requestPatcher`, check out [Clerk's own tests][67].
+For insight into what you'd need to do to make [`authMiddleware`][67] callable
+in `requestPatcher`, check out [Clerk's own tests][68].
 
 <br />
 
@@ -1031,6 +1038,10 @@ it('injects contrived errors at the required rate', async () => {
       // Our edge handler expects Next.js to provide geo and ip data with the
       // request, so let's add some. This is also where you'd mock/emulate the
       // effects of any Next.js middleware
+      //
+      // IMPORTANT: starting with next@15, geo/ip have been removed from
+      // NextRequest and were functionally replaced by @vercel/function
+      // https://github.com/vercel/next.js/pull/68379
       return new NextRequest(request, {
         geo: { city: 'Chicago', country: 'United States' },
         ip: '110.10.77.7'
@@ -1087,17 +1098,17 @@ it('injects contrived errors at the required rate', async () => {
 
 ### Using the Pages Router
 
-These examples use Next.js's [Pages Router][68] API.
+These examples use Next.js's [Pages Router][69] API.
 
 <br />
 
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
-This example uses the [official Next.js Apollo demo][69]. You can easily run it
+This example uses the [official Next.js Apollo demo][70]. You can easily run it
 yourself by copying and pasting the following commands into your terminal.
 
 > The following should be run in a nix-like environment. On Windows, that's
-> [WSL][60]. Requires `curl`, `node`, and `git`.
+> [WSL][61]. Requires `curl`, `node`, and `git`.
 
 ```bash
 git clone --depth=1 https://github.com/vercel/next.js /tmp/ntarh-test
@@ -1114,14 +1125,14 @@ curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/nex
 npx jest
 ```
 
-This script clones [the Next.js repository][70], installs NTARH and configures
-dependencies, downloads the [jest test][71] file shown below, and runs it using
-[jest][63] to ensure our route integrates with Apollo correctly.
+This script clones [the Next.js repository][71], installs NTARH and configures
+dependencies, downloads the [jest test][72] file shown below, and runs it using
+[jest][64] to ensure our route integrates with Apollo correctly.
 
 > \[!IMPORTANT]\
-> Note that passing the [route configuration object][72] (imported below as
+> Note that passing the [route configuration object][73] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value [may
-> be necessary][73] when testing Apollo endpoints using the Pages Router.
+> be necessary][74] when testing Apollo endpoints using the Pages Router.
 
 ```typescript
 /* File: examples/api-routes-apollo-server-and-client/tests/integration.test.js */
@@ -1379,23 +1390,23 @@ Further documentation can be found under [`docs/`][x-repo-docs].
 Since NTARH is meant for unit testing API routes rather than faithfully
 recreating Next.js functionality, NTARH's feature set comes with some caveats.
 Namely: no Next.js features will be available that are external to processing
-API routes and executing their handlers. This includes [middleware][74] and
-`NextResponse.next` (see [`requestPatcher`][75] if you need to mutate the
-`Request` before it gets to the handler under test), [metadata][76], [static
-assets][77], [OpenTelemetry][78] and [instrumentation][79], [caching][80],
-[styling][81], [server actions and mutations][82], [helper functions][3]
+API routes and executing their handlers. This includes [middleware][75] and
+`NextResponse.next` (see [`requestPatcher`][76] if you need to mutate the
+`Request` before it gets to the handler under test), [metadata][77], [static
+assets][78], [OpenTelemetry][79] and [instrumentation][80], [caching][81],
+[styling][82], [server actions and mutations][83], [helper functions][3]
 (except: `cookies`, `fetch` (global), `headers`, `NextRequest`, `NextResponse`,
 `notFound`, `permanentRedirect`, `redirect`, and `userAgent`), and anything
-related to React or [components][83].
+related to React or [components][84].
 
 NTARH is for testing your API route handlers only.
 
-Further, any support NTARH appears to have for any "[edge runtime][84]" (or any
-other runtime) beyond what is provided by [`AppRouteRouteModule`][85] is merely
+Further, any support NTARH appears to have for any "[edge runtime][85]" (or any
+other runtime) beyond what is provided by [`AppRouteRouteModule`][86] is merely
 cosmetic. **Your tests will always run in Node.js** (or your runner of choice)
 and never in a different runtime, realm, or VM. This means unit testing like
 with NTARH must be done in addition to, and not in lieu of, more holistic
-testing practices (e.g. [end-to-end][86]).
+testing practices (e.g. [end-to-end][87]).
 
 If you're having trouble with your App Router and/or Edge Runtime routes,
 consider [opening a new issue][x-repo-choose-new-issue]!
@@ -1406,20 +1417,20 @@ consider [opening a new issue][x-repo-choose-new-issue]!
 > (via `npm run dev` or something similar), the middleware will still run on
 > Node.js.
 >
-> Next.js's middleware limitation is discussed at length [here][87].
+> Next.js's middleware limitation is discussed at length [here][88].
 
 <br />
 
 #### Working around the App Router Patching the Global `fetch` Function
 
 Next.js's current App Router implementation mutates the global `fetch` function,
-redefining it entirely. This can cause [problems][88] in testing environments
+redefining it entirely. This can cause [problems][89] in testing environments
 where the global `fetch` is to be mocked by something else.
 
 Internally, NTARH sidesteps this issue entirely by caching the value of
 `globalThis.fetch` upon import. This also means NTARH completely sidesteps other
 tools that rely on interception through rewriting the global `fetch` function,
-such as [Mock Service Worker (MSW)][89]. We still include the MSW bypass headers
+such as [Mock Service Worker (MSW)][90]. We still include the MSW bypass headers
 with NTARH requests since we cannot guarantee that NTARH will not be imported
 _after_ MSW has finished patching global `fetch`.
 
@@ -1460,14 +1471,14 @@ import in any test file][12].
 As of version `4.0.0`, NTARH supports both the App Router (for `next@>=14.0.4`)
 and the "legacy" Pages Router Next.js APIs. However, due to the code churn with
 `next@13`, NTARH's support for the App Router begins at `next@14.0.4`. See
-[here][8] and [here][90] for more information.
+[here][8] and [here][91] for more information.
 
 Additionally, as of version `2.1.0`, NTARH's Pages Router support is fully
 backwards compatible with Next.js going _allll_ the way back to `next@9.0.0`
-[when API routes were first introduced][91]!
+[when API routes were first introduced][92]!
 
 If you're working with the Pages Router and `next@<9.0.6` (so: [before
-`next-server` was merged into `next`][92]), you might need to install
+`next-server` was merged into `next`][93]), you might need to install
 `next-server` manually:
 
 ```shell
@@ -1476,20 +1487,20 @@ npm install --save-dev next-server
 
 Similarly, if you are using `npm@<7` or `node@<15`, you must install Next.js
 _and its peer dependencies_ manually. This is because [`npm@<7` does not install
-peer dependencies by default][93].
+peer dependencies by default][94].
 
 ```shell
 npm install --save-dev next@latest react
 ```
 
 > If you're also using an older version of Next.js, ensure you install the [peer
-> dependencies (like `react`) that your specific Next.js version requires][94]!
+> dependencies (like `react`) that your specific Next.js version requires][95]!
 
 <br />
 
 ### Jsdom Support
 
-Note that [jsdom does not support global fetch natively][95]. This should not be
+Note that [jsdom does not support global fetch natively][96]. This should not be
 an issue, however, since neither your API code nor your API test code should be
 executed in a browser-like environment.
 
@@ -1510,7 +1521,7 @@ test('use the node test environment for all tests in this file', () => {
 ```
 
 If you're dead set on using jsdom over the node testing environment with NTARH,
-see [here][96] and [here][97] for workarounds.
+see [here][97] and [here][98] for workarounds.
 
 <br />
 
@@ -1532,8 +1543,8 @@ ballooning the execution time of the tests. That is: no spinning up the entire
 Next.js runtime just to run a single test in isolation.
 
 It doesn't seem like it'd be such a lift to surface a wrapped version of the
-Pages Router's [`apiResolver`][98] function and a pared-down subclass of the App
-Router's [`AppRouteRouteModule`][85], both accessible with something like
+Pages Router's [`apiResolver`][99] function and a pared-down subclass of the App
+Router's [`AppRouteRouteModule`][86], both accessible with something like
 `import { ... } from 'next/test'`. This is essentially what NTARH does.
 
 <br />
@@ -1546,7 +1557,7 @@ note this code's existence somewhere.
 
 Oh how far we've come 🙂
 
-![alt text][99]
+![alt text][100]
 
 <br />
 
@@ -1824,67 +1835,68 @@ specification. Contributions of any kind welcome!
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#paramsPatcher
 [51]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#params
-[52]: https://en.wikipedia.org/wiki/Query_string
-[53]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#paramsPatcher
+[52]: https://github.com/vercel/next.js/pull/70568
+[53]: https://en.wikipedia.org/wiki/Query_string
 [54]:
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#paramsPatcher
+[55]:
   https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#params
-[55]: #using-the-app-router
-[56]: #using-the-pages-router
-[57]: test/unit-index.test.ts
-[58]: https://nextjs.org/docs/app
-[59]:
+[56]: #using-the-app-router
+[57]: #using-the-pages-router
+[58]: test/unit-index.test.ts
+[59]: https://nextjs.org/docs/app
+[60]:
   https://www.npmjs.com/package/@as-integrations/next/v/3.0.0#app-router-route-handlers
-[60]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-[61]: ./apollo_test_raw_app_route
-[62]: ./apollo_test_raw_app_test
-[63]: https://www.npmjs.com/package/jest
-[64]: https://github.com/clerk/clerk-nextjs-demo-app-router
-[65]: https://clerk.com/docs/quickstarts/nextjs
-[66]: https://clerk.com/docs/references/nextjs/auth-middleware
-[67]:
+[61]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[62]: ./apollo_test_raw_app_route
+[63]: ./apollo_test_raw_app_test
+[64]: https://www.npmjs.com/package/jest
+[65]: https://github.com/clerk/clerk-nextjs-demo-app-router
+[66]: https://clerk.com/docs/quickstarts/nextjs
+[67]: https://clerk.com/docs/references/nextjs/auth-middleware
+[68]:
   https://github.com/clerk/javascript/blob/434a96ebefc550b726b417788b7bae9e41791408/packages/nextjs/src/server/authMiddleware.test.ts#L4
-[68]: https://nextjs.org/docs/pages
-[69]:
+[69]: https://nextjs.org/docs/pages
+[70]:
   https://github.com/vercel/next.js/tree/deprecated-main/examples/api-routes-apollo-server-and-client
-[70]: https://github.com/vercel/next.js
-[71]: ./apollo_test_raw
-[72]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
-[73]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
-[74]: https://nextjs.org/docs/app/building-your-application/routing/middleware
-[75]: #requestpatcher-url
-[76]: https://nextjs.org/docs/app/building-your-application/optimizing#metadata
-[77]:
-  https://nextjs.org/docs/app/building-your-application/optimizing#static-assets
+[71]: https://github.com/vercel/next.js
+[72]: ./apollo_test_raw
+[73]: https://nextjs.org/docs/api-routes/api-middlewares#custom-config
+[74]: https://github.com/Xunnamius/next-test-api-route-handler/issues/56
+[75]: https://nextjs.org/docs/app/building-your-application/routing/middleware
+[76]: #requestpatcher-url
+[77]: https://nextjs.org/docs/app/building-your-application/optimizing#metadata
 [78]:
-  https://nextjs.org/docs/pages/building-your-application/optimizing/open-telemetry
+  https://nextjs.org/docs/app/building-your-application/optimizing#static-assets
 [79]:
+  https://nextjs.org/docs/pages/building-your-application/optimizing/open-telemetry
+[80]:
   https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
-[80]: https://nextjs.org/docs/app/building-your-application/caching
-[81]: https://nextjs.org/docs/app/building-your-application/styling
-[82]:
+[81]: https://nextjs.org/docs/app/building-your-application/caching
+[82]: https://nextjs.org/docs/app/building-your-application/styling
+[83]:
   https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations
-[83]: https://nextjs.org/docs/app/api-reference/components
-[84]:
-  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
+[84]: https://nextjs.org/docs/app/api-reference/components
 [85]:
-  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
+  https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#runtime
 [86]:
+  https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/future/route-modules/app-route/module.ts#L118C24-L118C24
+[87]:
   https://nextjs.org/docs/app/building-your-application/testing#types-of-tests
-[87]: https://github.com/vercel/next.js/discussions/46722
-[88]: https://github.com/mswjs/msw/issues/1644
-[89]: https://github.com/mswjs/msw
-[90]: https://github.com/Xunnamius/next-test-api-route-handler/discussions/953
-[91]: https://nextjs.org/blog/next-9
-[92]: https://github.com/vercel/next.js/pull/8613
-[93]:
-  https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
+[88]: https://github.com/vercel/next.js/discussions/46722
+[89]: https://github.com/mswjs/msw/issues/1644
+[90]: https://github.com/mswjs/msw
+[91]: https://github.com/Xunnamius/next-test-api-route-handler/discussions/953
+[92]: https://nextjs.org/blog/next-9
+[93]: https://github.com/vercel/next.js/pull/8613
 [94]:
+  https://github.blog/2021-02-02-npm-7-is-now-generally-available#peer-dependencies
+[95]:
   https://github.com/vercel/next.js/blob/v9.0.0/packages/next/package.json#L106-L109
-[95]: https://github.com/jestjs/jest/issues/13834#issuecomment-1407375787
-[96]: https://github.com/jsdom/jsdom/issues/1724
-[97]:
-  https://stackoverflow.com/questions/74945569/cannot-access-built-in-node-js-fetch-function-from-jest-tests
+[96]: https://github.com/jestjs/jest/issues/13834#issuecomment-1407375787
+[97]: https://github.com/jsdom/jsdom/issues/1724
 [98]:
+  https://stackoverflow.com/questions/74945569/cannot-access-built-in-node-js-fetch-function-from-jest-tests
+[99]:
   https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321
-[99]: ./very-first-version-of-ntarh.png
+[100]: ./very-first-version-of-ntarh.png
