@@ -12,4 +12,4 @@
 
 ## Defined in
 
-[index.ts:63](https://github.com/Xunnamius/next-test-api-route-handler/blob/a461e8108624c221c70702d1068092a640a5bae5/src/index.ts#L63)
+[index.ts:63](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L63)
