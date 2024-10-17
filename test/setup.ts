@@ -321,13 +321,13 @@ export function isolatedImport<T = unknown>(args: {
 
   // ? Cache-busting
   jest.isolateModules(() => {
-    pkg = ((r) => {
-      globalDebug.extend('isolated-import')(
-        `performing isolated import of ${args.path}${
-          args.useDefault ? ' (returning default by force)' : ''
-        }`
-      );
+    globalDebug.extend('isolated-import')(
+      `performing isolated import of ${args.path}${
+        args.useDefault ? ' (returning default by force)' : ''
+      }`
+    );
 
+    pkg = ((r) => {
       return r.default &&
         (args.useDefault === true ||
           (args.useDefault !== false && r.__esModule && Object.keys(r).length === 1))
