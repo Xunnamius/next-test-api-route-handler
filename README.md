@@ -115,7 +115,8 @@ npm install --save-dev next-test-api-route-handler
 
 ## Usage
 
-> \[!IMPORTANT]\
+> \[!IMPORTANT]
+>
 > **NTARH must always be the first import in your test file.** This is due to
 > the way Next.js is written and distributed. See [the appendix][11] for
 > technical details.
@@ -133,8 +134,6 @@ const { testApiHandler } = require('next-test-api-route-handler'); // ◄ Must b
 
 ... all other imports ...
 ```
-
-<br />
 
 ### Quick Start: App Router
 
@@ -167,8 +166,6 @@ it('does what I want', async () => {
 });
 ```
 
-<br />
-
 ### Quick Start: Edge Runtime
 
 ```typescript
@@ -200,8 +197,6 @@ it('does what I want', async function () {
   });
 });
 ```
-
-<br />
 
 ### Quick Start: Pages Router
 
@@ -244,7 +239,8 @@ At minimum, `options` must contain the following properties:
 
 For example:
 
-> \[!CAUTION]\
+> \[!CAUTION]
+>
 > Ensuring `testApiHandler` is imported [_before_][12] any Next.js package (like
 > `'next/headers'` below) is crucial to the proper function of NTARH. Doing
 > otherwise will result in undefined behavior.
@@ -350,11 +346,10 @@ function receives one destructured parameter: `fetch`, which is a wrapper around
 Node's [global fetch][22] function. Use this to send HTTP requests to the
 handler under test.
 
-> \[!CAUTION]\
+> \[!CAUTION]
+>
 > Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in
 > `fetch(...)`][23]_, is omitted.
-
-<br />
 
 #### ⚙ Handling Redirections
 
@@ -365,8 +360,6 @@ the WHATWG/undici `fetch` function from throwing a
 
 If you want to change this value, call `fetch` with your own custom `options`
 parameter, e.g. `fetch({ redirect: 'error' })`.
-
-<br />
 
 #### ⚙ Compatibility with Mock Service Worker
 
@@ -429,8 +422,6 @@ it('redirects a shortened URL to the real URL', async () => {
 });
 ```
 
-<br />
-
 #### ⚙ `response.cookies`
 
 As of version `2.3.0`, the response object returned by `fetch()` includes a
@@ -487,7 +478,8 @@ it('handles multiple set-cookie headers', async () => {
 As of version `2.3.0`, unhandled errors in the `pagesHandler`/`appHandler`
 function are kicked up to Next.js to handle.
 
-> \[!IMPORTANT]\
+> \[!IMPORTANT]
+>
 > **This means `testApiHandler` will NOT reject or throw if an unhandled error
 > occurs in `pagesHandler`/`appHandler`, which typically includes failing
 > `expect()` assertions.**
@@ -566,12 +558,11 @@ await testApiHandler({
 
 ### `requestPatcher` (`url`)
 
-> \[!TIP]\
+> \[!TIP]
+>
 > Manually setting the request url is usually unnecessary. Only set the url if
 > [your handler expects it][35] or [you want to rely on query string parsing
 > instead of `params`/`paramsPatcher`][36].
-
-<br />
 
 #### 💎 Using `appHandler`
 
@@ -581,7 +572,8 @@ await testApiHandler({
 returns a [`Request`][39] instance. Use this function to edit the request
 _before_ it's injected into the handler.
 
-> \[!CAUTION]\
+> \[!CAUTION]
+>
 > Be wary returning a brand new request from `requestPatcher` (i.e.
 > `new NextRequest(newUrl)` instead of `new NextRequest(newUrl, oldRequest)`),
 > especially one that is missing standard headers added by `fetch(...)`. If
@@ -605,7 +597,8 @@ await testApiHandler({
 });
 ```
 
-> \[!NOTE]\
+> \[!NOTE]
+>
 > Unlike the Pages Router's `NextApiRequest` type, the App Router's
 > `NextRequest` class [does not support relative URLs][40]. Therefore, whenever
 > you pass a relative url string via the `url` shorthand (e.g.
@@ -623,8 +616,6 @@ and/or `protocol`, NTARH sets `host` to `""` and `protocol` to `"ntarh:"`.
 If you want your handler to receive the URL string and resulting
 `NextRequest::nextUrl` object exactly as you've typed it, use `requestPatcher`,
 which is executed after NTARH does URL normalization.
-
-<br />
 
 #### 🔷 Using `pagesHandler`
 
@@ -649,8 +640,6 @@ Note that, unlike with [the `URL` class][44], the `url` string can be relative.
 
 ### `responsePatcher`
 
-<br />
-
 #### 💎 Using `appHandler`
 
 > ⪢ API reference: [`responsePatcher`][45]
@@ -659,8 +648,6 @@ Note that, unlike with [the `URL` class][44], the `url` string can be relative.
 returned from `appHandler` and returns a [`Response`][46] instance. Use this
 function to edit the response _after_ your handler runs but _before_ it's
 processed by the server.
-
-<br />
 
 #### 🔷 Using `pagesHandler`
 
@@ -705,10 +692,9 @@ await testApiHandler({
 });
 ```
 
-> \[!TIP]\
+> \[!TIP]
+>
 > Due to its simplicity, favor the `params` shorthand over `paramsPatcher`.
-
-<br />
 
 #### 💎 Using `appHandler`
 
@@ -727,8 +713,6 @@ will receive `params` as its first argument.
 > Route parameters should not be confused with [query string parameters][53],
 > which are automatically parsed out from the url and made available via the
 > [`NextRequest`][1] argument passed to your handler.
-
-<br />
 
 #### 🔷 Using `pagesHandler`
 
@@ -756,8 +740,6 @@ Check out [the tests][58] for even more examples.
 ### Using the App Router
 
 These examples use Next.js's [App Router][59] API.
-
-<br />
 
 #### Testing Apollo's Official Next.js Integration @ `app/api/graphql`
 
@@ -857,8 +839,6 @@ describe('my-test (app router)', () => {
   });
 });
 ```
-
-<br />
 
 #### Testing Clerk's Official Next.js Integration @ `app/api/authed`
 
@@ -1005,8 +985,6 @@ access to the storage context that allows Next.js's helper functions to work**.
 For insight into what you'd need to do to make [`authMiddleware`][67] callable
 in `requestPatcher`, check out [Clerk's own tests][68].
 
-<br />
-
 #### Testing an Unreliable Handler on the Edge @ `app/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
@@ -1100,8 +1078,6 @@ it('injects contrived errors at the required rate', async () => {
 
 These examples use Next.js's [Pages Router][69] API.
 
-<br />
-
 #### Testing Next.js's Official Apollo Example @ `pages/api/graphql`
 
 This example uses the [official Next.js Apollo demo][70]. You can easily run it
@@ -1129,7 +1105,8 @@ This script clones [the Next.js repository][71], installs NTARH and configures
 dependencies, downloads the [jest test][72] file shown below, and runs it using
 [jest][64] to ensure our route integrates with Apollo correctly.
 
-> \[!IMPORTANT]\
+> \[!IMPORTANT]
+>
 > Note that passing the [route configuration object][73] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value [may
 > be necessary][74] when testing Apollo endpoints using the Pages Router.
@@ -1181,8 +1158,6 @@ describe('my-test (pages router)', () => {
   });
 });
 ```
-
-<br />
 
 #### Testing an Authenticated Flight Search Handler @ `pages/api/v3/flights/search`
 
@@ -1301,8 +1276,6 @@ it('returns expected public flights with respect to match', async () => {
 });
 ```
 
-<br />
-
 #### Testing an Unreliable Handler @ `pages/api/unreliable`
 
 Suppose we have an API endpoint we use to test our application's error handling.
@@ -1383,8 +1356,6 @@ it('injects contrived errors at the required rate', async () => {
 
 Further documentation can be found under [`docs/`][x-repo-docs].
 
-<br />
-
 ### Limitations with App Router and Edge Runtime Emulation
 
 Since NTARH is meant for unit testing API routes rather than faithfully
@@ -1419,8 +1390,6 @@ consider [opening a new issue][x-repo-choose-new-issue]!
 >
 > Next.js's middleware limitation is discussed at length [here][88].
 
-<br />
-
 #### Working around the App Router Patching the Global `fetch` Function
 
 Next.js's current App Router implementation mutates the global `fetch` function,
@@ -1451,8 +1420,6 @@ afterEach(function () {
   globalThis.fetch = originalGlobalFetch;
 });
 ```
-
-<br />
 
 #### Working around Global `AsyncLocalStorage` Availability
 
@@ -1616,8 +1583,6 @@ could [buy me a beer][x-repo-sponsor] 🥺 Thank you!
 
 See [CONTRIBUTING.md][x-repo-contributing] and [SUPPORT.md][x-repo-support] for
 more information.
-
-<br />
 
 ### Contributors
 
