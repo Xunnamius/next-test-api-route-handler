@@ -1,28 +1,31 @@
 // ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
 
 import debugFactory from 'debug';
-import { toss } from 'toss-expression';
-import execa from 'execa';
+import execa, { type ExecaError } from 'execa';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
-import { satisfies as satisfiesRange, validRange, maxSatisfying } from 'semver';
+import { satisfies as satisfiesRange, validRange } from 'semver';
 
 import { name as pkgName, version as pkgVersion } from 'package.json';
-
-import type { ExecaError } from 'execa';
+import { getNextjsReactPeerDependencies } from 'testverse/util';
 
 // * By default, external scripts should be silent. Use the DEBUG environment
 // * variable to see relevant output
 
-const debug = debugFactory(`${pkgName}:is-next-compat`);
+const debug = debugFactory('is-next-compat');
 
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
 
+export default main().catch((error: Error | string) => {
+  debug.extend('error')(typeof error === 'string' ? error : error.message);
+  process.exitCode = 2;
+});
+
 /**
  * Detect if this tool was invoked in the context of an integration test
  */
-const isRunningInTestMode = (async () => {
+const isRunningInTestMode = async function () {
   if (isRunningInTestMode.memoized === undefined) {
     try {
       isRunningInTestMode.memoized =
@@ -33,12 +36,12 @@ const isRunningInTestMode = (async () => {
 
   debug(`test override mode: ${isRunningInTestMode.memoized ? 'ACTIVE' : 'inactive'}`);
   return (isRunningInTestMode.memoized = !!isRunningInTestMode.memoized);
-}) as (() => Promise<boolean>) & { memoized?: boolean };
+} as (() => Promise<boolean>) & { memoized?: boolean };
 
 /**
  * Update remote DB with the new information so that the badge stays current.
  */
-const setCompatFlagTo = async (version: string) => {
+async function setCompatFlagTo(version: string) {
   try {
     if (await isRunningInTestMode()) {
       debug('skipped updating database (test override mode)');
@@ -77,13 +80,13 @@ const setCompatFlagTo = async (version: string) => {
     debug('additionally, an attempt to update the database failed');
     throw error;
   }
-};
+}
 
 /**
  * Get the last version of Next.js that passed the most recent successful run of
  * is-next-compat.
  */
-const getLastTestedVersion = async () => {
+async function getLastTestedVersion() {
   let version = '';
 
   try {
@@ -110,7 +113,7 @@ const getLastTestedVersion = async () => {
 
   debug('last tested version was ' + (version ? `"${version}"` : '(not tested)'));
   return version;
-};
+}
 
 const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
   try {
@@ -144,7 +147,7 @@ const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
  * }
  * ```
  */
-const invoked = async () => {
+async function main() {
   debug('connecting to GitHub');
 
   if (!process.env.GH_TOKEN) debug('warning: not using a personal access token!');
@@ -181,8 +184,10 @@ const invoked = async () => {
   debug(`(integration tests use their own Next.js versions)`);
 
   // ? Install peer deps manually for Next.js
-  const nextLatestReleaseVersionPeerDependencies =
-    await getNextPeerDependencies('next@latest');
+  const nextLatestReleaseVersionPeerDependencies = await getNextjsReactPeerDependencies(
+    'next@latest',
+    execaWithDebug
+  );
 
   await execaWithDebug('npm', [
     'install',
@@ -204,54 +209,4 @@ const invoked = async () => {
   debug('execution complete');
 
   process.exitCode = 0;
-};
-
-export default invoked().catch((error: Error | string) => {
-  debug.extend('error')(typeof error === 'string' ? error : error.message);
-  process.exitCode = 2;
-});
-
-/**
- * Since some versions of Next.js are released with flawed `package.json::peerDependencies`, sometimes we need to ensure the correct versions of
- * Next.js's peer dependencies are actually installed.
- */
-// TODO: replace this with shared test/utils.ts getNextPeerDependencies export
-async function getNextPeerDependencies(
-  /**
-   * For example: `next`, `next@latest`, or `next@15.0.0-rc.1`
-   */
-  npmInstallNextJsString: string
-) {
-  return Promise.all([
-    execaWithDebug('npm', ['show', 'react', 'versions']),
-    execaWithDebug('npm', ['show', 'react-dom', 'versions']),
-    execaWithDebug('npm', ['show', npmInstallNextJsString, 'peerDependencies'])
-  ]).then(function ([
-    { stdout: reactVersions_ },
-    { stdout: reactDomVersions_ },
-    { stdout: nextPeerDependencies_ }
-  ]) {
-    const finalPeerDeps: string[] = [];
-
-    debug('reactVersions: %O', reactVersions_);
-    debug('reactDomVersions: %O', reactDomVersions_);
-    debug('nextPeerDependencies: %O', nextPeerDependencies_);
-
-    const reactVersions: string[] = JSON.parse(reactVersions_);
-    const reactDomVersions: string[] = JSON.parse(reactDomVersions_);
-    const nextPeerDependencies: Record<'react' | 'react-dom', string> =
-      JSON.parse(nextPeerDependencies_);
-
-    finalPeerDeps.push(
-      'react@' +
-        (maxSatisfying(reactVersions, nextPeerDependencies.react) ||
-          toss(new Error('unable to resolve react peer dependency'))),
-      'react-dom@' +
-        (maxSatisfying(reactDomVersions, nextPeerDependencies['react-dom']) ||
-          toss(new Error('unable to resolve react-dom peer dependency')))
-    );
-
-    debug('finalPeerDeps: %O', finalPeerDeps);
-    return finalPeerDeps.join(' ');
-  });
 }
