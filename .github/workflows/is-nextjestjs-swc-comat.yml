@@ -105,17 +105,26 @@ jobs:
 
           extra_installs=$(node -e '(async () => console.log((await require("'"$previous_cwd"'/external-scripts/bin/util.js").getNextjsReactPeerDependencies("next@latest")).join(" ")))()')
 
+          rm '#pipe.ignore'
+          mkfifo '#pipe.ignore'
+          tee --append /tmp/output.txt < '#pipe.ignore' &
+
           if [[ -n "$extra_installs" ]]; then
+            echo installing extra_installs:
             npm install --force --no-save $(echo $extra_installs) > '#pipe.ignore' 2>&1
           fi
 
+          echo listing deps:
           npm list next
           npm list next-test-api-route-handler
           npm list react
           npm list react-dom
 
+
+          echo running jest:
           npx jest
 
+          echo done
           rm '#pipe.ignore'
 
       - name: Upload output artifact
