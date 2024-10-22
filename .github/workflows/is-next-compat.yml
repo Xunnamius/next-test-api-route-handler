@@ -86,7 +86,7 @@ jobs:
         run: |
           mkfifo '#pipe'
           tee --append /tmp/output.txt < '#pipe' &
-          npm install --force --no-save semver > '#pipe' 2>&1
+          npm install --force > '#pipe' 2>&1
           rm '#pipe'
 
       - name: Build distributables
