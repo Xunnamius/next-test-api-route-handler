@@ -125,7 +125,8 @@ module.exports = {
           'transform-rewrite-imports',
           {
             replaceExtensions: {
-              '^../package.json$': '../../package.json'
+              '^../package.json$': '../../package.json',
+              '^../test/util$': './util.js'
             }
           }
         ]

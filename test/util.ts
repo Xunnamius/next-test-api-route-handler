@@ -1,5 +1,4 @@
 import debugFactory from 'debug';
-import { toss } from 'toss-expression';
 import { maxSatisfying } from 'semver';
 
 import execa_ from 'execa';
@@ -15,39 +14,43 @@ export async function getNextjsReactPeerDependencies(
    */
   npmInstallNextJsString: string,
   execa = execa_
-) {
+): Promise<string[]> {
   const debug = debugFactory('util:getNextPeerDependencies');
 
   return Promise.all([
-    execa('npm', ['show', 'react', 'versions']),
-    execa('npm', ['show', 'react-dom', 'versions']),
-    execa('npm', ['show', npmInstallNextJsString, 'peerDependencies'])
+    execa('npm', ['show', 'react', 'versions', '--json']),
+    execa('npm', ['show', 'react-dom', 'versions', '--json']),
+    execa('npm', ['show', npmInstallNextJsString, 'peerDependencies', '--json'])
   ]).then(function ([
     { stdout: reactVersions_ },
     { stdout: reactDomVersions_ },
     { stdout: nextPeerDependencies_ }
   ]) {
-    const finalPeerDeps: string[] = [];
-
-    debug('reactVersions: %O', reactVersions_);
-    debug('reactDomVersions: %O', reactDomVersions_);
-    debug('nextPeerDependencies: %O', nextPeerDependencies_);
+    debug('reactVersions: %O bytes', reactVersions_.length);
+    debug('reactDomVersions: %O bytes', reactDomVersions_.length);
+    debug('nextPeerDependencies: %O bytes', nextPeerDependencies_.length);
 
     const reactVersions: string[] = JSON.parse(reactVersions_);
     const reactDomVersions: string[] = JSON.parse(reactDomVersions_);
     const nextPeerDependencies: Record<'react' | 'react-dom', string> =
       JSON.parse(nextPeerDependencies_);
 
-    finalPeerDeps.push(
-      'react@' +
-        (maxSatisfying(reactVersions, nextPeerDependencies.react) ||
-          toss(new Error('unable to resolve react peer dependency'))),
-      'react-dom@' +
-        (maxSatisfying(reactDomVersions, nextPeerDependencies['react-dom']) ||
-          toss(new Error('unable to resolve react-dom peer dependency')))
-    );
+    const reactVersion =
+      typeof nextPeerDependencies.react === 'string'
+        ? maxSatisfying(reactVersions, nextPeerDependencies.react)
+        : null;
+
+    const reactDomVersion =
+      typeof nextPeerDependencies['react-dom'] === 'string'
+        ? maxSatisfying(reactDomVersions, nextPeerDependencies['react-dom'])
+        : null;
+
+    const finalPeerDeps = [
+      reactVersion ? `react@${reactVersion}` : '',
+      reactDomVersion ? `react-dom@${reactDomVersion}` : ''
+    ].filter(Boolean);
 
     debug('finalPeerDeps: %O', finalPeerDeps);
-    return finalPeerDeps.join(' ');
+    return finalPeerDeps;
   });
 }
