@@ -20,6 +20,7 @@ const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 const runExternal = runnerFactory('node', ['--no-warnings', EXTERNAL_BIN_PATH]);
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
+  performCleanup: true,
   // ? We use _is_next_compat_test_mode to prevent the external script (compiled
   // ? using a .env file potentially with production keys) from attempting
   // ? external connections
@@ -63,7 +64,7 @@ it('runs silent by default', async () => {
   });
 });
 
-it("is verbose when DEBUG='${debugId}'", async () => {
+it(`is verbose when DEBUG='${debugId}'`, async () => {
   expect.hasAssertions();
 
   await withMockedFixture(async ({ root }) => {
