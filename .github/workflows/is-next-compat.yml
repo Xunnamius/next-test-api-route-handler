@@ -85,17 +85,17 @@ jobs:
       # Also, we use npm install over npm ci for more accurate test results
       - name: Install CI dependencies
         run: |
-          mkfifo '#pipe'
-          tee --append /tmp/output.txt < '#pipe' &
-          npm install --force > '#pipe' 2>&1
-          rm '#pipe'
+          mkfifo '#pipe.ignore'
+          tee --append /tmp/output.txt < '#pipe.ignore' &
+          npm install --force > '#pipe.ignore' 2>&1
+          rm '#pipe.ignore'
 
       - name: Build distributables
         run: |
-          mkfifo '#pipe'
-          tee --append /tmp/output.txt < '#pipe' &
-          npm run build:dist > '#pipe' 2>&1
-          rm '#pipe'
+          mkfifo '#pipe.ignore'
+          tee --append /tmp/output.txt < '#pipe.ignore' &
+          npm run build:dist > '#pipe.ignore' 2>&1
+          rm '#pipe.ignore'
 
       - name: Build externals
         run: npm run build:externals
@@ -106,10 +106,10 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NODE_TARGET_VERSION: ${{ env.NODE_CURRENT_VERSION }}
         run: |
-          mkfifo '#pipe'
-          tee --append /tmp/output.txt < '#pipe' &
-          node --no-warnings external-scripts/bin/is-next-compat.js > '#pipe' 2>&1
-          rm '#pipe'
+          mkfifo '#pipe.ignore'
+          tee --append /tmp/output.txt < '#pipe.ignore' &
+          node --no-warnings external-scripts/bin/is-next-compat.js > '#pipe.ignore' 2>&1
+          rm '#pipe.ignore'
 
       - name: Upload output artifact
         if: always()
