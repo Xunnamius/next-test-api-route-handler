@@ -81,7 +81,8 @@ jobs:
           path: ~/.npm
           restore-keys: npm-node-${{ matrix.node }}-${{ runner.os }}-
 
-      # tee eats exit codes... ... sigh
+      # Turns out tee eats exit codes... ... sigh
+      # Also, we use npm install over npm ci for more accurate test results
       - name: Install CI dependencies
         run: |
           mkfifo '#pipe'
