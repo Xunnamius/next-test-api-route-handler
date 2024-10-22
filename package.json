@@ -1,6 +1,6 @@
 {
   "name": "next-test-api-route-handler",
-  "version": "4.0.12",
+  "version": "4.0.13",
   "description": "Confidently unit and integration test your Next.js API routes/handlers in an isolated Next.js-like environment",
   "keywords": [
     "api",

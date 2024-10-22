@@ -20,7 +20,7 @@ The parameters expected by `testApiHandler` when using `appHandler`.
 
 ### appHandler
 
-> **appHandler**: `Omit`\<`AppRouteUserlandModule`, `"GET"` \| `"HEAD"` \| `"OPTIONS"` \| `"POST"` \| `"PUT"` \| `"DELETE"` \| `"PATCH"`\> & `object`
+> **appHandler**: `Partial`\<`Omit`\<`AppRouteUserlandModule`, `"GET"` \| `"HEAD"` \| `"OPTIONS"` \| `"POST"` \| `"PUT"` \| `"DELETE"` \| `"PATCH"`\> & `object`\>
 
 The actual App Router route handler under test. It should be an object
 containing one or more async functions named for valid HTTP methods and/or
@@ -28,39 +28,9 @@ a valid configuration option. See [the Next.js
 documentation](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
 for details.
 
-#### Type declaration
-
-##### DELETE
-
-> **DELETE**: `undefined` \| (`req`, `context`?) => `any`
-
-##### GET
-
-> **GET**: `undefined` \| (`req`, `context`?) => `any`
-
-##### HEAD
-
-> **HEAD**: `undefined` \| (`req`, `context`?) => `any`
-
-##### OPTIONS
-
-> **OPTIONS**: `undefined` \| (`req`, `context`?) => `any`
-
-##### PATCH
-
-> **PATCH**: `undefined` \| (`req`, `context`?) => `any`
-
-##### POST
-
-> **POST**: `undefined` \| (`req`, `context`?) => `any`
-
-##### PUT
-
-> **PUT**: `undefined` \| (`req`, `context`?) => `any`
-
 #### Defined in
 
-[index.ts:164](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L164)
+[index.ts:163](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L163)
 
 ***
 
@@ -70,7 +40,7 @@ for details.
 
 #### Defined in
 
-[index.ts:179](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L179)
+[index.ts:174](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L174)
 
 ***
 
@@ -88,7 +58,7 @@ once.
 
 #### Defined in
 
-[index.ts:189](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L189)
+[index.ts:184](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L184)
 
 ***
 
@@ -114,7 +84,7 @@ is handled by `Request` automatically.
 
 #### Defined in
 
-[index.ts:199](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L199)
+[index.ts:194](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L194)
 
 ***
 
@@ -143,7 +113,7 @@ false
 
 #### Defined in
 
-[index.ts:141](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L141)
+[index.ts:137](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L137)
 
 ***
 
@@ -169,7 +139,7 @@ NextRequest(returnedRequest, { ... })`.
 
 #### Defined in
 
-[index.ts:212](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L212)
+[index.ts:207](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L207)
 
 ***
 
@@ -196,7 +166,7 @@ unhandled exception occurs _and_ `rejectOnHandlerError` is `true`.
 
 #### Defined in
 
-[index.ts:225](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L225)
+[index.ts:220](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L220)
 
 ***
 
@@ -224,7 +194,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 #### Defined in
 
-[index.ts:147](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L147)
+[index.ts:143](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L143)
 
 ***
 
@@ -237,4 +207,4 @@ NextRequest('your-url', request)`
 
 #### Defined in
 
-[index.ts:230](https://github.com/Xunnamius/next-test-api-route-handler/blob/3ef95f397021fadbf81b84daebcae192d5538bf2/src/index.ts#L230)
+[index.ts:225](https://github.com/Xunnamius/next-test-api-route-handler/blob/b5e826765efbbaf76eed548502c7b8c0b1bfcc0d/src/index.ts#L225)
