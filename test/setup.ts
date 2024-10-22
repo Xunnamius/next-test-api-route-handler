@@ -802,9 +802,8 @@ export function npmCopySelfFixture(): MockFixture {
         'npm',
         [
           'install',
-          '--no-save',
-          ...(context.options.runInstallScripts ? [] : ['--ignore-scripts']),
           '--omit=dev',
+          ...(context.options.runInstallScripts ? [] : ['--ignore-scripts']),
           '--force'
         ],
         {
