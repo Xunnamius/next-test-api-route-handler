@@ -96,7 +96,7 @@ jobs:
           previous_cwd=$(pwd)
           mkdir -p /tmp/ntarh-test
           git clone https://github.com/Xunnamius/ntarh-nextjestjs-swc-compat-test /tmp/ntarh-test
-          cd /tmp/ntarh-test/ntarh-nextjestjs-swc-compat-test
+          cd /tmp/ntarh-test
 
           mkfifo '#pipe.ignore'
           tee --append /tmp/output.txt < '#pipe.ignore' &
