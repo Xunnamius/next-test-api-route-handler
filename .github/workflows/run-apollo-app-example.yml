@@ -96,6 +96,10 @@ jobs:
 
       # We need to install Next.js's peer dependencies by hand because it is
       # possible that Vercel devs publish broken package.json peerDependencies
+      #
+      # Also, note that, when piping stuff, npm install seems to break the pipe
+      # for any processes that come after it. Not sure why, but can be fixed by
+      # rm-ing and re-mkfifo-ing the pipe.
       - name: Run apollo terminal example
         # https://bit.ly/38702j0
         run: |
