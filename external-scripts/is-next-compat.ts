@@ -13,7 +13,7 @@ import { getNextjsReactPeerDependencies } from 'testverse/util';
 // * By default, external scripts should be silent. Use the DEBUG environment
 // * variable to see relevant output
 
-const debug = debugFactory('is-next-compat');
+const debug = debugFactory(`${pkgName}:is-next-compat`);
 
 debug(`pkgName: "${pkgName}"`);
 debug(`pkgVersion: "${pkgVersion}"`);
@@ -83,44 +83,15 @@ async function setCompatFlagTo(version: string) {
   }
 }
 
-/**
- * Get the last version of Next.js that passed the most recent successful run of
- * is-next-compat.
- */
-async function getLastTestedVersion() {
-  let version = '';
-
-  try {
-    if (await isRunningInTestMode()) {
-      debug('skipped database last tested version access (test override mode)');
-    } else if (process.env.MONGODB_URI) {
-      const client = await MongoClient.connect(process.env.MONGODB_URI);
-
-      // ? Access database
-      version =
-        (
-          await client
-            .db()
-            .collection<{ name: string; value: string }>('flags')
-            .findOne({ name: 'ntarh-next' })
-        )?.value || '';
-
-      await client.close();
-    } else debug('skipped database last tested version access (no MONGODB_URI)');
-  } catch (error) {
-    debug('database access failed');
-    throw error;
-  }
-
-  debug('last tested version was ' + (version ? `"${version}"` : '(not tested)'));
-  return version;
-}
-
 const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
   try {
+    debug.extend('execa')('execa called: %O', args.flat());
+
     const res = await execa(...args);
+
     debug.extend('stdout')(res.stdout);
     debug.extend('stderr')(res.stderr);
+
     return res;
   } catch (error) {
     const error_ =
@@ -179,14 +150,14 @@ async function main() {
     throw new Error('could not find package.json');
   }
 
-  await getLastTestedVersion();
+  const nextVersionUnderTestFullNameAndVersion = `next@${latestReleaseVersion}`;
 
-  debug(`installing next@${latestReleaseVersion} for unit tests`);
+  debug('installing %O for unit tests', nextVersionUnderTestFullNameAndVersion);
   debug(`(integration tests use their own Next.js versions)`);
 
   // ? Install peer deps manually for Next.js
   const nextLatestReleaseVersionPeerDependencies = await getNextjsReactPeerDependencies(
-    'next@latest',
+    nextVersionUnderTestFullNameAndVersion,
     execaWithDebug
   );
 
@@ -194,8 +165,8 @@ async function main() {
     'install',
     '--no-save',
     '--force',
-    `next@${latestReleaseVersion}`,
-    nextLatestReleaseVersionPeerDependencies
+    nextVersionUnderTestFullNameAndVersion,
+    ...nextLatestReleaseVersionPeerDependencies
   ]);
 
   debug('running compatibility tests');
