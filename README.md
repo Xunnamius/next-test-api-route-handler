@@ -252,7 +252,7 @@ import { headers } from 'next/headers';
 await testApiHandler({
   appHandler: {
     dynamic: 'force-dynamic',
-    GET(_request) {
+    async GET(_request) {
       return Response.json(
         {
           // Yep, those fancy helper functions work too!
