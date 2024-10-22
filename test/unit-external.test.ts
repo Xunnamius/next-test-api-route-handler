@@ -37,7 +37,6 @@ const mockedMongoConnect = asMockedFunction(MongoClient.connect);
 const mockedMongoConnectClose = asMockedFunction<MongoClient['close']>();
 const mockedMongoConnectDb = asMockedFunction<MongoClient['db']>();
 const mockedMongoConnectDbCollection = asMockedFunction<Db['collection']>();
-const mockedMongoConnectDbCollectionFindOne = asMockedFunction<Collection['findOne']>();
 const mockedMongoConnectDbCollectionUpdateOne =
   asMockedFunction<Collection['updateOne']>();
 
@@ -57,7 +56,7 @@ beforeEach(() => {
       }) as unknown as ReturnType<typeof findPackageJson>
   );
 
-  mockedExeca.mockImplementation(() => Promise.resolve({}) as ExecaChildProcess<Buffer>);
+  mockedExeca.mockImplementation(mockExecaImplementation);
 
   mockedOctokit.mockImplementation(
     () =>
@@ -87,22 +86,29 @@ beforeEach(() => {
     () => ({ collection: mockedMongoConnectDbCollection }) as unknown as Db
   );
 
-  mockedMongoConnectDbCollection.mockImplementation(
-    () =>
-      ({
-        findOne: mockedMongoConnectDbCollectionFindOne,
-        updateOne: mockedMongoConnectDbCollectionUpdateOne
-      }) as unknown as Collection
-  );
+  mockedMongoConnectDbCollection.mockImplementation(() => {
+    return {
+      updateOne: mockedMongoConnectDbCollectionUpdateOne
+    } as unknown as Collection;
+  });
 });
 
-it('calls invoker when imported', async () => {
+it('calls invoker and installs next.js peer dependencies explicitly when imported', async () => {
   expect.hasAssertions();
 
   mockLatestRelease = '100.99.0';
   await protectedImport({ expectedExitCode: 0 });
 
-  expect(mockedDebug).toHaveBeenNthCalledWith(3, 'connecting to GitHub');
+  expect(mockedDebug).toHaveBeenCalledWith('connecting to GitHub');
+  expect(mockedExeca).toHaveBeenCalledWith(
+    'npm',
+    expect.arrayContaining([
+      'install',
+      `next@${mockLatestRelease}`,
+      'react@4.5.6',
+      'react-dom@4.5.6'
+    ])
+  );
 });
 
 it('handles thrown error objects', async () => {
@@ -116,7 +122,7 @@ it('handles thrown error objects', async () => {
 
   await protectedImport({ expectedExitCode: 2 });
 
-  expect(mockedDebug).toHaveBeenNthCalledWith(4, 'problems!');
+  expect(mockedDebug).toHaveBeenCalledWith('problems!');
 });
 
 it('handles thrown string errors', async () => {
@@ -130,7 +136,7 @@ it('handles thrown string errors', async () => {
 
   await protectedImport({ expectedExitCode: 2 });
 
-  expect(mockedDebug).toHaveBeenNthCalledWith(4, 'problems!');
+  expect(mockedDebug).toHaveBeenCalledWith('problems!');
 });
 
 it('handles setCompatFlagTo rejection', async () => {
@@ -150,27 +156,6 @@ it('handles setCompatFlagTo rejection', async () => {
         { $set: { value: mockLatestRelease } },
         { upsert: true }
       );
-    },
-    { MONGODB_URI: 'fake-uri' }
-  );
-});
-
-it('handles getLastTestedVersion rejection', async () => {
-  expect.hasAssertions();
-
-  await withMockedEnv(
-    async () => {
-      mockLatestRelease = '100.99.0';
-      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() => {
-        throw new Error('problems!');
-      });
-
-      await protectedImport({ expectedExitCode: 2 });
-
-      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        name: 'ntarh-next'
-      });
-      expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
     },
     { MONGODB_URI: 'fake-uri' }
   );
@@ -219,102 +204,47 @@ it('handles compatibility test failure', async () => {
     async () => {
       mockLatestRelease = '100.99.0';
 
-      mockedExeca.mockImplementationOnce(
-        () => Promise.resolve({}) as ExecaChildProcess<Buffer>
-      );
-      mockedExeca.mockImplementationOnce(
-        () => Promise.resolve({}) as ExecaChildProcess<Buffer>
-      );
-      mockedExeca.mockImplementationOnce(
-        () => Promise.resolve({}) as ExecaChildProcess<Buffer>
-      );
-      mockedExeca.mockImplementationOnce(
-        () => Promise.reject({ stderr: 'bad!' }) as ExecaChildProcess<Buffer>
-      );
+      mockedExeca.mockImplementation((file: string, options: string[]) => {
+        if (
+          file === 'npm' &&
+          options &&
+          options[0] === 'run' &&
+          options[1]?.endsWith('unit')
+        ) {
+          return Promise.reject({ stderr: 'bad!' }) as ExecaChildProcess<Buffer>;
+        }
+
+        return mockExecaImplementation(file, options);
+      });
 
       await protectedImport({ expectedExitCode: 2 });
 
-      expect(mockedExeca).toHaveBeenCalledTimes(4);
+      expect(mockedExeca).not.toHaveBeenCalledWith('npm', [
+        'run',
+        'test:integration:client'
+      ]);
+
       expect(mockedDebug).toHaveBeenCalledWith(expect.stringContaining('failed!'));
       expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
-    },
-    { MONGODB_URI: 'fake-uri' }
-  );
-});
 
-it('runs tests regardless of latest version #1', async () => {
-  expect.hasAssertions();
+      mockedExeca.mockImplementation((file: string, options: string[]) => {
+        if (
+          file === 'npm' &&
+          options &&
+          options[0] === 'run' &&
+          options[1]?.endsWith('client')
+        ) {
+          return Promise.reject({ stderr: 'bad!' }) as ExecaChildProcess<Buffer>;
+        }
 
-  await withMockedEnv(
-    async () => {
-      mockLatestRelease = '100.99.0';
-      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-        Promise.resolve({ name: 'ntarh-next', value: mockLatestRelease })
-      );
-
-      await protectedImport({ expectedExitCode: 0 });
-
-      expect(mockedExeca).toHaveBeenCalledTimes(4);
-      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        name: 'ntarh-next'
+        return mockExecaImplementation(file, options);
       });
-      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-        { name: 'ntarh-next' },
-        { $set: { value: mockLatestRelease } },
-        { upsert: true }
-      );
-    },
-    { MONGODB_URI: 'fake-uri' }
-  );
-});
 
-it('runs tests regardless of latest version #2', async () => {
-  expect.hasAssertions();
+      await protectedImport({ expectedExitCode: 2 });
 
-  await withMockedEnv(
-    async () => {
-      mockLatestRelease = '100.99.0';
-      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-        Promise.resolve({ name: 'ntarh-next', value: '99.100.0' })
-      );
-
-      await protectedImport({ expectedExitCode: 0 });
-
-      expect(mockedExeca).toHaveBeenCalledTimes(4);
-      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        name: 'ntarh-next'
-      });
-      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-        { name: 'ntarh-next' },
-        { $set: { value: mockLatestRelease } },
-        { upsert: true }
-      );
-    },
-    { MONGODB_URI: 'fake-uri' }
-  );
-});
-
-it('runs tests regardless of latest version #3', async () => {
-  expect.hasAssertions();
-
-  await withMockedEnv(
-    async () => {
-      mockLatestRelease = '100.100.0';
-      mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-        Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
-      );
-
-      await protectedImport({ expectedExitCode: 0 });
-
-      expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalledWith({
-        name: 'ntarh-next'
-      });
-      expect(mockedExeca).toHaveBeenCalledTimes(4);
-      expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
-        { name: 'ntarh-next' },
-        { $set: { value: mockLatestRelease } },
-        { upsert: true }
-      );
+      expect(mockedExeca).toHaveBeenCalledWith('npm', ['run', 'test:unit']);
+      expect(mockedDebug).toHaveBeenCalledWith(expect.stringContaining('failed!'));
+      expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
     },
     { MONGODB_URI: 'fake-uri' }
   );
@@ -325,14 +255,9 @@ it('runs without any environment variables', async () => {
 
   await withMockedEnv(async () => {
     mockLatestRelease = '100.100.0';
-    mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-      Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
-    );
 
     await protectedImport({ expectedExitCode: 0 });
 
-    expect(mockedExeca).toHaveBeenCalledTimes(4);
-    expect(mockedMongoConnectDbCollectionFindOne).not.toHaveBeenCalled();
     expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
   }, {});
 });
@@ -342,14 +267,9 @@ it('runs with version string prepended with "v"', async () => {
 
   await withMockedEnv(async () => {
     mockLatestRelease = 'v100.100.0';
-    mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-      Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
-    );
 
     await protectedImport({ expectedExitCode: 0 });
 
-    expect(mockedExeca).toHaveBeenCalledTimes(4);
-    expect(mockedMongoConnectDbCollectionFindOne).not.toHaveBeenCalled();
     expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
   }, {});
 });
@@ -358,9 +278,6 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
   expect.hasAssertions();
 
   mockLatestRelease = '199.198.197';
-  mockedMongoConnectDbCollectionFindOne.mockImplementationOnce(() =>
-    Promise.resolve({ name: 'ntarh-next', value: '0.0.0' })
-  );
 
   await withMockedEnv(
     async () => {
@@ -393,9 +310,18 @@ it('respects _is_next_compat_test_mode npm script', async () => {
 
   mockLatestRelease = '111.112.113';
 
-  mockedExeca.mockImplementationOnce(
-    () => Promise.resolve({ exitCode: 0 }) as unknown as ExecaChildProcess<Buffer>
-  );
+  mockedExeca.mockImplementation((file: string, options: string[]) => {
+    if (
+      file === 'npm' &&
+      options &&
+      options[0] === 'run' &&
+      options[1] === '_is_next_compat_test_mode'
+    ) {
+      return Promise.resolve({ exitCode: 0 }) as ExecaChildProcess<Buffer>;
+    }
+
+    return mockExecaImplementation(file, options);
+  });
 
   await withMockedEnv(
     async () => {
@@ -404,12 +330,20 @@ it('respects _is_next_compat_test_mode npm script', async () => {
     { MONGODB_URI: 'fake-uri' }
   );
 
-  expect(mockedMongoConnectDbCollectionFindOne).not.toHaveBeenCalled();
   expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
 
-  mockedExeca.mockImplementationOnce(
-    () => Promise.resolve({ exitCode: 1 }) as unknown as ExecaChildProcess<Buffer>
-  );
+  mockedExeca.mockImplementation((file: string, options: string[]) => {
+    if (
+      file === 'npm' &&
+      options &&
+      options[0] === 'run' &&
+      options[1] === '_is_next_compat_test_mode'
+    ) {
+      return Promise.resolve({ exitCode: 1 }) as ExecaChildProcess<Buffer>;
+    }
+
+    return mockExecaImplementation(file, options);
+  });
 
   await withMockedEnv(
     async () => {
@@ -418,7 +352,6 @@ it('respects _is_next_compat_test_mode npm script', async () => {
     { MONGODB_URI: 'fake-uri' }
   );
 
-  expect(mockedMongoConnectDbCollectionFindOne).toHaveBeenCalled();
   expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalled();
 });
 
@@ -438,3 +371,21 @@ it('uses GH_TOKEN environment variable if available', async () => {
     { GH_TOKEN: 'fake-token' }
   );
 });
+
+function mockExecaImplementation(file: string, options: string[]) {
+  let dummyStdout: Record<string, string> | string[] | false = false;
+
+  if (file === 'npm' && options && options[0] === 'show') {
+    if (options[1] === 'react' || options[1] === 'react-dom') {
+      dummyStdout = ['1.2.3', '2.3.4', '3.4.5', '4.5.6', '5.6.7'];
+    } else if (options[1].startsWith('next@')) {
+      dummyStdout = { react: '4.5.6', 'react-dom': '4.5.6' };
+    } else {
+      throw new Error('unable to generate dummy data result in test');
+    }
+  }
+
+  return Promise.resolve(
+    dummyStdout === false ? {} : { stdout: JSON.stringify(dummyStdout) }
+  ) as unknown as ExecaChildProcess<Buffer>;
+}

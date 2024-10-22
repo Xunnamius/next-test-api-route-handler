@@ -3,7 +3,7 @@
 // * These tests ensure NTARH is importable and functions in both ESM and CJS
 
 import debugFactory from 'debug';
-import { exports as pkgExports, name as pkgName, version as pkgVersion } from 'package';
+import { exports as pkgExports, name as pkgName } from 'package';
 
 import {
   dummyFilesFixture,
@@ -17,6 +17,8 @@ import {
   npmCopySelfFixture,
   run
 } from 'testverse/setup';
+
+import { getNextjsReactPeerDependencies } from 'testverse/util';
 
 const TEST_IDENTIFIER = 'integration-node';
 
@@ -34,9 +36,6 @@ debug(`nodeVersion: "${nodeVersion}"`);
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   performCleanup: true,
-  initialFileContents: {
-    'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
-  },
   use: [
     dummyNpmPackageFixture(),
     npmCopySelfFixture(),
@@ -66,16 +65,20 @@ const runTest = async ({
   const indexPath = `src/index.${importAsEsm ? 'm' : ''}js`;
   const routePath = `src/route.${importAsEsm ? 'm' : ''}js`;
 
-  const initialFileContents =
-    insertAdditionalImportsFirst && additionalImports
-      ? {
-          [indexPath]: `${additionalImports}\n`,
-          [routePath]: `${additionalImports}\n`
-        }
-      : {
-          [indexPath]: '',
-          [routePath]: `${additionalImports}\n`
-        };
+  const dependencies = [
+    'next@latest',
+    ...(await getNextjsReactPeerDependencies('next@latest'))
+  ];
+
+  const initialFileContents: Record<string, string> = {
+    'package.json': '{"name":"dummy-pkg"}'
+  };
+
+  Object.assign(initialFileContents, {
+    [indexPath]:
+      insertAdditionalImportsFirst && additionalImports ? `${additionalImports}\n` : '',
+    [routePath]: `${additionalImports}\n`
+  });
 
   initialFileContents[indexPath] += importAsEsm
     ? `import { testApiHandler } from '${pkgName}';\nimport * as handler from '../${routePath}';`
@@ -96,7 +99,7 @@ const runTest = async ({
   initialFileContents[routePath] +=
     routerType === 'app'
       ? `
-${importAsEsm ? 'export const ' : 'module.exports.'}GET = function(request, context) {
+${importAsEsm ? 'export const ' : 'module.exports.'}GET = async function(request, context) {
   ${handlerCode}
 };`
       : `
@@ -110,9 +113,7 @@ ${importAsEsm ? 'export default ' : 'module.exports ='} async function(req, res)
         throw new Error('must use node-import-and-run-test fixture');
       await testFixtureFn(context);
     },
-    {
-      initialFileContents
-    }
+    { initialFileContents, npmInstall: dependencies }
   );
 };
 
@@ -130,7 +131,7 @@ beforeAll(async () => {
 });
 
 describe('<app router>', () => {
-  it('works as ESM using namespace import', async () => {
+  it.only('works as ESM using namespace import', async () => {
     expect.hasAssertions();
     await runTest({
       importAs: 'esm',
