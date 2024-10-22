@@ -48,14 +48,75 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
     steps:
+      # GitHub Actions artifacts cannot handle filenames with certain characters
+      - name: Reify metadata
+        id: reified-metadata
+        env:
+          NODE_VERSION: ${{ matrix.node }}
+        run: >
+          node -p
+          '`node-version-sanitized=${process.env.NODE_VERSION.replaceAll(
+          /[":<>|*?\\\/=,\s'"'"']/g,"-")}`' >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # See: https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
+
+      - name: Use node ${{ matrix.node }}
+        uses: actions/setup-node@v4.0.4
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        id: cache-npm
+        with:
+          key:
+            npm-node-${{ matrix.node }}-${{ runner.os }}-${{
+            hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-node-${{ matrix.node }}-${{ runner.os }}-
+
+      # Turns out tee eats exit codes... ... sigh
+      # Also, we use npm install over npm ci for more accurate test results
+      - name: Install CI dependencies
+        run: |
+          mkfifo '#pipe.ignore'
+          tee --append /tmp/output.txt < '#pipe.ignore' &
+          npm install --force > '#pipe.ignore' 2>&1
+          rm '#pipe.ignore'
+
+      - name: Build externals (we're only interested in util.js)
+        run: npm run build:externals
+
+      # We need to install Next.js's peer dependencies by hand because it is
+      # possible that Vercel devs publish broken package.json peerDependencies
       - name: Run apollo terminal example
         # https://bit.ly/38702j0
         run: |
+          previous_cwd=$(pwd)
           mkdir -p /tmp/ntarh-test/test
           cd /tmp/ntarh-test
-          npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env
+
+          mkfifo '#pipe.ignore'
+          tee --append /tmp/output.txt < '#pipe.ignore' &
+
+          extra_installs=$(node -e '(async () => console.log((await require("'"$previous_cwd"'/external-scripts/bin/util.js").getNextjsReactPeerDependencies("next@latest")).join(" ")))()')
+
+          npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env $(echo $extra_installs) > '#pipe.ignore' 2>&1
+
           echo 'module.exports={presets:["@babel/preset-env"]};' > babel.config.js
           mkdir -p app/api/graphql
-          curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route
-          curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test
-          npx jest
+
+          curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route > '#pipe.ignore' 2>&1
+
+          curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test > '#pipe.ignore' 2>&1
+
+          npx jest > '#pipe.ignore' 2>&1
+
+          rm '#pipe.ignore'
