@@ -113,10 +113,10 @@ jobs:
           echo 'module.exports={presets:["@babel/preset-env"]};' > babel.config.js
           mkdir -p app/api/graphql
 
-          curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route > '#pipe.ignore' 2>&1
+          curl -o app/api/graphql/route.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_route
 
-          curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test > '#pipe.ignore' 2>&1
+          curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test
 
-          npx jest > '#pipe.ignore' 2>&1
+          npx jest
 
           rm '#pipe.ignore'

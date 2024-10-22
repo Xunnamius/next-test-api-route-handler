@@ -104,7 +104,7 @@ jobs:
           extra_installs=$(node -e '(async () => console.log((await require("../external-scripts/bin/util.js").getNextjsReactPeerDependencies("next@latest")).join(" ")))()')
 
           if [[ -n "$extra_installs" ]]; then
-            npm install --force --no-save $(echo $extra_installs)
+            npm install --force --no-save $(echo $extra_installs) > '#pipe.ignore' 2>&1
           fi
 
           npm list next > '#pipe.ignore' 2>&1
@@ -112,7 +112,7 @@ jobs:
           npm list react > '#pipe.ignore' 2>&1
           npm list react-dom > '#pipe.ignore' 2>&1
 
-          npx jest > '#pipe.ignore' 2>&1
+          npx jest
 
           rm '#pipe.ignore'
 
