@@ -7,6 +7,7 @@ import { MongoClient } from 'mongodb';
 import { satisfies as satisfiesRange, validRange } from 'semver';
 
 import { name as pkgName, version as pkgVersion } from 'package.json';
+
 import { getNextjsReactPeerDependencies } from 'testverse/util';
 
 // * By default, external scripts should be silent. Use the DEBUG environment

@@ -136,7 +136,7 @@ describe('<app router>', () => {
       importAs: 'esm',
       routerType: 'app',
       additionalImports: `import { headers } from 'next/headers.js';`,
-      handlerCode: `return Response.json({ works: headers().get('x-works') });`,
+      handlerCode: `return Response.json({ works: (await headers()).get('x-works') });`,
       testCode: `console.log((await (await fetch({ headers: { 'x-works': 'working' }})).json()).works)`,
       testFixtureFn: async (context) => {
         debug('(expecting stdout to be "working")');
@@ -156,7 +156,7 @@ describe('<app router>', () => {
       importAs: 'cjs',
       routerType: 'app',
       additionalImports: `const { headers } = require('next/headers');`,
-      handlerCode: `return Response.json({ works: headers().get('x-works') });`,
+      handlerCode: `return Response.json({ works: (await headers()).get('x-works') });`,
       testCode: `console.log((await (await fetch({ headers: { 'x-works': 'working' }})).json()).works)`,
       testFixtureFn: async (context) => {
         debug('(expecting stdout to be "working")');
@@ -176,7 +176,7 @@ describe('<app router>', () => {
       routerType: 'app',
       insertAdditionalImportsFirst: true,
       additionalImports: `import { headers } from 'next/headers.js';`,
-      handlerCode: `return Response.json({ works: headers().get('x-works') });`,
+      handlerCode: `return Response.json({ works: (await headers()).get('x-works') });`,
       testCode: `console.log((await (await fetch({ headers: { 'x-works': 'working' }})).json()).works)`,
       testFixtureFn: async (context) => {
         debug('(expecting stdout to be "")');
@@ -202,7 +202,7 @@ describe('<app router>', () => {
       routerType: 'app',
       insertAdditionalImportsFirst: true,
       additionalImports: `const { headers } = require('next/headers');`,
-      handlerCode: `return Response.json({ works: headers().get('x-works') });`,
+      handlerCode: `return Response.json({ works: (await headers()).get('x-works') });`,
       testCode: `console.log((await (await fetch({ headers: { 'x-works': 'working' }})).json()).works)`,
       testFixtureFn: async (context) => {
         debug('(expecting stdout to be "")');
@@ -247,7 +247,7 @@ describe('<app router>', () => {
       importAs: 'cjs',
       routerType: 'app',
       additionalImports: `const { headers } = require('next/headers');`,
-      handlerCode: `return Response.json({ works: headers().get('x-works') });`,
+      handlerCode: `return Response.json({ works: (await headers()).get('x-works') });`,
       testCode: `{ throw new Error('BadBadNotGood'); }`,
       testFixtureFn: async (context) => {
         debug('(expecting exit code to be non-zero)');

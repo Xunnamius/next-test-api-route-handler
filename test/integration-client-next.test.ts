@@ -3,8 +3,9 @@
 // * These tests ensure NTARH and Next.js integrate as expected
 
 import debugFactory from 'debug';
-import { exports as pkgExports, name as pkgName, version as pkgVersion } from 'package';
 import stripAnsi from 'strip-ansi';
+
+import { exports as pkgExports, name as pkgName, version as pkgVersion } from 'package';
 
 import {
   dummyNpmPackageFixture,
@@ -14,6 +15,8 @@ import {
   run
 } from 'testverse/setup';
 
+import { getNextjsReactPeerDependencies } from 'testverse/util';
+
 const TEST_IDENTIFIER = 'integration-client-next';
 
 const NEXT_VERSIONS_UNDER_TEST: [
@@ -21,7 +24,7 @@ const NEXT_VERSIONS_UNDER_TEST: [
   routerType: 'app' | 'pages' | 'both',
   additionalConfig?: { extraInstalls?: string[] }
 ][] = [
-  // * [next@version, routerType]
+  // * [next@version, routerType, { extraInstalls: [...] }]
   ['next@9.0.0', 'pages'], //   ? Earliest compat release
   ['next@^9', 'pages'], //      ? Latest version 9 release
   ['next@10.1.x', 'pages'], //  ? See issue #184
@@ -32,14 +35,7 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@13.5.3', 'pages'], //  ? See issue #887
   ['next@14.0.4', 'both'], //   ? Ntarh guarantees App Router support here on
   ['next@14.2.11', 'both'], //  ? See issue #1076
-  // TODO: update/remove next entry when next@15 drops
-  [
-    'next@15.0.0-rc.1', //      ? Added preemptively
-    'app',
-    {
-      extraInstalls: ['react@19.0.0-rc-cd22717c-20241013']
-    }
-  ],
+  ['next@15.0.0', 'both'], //   ? Updated from 15.0.0-rc.1
   ['next@latest', 'both'] //    ! Latest release (must always be here and last)
 ];
 
@@ -106,6 +102,12 @@ const getHandler = (status) => async (_, res) => {
   res.status(status || 200).send({ works: 'working' });
 };`;
 
+        const npmInstall = [
+          nextVersion,
+          ...(await getNextjsReactPeerDependencies(nextVersion)),
+          ...extraInstalls
+        ];
+
         await withMockedFixture(
           async (context) => {
             if (!context.testResult)
@@ -166,7 +168,7 @@ ${commonSrc}
   });
 })();`
                 },
-                npmInstall: [nextVersion, ...extraInstalls]
+                npmInstall
               }
             : {
                 initialFileContents: {
@@ -204,7 +206,7 @@ it('does what I want 3', async () => {
   });
 });`
                 },
-                npmInstall: ['jest', nextVersion, ...extraInstalls],
+                npmInstall: ['jest', ...npmInstall],
                 runWith: {
                   binary: 'npx',
                   args: ['jest']

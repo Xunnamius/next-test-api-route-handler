@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable jest/prefer-strict-equal */
-// TODO: re-enable ban-ts-comment and prefer-ts-expect-error after next@15 drops
 import { testApiHandler, $originalGlobalFetch } from 'universe/index';
 
 import { parse, serialize } from 'cookie';
@@ -981,12 +978,8 @@ describe('::testApiHandler', () => {
         appHandler: {
           async GET() {
             return Response.json({
-              // TODO:
-              // @ts-ignore-error: canary next@15 types are wrong
-              c: cookies().get('__c')?.value,
-              // TODO:
-              // @ts-ignore-error: canary next@15 types are wrong
-              h: headers().get('__h')
+              c: (await cookies()).get('__c')?.value,
+              h: (await headers()).get('__h')
             });
           }
         },
