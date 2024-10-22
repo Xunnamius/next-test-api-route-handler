@@ -131,7 +131,7 @@ beforeAll(async () => {
 });
 
 describe('<app router>', () => {
-  it.only('works as ESM using namespace import', async () => {
+  it('works as ESM using namespace import', async () => {
     expect.hasAssertions();
     await runTest({
       importAs: 'esm',
