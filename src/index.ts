@@ -87,17 +87,13 @@ const apiResolver = findNextjsInternalResolver<
 
 const AppRouteRouteModule = findNextjsInternalResolver<
   // * Copied from the first line in the possibleLocations array below
-  // TODO:
-  // @ts-ignore-error: remove this error expectation when next@15 drops
-  typeof import('next/dist/server/future/route-modules/app-route/module').AppRouteRouteModule
+  typeof import('next/dist/server/route-modules/app-route/module').AppRouteRouteModule
 >('AppRouteRouteModule', [
-  // TODO: make this the last element in the array once next@15 drops
-  // ? The following is for next@>=14.0.4:
-  'next/dist/server/future/route-modules/app-route/module.js',
-
-  // TODO: make this the first element in the array once next@15 drops
   // ? The following is for next@>=15.0.0-rc.1:
-  'next/dist/server/route-modules/app-route/module.js'
+  'next/dist/server/route-modules/app-route/module.js',
+
+  // ? The following is for next@>=14.0.4:
+  'next/dist/server/future/route-modules/app-route/module.js'
 ]);
 
 // * ^^^ FIND NEXTJS INTERNAL RESOLVERS ^^^ * \\
@@ -149,6 +145,9 @@ export interface NtarhInit<NextResponseJsonType = unknown> {
   }) => Promisable<void>;
 }
 
+type AppRouteUserlandModule =
+  import('next/dist/server/route-modules/app-route/module').AppRouteUserlandModule;
+
 /**
  * The parameters expected by `testApiHandler` when using `appHandler`.
  */
@@ -161,21 +160,17 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    * documentation](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
    * for details.
    */
-  appHandler: Omit<
-    // TODO:
-    // @ts-ignore-error: remove this error expectation when next@15 drops
-    import('next/dist/server/future/route-modules/app-route/module').AppRouteUserlandModule,
-    // TODO:
-    // @ts-ignore-error: remove this error expectation when next@15 drops
-    keyof import('next/dist/server/future/route-modules/app-route/module').AppRouteHandlers
-  > & {
-    // TODO:
-    // @ts-ignore-error: remove this error expectation when next@15 drops
-    [key in keyof import('next/dist/server/future/route-modules/app-route/module').AppRouteHandlers]?: (
-      req: NextRequest,
-      context?: any
-    ) => any;
-  };
+  appHandler: Partial<
+    Omit<
+      AppRouteUserlandModule,
+      keyof import('next/dist/server/route-modules/app-route/module').AppRouteHandlers
+    > & {
+      [key in keyof import('next/dist/server/route-modules/app-route/module').AppRouteHandlers]?: (
+        req: NextRequest,
+        segmentData?: any
+      ) => any;
+    }
+  >;
   pagesHandler?: undefined;
   /**
    * `params` is passed directly to the handler and represents processed dynamic
@@ -508,7 +503,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 },
                 nextConfigOutput: undefined,
                 resolvedPagePath: 'ntarh://testApiHandler',
-                userland: appHandler
+                userland: appHandler as AppRouteUserlandModule
               });
             }
           );
@@ -526,7 +521,10 @@ export async function testApiHandler<NextResponseJsonType = any>({
               },
               renderOpts: {
                 experimental: {
-                  ppr: false
+                  // @ts-expect-error: for next@<15
+                  ppr: false,
+                  // For next@>=15
+                  isRoutePPREnabled: false
                 },
                 // ? Next.js tries to do things it shouldn't unless we add these
                 // @ts-ignore: the types for renderOpts are wrong?!

@@ -1,22 +1,19 @@
 /* eslint-disable jest/no-conditional-expect */
 /* eslint-disable jest/no-conditional-in-test */
 /* eslint-disable jest/no-untyped-mock-factory */
-import { accessSync, constants as fsConstants } from 'node:fs';
-
 import { isolatedImport } from 'testverse/setup';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-// TODO: delete this function when next@15 drops
-function isAccessible(path: string) {
-  try {
-    accessSync(path, fsConstants.R_OK);
-    return true;
-  } catch {
-    return false;
-  }
-}
+// function isAccessible(path: string) {
+//   try {
+//     accessSync(path, fsConstants.R_OK);
+//     return true;
+//   } catch {
+//     return false;
+//   }
+// }
 
 // * This unit test ensures that NTARH can handle missing resolver dependencies.
 // *
@@ -33,16 +30,14 @@ function isAccessible(path: string) {
 
 // ? The currently correct import path for the apiResolver function.
 // * BB (-2)
-// TODO: becomes AA (-1) once next@15 drops
 const actualAppRouteRouteModulePath =
-  'next/dist/server/future/route-modules/app-route/module.js';
+  'next/dist/server/route-modules/app-route/module.js';
 // ? Defunct import paths listed by discovery date in ascending order. That is:
 // ? previous actualAppRouteRouteModulePaths should be appended to the end of
 // ? this array.
 const altAppRouteRouteModulePaths: string[] = [
   // * AA (-1)
-  // TODO: becomes BB (-2) once next@15 drops
-  'next/dist/server/route-modules/app-route/module.js'
+  'next/dist/server/future/route-modules/app-route/module.js'
 ];
 
 // ? The currently correct import path for the apiResolver function.
@@ -64,8 +59,7 @@ const altApiResolverPaths: string[] = [
 // * vvv TOP MOCKS vvv * \\
 
 jest.mock(
-  // TODO: string swap with below once next@15 drops
-  'next/dist/server/future/route-modules/app-route/module.js',
+  'next/dist/server/route-modules/app-route/module.js',
   () => {
     return new Proxy(
       {},
@@ -88,13 +82,12 @@ jest.mock(
         }
       }
     );
-  },
+  } /* ,
   {
-    // TODO: remove this ugliness when next@15 drops
     virtual: !isAccessible(
       `${__dirname}/../node_modules/next/dist/server/future/route-modules/app-route/module.js`
     )
-  }
+  } */
 );
 
 jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
@@ -126,8 +119,7 @@ jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
 // * vvv REMAINING AppRouteRouteModule MOCKS vvv * \\
 
 jest.mock(
-  // TODO: string swap with above once next@15 drops
-  'next/dist/server/route-modules/app-route/module.js',
+  'next/dist/server/future/route-modules/app-route/module.js',
   () => {
     return new Proxy(
       {},
@@ -147,41 +139,18 @@ jest.mock(
     );
   },
   {
-    // TODO: remove this ugliness (replace w/ always virtual) when next@15 drops
+    virtual: true
+    /*
     virtual: !isAccessible(
       `${__dirname}/../node_modules/next/dist/server/route-modules/app-route/module.js`
-    )
+    ) */
   }
 );
 
-// TODO: delete this whole block when next@15 drops (needed b/c of some obscure jest bug)
-jest.mock(
-  '/repos/next-test-api-route-handler/node_modules/next/dist/server/route-modules/app-route/module.js',
-  () => {
-    return new Proxy(
-      {},
-      {
-        get: function (_, key) {
-          if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-1)!];
-
-            if (meta.shouldFail) {
-              throw new Error(`fake import failure AA`);
-            } else if (key === 'AppRouteRouteModule') {
-              return getMockAppRouteRouteModule(meta);
-            }
-          } else throw new Error('proxy AA invoked too early');
-        }
-      }
-    );
-  },
-  {
-    // TODO: remove this ugliness (replace w/ always virtual) when next@15 drops
-    virtual: !isAccessible(
-      `${__dirname}/../node_modules/next/dist/server/route-modules/app-route/module.js`
-    )
-  }
-);
+// ! Lesson learned from trying to test next@15.0.0-rc.1: Jest has some obscure
+// ! bug when calling jest.mock() using a relative path. If your module isn't
+// ! being properly mocked, try duplicating the mock with the duplicate using
+// ! its absolute path in addition.
 
 // * ^^^ REMAINING AppRouteRouteModule MOCKS ^^^ * \\
 
