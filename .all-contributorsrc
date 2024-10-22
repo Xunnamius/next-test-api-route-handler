@@ -268,6 +268,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/10379303?v=4",
       "profile": "https://github.com/clueleaf",
       "contributions": ["security"]
+    },
+    {
+      "login": "danstarns",
+      "name": "Daniel Starns",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35999252?v=4",
+      "profile": "https://github.com/danstarns",
+      "contributions": ["bug", "ideas"]
     }
   ]
 }
