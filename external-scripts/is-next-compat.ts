@@ -1,10 +1,11 @@
 // ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
 
 import debugFactory from 'debug';
+import { toss } from 'toss-expression';
 import execa from 'execa';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
-import { satisfies as satisfiesRange, validRange } from 'semver';
+import { satisfies as satisfiesRange, validRange, maxSatisfying } from 'semver';
 
 import { name as pkgName, version as pkgVersion } from 'package.json';
 
@@ -169,22 +170,26 @@ const invoked = async () => {
 
   const { filename: path } = findPackageJson(process.cwd()).next();
   debug(`using path: ${path}`);
-  if (!path) throw new Error('could not find package.json');
+
+  if (!path) {
+    throw new Error('could not find package.json');
+  }
 
   await getLastTestedVersion();
 
   debug(`installing next@${latestReleaseVersion} for unit tests`);
   debug(`(integration tests use their own Next.js versions)`);
 
-  // ? Install peer deps manually for ancient node versions
+  // ? Install peer deps manually for Next.js
+  const nextLatestReleaseVersionPeerDependencies =
+    await getNextPeerDependencies('next@latest');
+
   await execaWithDebug('npm', [
     'install',
     '--no-save',
     '--force',
     `next@${latestReleaseVersion}`,
-    // !!!
-    // TODO: need to remove the explicit react install after next@15 drops
-    'react@19.0.0-rc-cd22717c-20241013'
+    nextLatestReleaseVersionPeerDependencies
   ]);
 
   debug('running compatibility tests');
@@ -205,3 +210,48 @@ export default invoked().catch((error: Error | string) => {
   debug.extend('error')(typeof error === 'string' ? error : error.message);
   process.exitCode = 2;
 });
+
+/**
+ * Since some versions of Next.js are released with flawed `package.json::peerDependencies`, sometimes we need to ensure the correct versions of
+ * Next.js's peer dependencies are actually installed.
+ */
+// TODO: replace this with shared test/utils.ts getNextPeerDependencies export
+async function getNextPeerDependencies(
+  /**
+   * For example: `next`, `next@latest`, or `next@15.0.0-rc.1`
+   */
+  npmInstallNextJsString: string
+) {
+  return Promise.all([
+    execaWithDebug('npm', ['show', 'react', 'versions']),
+    execaWithDebug('npm', ['show', 'react-dom', 'versions']),
+    execaWithDebug('npm', ['show', npmInstallNextJsString, 'peerDependencies'])
+  ]).then(function ([
+    { stdout: reactVersions_ },
+    { stdout: reactDomVersions_ },
+    { stdout: nextPeerDependencies_ }
+  ]) {
+    const finalPeerDeps: string[] = [];
+
+    debug('reactVersions: %O', reactVersions_);
+    debug('reactDomVersions: %O', reactDomVersions_);
+    debug('nextPeerDependencies: %O', nextPeerDependencies_);
+
+    const reactVersions: string[] = JSON.parse(reactVersions_);
+    const reactDomVersions: string[] = JSON.parse(reactDomVersions_);
+    const nextPeerDependencies: Record<'react' | 'react-dom', string> =
+      JSON.parse(nextPeerDependencies_);
+
+    finalPeerDeps.push(
+      'react@' +
+        (maxSatisfying(reactVersions, nextPeerDependencies.react) ||
+          toss(new Error('unable to resolve react peer dependency'))),
+      'react-dom@' +
+        (maxSatisfying(reactDomVersions, nextPeerDependencies['react-dom']) ||
+          toss(new Error('unable to resolve react-dom peer dependency')))
+    );
+
+    debug('finalPeerDeps: %O', finalPeerDeps);
+    return finalPeerDeps.join(' ');
+  });
+}
