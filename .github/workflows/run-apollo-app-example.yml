@@ -70,7 +70,7 @@ jobs:
           ssh://git@github.com/
 
       - name: Use node ${{ matrix.node }}
-        uses: actions/setup-node@v4.0.4
+        uses: actions/setup-node@v4.1.0
 
       - name: Cache npm
         uses: actions/cache@v4
