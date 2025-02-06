@@ -1590,7 +1590,7 @@ more information.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-37-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-38-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1655,6 +1655,7 @@ key][x-repo-all-contributors-emojis]):
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/danstarns"><img src="https://avatars.githubusercontent.com/u/35999252?v=4?s=100" width="100px;" alt="Daniel Starns"/><br /><sub><b>Daniel Starns</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Adanstarns" title="Bug reports">🐛</a> <a href="#ideas-danstarns" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://columkelly.com/"><img src="https://avatars.githubusercontent.com/u/98435978?v=4?s=100" width="100px;" alt="Colum Kelly"/><br /><sub><b>Colum Kelly</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Acolumk1" title="Bug reports">🐛</a> <a href="#research-columk1" title="Research">🔬</a></td>
     </tr>
   </tbody>
   <tfoot>

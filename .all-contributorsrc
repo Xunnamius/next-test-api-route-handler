@@ -275,6 +275,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/35999252?v=4",
       "profile": "https://github.com/danstarns",
       "contributions": ["bug", "ideas"]
+    },
+    {
+      "login": "columk1",
+      "name": "Colum Kelly",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98435978?v=4",
+      "profile": "https://columkelly.com/",
+      "contributions": ["bug", "research"]
     }
   ]
 }
