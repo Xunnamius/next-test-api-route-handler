@@ -11,7 +11,7 @@ started, [take a look at this quick and easy guide][how-to-contribute]. 💜
 
 This repository uses a [fully automated][github-actions] [continuous
 linting][husky-cl] (CL), integration testing (CI), and deployment (CD)
-[projector][projector]-based pipeline for integrating PRs and publishing
+[xpipeline][xpipeline]-based pipeline for integrating PRs and publishing
 releases. The neat thing about a fully automated pipeline is that anyone
 anywhere can make a contribution quickly and with minimal tedium.
 
@@ -30,8 +30,8 @@ The ideal contributor flow is as follows:
      more sense to use `npm install` feel free to use that instead.
      - **If you're getting an EINTEGRITY error from npm, you need to delete
        package-lock.json before running `npm install` (not `npm ci`).**
-   - If `.env.example` exists, consider copying it to `.env` and configuring
-     sensible defaults.
+   - If `.env.default` exists, consider copying it to `.env` for sensible
+     pre-configured defaults.
 3. Before making any changes, ensure all unit tests are passing with
    `npm run test`.
 4. _(optional but recommended)_ Create a new branch, usually off `main`.
@@ -41,17 +41,17 @@ The ideal contributor flow is as follows:
    - Ensure any new tests still pass even when the `DEBUG` environment variable
      is defined.
 6. Push your commits to your fork and, when you're ready, [_fearlessly_ submit
-   your PR][x-repo-pr-compare]! Your changes will be tested in our CI pipeline.
+   your PR][pr-compare]! Your changes will be tested in our CI pipeline.
 7. Pat yourself on the back! Your hard work is well on its way to being reviewed
    and, if everything looks good, merged and released 🚀
 
 Additionally, there are a few things you can do to greatly increase the
 likelihood your PR passes review:
 
-- **Do** [open an issue][x-repo-choose-new-issue] and discuss your proposed
-  changes (to prevent wasting your valuable time, e.g. _maybe we're already
-  working on a fix!_), and [search][open-issues] to see if there are any
-  existing issues related to your concerns.
+- **Do** [open an issue][choose-new-issue] and discuss your proposed changes (to
+  prevent wasting your valuable time, e.g. _maybe we're already working on a
+  fix!_), and [search][open-issues] to see if there are any existing issues
+  related to your concerns.
 - **Do** practice [atomic committing][atomic-commits].
 - **Do not** reduce code coverage ([codecov][codecov] checks are performed
   during CI).
@@ -78,7 +78,10 @@ likelihood your PR passes review:
 At this point, you're ready to create your PR and ✨ contribute ✨!
 
 [atomic-commits]: https://www.codewithjason.com/atomic-commits-testing
-[code-of-conduct]: /.github/CODE_OF_CONDUCT.md
+[choose-new-issue]:
+  https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose
+[code-of-conduct]:
+  https://github.com/Xunnamius/next-test-api-route-handler/.github/CODE_OF_CONDUCT.md
 [codecov]: https://about.codecov.io
 [conventional-commits]: https://www.conventionalcommits.org/en/v1.0.0#summary
 [cosmetic-commits]:
@@ -88,15 +91,10 @@ At this point, you're ready to create your PR and ✨ contribute ✨!
 [how-to-clone]:
   https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/cloning-a-repository
 [how-to-contribute]: https://www.dataschool.io/how-to-contribute-on-github
-[husky-cl]:
-  https://github.com/Xunnamius/next-test-api-route-handler/tree/main/.husky
+[husky-cl]: https://github.com/Xunnamius/next-test-api-route-handler/tree/main/.husky
 [npm-ci]: https://docs.npmjs.com/cli/v6/commands/npm-ci
-[open-issues]:
-  https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
+[open-issues]: https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
 [pkg-debug]: https://www.npmjs.com/package/debug
 [pkg-debug-wildcards]: https://www.npmjs.com/package/debug#wildcards
-[projector]: https://github.com/Xunnamius/next-test-api-route-handler#readme
-[x-repo-choose-new-issue]:
-  https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose
-[x-repo-pr-compare]:
-  https://github.com/Xunnamius/next-test-api-route-handler/compare
+[pr-compare]: https://github.com/Xunnamius/next-test-api-route-handler/compare
+[xpipeline]: https://github.com/Xunnamius/xpipeline#readme

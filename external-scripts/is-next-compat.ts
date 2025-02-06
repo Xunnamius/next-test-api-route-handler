@@ -1,53 +1,54 @@
 // ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
 
-import debugFactory from 'debug';
-import execa, { type ExecaError } from 'execa';
+import { getCurrentWorkingDirectory } from '@-xun/fs';
+import { run } from '@-xun/run';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
+import { createDebugLogger } from 'rejoinder';
 import { satisfies as satisfiesRange, validRange } from 'semver';
 
-import { name as pkgName, version as pkgVersion } from 'package.json';
+import { getNextjsReactPeerDependencies } from 'testverse:util.ts';
 
-import { getNextjsReactPeerDependencies } from 'testverse/util';
+import { name as packageName, version as packageVersion } from 'package.json';
 
 // * By default, external scripts should be silent. Use the DEBUG environment
 // * variable to see relevant output
 
-const debug = debugFactory(`${pkgName}:is-next-compat`);
+const debug = createDebugLogger({ namespace: `${packageName}:is-next-compat` });
 
-debug(`pkgName: "${pkgName}"`);
-debug(`pkgVersion: "${pkgVersion}"`);
+debug(`pkgName: "${packageName}"`);
+debug(`pkgVersion: "${packageVersion}"`);
 
-export default main().catch((error: Error | string) => {
-  debug.extend('error')(typeof error === 'string' ? error : error.message);
+export default main().catch((error: unknown) => {
+  debug.error(error);
   process.exitCode = 2;
 });
+
+let isRunningInTestMode: boolean | undefined = undefined;
 
 /**
  * Detect if this tool was invoked in the context of an integration test
  */
-const isRunningInTestMode = async function () {
-  if (isRunningInTestMode.memoized === undefined) {
-    try {
-      isRunningInTestMode.memoized =
-        isRunningInTestMode.memoized ??
-        (await execa('npm', ['run', '_is_next_compat_test_mode'])).exitCode === 0;
-    } catch {}
-  }
+async function checkIfRunningInTestMode() {
+  try {
+    isRunningInTestMode =
+      isRunningInTestMode ??
+      (await run('npm', ['run', '_is_next_compat_test_mode'])).exitCode === 0;
+  } catch {}
 
-  debug(`test override mode: ${isRunningInTestMode.memoized ? 'ACTIVE' : 'inactive'}`);
-  return (isRunningInTestMode.memoized = !!isRunningInTestMode.memoized);
-} as (() => Promise<boolean>) & { memoized?: boolean };
+  debug(`test override mode: ${isRunningInTestMode ? 'ACTIVE' : 'inactive'}`);
+  return !!isRunningInTestMode;
+}
 
 /**
  * Update remote DB with the new information so that the badge stays current.
  */
 async function setCompatFlagTo(version: string) {
   try {
-    if (await isRunningInTestMode()) {
+    if (await checkIfRunningInTestMode()) {
       debug('skipped updating database (test override mode)');
     } else {
-      const semverRange = process.env.NODE_TARGET_VERSION as string;
+      const semverRange = process.env.NODE_TARGET_VERSION!;
       debug(`saw potential semver range: ${semverRange}`);
 
       if (
@@ -83,28 +84,6 @@ async function setCompatFlagTo(version: string) {
   }
 }
 
-const execaWithDebug = (async (...args: Parameters<typeof execa>) => {
-  try {
-    debug.extend('execa')('execa called: %O', args.flat());
-
-    const res = await execa(...args);
-
-    debug.extend('stdout')(res.stdout);
-    debug.extend('stderr')(res.stderr);
-
-    return res;
-  } catch (error) {
-    const error_ =
-      'npm test failed! The latest Next.js is incompatible with this package!';
-    debug(error_);
-
-    debug.extend('stdout')((error as ExecaError).stdout);
-    debug.extend('stderr')((error as ExecaError).stderr);
-
-    throw new Error(error_);
-  }
-}) as unknown as typeof execa;
-
 /**
  * The is-next-compat runtime.
  *
@@ -128,23 +107,23 @@ async function main() {
 
   const { repos } = new Octokit({
     auth: process.env.GH_TOKEN,
-    userAgent: `${pkgName}@${pkgVersion}`
+    userAgent: `${packageName}@${packageVersion}`
   });
 
   const {
-    data: { tag_name: vlatest }
+    data: { tag_name: latestVersion }
   } = await repos.getLatestRelease({
     owner: 'vercel',
     repo: 'next.js'
   });
 
-  const latestReleaseVersion = vlatest.replace(/^v/, '');
+  const latestReleaseVersion = latestVersion.replace(/^v/, '');
   debug(`saw latest release version "${latestReleaseVersion}"`);
 
   if (!latestReleaseVersion) throw new Error('could not find latest Next.js version');
 
-  const { filename: path } = findPackageJson(process.cwd()).next();
-  debug(`using path: ${path}`);
+  const { filename: path } = findPackageJson(getCurrentWorkingDirectory()).next();
+  debug(`using path: %O`, path);
 
   if (!path) {
     throw new Error('could not find package.json');
@@ -157,11 +136,10 @@ async function main() {
 
   // ? Install peer deps manually for Next.js
   const nextLatestReleaseVersionPeerDependencies = await getNextjsReactPeerDependencies(
-    nextVersionUnderTestFullNameAndVersion,
-    execaWithDebug
+    nextVersionUnderTestFullNameAndVersion
   );
 
-  await execaWithDebug('npm', [
+  await run('npm', [
     'install',
     '--no-save',
     '--force',
@@ -171,8 +149,8 @@ async function main() {
 
   debug('running compatibility tests');
 
-  await execaWithDebug('npm', ['run', 'test:unit']);
-  await execaWithDebug('npm', ['run', 'test:integration:client']);
+  await run('npm', ['run', 'test:unit']);
+  await run('npm', ['run', 'test:integration:client']);
 
   debug('test succeeded');
 

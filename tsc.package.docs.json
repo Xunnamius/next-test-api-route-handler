@@ -1,0 +1,23 @@
+/**
+ ** This file extends the project root tsconfig.json file for use with
+ ** typedoc at the package level.
+ **
+ ** Use this file to exert some control over how typedoc generates
+ ** package-specific documentation.
+ */
+
+{
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "extends": "./tsconfig.json",
+  "include": ["types/**/*", "src/**/*", "test/**/*"],
+  "exclude": [
+    "**/dist/**/*",
+    "**/test/fixtures/**/*",
+    "**/node_modules/**/*",
+    "packages/**/*",
+    "packages/**/.*",
+    "**/*.ignore",
+    "**/*.ignore.*/**/*",
+    "**/ignore.*"
+  ]
+}

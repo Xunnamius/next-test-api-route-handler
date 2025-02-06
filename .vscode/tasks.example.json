@@ -1,0 +1,27 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "lint: discover problems",
+      "type": "process",
+      "command": "npx",
+      "args": [
+        "symbiote",
+        "lint",
+        "--scope=unlimited",
+        "--linter=eslint",
+        "--linter=tsc",
+        "--allow-warning-comments=false"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "never"
+      },
+      "echoCommand": true,
+      "icon": { "id": "zap", "color": "terminal.ansiCyan" },
+      "problemMatcher": ["$eslint-stylish", "$tsc"]
+    }
+  ]
+}

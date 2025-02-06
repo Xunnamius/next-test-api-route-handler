@@ -1,0 +1,118 @@
+{
+  "configurations": [
+    {
+      "type": "node",
+      "name": "vscode-jest-tests.v2",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--watchAll=false",
+        "--testNamePattern",
+        "${jest.testNamePattern}",
+        "--runTestsByPath",
+        "${jest.testFile}"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test",
+        "NODE_OPTIONS": "--no-warnings --experimental-vm-modules",
+        "DEBUG_COLORS": "false"
+      },
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      },
+
+      // ! Note that these settings do NOT affect MANUALLY LAUNCHED debug
+      // ! terminals! To affect stepping while using the debug terminal
+      // ! manually, you'll need to configure settings.json (non-workspace) or
+      // ! *.code-workspace (workspace) and set
+      // ! `debug.javascript.terminalOptions.skipFiles/smartStep` appropriately.
+      // * You MAY need to reload vscode/vscode-jest before changes take effect!
+      // ? Set to false to step through node internals
+      "smartStep": true,
+      // ? Selectively comment out entries for deeper debugging
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+
+        //"!**/node_modules/*jest*/**"
+        //"!**/node_modules/@-xun/**"
+      ]
+    },
+    {
+      "type": "node",
+      "name": "jest-active-file",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand", "--watchAll=false", "${file}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test",
+        "NODE_OPTIONS": "--no-warnings --experimental-vm-modules",
+        "DEBUG_COLORS": "false"
+      },
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      },
+
+      // ! Note that these settings do NOT affect MANUALLY LAUNCHED debug
+      // ! terminals! To affect stepping while using the debug terminal
+      // ! manually, you'll need to configure settings.json (non-workspace) or
+      // ! *.code-workspace (workspace) and set
+      // ! `debug.javascript.terminalOptions.skipFiles/smartStep` appropriately.
+      // * You MAY need to reload vscode/vscode-jest before changes take effect!
+      // ? Set to false to step through node internals
+      "smartStep": true,
+      // ? Selectively comment out entries for deeper debugging
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+
+        //"!**/node_modules/*jest*/**"
+        //"!**/node_modules/@-xun/**"
+      ]
+    },
+    {
+      "type": "node",
+      "name": "jest-transpiled",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand", "--watchAll=false", "${file}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": false,
+      "env": {
+        "NODE_ENV": "test",
+        "NODE_OPTIONS": "--no-warnings --experimental-vm-modules",
+        "DEBUG_COLORS": "false",
+        "SYMBIOTE_TEST_JEST_TRANSPILED": "true"
+      },
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      },
+
+      // ! Note that these settings do NOT affect MANUALLY LAUNCHED debug
+      // ! terminals! To affect stepping while using the debug terminal
+      // ! manually, you'll need to configure settings.json (non-workspace) or
+      // ! *.code-workspace (workspace) and set
+      // ! `debug.javascript.terminalOptions.skipFiles/smartStep` appropriately.
+      // * You MAY need to reload vscode/vscode-jest before changes take effect!
+      // ? Set to false to step through node internals
+      "smartStep": true,
+      // ? Selectively comment out entries for deeper debugging
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+
+        //"!**/node_modules/*jest*/**"
+        //"!**/node_modules/@-xun/**"
+      ]
+    }
+  ]
+}

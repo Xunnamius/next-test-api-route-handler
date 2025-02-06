@@ -32,103 +32,300 @@ As a maintainer, you're fine to make your branches on the main repo or on your
 own fork. Either way is fine.
 
 When we receive a pull request, a GitHub Actions build is kicked off
-automatically (see [`.github/workflows`][3]). We avoid merging anything that
-fails the Actions workflow.
+automatically (see [`.github/workflows`][3]). We usually avoid merging anything
+that fails our Actions workflows.
 
 Please review PRs and focus on the code rather than the individual. You never
 know when this is someone's first ever PR and we want their experience to be as
 positive as possible, so be uplifting and constructive.
 
-When you merge the pull request, 99% of the time you should use the [rebase and
-merge][4] feature. This keeps our git history clean. If commit messages need to
-be adjusted, maintainers should force push new commits with adjusted messages to
-the PR branch before merging it in.
+When you merge the pull request, you should do so via either the [rebase and
+merge][4] or [squash and merge][5] features. This keeps our git history clean.
 
-The [squash and merge][5] feature can also be used, but keep in mind that
-squashing commits will likely damage the [generated][6] [CHANGELOG.md][7],
-hinder [bisection][8], and result in [non-atomic commits][9], so use it
-sparingly.
+If commit messages need to be adjusted, maintainers should force push new
+commits with adjusted messages to the PR branch before merging it in.
 
-## Release
+> [!CAUTION]
+>
+> **Always favor rebase over squash for large and/or complex contributions**
+> since squashing commits may damage the [generated][6] [CHANGELOG.md][7],
+> hinder [bisection][8], yield [non-atomic commits][9], and could even result in
+> [the wrong version][26] being [released][10].
 
-Our releases are automatic. They happen whenever code lands into `master`. A
-GitHub Actions build gets kicked off and, if it's successful, a tool called
-[`semantic-release`][10] is used to automatically publish a new release to npm
-and GitHub along with an updated changelog. It is only able to determine the
-version and whether a release is necessary by the git commit messages. With this
-in mind, **please brush up on [the commit message convention][commit] which
-drives our releases.**
+## Releases
 
-> One important note about this: please make sure that commit messages do NOT
-> contain the words "BREAKING CHANGE" in them unless we want to push a major
-> version. I've been burned by this more than once where someone will include
-> "BREAKING CHANGE: None" and it will end up releasing a new major version. Do
-> not do this!
+Our releases are automatic. They happen whenever certain commits are pushed to a
+relevant branch. That means a new release is generated only when there are
+useful changes to justify it. See [the release rules][11] for a list of commit
+types that trigger releases.
+
+To generate a new release, a GitHub Actions build gets kicked off and, if it's
+successful, [xrelease][10] is used to automatically publish a new release to npm
+and GitHub along with an updated changelog. xrelease determines whether a
+release is necessary, and what the new version number will be, by analyzing git
+commit messages. With this in mind, **it is imperative you brush up on [the
+commit message convention][25] which drives our releases.**
+
+> [!IMPORTANT]
+>
+> **UNDER NO CIRCUMSTANCES** should any of your commit messages contain the
+> strings `BREAKING:`, `BREAKING CHANGE:`, or `BREAKING CHANGES:` unless the
+> goal is to release a new major version.
 
 ### Manual Releases
 
-This project has an automated release set up. That means things are only
-released when there are useful changes in the code that justify a release. See
-[the release rules][11] for a list of commit types that trigger releases.
+This project employs an automated CI/CD release pipeline. However, sometimes
+things get messed up (e.g. CI workflow / GitHub Actions breaks) and we need to
+trigger a release ourselves. When this happens, xrelease can be triggered
+locally.
 
-However, sometimes things get messed up (e.g. CI workflow / GitHub Actions
-breaks) and we need to trigger a release ourselves. When this happens,
-semantic-release can be triggered locally by following these steps:
+> [!CAUTION]
+>
+> Note that any manual releases generated outside of the CI/CD pipeline will be
+> published [_without established provenance_][21]! It is for that reason that,
+> outside of truly exceptional events, manual releases should be avoided at all
+> costs.
 
-> If one of these steps fails, you should address the failure before running the
-> next step.
+#### Preparing Repository for Release
+
+Before proceeding with a manual release, first ensure all dependencies are
+installed and all necessary secrets are available.
+
+> [!TIP]
+>
+> You only need to run the following commands if you have not run `npm install`
+> at least once.
+
+> [!IMPORTANT]
+>
+> These command should only be run at the project root level and not in any
+> individual package root.
 
 ```bash
-# These command must be run from the project root. It is recommended to clone a
-# fresh version of the repo to a temp directory and run these commands from
-# there.
-
 # 1. Install dependencies and add your auth tokens to the .env file.
+#
 # ! DO NOT COMMIT THE .env FILE !
 cp .env.default .env
 npm ci
-
-# 2. Reset the working directory to a clean state (deletes all ignored files).
-npm run clean
-
-# 3. Lint all files.
-npm run lint:all
-
-# 4. Build distributables.
-npm run build:dist
-
-# 5. Build any external executables (used in GitHub Actions workflows).
-npm run build:externals
-
-# 6. Format all files.
-npm run format
-
-# 7. Build auxiliary documentation (AFTER format so line numbers are correct).
-npm run build:docs
-
-# 8. Run all possible tests and generate coverage information.
-npm run test:all
-
-# 9. Upload coverage information to codecov (only if you have the proper token).
-CODECOV_TOKEN=$(npx --yes dotenv-cli -p CODECOV_TOKEN) npx codecov
-
-# 10. Trigger semantic-release locally and generate a new release. This requires
-# having tokens for NPM and GitHub with the appropriate permissions.
-#
-# Do a dry run first:
-NPM_TOKEN="$(npx --yes dotenv-cli -p NPM_TOKEN)" GH_TOKEN="$(npx --yes dotenv-cli -p GITHUB_TOKEN)" HUSKY=0 UPDATE_CHANGELOG=true GIT_AUTHOR_NAME="$(npx --yes dotenv-cli -p GIT_AUTHOR_NAME)" GIT_COMMITTER_NAME="$(npx --yes dotenv-cli -p GIT_COMMITTER_NAME)" GIT_AUTHOR_EMAIL="$(npx --yes dotenv-cli -p GIT_AUTHOR_EMAIL)" GIT_COMMITTER_EMAIL="$(npx --yes dotenv-cli -p GIT_COMMITTER_EMAIL)" npx --no-install semantic-release --no-ci --extends "$(pwd)/release.config.js" --dry-run
-# Then do the actual publish:
-NPM_TOKEN="$(npx --yes dotenv-cli -p NPM_TOKEN)" GH_TOKEN="$(npx --yes dotenv-cli -p GITHUB_TOKEN)" HUSKY=0 UPDATE_CHANGELOG=true GIT_AUTHOR_NAME="$(npx --yes dotenv-cli -p GIT_AUTHOR_NAME)" GIT_COMMITTER_NAME="$(npx --yes dotenv-cli -p GIT_COMMITTER_NAME)" GIT_AUTHOR_EMAIL="$(npx --yes dotenv-cli -p GIT_AUTHOR_EMAIL)" GIT_COMMITTER_EMAIL="$(npx --yes dotenv-cli -p GIT_COMMITTER_EMAIL)" npx --no-install semantic-release --no-ci --extends "$(pwd)/release.config.js"
 ```
 
-<!-- lint ignore -->
+#### Manual Release Method 1: Semi-Automated
 
-## Thanks!
+To release all packages in a repository:
+
+```bash
+# Do a dry run first if you're not absolutely sure all is as it should be:
+npx run release:topological -- --options --dry-run
+# Then do the actual topological release:
+npx run release:topological
+```
+
+To release a specific package (without regard for topology):
+
+```bash
+# Do a dry run first if you're not absolutely sure all is as it should be:
+npx -w specific-package-name-here run release -- --dry-run
+# Then do the actual topological release:
+npx -w specific-package-name-here run release
+```
+
+#### Manual Release Method 2: By Hand
+
+> [!WARNING]
+>
+> Note that, in a monorepo/hybridrepo, relying on these commands to manually cut
+> a release may result in a non-functional package being released if said
+> package depends on other packages in the project that have unreleased changes.
+>
+> Symbiote's "project topology" command solves this problem and should be
+> preferred over building packages individually.
+
+There are two ways to execute the release procedure of a particular package by
+hand. The first is by leveraging the release script:
+
+```bash
+# Do a symbiote dry run first:
+npm run release -- --dry-run
+# Then do the actual symbiote-based release:
+npm run release
+```
+
+> [!NOTE]
+>
+> See `npx symbiote release --help` for more options.
+
+The second way is by running the following npm scripts in the specified order:
+
+> [!WARNING]
+>
+> If one of these steps fails, you should address the failure before running the
+> next step.
+
+> [!TIP]
+>
+> These commands should be run with the root of the individual package you're
+> trying to release as the current working directory. Using `npm -w` also works.
+
+```bash
+# 2. OPTIONAL: Reset the working tree to a clean state. The build command
+# usually does this for you, making this step unnecessary.
+#npm run clean -- --force
+
+# 3. Format this package's files.
+npm run format
+
+# 4. Lint every file in the package and any files imported by those files.
+npm run lint:package
+
+# 5. Build this package's distributables.
+npm run build
+
+# 6. Build this package's documentation (AFTER format for correct line numbers).
+npm run build:docs
+
+# 7. Run all of this package's tests and the tests of any package imported by
+# source files in this package, then generate coverage data.
+npm run test:package:all
+
+# 8. Trigger xrelease locally to publish a new release of this package. This
+# requires having valid tokens for NPM, GitHub, and Codecov each with the
+# appropriate permissions.
+#
+# Do a dry run first:
+npm run release -- --skip-tasks manual --dry-run
+# Then review CHANGELOG.md and, after making sure the next release includes the
+# commits you're expecting, do the actual release:
+npm run release -- --skip-tasks manual
+```
+
+## Deprecation and End of Life
+
+Sometimes, for a variety of reasons, the maintenance window on a project may
+close for good. It happens. And when it does, there is a need to make clear to
+all current and future users that the project and its assets (repository,
+published packages, etc) are to be considered deprecated and that no further
+maintenance is intended.
+
+With somber focus, the following steps should be taken:
+
+> [!TIP]
+>
+> If you're using [symbiote][12], all of this can be done automatically:
+>
+> ```bash
+> npx symbiote project renovate --deprecate
+> ```
+
+> These steps were inspired by [Richard Litt's checklist][13].
+
+### Deprecate the Remote (GitHub) repository
+
+> [!IMPORTANT]
+>
+> If the deprecated project is using [symbiote][12]/[xpipeline][14], at least
+> one of the commits created as a result of following these instructions must be
+> of the [`build` type][15] so that a final "deprecated" version with updated
+> deprecation documentation is released. If operating on a monorepo, said commit
+> must touch every deprecated package.
+
+<br />
+
+- [ ] **Update Metadata**.
+
+GitHub repositories have metadata settings that can be configured via the [gear
+icon][16]. Once the modal is revealed, the following settings should be updated:
+
+- `⛔️ [DEPRECATED]` should be prepended to the description.
+
+- If the website is pointing to NPM, the input box should be emptied.
+
+- All three checkboxes under "Include in the home page" (i.e. "Releases,"
+  "Packages," and "Deployments) should be unchecked.
+
+Be sure to save the changes by pressing "Save changes"!
+
+<br />
+
+- [ ] **Update `README.md`**.
+
+The project root `README.md` file and any README files at `packages/*/README.md`
+(if applicable) should be updated as follows:
+
+- The level one heading at the top of the file should be updated to "# ⛔️
+  DEPRECATED/UNMAINTAINED" (no quotes).
+
+- All badges except badge-blm should be removed; badge-unmaintained should be
+  added.
+
+- Under the updated level one heading, a [caution alert][17] should be included
+  that details the reason why this project is being deprecated. Any
+  alternatives, forks, see-also's, and/or future projects should be linked here.
+
+What follows is an example outcome of the above steps:
+
+```markdown
+<!-- badges-start -->
+
+[![Black Lives Matter!][badge-blm]][link-blm]
+[![!!UNMAINTAINED!!][badge-unmaintained]][link-unmaintained]
+
+<!-- badges-end -->
+
+# ⛔️ DEPRECATED/UNMAINTAINED
+
+> [!CAUTION]
+>
+> This project has been superseded (and all of its useful bits subsumed) by
+> [something-else](https://github.com/something/else).
+
+...
+
+[badge-blm]: https://xunn.at/badge-blm 'Join the movement!'
+[link-blm]: https://xunn.at/donate-blm
+[badge-unmaintained]:
+  https://xunn.at/badge-unmaintained
+  'Unfortunately, this project is unmaintained (forks welcome!)'
+[link-unmaintained]: https://xunn.at/link-unmaintained
+```
+
+<br />
+
+- [ ] **Update `package.json` (if applicable)**.
+
+If the project has a `package.json` file at its root and/or at
+`packages/*/package.json` (if applicable), they should be updated as follows:
+
+- The [`description` string][18] should be prefixed with `⛔️ [DEPRECATED]`.
+
+- The strings `"deprecated", "obsolete", "archived"` should be added to the
+  [`keywords` array][19] if this file defines a published package.
+
+### Deprecate the Published Packages
+
+- [ ] **Update `package.json` (if applicable)**.
+
+[See above][20].
+
+- [ ] **Publish Final Version**.
+
+Any updates to [source repository][20] assets (including `package.json` files
+and adding deprecation language to `README.md` files) should be published as a
+single patch release in a polyrepo, or one release per package in a monorepo.
+
+- [ ] **Issue Package-Wide Deprecation Command**.
+
+Use [`npm deprecate`][22] to [officially deprecate][23] each package after their
+final patch releases are published.
+
+### Deprecate the Local Repository
+
+Consider moving the repository to a place where it is accessible but otherwise
+out of the way, e.g. `/repos/.deprecated/<deprecated-repo-here>`.
+
+## A Huge Thank You
 
 Thank you so much for helping to maintain this project!
 
-[commit]:
-  https://github.com/conventional-changelog-archived-repos/conventional-changelog-angular/blob/ed32559941719a130bb0327f886d6a32a8cbc2ba/convention.md
 [1]: ./.github/CODE_OF_CONDUCT.md
 [2]: http://makeapullrequest.com
 [3]: ./.github/workflows
@@ -136,11 +333,30 @@ Thank you so much for helping to maintain this project!
   https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#rebase-and-merge-your-commits
 [5]:
   https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits
-[6]: https://github.com/conventional-changelog/conventional-changelog
+[6]: https://github.com/Xunnamius/xchangelog
 [7]: https://www.conventionalcommits.org/en/v1.0.0
 [8]:
   https://www.metaltoad.com/blog/beginners-guide-git-bisect-process-elimination
 [9]: https://dev.to/paulinevos/atomic-commits-will-help-you-git-legit-35i7
-[10]: https://github.com/semantic-release/semantic-release
+[10]: https://github.com/Xunnamius/xrelease
 [11]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/eec78609146a92cab29caa9d1fa05a0581e5bd3f/release.config.js#L27
+  https://github.com/Xunnamius/symbiote/blob/151f64052b9160fca6dd519ea6e6787a95160544/src/assets/transformers/_release.config.cjs.ts#L147-L157
+[12]: https://github.com/Xunnamius/symbiote
+[13]:
+  https://github.com/RichardLitt/knowledge/blob/master/github/how-to-deprecate-a-repository-on-github.md
+[14]: https://github.com/Xunnamius/pipeline
+[15]:
+  https://github.com/Xunnamius/symbiote/blob/151f64052b9160fca6dd519ea6e6787a95160544/src/assets/transformers/_conventional.config.cjs.ts#L264-L277
+[16]: https://github.com/orgs/community/discussions/54372
+[17]: https://github.com/orgs/community/discussions/16925
+[18]: https://docs.npmjs.com/cli/v10/configuring-npm/package-json#description-1
+[19]: https://docs.npmjs.com/cli/v10/configuring-npm/package-json#keywords
+[20]: #deprecate-the-remote-github-repository
+[21]:
+  https://docs.npmjs.com/generating-provenance-statements#provenance-limitations
+[22]: https://docs.npmjs.com/cli/v8/commands/npm-deprecate
+[23]:
+  https://docs.npmjs.com/deprecating-and-undeprecating-packages-or-package-versions
+[25]:
+  https://github.com/conventional-changelog-archived-repos/conventional-changelog-angular/blob/ed32559941719a130bb0327f886d6a32a8cbc2ba/convention.md
+[26]: https://github.com/semantic-release/commit-analyzer

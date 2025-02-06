@@ -1,16 +1,14 @@
+/* eslint-disable @typescript-eslint/no-invalid-void-type */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import assert from 'node:assert';
+import { createServer } from 'node:http';
 import { isNativeError } from 'node:util/types';
 
-import {
-  createServer,
-  type IncomingMessage,
-  type Server,
-  type ServerResponse
-} from 'node:http';
-
+import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import type { NextApiHandler } from 'next';
 import type { NextRequest } from 'next/server';
 
@@ -192,7 +190,6 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
    * is handled by `Request` automatically.
    */
   paramsPatcher?: (
-    // eslint-disable-next-line unicorn/prevent-abbreviations
     params: Record<string, string | string[]>
   ) => Promisable<void | Record<string, string | string[]>>;
   /**
@@ -239,7 +236,7 @@ export interface NtarhInitPagesRouter<NextResponseJsonType = unknown>
    * NTARH@4. Only the `response.json` method returned by NTARH's fetch wrapper
    * will have a typed result.
    */
-  pagesHandler: NextApiHandler<any> | { default: NextApiHandler<any> };
+  pagesHandler: NextApiHandler | { default: NextApiHandler };
   appHandler?: undefined;
   /**
    * `params` is passed directly to the handler and represents processed dynamic
@@ -261,7 +258,6 @@ export interface NtarhInitPagesRouter<NextResponseJsonType = unknown>
    * is handled automatically.
    */
   paramsPatcher?: (
-    // eslint-disable-next-line unicorn/prevent-abbreviations
     params: Record<string, unknown>
   ) => Promisable<void | Record<string, unknown>>;
   /**
@@ -464,6 +460,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
           const patchedRequest = (await requestPatcher?.(rawRequest)) || rawRequest;
           const nextRequest =
+            // eslint-disable-next-line no-restricted-syntax
             patchedRequest instanceof NextRequest
               ? patchedRequest
               : new NextRequest(patchedRequest, {
@@ -486,7 +483,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
             () => {
               if (typeof AppRouteRouteModule !== 'function') {
                 assert(
-                  AppRouteRouteModule?.[$importFailed],
+                  AppRouteRouteModule[$importFailed],
                   'assertion failed unexpectedly: AppRouteRouteModule was not a constructor (function)'
                 );
 
@@ -588,6 +585,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
         Promise.resolve(requestPatcher?.(req))
           .then(() => responsePatcher?.(res))
           .then(async () => {
+            // eslint-disable-next-line n/no-deprecated-api
             const { parse: parseUrl } = require('node:url');
             const rawParameters: Record<string, unknown> = {
               ...parseUrl(req.url || '', true).query,
@@ -599,7 +597,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           .then((finalParameters) => {
             if (typeof apiResolver !== 'function') {
               assert(
-                apiResolver?.[$importFailed],
+                apiResolver[$importFailed],
                 'assertion failed unexpectedly: apiResolver was not a function'
               );
 
@@ -682,7 +680,7 @@ function readableStreamOrNullFromAsyncIterable(
   return new ReadableStream(
     {
       // ? Node's own internal implementation does this, so we'll do it too.
-      start: () => {},
+      start: () => undefined,
       async pull(controller) {
         const nextChunk = await asyncIterator.next();
 
@@ -749,7 +747,9 @@ function findNextjsInternalResolver<T = NonNullable<unknown>>(
     } catch (error) {
       errors.push(
         isNativeError(error)
-          ? error.message.split(/(?<=')( imported)? from ('|\S)/)[0].split(`\nRequire`)[0]
+          ? error.message
+              .split(/(?<=')( imported)? from ('|\S)/)[0]!
+              .split(`\nRequire`)[0]!
           : /* istanbul ignore next */
             String(error)
       );

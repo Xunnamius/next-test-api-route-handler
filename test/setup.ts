@@ -1,3 +1,18 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-parameters */
+/* eslint-disable @typescript-eslint/no-dynamic-delete */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/**
+ ** This file is automatically imported by Jest, and is responsible for
+ **  bootstrapping the runtime for every test file.
+ */
+
+// ? jest-extended will always come from @-xun/symbiote (i.e. transitively)
+// {@symbiote/notInvalid jest-extended}
+
+// TODO: replace all this mess with @-xun/jest
+
 import assert from 'node:assert';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -13,7 +28,11 @@ import uniqueFilename from 'unique-filename';
 import 'jest-extended';
 import 'jest-extended/all';
 
-import { files as pkgFiles, name as pkgName, version as pkgVersion } from 'package';
+import {
+  files as pkgFiles,
+  name as pkgName,
+  version as pkgVersion
+} from 'rootverse:package.json';
 
 import type { Debugger } from 'debug';
 import type { ExecaReturnValue } from 'execa';
@@ -316,7 +335,7 @@ export function isolatedImport<T = unknown>(args: {
    * direction.
    */
   useDefault?: boolean;
-}) {
+}): T {
   let pkg: T | undefined;
 
   // ? Cache-busting
@@ -721,7 +740,7 @@ export function dummyNpmPackageFixture(): MockFixture {
       if (pkgName.includes('/')) {
         await mkdir({
           paths: [
-            resolvePath(context.root, joinPath('node_modules', pkgName.split('/')[0]))
+            resolvePath(context.root, joinPath('node_modules', pkgName.split('/')[0]!))
           ],
           context
         });
@@ -843,7 +862,9 @@ export function webpackTestFixture(): MockFixture {
     description: 'setting up webpack integration test',
     setup: async (context) => {
       if (typeof context.options.webpackVersion !== 'string') {
-        throw new TypeError('invalid or missing options.webpackVersion, expected string');
+        throw new TypeError(
+          'invalid or missing options.webpackVersion, expected string'
+        );
       }
 
       const indexPath = Object.keys(context.fileContents).find((path) => {
@@ -861,7 +882,7 @@ export function webpackTestFixture(): MockFixture {
       await Promise.all([
         writeFile({
           path: `${context.root}/${indexPath}`,
-          data: context.fileContents[indexPath],
+          data: context.fileContents[indexPath]!,
           context
         }),
         writeFile({
@@ -931,7 +952,7 @@ export function nodeImportAndRunTestFixture(): MockFixture {
 
       await writeFile({
         path: `${context.root}/${targetPath}`,
-        data: context.fileContents[targetPath],
+        data: context.fileContents[targetPath]!,
         context
       });
 
@@ -1178,12 +1199,8 @@ export async function withMockedFixture<
     context.debug = globalDebug.extend('<cleanup>');
 
     for (const cfn of cleanupFunctions.reverse()) {
-      await cfn(context).catch((error) =>
-        context.debug(
-          `ignored exception in teardown function: ${
-            error?.message || error.toString() || '<no error message>'
-          }`
-        )
+      await cfn(context).catch((error: unknown) =>
+        context.debug(`ignored exception in teardown function: %O`, error)
       );
     }
   }

@@ -1,3 +1,7 @@
+#!/bin/sh
+
+# TODO: replace these uglies with JS (mjs) scripts
+
 beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
 if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
@@ -5,7 +9,8 @@ if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
   exit 0
 fi
 
-npx commitlint -e
-if [ -z $GAC_VERIFY_SIMPLE ]; then npm run test; fi
-echo
-node spellcheck-commit.js
+NODE_NO_WARNINGS=1 commitlint -e
+if [ -z "$GAC_VERIFY_SIMPLE" ]; then npm run test; fi
+# TODO: bring back spellchecker:
+#echo
+#NODE_NO_WARNINGS=1 node spellcheck-commit.cjs

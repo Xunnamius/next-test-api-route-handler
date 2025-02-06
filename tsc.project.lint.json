@@ -1,0 +1,22 @@
+/**
+ ** This file extends the project root tsconfig.json file for use with linting
+ ** all files at the project level.
+ **
+ ** Use this file to exert some control over which files will have their errors
+ ** reported and which files will be ignored when linting an entire project
+ ** repository at once.
+ */
+
+{
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "extends": "./tsconfig.json",
+  "include": ["**/*", "**/.*/**/*", "**/.*"],
+  "exclude": [
+    "**/dist/**/*",
+    "**/test/fixtures/**/*",
+    "**/node_modules/**/*",
+    "**/*.ignore",
+    "**/*.ignore.*/**/*",
+    "**/ignore.*"
+  ]
+}

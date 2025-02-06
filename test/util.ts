@@ -1,26 +1,33 @@
-import debugFactory from 'debug';
+/**
+ ** This file exports test utilities specific to this project and beyond what is
+ ** exported by @-xun/jest; these can be imported using the testversal aliases.
+ */
+
+// ? @-xun/jest will always come from @-xun/symbiote (i.e. transitively)
+// {@symbiote/notInvalid @-xun/jest}
+
+import { run } from '@-xun/run';
+import {createDebugLogger} from 'rejoinder';
 import { maxSatisfying } from 'semver';
 
-import execa_ from 'execa';
+export * from '@-xun/jest';
 
 /**
  * Since some versions of Next.js are released with flawed `package.json::peerDependencies`, sometimes we need to ensure the correct versions of
  * Next.js's peer dependencies are actually installed.
  */
-// TODO: replace execa param with internal use of @-xun/run
 export async function getNextjsReactPeerDependencies(
   /**
    * For example: `next`, `next@latest`, or `next@15.0.0-rc.1`
    */
   npmInstallNextJsString: string,
-  execa = execa_
 ): Promise<string[]> {
-  const debug = debugFactory('util:getNextPeerDependencies');
+  const debug = createDebugLogger({ namespace: 'util:getNextPeerDependencies' });
 
   return Promise.all([
-    execa('npm', ['show', 'react', 'versions', '--json']),
-    execa('npm', ['show', 'react-dom', 'versions', '--json']),
-    execa('npm', ['show', npmInstallNextJsString, 'peerDependencies', '--json'])
+    run('npm', ['show', 'react', 'versions', '--json']),
+    run('npm', ['show', 'react-dom', 'versions', '--json']),
+    run('npm', ['show', npmInstallNextJsString, 'peerDependencies', '--json'])
   ]).then(function ([
     { stdout: reactVersions_ },
     { stdout: reactDomVersions_ },
