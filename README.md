@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-  <img width="300" src="./ntarh.png">
+  <img width="250" src="./ntarh.png">
 </p>
 
 <p align="center" width="100%">
