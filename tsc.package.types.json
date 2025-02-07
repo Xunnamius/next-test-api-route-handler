@@ -1,10 +1,10 @@
 /**
-** This file extends the project root tsconfig.json file for use with tsc at
-** the package level.
-**
-** Use this file to exert some control over how tsc generates package-specific
-** definition files.
-*/
+ ** This file extends the project root tsconfig.json file for use with tsc at
+ ** the package level.
+ **
+ ** Use this file to exert some control over how tsc generates package-specific
+ ** definition files.
+ */
 
 {
   "$schema": "https://json.schemastore.org/tsconfig.json",

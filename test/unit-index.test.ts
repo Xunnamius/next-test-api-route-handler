@@ -1208,7 +1208,9 @@ describe('::testApiHandler', () => {
 
       const sharedHandler = async (request: Request) => {
         if (['POST', 'PUT', 'PATCH'].includes(request.method)) {
-          await expect(request.json()).resolves.toStrictEqual({ method: request.method });
+          await expect(request.json()).resolves.toStrictEqual({
+            method: request.method
+          });
         }
 
         return Response.json({ method: request.method });
@@ -1229,7 +1231,10 @@ describe('::testApiHandler', () => {
           let res = await fetch({ method: 'GET' });
           await expect(res.json()).resolves.toStrictEqual({ method: 'GET' });
 
-          res = await fetch({ method: 'POST', body: JSON.stringify({ method: 'POST' }) });
+          res = await fetch({
+            method: 'POST',
+            body: JSON.stringify({ method: 'POST' })
+          });
           await expect(res.json()).resolves.toStrictEqual({ method: 'POST' });
 
           res = await fetch({ method: 'PUT', body: JSON.stringify({ method: 'PUT' }) });
@@ -1569,7 +1574,9 @@ describe('::testApiHandler', () => {
         },
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(350);
-          await expect((await fetch()).json()).resolves.toStrictEqual({ url: '/my-url' });
+          await expect((await fetch()).json()).resolves.toStrictEqual({
+            url: '/my-url'
+          });
         }
       });
     });
@@ -1606,7 +1613,9 @@ describe('::testApiHandler', () => {
         },
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(500);
-          await expect((await fetch()).json()).resolves.toStrictEqual({ data: 'secret' });
+          await expect((await fetch()).json()).resolves.toStrictEqual({
+            data: 'secret'
+          });
         }
       });
     });
@@ -2063,9 +2072,9 @@ describe('::testApiHandler', () => {
         pagesHandler,
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(200);
-          expect((await fetch({ method: 'POST', body: 'more than 1 byte' })).status).toBe(
-            413
-          );
+          expect(
+            (await fetch({ method: 'POST', body: 'more than 1 byte' })).status
+          ).toBe(413);
         }
       });
     });

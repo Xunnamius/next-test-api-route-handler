@@ -29,9 +29,9 @@ import 'jest-extended';
 import 'jest-extended/all';
 
 import {
-  files as pkgFiles,
-  name as pkgName,
-  version as pkgVersion
+  files as packageFiles,
+  name as packageName,
+  version as packageVersion
 } from 'rootverse:package.json';
 
 import type { Debugger } from 'debug';
@@ -61,10 +61,10 @@ import type { EmptyObject, Merge, PartialDeep, Promisable } from 'type-fest';
 // TODO: ability to copy entire arbitrary directories recursively into fixture
 // TODO: root
 
-const globalDebug = debugFactory(`${pkgName}:jest-setup`);
+const globalDebug = debugFactory(`${packageName}:jest-setup`);
 
-globalDebug(`pkgName: "${pkgName}"`);
-globalDebug(`pkgVersion: "${pkgVersion}"`);
+globalDebug(`pkgName: "${packageName}"`);
+globalDebug(`pkgVersion: "${packageVersion}"`);
 
 // TODO: XXX: make this into a separate (mock-argv) package (along w/ the below)
 export type MockedArgvOptions = {
@@ -336,7 +336,7 @@ export function isolatedImport<T = unknown>(args: {
    */
   useDefault?: boolean;
 }): T {
-  let pkg: T | undefined;
+  let package_: T | undefined;
 
   // ? Cache-busting
   jest.isolateModules(() => {
@@ -346,7 +346,7 @@ export function isolatedImport<T = unknown>(args: {
       }`
     );
 
-    pkg = ((r) => {
+    package_ = ((r) => {
       return r.default &&
         (args.useDefault === true ||
           (args.useDefault !== false && r.__esModule && Object.keys(r).length === 1))
@@ -355,7 +355,7 @@ export function isolatedImport<T = unknown>(args: {
     })(require(args.path));
   });
 
-  return pkg as T;
+  return package_ as T;
 }
 
 // TODO: XXX: make this into a separate package (along with the above)
@@ -395,10 +395,10 @@ export async function withMockedExit(
 // TODO: XXX: make this into a separate package (along with the above)
 export function protectedImportFactory(path: string) {
   return async (factoryOptions?: { expectedExitCode?: number }) => {
-    let pkg: unknown = undefined;
+    let package_: unknown = undefined;
 
     await withMockedExit(async ({ exitSpy, getExitCode }) => {
-      pkg = await isolatedImport({ path });
+      package_ = await isolatedImport({ path });
 
       if (expect && factoryOptions?.expectedExitCode !== undefined) {
         if (getExitCode() === undefined) {
@@ -413,7 +413,7 @@ export function protectedImportFactory(path: string) {
       }
     });
 
-    return pkg;
+    return package_;
   };
 }
 
@@ -737,10 +737,13 @@ export function dummyNpmPackageFixture(): MockFixture {
         })
       ]);
 
-      if (pkgName.includes('/')) {
+      if (packageName.includes('/')) {
         await mkdir({
           paths: [
-            resolvePath(context.root, joinPath('node_modules', pkgName.split('/')[0]!))
+            resolvePath(
+              context.root,
+              joinPath('node_modules', packageName.split('/')[0]!)
+            )
           ],
           context
         });
@@ -758,7 +761,7 @@ export function npmLinkSelfFixture(): MockFixture {
     setup: async (context) => {
       await symlink({
         actualPath: resolvePath(__dirname, '..'),
-        linkPath: resolvePath(context.root, joinPath('node_modules', pkgName)),
+        linkPath: resolvePath(context.root, joinPath('node_modules', packageName)),
         isDir: true,
         context
       });
@@ -774,46 +777,50 @@ export function npmCopySelfFixture(): MockFixture {
       'copying package.json `files` into node_modules to emulate package installation',
     setup: async (context) => {
       const root = resolvePath(__dirname, '..');
-      const sourcePaths = pkgFiles.flatMap((p) => glob.sync(p, { cwd: root, root }));
+      const sourcePaths = packageFiles.flatMap((p) => glob.sync(p, { cwd: root, root }));
       const destinationPath = resolvePath(
         context.root,
-        joinPath('node_modules', pkgName)
+        joinPath('node_modules', packageName)
       );
 
-      const destPkgJson = resolvePath(destinationPath, 'package.json');
+      const destPackageJson = resolvePath(destinationPath, 'package.json');
 
       await mkdir({ paths: [destinationPath], context });
       await copy({ sourcePaths, destinationPath, context });
 
-      if (!destPkgJson) {
-        throw new Error(`expected "${destPkgJson}" to exist`);
+      if (!destPackageJson) {
+        throw new Error(`expected "${destPackageJson}" to exist`);
       }
 
-      const { devDependencies: __, ...dummyPkgJson } = JSON.parse(
-        await readFile({ path: destPkgJson, context })
+      const { devDependencies: __, ...dummyPackageJson } = JSON.parse(
+        await readFile({ path: destPackageJson, context })
       );
 
       // TODO: only optionally remove peer dependencies from the install loop
       // TODO: (and by default they should NOT be removed, like below).
       // TODO: Same deal with dev dependencies (except removed by default).
       const installTargets = {
-        ...dummyPkgJson.dependencies,
+        ...dummyPackageJson.dependencies,
         ...Object.fromEntries(
           [context.options.npmInstall]
             .flat()
             .filter((r): r is string => Boolean(r))
-            .map((pkgStr) => {
-              const isScoped = pkgStr.startsWith('@');
-              const pkgSplit = (isScoped ? pkgStr.slice(1) : pkgStr).split('@');
-              const pkg = isScoped ? [`@${pkgSplit[0]}`, pkgSplit[1]] : pkgSplit;
-              return [pkg[0], pkg[1] || 'latest'];
+            .map((packageStr) => {
+              const isScoped = packageStr.startsWith('@');
+              const packageSplit = (isScoped ? packageStr.slice(1) : packageStr).split(
+                '@'
+              );
+              const package_ = isScoped
+                ? [`@${packageSplit[0]!}`, packageSplit[1]]
+                : packageSplit;
+              return [package_[0], package_[1] || 'latest'];
             })
         )
       };
 
       await writeFile({
-        path: destPkgJson,
-        data: JSON.stringify({ ...dummyPkgJson, dependencies: installTargets }),
+        path: destPackageJson,
+        data: JSON.stringify({ ...dummyPackageJson, dependencies: installTargets }),
         context
       });
 
@@ -839,14 +846,14 @@ export function npmCopySelfFixture(): MockFixture {
       });
 
       await rename({
-        oldPath: `${context.root}/node_modules_old/${pkgName}/node_modules`,
+        oldPath: `${context.root}/node_modules_old/${packageName}/node_modules`,
         updatedPath: `${context.root}/node_modules`,
         context
       });
 
       await rename({
-        oldPath: `${context.root}/node_modules_old/${pkgName}`,
-        updatedPath: `${context.root}/node_modules/${pkgName}`,
+        oldPath: `${context.root}/node_modules_old/${packageName}`,
+        updatedPath: `${context.root}/node_modules/${packageName}`,
         context
       });
 

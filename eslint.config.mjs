@@ -27,11 +27,10 @@ function getEslintAliases() {
   // ! directly, consider regenerating aliases across the entire project with:
   // ! `npx symbiote project renovate --regenerate-assets --assets-preset ...`
   return [
-    ["rootverse:*", "./*"],
-    ["universe:*", "./src/*"],
-    ["universe", "./src/index.ts"],
-    ["testverse:*", "./test/*"],
-    ["typeverse:*", "./types/*"]
-  ]
-
+    ['rootverse:*', './*'],
+    ['universe:*', './src/*'],
+    ['universe', './src/index.ts'],
+    ['testverse:*', './test/*'],
+    ['typeverse:*', './types/*']
+  ];
 }

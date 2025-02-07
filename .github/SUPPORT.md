@@ -57,4 +57,5 @@ you for contribution 🎉, your efforts are greatly appreciated! 🙌🏿
   https://github.com/blog/2119-add-reactions-to-pull-requests-issues-and-comments
 [link-issue-resolution]:
   https://isitmaintained.com/project/Xunnamius/next-test-api-route-handler
-[open-issues]: https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
+[open-issues]:
+  https://github.com/Xunnamius/next-test-api-route-handler/issues?q=

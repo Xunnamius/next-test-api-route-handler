@@ -91,9 +91,11 @@ At this point, you're ready to create your PR and ✨ contribute ✨!
 [how-to-clone]:
   https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/cloning-a-repository
 [how-to-contribute]: https://www.dataschool.io/how-to-contribute-on-github
-[husky-cl]: https://github.com/Xunnamius/next-test-api-route-handler/tree/main/.husky
+[husky-cl]:
+  https://github.com/Xunnamius/next-test-api-route-handler/tree/main/.husky
 [npm-ci]: https://docs.npmjs.com/cli/v6/commands/npm-ci
-[open-issues]: https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
+[open-issues]:
+  https://github.com/Xunnamius/next-test-api-route-handler/issues?q=
 [pkg-debug]: https://www.npmjs.com/package/debug
 [pkg-debug-wildcards]: https://www.npmjs.com/package/debug#wildcards
 [pr-compare]: https://github.com/Xunnamius/next-test-api-route-handler/compare

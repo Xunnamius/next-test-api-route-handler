@@ -23,11 +23,10 @@ function getJestAliases() {
   // ! directly, consider regenerating aliases across the entire project with:
   // ! `npx symbiote project renovate --regenerate-assets --assets-preset ...`
   return {
-    "^rootverse:(.+)$": "<rootDir>/$1",
-    "^universe:(.+)$": "<rootDir>/src/$1",
-    "^universe$": "<rootDir>/src/index.ts",
-    "^testverse:(.+)$": "<rootDir>/test/$1",
-    "^typeverse:(.+)$": "<rootDir>/types/$1"
-  }
-
+    '^rootverse:(.+)$': '<rootDir>/$1',
+    '^universe:(.+)$': '<rootDir>/src/$1',
+    '^universe$': '<rootDir>/src/index.ts',
+    '^testverse:(.+)$': '<rootDir>/test/$1',
+    '^typeverse:(.+)$': '<rootDir>/types/$1'
+  };
 }

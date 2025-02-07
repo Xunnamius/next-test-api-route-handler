@@ -7,20 +7,21 @@
 // {@symbiote/notInvalid @-xun/jest}
 
 import { run } from '@-xun/run';
-import {createDebugLogger} from 'rejoinder';
+import { createDebugLogger } from 'rejoinder';
 import { maxSatisfying } from 'semver';
 
 export * from '@-xun/jest';
 
 /**
- * Since some versions of Next.js are released with flawed `package.json::peerDependencies`, sometimes we need to ensure the correct versions of
- * Next.js's peer dependencies are actually installed.
+ * Since some versions of Next.js are released with flawed
+ * `package.json::peerDependencies`, sometimes we need to ensure the correct
+ * versions of Next.js's peer dependencies are actually installed.
  */
 export async function getNextjsReactPeerDependencies(
   /**
    * For example: `next`, `next@latest`, or `next@15.0.0-rc.1`
    */
-  npmInstallNextJsString: string,
+  npmInstallNextJsString: string
 ): Promise<string[]> {
   const debug = createDebugLogger({ namespace: 'util:getNextPeerDependencies' });
 

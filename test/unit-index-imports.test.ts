@@ -378,7 +378,10 @@ describe('::testApiHandler', () => {
         currentIndex,
         currentResolverPath
       ] of mockAppRouteRouteModulePaths.entries()) {
-        const previousResolverPaths = mockAppRouteRouteModulePaths.slice(0, currentIndex);
+        const previousResolverPaths = mockAppRouteRouteModulePaths.slice(
+          0,
+          currentIndex
+        );
         const nextResolverPaths = mockAppRouteRouteModulePaths.slice(currentIndex + 1);
 
         for (const previousResolverPath of previousResolverPaths) {

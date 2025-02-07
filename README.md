@@ -251,7 +251,7 @@ At minimum, `options` must contain the following properties:
 
 For example:
 
-> \[!CAUTION]
+> [!CAUTION]
 >
 > Ensuring `testApiHandler` is imported [_before_][12] any Next.js package (like
 > `'next/headers'` below) is crucial to the proper function of NTARH. Doing
@@ -358,7 +358,7 @@ function receives one destructured parameter: `fetch`, which is a wrapper around
 Node's [global fetch][22] function. Use this to send HTTP requests to the
 handler under test.
 
-> \[!CAUTION]
+> [!CAUTION]
 >
 > Note that `fetch`'s `resource` parameter, _i.e. [the first parameter in
 > `fetch(...)`][23]_, is omitted.
@@ -490,7 +490,7 @@ it('handles multiple set-cookie headers', async () => {
 As of version `2.3.0`, unhandled errors in the `pagesHandler`/`appHandler`
 function are kicked up to Next.js to handle.
 
-> \[!IMPORTANT]
+> [!IMPORTANT]
 >
 > **This means `testApiHandler` will NOT reject or throw if an unhandled error
 > occurs in `pagesHandler`/`appHandler`, which typically includes failing
@@ -570,7 +570,7 @@ await testApiHandler({
 
 ### `requestPatcher` (`url`)
 
-> \[!TIP]
+> [!TIP]
 >
 > Manually setting the request url is usually unnecessary. Only set the url if
 > [your handler expects it][35] or [you want to rely on query string parsing
@@ -584,7 +584,7 @@ await testApiHandler({
 returns a [`Request`][39] instance. Use this function to edit the request
 _before_ it's injected into the handler.
 
-> \[!CAUTION]
+> [!CAUTION]
 >
 > Be wary returning a brand new request from `requestPatcher` (i.e.
 > `new NextRequest(newUrl)` instead of `new NextRequest(newUrl, oldRequest)`),
@@ -609,7 +609,7 @@ await testApiHandler({
 });
 ```
 
-> \[!NOTE]
+> [!NOTE]
 >
 > Unlike the Pages Router's `NextApiRequest` type, the App Router's
 > `NextRequest` class [does not support relative URLs][40]. Therefore, whenever
@@ -704,7 +704,7 @@ await testApiHandler({
 });
 ```
 
-> \[!TIP]
+> [!TIP]
 >
 > Due to its simplicity, favor the `params` shorthand over `paramsPatcher`.
 
@@ -712,7 +712,7 @@ await testApiHandler({
 
 > ⪢ API reference: [`paramsPatcher`][50], [`params`][51]
 
-> \[!IMPORTANT]
+> [!IMPORTANT]
 >
 > Note that, starting with `next@15`, the `params` object passed to handlers via
 > the context parameter [is now a (Frankensteinian) promise][52]. This means
@@ -1118,7 +1118,7 @@ This script clones [the Next.js repository][72], installs NTARH and configures
 dependencies, downloads the [jest test][73] file shown below, and runs it using
 [jest][65] to ensure our route integrates with Apollo correctly.
 
-> \[!IMPORTANT]
+> [!IMPORTANT]
 >
 > Note that passing the [route configuration object][74] (imported below as
 > `config`) through to NTARH and setting `request.url` to the proper value [may
@@ -1747,8 +1747,6 @@ specification. Contributions of any kind welcome!
   https://dev.to/jakobjingleheimer/configuring-commonjs-es-modules-for-nodejs-12ed#publish-only-a-cjs-distribution-with-property-exports
 [x-pkg-dual-package-hazard]:
   https://nodejs.org/api/packages.html#dual-package-hazard
-[x-pkg-esm-wine]:
-  https://dev.to/jakobjingleheimer/configuring-commonjs-es-modules-for-nodejs-12ed#esm-source-and-distribution
 [x-pkg-exports-conditions]:
   https://webpack.js.org/guides/package-exports#reference-syntax
 [x-pkg-exports-module-key]:
@@ -1765,7 +1763,6 @@ specification. Contributions of any kind welcome!
 [x-repo-choose-new-issue]:
   https://github.com/Xunnamius/next-test-api-route-handler/issues/new/choose
 [x-repo-contributing]: /CONTRIBUTING.md
-[x-repo-contributors]: /README.md#contributors
 [x-repo-docs]: docs
 [x-repo-license]: ./LICENSE
 [x-repo-package-json]: package.json

@@ -29,10 +29,10 @@ function getBabelAliases() {
   // ! directly, consider regenerating aliases across the entire project with:
   // ! `npx symbiote project renovate --regenerate-assets --assets-preset ...`
   return {
-    "^rootverse:(.+)$": "./$1",
-    "^universe:(.+)$": "./src/$1",
-    "^universe$": "./src/index.js",
-    "^testverse:(.+)$": "./test/$1",
-    "^typeverse:(.+)$": "./types/$1"
-  }
+    '^rootverse:(.+)$': './$1',
+    '^universe:(.+)$': './src/$1',
+    '^universe$': './src/index.js',
+    '^testverse:(.+)$': './test/$1',
+    '^typeverse:(.+)$': './types/$1'
+  };
 }
