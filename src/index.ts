@@ -298,8 +298,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
 }:
   | NtarhInitAppRouter<NextResponseJsonType>
   | NtarhInitPagesRouter<NextResponseJsonType>) {
-  let server: Server | null = null;
-  let deferredReject: ((error?: unknown) => void) | null = null;
+  let server: Server | undefined = undefined;
+  let deferredReject: ((error?: unknown) => void) | undefined = undefined;
 
   // ? Normalize pagesHandler into a NextApiHandler (ESM<=>CJS interop)
   /* istanbul ignore next */
@@ -662,7 +662,7 @@ async function mockEnvVariable<T>(
 /**
  * The Node devs gated the essential ReadableStream.from(...) behind Node@20,
  * and Readable.toWeb(...) just doesn't work properly for whatever lame reason,
- * so f**k it we'll do it live.
+ * so f**k it we ball.
  *
  * * https://github.com/nodejs/node/blob/d102d16e98a8845cba96157b6396bd448241e47c/lib/internal/webstreams/readablestream.js#L1309
  *
@@ -778,7 +778,7 @@ function findNextjsInternalResolver<T = NonNullable<unknown>>(
 function handleError(
   res: ServerResponse | undefined,
   error: unknown,
-  deferredReject: ((error: unknown) => unknown) | null
+  deferredReject: ((error: unknown) => unknown) | undefined
 ) {
   // ? Prevent tests that crash the server from hanging. This might be a
   // ? Jest-specific (or maybe VM-module-specific) issue since it doesn't happen
