@@ -80,16 +80,16 @@
     "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --scope unlimited --coverage"
   },
   "dependencies": {
-    "@whatwg-node/server": "^0.9.50",
-    "cookie": "^1.0.1",
-    "core-js": "^3.38.1"
+    "@whatwg-node/server": "^0.9.66",
+    "cookie": "^1.0.2",
+    "core-js": "^3.40.0"
   },
   "devDependencies": {
+    "@-xun/project": "^1.0.1",
     "@-xun/run": "^0.0.1",
     "@-xun/symbiote": "^2.21.0",
-    "@octokit/rest": "^20.1.1",
+    "@octokit/rest": "^21.1.0",
     "@types/confusing-browser-globals": "^1.0.3",
-    "@types/cookie": "^0.6.0",
     "@types/find-package-json": "^1.2.6",
     "@types/glob": "^8.1.0",
     "@types/lodash.mergewith": "^4.6.9",
@@ -100,12 +100,12 @@
     "find-package-json": "^1.2.0",
     "glob": "^9.3.2",
     "lodash.mergewith": "^4.6.2",
-    "mongodb": "^6.10.0",
-    "msw": "^2.4.13",
+    "mongodb": "^6.13.0",
+    "msw": "^2.7.0",
     "rejoinder": "^1.2.4",
-    "semver": "^7.6.3",
+    "semver": "^7.7.1",
     "strip-ansi": "^6.0.1",
-    "type-fest": "^4.26.1",
+    "type-fest": "^4.33.0",
     "unique-filename": "^4.0.0"
   },
   "peerDependencies": {
