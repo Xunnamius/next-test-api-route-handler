@@ -87,7 +87,7 @@
   "devDependencies": {
     "@-xun/project": "^1.0.1",
     "@-xun/run": "^0.0.1",
-    "@-xun/symbiote": "^2.23.0",
+    "@-xun/symbiote": "^2.23.1",
     "@octokit/rest": "^21.1.0",
     "@types/confusing-browser-globals": "^1.0.3",
     "@types/find-package-json": "^1.2.6",
