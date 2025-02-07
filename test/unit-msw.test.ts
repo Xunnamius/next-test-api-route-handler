@@ -1,9 +1,9 @@
 // * These tests ensure NTARH and MSW integrate as expected
 
-import { HttpResponse, http, passthrough } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { testApiHandler } from 'universe/index';
+import { testApiHandler } from 'universe';
 
 const server = setupServer(
   http.all('*', async ({ request, params }) => {

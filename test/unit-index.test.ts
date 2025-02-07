@@ -1,24 +1,23 @@
 /* eslint-disable jest/prefer-strict-equal */
-import { testApiHandler, $originalGlobalFetch } from 'universe/index';
 
+import 'next-test-api-route-handler';
+
+import { asMocked, withMockedOutput } from '@-xun/jest';
 import { parse, serialize } from 'cookie';
 import { cookies, headers } from 'next/headers';
 import { notFound, permanentRedirect, redirect } from 'next/navigation';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-import { withMockedOutput } from 'testverse/setup';
-
-// TODO: fix this import once @-xun/jest drops
-// @ts-expect-error: broken import from node10; needs fixing
-import { asMockedFunction } from '@xunnamius/jest-types';
+import { $originalGlobalFetch, testApiHandler } from 'universe';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextRequest } from 'next/server';
 
 jest.mock('cookie');
 
 const cookie = jest.requireActual('cookie');
-const mockedCookieParse = asMockedFunction(parse);
-const mockedCookieSerialize = asMockedFunction(serialize);
+const mockedCookieParse = asMocked(parse);
+const mockedCookieSerialize = asMocked(serialize);
 const originalGlobalFetch = fetch;
 
 beforeEach(() => {
@@ -190,7 +189,7 @@ describe('::testApiHandler', () => {
         appHandler: {
           async GET(request) {
             return Response.json(
-              { url: `${request.url}?${request.headers.get('a')}` },
+              { url: `${request.url}?${String(request.headers.get('a'))}` },
               { status: 350 }
             );
           }
@@ -452,6 +451,7 @@ describe('::testApiHandler', () => {
 
       await testApiHandler({
         responsePatcher: async (response) => {
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           return new Response(await response.text(), { ...response, status: 404 });
         },
         appHandler: {
@@ -1403,7 +1403,6 @@ describe('::testApiHandler', () => {
             rejectOnHandlerError: true,
             appHandler: {
               GET() {
-                // eslint-disable-next-line unicorn/no-useless-promise-resolve-reject
                 return Promise.reject(new Error('bad bad bad bad not good'));
               }
             },
@@ -1460,6 +1459,7 @@ describe('::testApiHandler', () => {
       });
     });
 
+    // TODO: move this test to tstyche
     it('supports type generics', async () => {
       expect.hasAssertions();
 
@@ -1472,6 +1472,7 @@ describe('::testApiHandler', () => {
         },
         test: async ({ fetch }) => {
           // @ts-expect-error: b does not exist (this test "fails" if no TS error)
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (await (await fetch()).json()).b;
           expect(true).toBe(true);
         }
@@ -1590,7 +1591,7 @@ describe('::testApiHandler', () => {
           req.headers = { a: 'b' };
         },
         pagesHandler: async (req, res) => {
-          res.status(350).send({ url: `${req.url}?${req.headers.a}` });
+          res.status(350).send({ url: `${String(req.url)}?${String(req.headers.a)}` });
         },
         test: async ({ fetch }) => {
           expect((await fetch()).status).toBe(350);
@@ -1997,7 +1998,7 @@ describe('::testApiHandler', () => {
             [++count]: 'count',
             count,
             hcount: req.headers['x-hcount'],
-            ccount: req.cookies['__ccount']
+            ccount: req.cookies.__ccount
           });
         },
         test: async ({ fetch }) => {
@@ -2448,6 +2449,7 @@ describe('::testApiHandler', () => {
       });
     });
 
+    // TODO: move this test to tstyche
     it('supports type generics', async () => {
       expect.hasAssertions();
 
@@ -2461,6 +2463,7 @@ describe('::testApiHandler', () => {
         },
         test: async ({ fetch }) => {
           // @ts-expect-error: b does not exist (this test "fails" if no TS error)
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (await (await fetch()).json()).b;
           expect(true).toBe(true);
         }

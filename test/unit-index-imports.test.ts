@@ -1,10 +1,10 @@
-/* eslint-disable jest/no-conditional-expect */
-/* eslint-disable jest/no-conditional-in-test */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 /* eslint-disable jest/no-untyped-mock-factory */
-import { isolatedImport } from 'testverse/setup';
 
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { isolatedImport } from '@-xun/jest';
+
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 // function isAccessible(path: string) {
 //   try {
@@ -66,7 +66,7 @@ jest.mock(
       {
         get: function (_, key) {
           if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-2)!];
+            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-2)!]!;
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure BB`);
@@ -96,7 +96,7 @@ jest.mock('next/dist/server/api-utils/node/api-resolver.js', () => {
     {
       get: function (_, key) {
         if (mockApiResolverPaths && mockResolversMetadata) {
-          const meta = mockResolversMetadata[mockApiResolverPaths.at(-5)!];
+          const meta = mockResolversMetadata[mockApiResolverPaths.at(-5)!]!;
 
           if (meta.shouldFail) {
             throw new Error(`fake import failure E`);
@@ -126,7 +126,7 @@ jest.mock(
       {
         get: function (_, key) {
           if (mockAppRouteRouteModulePaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-1)!];
+            const meta = mockResolversMetadata[mockAppRouteRouteModulePaths.at(-1)!]!;
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure AA`);
@@ -164,7 +164,7 @@ jest.mock(
       {
         get: function (_, key) {
           if (mockApiResolverPaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockApiResolverPaths.at(-4)!];
+            const meta = mockResolversMetadata[mockApiResolverPaths.at(-4)!]!;
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure D`);
@@ -187,7 +187,7 @@ jest.mock(
       {
         get: function (_, key) {
           if (mockApiResolverPaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockApiResolverPaths.at(-3)!];
+            const meta = mockResolversMetadata[mockApiResolverPaths.at(-3)!]!;
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure C`);
@@ -210,7 +210,7 @@ jest.mock(
       {
         get: function (_, key) {
           if (mockApiResolverPaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockApiResolverPaths.at(-2)!];
+            const meta = mockResolversMetadata[mockApiResolverPaths.at(-2)!]!;
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure B`);
@@ -233,7 +233,7 @@ jest.mock(
       {
         get: function (_, key) {
           if (mockApiResolverPaths && mockResolversMetadata) {
-            const meta = mockResolversMetadata[mockApiResolverPaths.at(-1)!];
+            const meta = mockResolversMetadata[mockApiResolverPaths.at(-1)!]!;
 
             if (meta.shouldFail) {
               throw new Error(`fake import failure A`);
@@ -311,8 +311,7 @@ const getMockAppRouteRouteModule = (meta: {
 };
 
 const importNtarh = () =>
-  isolatedImport<typeof import('universe/index')>({ path: 'universe/index' })
-    .testApiHandler;
+  isolatedImport<typeof import('universe')>('universe').testApiHandler;
 
 const getPagesHandler =
   (status = 200) =>
@@ -385,7 +384,7 @@ describe('::testApiHandler', () => {
         const nextResolverPaths = mockAppRouteRouteModulePaths.slice(currentIndex + 1);
 
         for (const previousResolverPath of previousResolverPaths) {
-          mockResolversMetadata[previousResolverPath].shouldFail = true;
+          mockResolversMetadata[previousResolverPath]!.shouldFail = true;
         }
 
         // eslint-disable-next-line no-await-in-loop
@@ -400,19 +399,19 @@ describe('::testApiHandler', () => {
 
         for (const previousResolverPath of previousResolverPaths) {
           const context = jestExpectationContextFactory(previousResolverPath);
-          expect(context(mockResolversMetadata[previousResolverPath].called)).toBe(
+          expect(context(mockResolversMetadata[previousResolverPath]!.called)).toBe(
             context(false)
           );
         }
 
         const context = jestExpectationContextFactory(currentResolverPath);
-        expect(context(mockResolversMetadata[currentResolverPath].called)).toBe(
+        expect(context(mockResolversMetadata[currentResolverPath]!.called)).toBe(
           context(true)
         );
 
         for (const nextResolverPath of nextResolverPaths) {
           const context = jestExpectationContextFactory(nextResolverPath);
-          expect(context(mockResolversMetadata[nextResolverPath].called)).toBe(
+          expect(context(mockResolversMetadata[nextResolverPath]!.called)).toBe(
             context(false)
           );
         }
@@ -423,7 +422,7 @@ describe('::testApiHandler', () => {
         // * and NTARH reports the appropriate error when no imports exist.
         if (currentIndex === mockAppRouteRouteModulePaths.length - 1) {
           for (const resolverPath of mockAppRouteRouteModulePaths) {
-            mockResolversMetadata[resolverPath].shouldFail = true;
+            mockResolversMetadata[resolverPath]!.shouldFail = true;
           }
 
           // ? Should be in reverse alphabetical order
@@ -451,7 +450,7 @@ describe('::testApiHandler', () => {
 
           for (const resolverPath of mockAppRouteRouteModulePaths) {
             const context = jestExpectationContextFactory(resolverPath);
-            expect(context(mockResolversMetadata[resolverPath].called)).toBe(
+            expect(context(mockResolversMetadata[resolverPath]!.called)).toBe(
               context(false)
             );
           }
@@ -462,7 +461,7 @@ describe('::testApiHandler', () => {
     it('sanity checks AppRouteRouteModule value when server is created/accessed', async () => {
       expect.hasAssertions();
 
-      mockResolversMetadata[actualAppRouteRouteModulePath].shouldReturnBadValue = true;
+      mockResolversMetadata[actualAppRouteRouteModulePath]!.shouldReturnBadValue = true;
 
       await expect(
         importNtarh()({
@@ -489,7 +488,7 @@ describe('::testApiHandler', () => {
         const nextResolverPaths = mockApiResolverPaths.slice(currentIndex + 1);
 
         for (const previousResolverPath of previousResolverPaths) {
-          mockResolversMetadata[previousResolverPath].shouldFail = true;
+          mockResolversMetadata[previousResolverPath]!.shouldFail = true;
         }
 
         // eslint-disable-next-line no-await-in-loop
@@ -504,19 +503,19 @@ describe('::testApiHandler', () => {
 
         for (const previousResolverPath of previousResolverPaths) {
           const context = jestExpectationContextFactory(previousResolverPath);
-          expect(context(mockResolversMetadata[previousResolverPath].called)).toBe(
+          expect(context(mockResolversMetadata[previousResolverPath]!.called)).toBe(
             context(false)
           );
         }
 
         const context = jestExpectationContextFactory(currentResolverPath);
-        expect(context(mockResolversMetadata[currentResolverPath].called)).toBe(
+        expect(context(mockResolversMetadata[currentResolverPath]!.called)).toBe(
           context(true)
         );
 
         for (const nextResolverPath of nextResolverPaths) {
           const context = jestExpectationContextFactory(nextResolverPath);
-          expect(context(mockResolversMetadata[nextResolverPath].called)).toBe(
+          expect(context(mockResolversMetadata[nextResolverPath]!.called)).toBe(
             context(false)
           );
         }
@@ -527,7 +526,7 @@ describe('::testApiHandler', () => {
         // * and NTARH reports the appropriate error when no imports exist.
         if (currentIndex === mockApiResolverPaths.length - 1) {
           for (const resolverPath of mockApiResolverPaths) {
-            mockResolversMetadata[resolverPath].shouldFail = true;
+            mockResolversMetadata[resolverPath]!.shouldFail = true;
           }
 
           // ? Should be in reverse alphabetical order
@@ -555,7 +554,7 @@ describe('::testApiHandler', () => {
 
           for (const resolverPath of mockApiResolverPaths) {
             const context = jestExpectationContextFactory(resolverPath);
-            expect(context(mockResolversMetadata[resolverPath].called)).toBe(
+            expect(context(mockResolversMetadata[resolverPath]!.called)).toBe(
               context(false)
             );
           }
@@ -566,7 +565,7 @@ describe('::testApiHandler', () => {
     it('sanity checks apiResolver value when server is created/accessed', async () => {
       expect.hasAssertions();
 
-      mockResolversMetadata[actualApiResolverPath].shouldReturnBadValue = true;
+      mockResolversMetadata[actualApiResolverPath]!.shouldReturnBadValue = true;
 
       await expect(
         importNtarh()({
