@@ -1,43 +1,36 @@
-// ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir !
+// ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir
 
 import { getCurrentWorkingDirectory } from '@-xun/fs';
-import { run } from '@-xun/run';
+import { run, runNoRejectOnBadExit } from '@-xun/run';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
-import { createDebugLogger } from 'rejoinder';
+import { createGenericLogger } from 'rejoinder';
 import { satisfies as satisfiesRange, validRange } from 'semver';
+
+import { name as packageName, version as packageVersion } from 'rootverse:package.json';
 
 import { getNextjsReactPeerDependencies } from 'testverse:util.ts';
 
-import { name as packageName, version as packageVersion } from 'package.json';
+const log = createGenericLogger({ namespace: 'is-next-compat' });
 
-// * By default, external scripts should be silent. Use the DEBUG environment
-// * variable to see relevant output
-
-const debug = createDebugLogger({ namespace: `${packageName}:is-next-compat` });
-
-debug(`pkgName: "${packageName}"`);
-debug(`pkgVersion: "${packageVersion}"`);
+log(`package name: "${packageName}"`);
+log(`package version: "${packageVersion}"`);
 
 export default main().catch((error: unknown) => {
-  debug.error(error);
+  log.error(error);
   process.exitCode = 2;
 });
-
-let isRunningInTestMode: boolean | undefined = undefined;
 
 /**
  * Detect if this tool was invoked in the context of an integration test
  */
 async function checkIfRunningInTestMode() {
-  try {
-    isRunningInTestMode =
-      isRunningInTestMode ??
-      (await run('npm', ['run', '_is_next_compat_test_mode'])).exitCode === 0;
-  } catch {}
+  const isRunningInTestMode =
+    (await runNoRejectOnBadExit('npm', ['run', '_is_next_compat_test_mode']))
+      .exitCode === 0;
 
-  debug(`test override mode: ${isRunningInTestMode ? 'ACTIVE' : 'inactive'}`);
-  return !!isRunningInTestMode;
+  log(`test override mode: ${isRunningInTestMode ? 'ACTIVE' : 'inactive'}`);
+  return isRunningInTestMode;
 }
 
 /**
@@ -46,16 +39,16 @@ async function checkIfRunningInTestMode() {
 async function setCompatFlagTo(version: string) {
   try {
     if (await checkIfRunningInTestMode()) {
-      debug('skipped updating database (test override mode)');
+      log('skipped updating database (test override mode)');
     } else {
-      const semverRange = process.env.NODE_TARGET_VERSION!;
-      debug(`saw potential semver range: ${semverRange}`);
+      const semverRange = process.env.NODE_TARGET_VERSION;
+      log(`saw potential semver range: ${semverRange ?? '(undefined)'}`);
 
       if (
         validRange(semverRange) &&
-        !satisfiesRange(process.versions.node, semverRange)
+        !satisfiesRange(process.versions.node, semverRange!)
       ) {
-        debug(
+        log(
           `skipped updating database (node version ${process.versions.node} not in range)`
         );
       } else {
@@ -74,12 +67,12 @@ async function setCompatFlagTo(version: string) {
 
           await client.close();
 
-          debug(`updated database compat: "${version}"`);
-        } else debug('skipped updating database (no MONGODB_URI)');
+          log(`updated database compat: "${version}"`);
+        } else log('skipped updating database (no MONGODB_URI)');
       }
     }
   } catch (error) {
-    debug('additionally, an attempt to update the database failed');
+    log.warn('an attempt to update the database failed');
     throw error;
   }
 }
@@ -99,9 +92,9 @@ async function setCompatFlagTo(version: string) {
  * ```
  */
 async function main() {
-  debug('connecting to GitHub');
+  log('connecting to GitHub');
 
-  if (!process.env.GH_TOKEN) debug('warning: not using a personal access token!');
+  if (!process.env.GH_TOKEN) log('warning: not using a personal access token!');
 
   const { Octokit } = await import('@octokit/rest');
 
@@ -118,12 +111,12 @@ async function main() {
   });
 
   const latestReleaseVersion = latestVersion.replace(/^v/, '');
-  debug(`saw latest release version "${latestReleaseVersion}"`);
+  log(`saw latest release version "${latestReleaseVersion}"`);
 
   if (!latestReleaseVersion) throw new Error('could not find latest Next.js version');
 
   const { filename: path } = findPackageJson(getCurrentWorkingDirectory()).next();
-  debug(`using path: %O`, path);
+  log(`using path: %O`, path);
 
   if (!path) {
     throw new Error('could not find package.json');
@@ -131,8 +124,8 @@ async function main() {
 
   const nextVersionUnderTestFullNameAndVersion = `next@${latestReleaseVersion}`;
 
-  debug('installing %O for unit tests', nextVersionUnderTestFullNameAndVersion);
-  debug(`(integration tests use their own Next.js versions)`);
+  log('installing %O for unit tests', nextVersionUnderTestFullNameAndVersion);
+  log(`(integration tests use their own Next.js versions)`);
 
   // ? Install peer deps manually for Next.js
   const nextLatestReleaseVersionPeerDependencies = await getNextjsReactPeerDependencies(
@@ -147,16 +140,16 @@ async function main() {
     ...nextLatestReleaseVersionPeerDependencies
   ]);
 
-  debug('running compatibility tests');
+  log('running compatibility tests');
 
   await run('npm', ['run', 'test:unit']);
   await run('npm', ['run', 'test:integration:client']);
 
-  debug('test succeeded');
+  log('test succeeded');
 
   await setCompatFlagTo(latestReleaseVersion);
 
-  debug('execution complete');
+  log('execution complete');
 
   process.exitCode = 0;
 }

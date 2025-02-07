@@ -2,7 +2,13 @@
 'use strict';
 
 import { deepMergeConfig } from '@-xun/symbiote/assets';
-import { assertEnvironment, moduleExport } from '@-xun/symbiote/assets/jest.config.mjs';
+
+import {
+  assertEnvironment,
+  moduleExport,
+  transformSelectEsmPackagesToCjs
+} from '@-xun/symbiote/assets/jest.config.mjs';
+
 import { createDebugLogger } from 'rejoinder';
 
 const debug = createDebugLogger({ namespace: 'symbiote:config:jest' });
@@ -13,6 +19,12 @@ const config = deepMergeConfig(
     // Any custom configs here will be deep merged with moduleExport's result
   }
 );
+
+transformSelectEsmPackagesToCjs(config, [
+  '@octokit',
+  'universal-user-agent',
+  'before-after-hook'
+]);
 
 export default config;
 
