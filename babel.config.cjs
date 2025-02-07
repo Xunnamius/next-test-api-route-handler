@@ -22,6 +22,14 @@ module.exports = deepMergeConfig(
   }
 );
 
+// TODO: delete this
+if (process.env.EXTERNAL_DELETE_THIS) {
+  // @ts-expect-error: delete all of this
+  module.exports.env['production-cjs'].plugins[0][1].replaceExtensions[
+    '^../test/util.js$'
+  ] = './util.js';
+}
+
 debug('exported config: %O', module.exports);
 
 function getBabelAliases() {

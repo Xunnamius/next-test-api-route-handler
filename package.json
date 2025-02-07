@@ -58,7 +58,7 @@
     "build:changelog": "symbiote build changelog --env NODE_NO_WARNINGS=1",
     "build:dist": "symbiote build distributables --env NODE_NO_WARNINGS=1 --not-multiversal",
     "build:docs": "symbiote build docs --env NODE_NO_WARNINGS=1",
-    "build:externals": "echo 'this script and the whole concept of so-called externals is going away soon!'; NODE_ENV=production-external babel external-scripts --extensions .ts --out-dir external-scripts/bin && NODE_ENV=production-external babel test/util.ts --extensions .ts --out-dir external-scripts/bin",
+    "build:externals": "echo '\nWARNING: this script and the whole concept of so-called \"externals\" is going away soon (to be replaced by a hybridrepo)!\n\n'; EXTERNAL_DELETE_THIS=true NODE_ENV=production-cjs babel external-scripts --extensions .ts --out-dir external-scripts/bin && NODE_ENV=production-cjs babel test/util.ts --extensions .ts --out-dir external-scripts/bin",
     "clean": "symbiote clean --env NODE_NO_WARNINGS=1",
     "format": "symbiote format --env NODE_NO_WARNINGS=1 --hush",
     "info": "symbiote project info --env NODE_NO_WARNINGS=1",
