@@ -46,12 +46,12 @@ export async function getNextjsReactPeerDependencies(
     const reactVersion =
       typeof nextPeerDependencies.react === 'string'
         ? maxSatisfying(reactVersions, nextPeerDependencies.react)
-        : null;
+        : undefined;
 
     const reactDomVersion =
       typeof nextPeerDependencies['react-dom'] === 'string'
         ? maxSatisfying(reactDomVersions, nextPeerDependencies['react-dom'])
-        : null;
+        : undefined;
 
     const finalPeerDeps = [
       reactVersion ? `react@${reactVersion}` : '',
