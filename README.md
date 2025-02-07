@@ -121,10 +121,6 @@ npm install --save-dev next-test-api-route-handler
 
 ## Usage
 
-<!-- TODO -->
-
-TODO
-
 <!-- symbiote-template-region-start 5 -->
 
 > [!IMPORTANT]
@@ -145,6 +141,18 @@ import { testApiHandler } from 'next-test-api-route-handler'; // ◄ Must be fir
 const { testApiHandler } = require('next-test-api-route-handler'); // ◄ Must be first
 
 ... all other imports ...
+```
+
+If you're using fancy import sorting like [eslint-plugin-import's "order"
+rule][102], import NTARH as a [side-effect][x-pkg-side-effects-key] first, then
+perform the real import later:
+
+```javascript
+import 'next-test-api-route-handler';
+
+... all other imports ordered before NTARH ...
+import { testApiHandler } from 'next-test-api-route-handler';
+... all other imports ordered after NTARH ...
 ```
 
 ### Quick Start: App Router
@@ -1553,7 +1561,6 @@ TypeScript users, this package supports both `"Node10"` and `"Node16"` module
 resolution strategies.
 
 <!-- symbiote-template-region-end -->
-<!-- TODO: additional package details here -->
 <!-- symbiote-template-region-start 7 -->
 
 <details><summary>Expand details</summary>
@@ -1587,7 +1594,6 @@ also that [`package.json`][x-repo-package-json] may include the
 optimal [tree shaking][x-pkg-tree-shaking] where appropriate.
 
 <!-- symbiote-template-region-end -->
-<!-- TODO: additional package details here -->
 <!-- symbiote-template-region-start 8 -->
 
 </details>
@@ -1598,7 +1604,6 @@ optimal [tree shaking][x-pkg-tree-shaking] where appropriate.
 
 See [LICENSE][x-repo-license].
 
-<!-- TODO: additional license information and/or sections here -->
 <!-- symbiote-template-region-start 9 -->
 
 ## Contributing and Support
@@ -1612,7 +1617,6 @@ See [CONTRIBUTING.md][x-repo-contributing] and [SUPPORT.md][x-repo-support] for
 more information.
 
 <!-- symbiote-template-region-end -->
-<!-- TODO: additional contribution/support sections here -->
 <!-- symbiote-template-region-start 10 -->
 
 ### Contributors
@@ -1910,3 +1914,5 @@ specification. Contributions of any kind welcome!
 [100]:
   https://github.com/vercel/next.js/blob/90f95399ddfd036624c69b09910f40fa36c00ac2/packages/next/src/server/api-utils/node/api-resolver.ts#L321
 [101]: ./very-first-version-of-ntarh.png
+[102]:
+  https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/order.md#limitations-of---fix
