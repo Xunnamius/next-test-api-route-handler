@@ -1,23 +1,47 @@
-/* eslint-disable jest/no-conditional-in-test */
-
 // * These are smoke tests to ensure the externals are runnable
 
-import debugFactory from 'debug';
-import { peerDependencies, name as pkgName } from 'package';
+import { toAbsolutePath, toDirname } from '@-xun/fs';
+import { ensurePackageHasBeenBuilt } from '@-xun/jest';
+import { runnerFactory } from '@-xun/run';
+import { createDebugLogger } from 'rejoinder';
 
 import {
-  dummyNpmPackageFixture,
-  mockFixtureFactory,
-  run,
-  runnerFactory
-} from 'testverse/setup';
+  exports as packageExports,
+  name as packageName,
+  peerDependencies
+} from 'rootverse:package.json';
+
+import { dummyNpmPackageFixture, mockFixtureFactory } from 'testverse:setup.ts';
+import { reconfigureJestGlobalsToSkipTestsInThisFileIfRequested } from 'testverse:util.ts';
+
+reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
 const TEST_IDENTIFIER = 'integration-externals';
-const EXTERNAL_BIN_PATH = `${__dirname}/../external-scripts/bin/is-next-compat.js`;
 
-const debugId = `${pkgName}:*`;
-const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
+const EXTERNAL_BIN_PATH = toAbsolutePath(
+  __dirname,
+  '..',
+  '..',
+  'external-scripts',
+  'bin',
+  'is-next-compat.js'
+);
+
+// TODO: update this and all others to use single unified ntarh namespace
+const debug = createDebugLogger({ namespace: `${packageName}:${TEST_IDENTIFIER}` });
 const runExternal = runnerFactory('node', ['--no-warnings', EXTERNAL_BIN_PATH]);
+
+const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
+
+debug(`nodeVersion: "${nodeVersion}"`);
+
+beforeAll(async () => {
+  await ensurePackageHasBeenBuilt(
+    toAbsolutePath(toDirname(require.resolve('rootverse:package.json'))),
+    packageName,
+    packageExports
+  );
+});
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   performCleanup: true,
@@ -40,41 +64,20 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   use: [dummyNpmPackageFixture()]
 });
 
-beforeAll(async () => {
-  if ((await run('test', ['-e', EXTERNAL_BIN_PATH])).code !== 0) {
-    debug(`unable to find external executable: ${EXTERNAL_BIN_PATH}`);
-    throw new Error('must build externals first (try `npm run build:externals`)');
-  }
-});
-
-it('runs silent by default', async () => {
+it('runs to completion', async () => {
   expect.hasAssertions();
 
   await withMockedFixture(async ({ root }) => {
-    const { code, stdout, stderr } = await runExternal(undefined, { cwd: root });
+    const { exitCode, stdout, stderr } = await runExternal(undefined, { cwd: root });
 
-    expect(stdout).toBeEmpty();
+    expect(stdout).toStrictEqual(expect.stringContaining('execution complete'));
 
-    if (!process.env.DEBUG) {
-      // eslint-disable-next-line jest/no-conditional-expect
-      expect(stderr).toBeEmpty();
-    }
+    expect(
+      stderr
+        .replace(/Debugger attached\.\s*/, '')
+        .replace('Waiting for the debugger to disconnect...', '')
+    ).toBeEmpty();
 
-    expect(code).toBe(0);
-  });
-});
-
-it(`is verbose when DEBUG='${debugId}'`, async () => {
-  expect.hasAssertions();
-
-  await withMockedFixture(async ({ root }) => {
-    const { code, stdout, stderr } = await runExternal(undefined, {
-      env: { NODE_ENV: process.env.NODE_ENV, DEBUG: debugId },
-      cwd: root
-    });
-
-    expect(stdout).toBeEmpty();
-    expect(stderr).toStrictEqual(expect.stringContaining('execution complete'));
-    expect(code).toBe(0);
+    expect(exitCode).toBe(0);
   });
 });

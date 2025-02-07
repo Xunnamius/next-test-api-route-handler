@@ -23,6 +23,7 @@ export async function getNextjsReactPeerDependencies(
    */
   npmInstallNextJsString: string
 ): Promise<string[]> {
+  // TODO: update this and all others to use single unified ntarh namespace
   const debug = createDebugLogger({ namespace: 'util:getNextPeerDependencies' });
 
   return Promise.all([

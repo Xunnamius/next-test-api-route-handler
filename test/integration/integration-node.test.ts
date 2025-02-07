@@ -1,38 +1,40 @@
-/* eslint-disable jest/no-conditional-in-test */
-
 // * These tests ensure NTARH is importable and functions in both ESM and CJS
 
-import debugFactory from 'debug';
-import { exports as pkgExports, name as pkgName } from 'package';
+import { toAbsolutePath, toDirname } from '@-xun/fs';
+import { createDebugLogger } from 'rejoinder';
+
+import { exports as packageExports, name as packageName } from 'rootverse:package.json';
 
 import {
   dummyFilesFixture,
   dummyNpmPackageFixture,
   mockFixtureFactory,
   nodeImportAndRunTestFixture,
-  // TODO: add recommendation to documentation of published fixture packages
-  // TODO: that npmCopySelfFixture is for projects with peer deps,
-  // TODO: npmLinkSelfFixture can be dangerous to use in that case (something
-  // TODO: akin to the dual package hazard)
-  npmCopySelfFixture,
-  run
-} from 'testverse/setup';
+  npmCopySelfFixture
+} from 'testverse:setup.ts';
 
-import { getNextjsReactPeerDependencies } from 'testverse/util';
+import {
+  ensurePackageHasBeenBuilt,
+  getNextjsReactPeerDependencies,
+  reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
+} from 'testverse:util.ts';
+
+reconfigureJestGlobalsToSkipTestsInThisFileIfRequested();
 
 const TEST_IDENTIFIER = 'integration-node';
-
-const pkgMainPaths = Object.values(pkgExports)
-  .map((xport) =>
-    typeof xport === 'string' ? null : `${__dirname}/../${xport.node ?? xport.default}`
-  )
-  .filter(Boolean) as string[];
-
-const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
+// TODO: update this and all others to use single unified ntarh namespace
+const debug = createDebugLogger({ namespace: `${packageName}:${TEST_IDENTIFIER}` });
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 
-// eslint-disable-next-line jest/require-hook
 debug(`nodeVersion: "${nodeVersion}"`);
+
+beforeAll(async () => {
+  await ensurePackageHasBeenBuilt(
+    toAbsolutePath(toDirname(require.resolve('rootverse:package.json'))),
+    packageName,
+    packageExports
+  );
+});
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   performCleanup: true,
@@ -74,21 +76,24 @@ const runTest = async ({
     'package.json': '{"name":"dummy-pkg"}'
   };
 
-  Object.assign(initialFileContents, {
-    [indexPath]:
-      insertAdditionalImportsFirst && additionalImports ? `${additionalImports}\n` : '',
-    [routePath]: `${additionalImports}\n`
-  });
+  Object.assign(
+    initialFileContents,
+    {
+      [indexPath]:
+        insertAdditionalImportsFirst && additionalImports ? `${additionalImports}\n` : ''
+    },
+    additionalImports ? { [routePath]: `${additionalImports}\n` } : {}
+  );
 
-  initialFileContents[indexPath] += importAsEsm
-    ? `import { testApiHandler } from '${pkgName}';\nimport * as handler from '../${routePath}';`
-    : `const { testApiHandler } = require('${pkgName}');\nconst handler = require('../${routePath}');`;
+  initialFileContents[indexPath]! += importAsEsm
+    ? `import { testApiHandler } from '${packageName}';\nimport * as handler from '../${routePath}';`
+    : `const { testApiHandler } = require('${packageName}');\nconst handler = require('../${routePath}');`;
 
   if (!insertAdditionalImportsFirst && additionalImports) {
-    initialFileContents[indexPath] += `${additionalImports}\n`;
+    initialFileContents[indexPath]! += `${additionalImports}\n`;
   }
 
-  initialFileContents[indexPath] += `
+  initialFileContents[indexPath]! += `
 (async () => {
   await testApiHandler({
     ${routerType === 'app' ? 'appHandler' : 'pagesHandler'}: handler,
@@ -96,7 +101,7 @@ const runTest = async ({
   });
 })();`;
 
-  initialFileContents[routePath] +=
+  initialFileContents[routePath]! +=
     routerType === 'app'
       ? `
 ${importAsEsm ? 'export const ' : 'module.exports.'}GET = async function(request, context) {
@@ -116,19 +121,6 @@ ${importAsEsm ? 'export default ' : 'module.exports ='} async function(req, res)
     { initialFileContents, npmInstall: dependencies }
   );
 };
-
-beforeAll(async () => {
-  debug('pkgMainPaths: %O', pkgMainPaths);
-
-  await Promise.all(
-    pkgMainPaths.map(async (pkgMainPath) => {
-      if ((await run('test', ['-e', pkgMainPath])).code != 0) {
-        debug(`unable to find main distributable: ${pkgMainPath}`);
-        throw new Error('must build distributables first (try `npm run build:dist`)');
-      }
-    })
-  );
-});
 
 describe('<app router>', () => {
   it('works as ESM using namespace import', async () => {

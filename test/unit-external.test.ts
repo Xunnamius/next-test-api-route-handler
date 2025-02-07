@@ -22,6 +22,7 @@ const EXTERNAL_PATH = toAbsolutePath(
   __dirname,
   '..',
   'external-scripts',
+  // ? We don't add the extension on purpose :)
   'is-next-compat'
 );
 

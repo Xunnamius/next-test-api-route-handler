@@ -1,21 +1,29 @@
-/* eslint-disable jest/no-conditional-in-test, jest/no-conditional-expect */
-
 // * These tests ensure NTARH and Next.js integrate as expected
 
-import debugFactory from 'debug';
+import { toAbsolutePath, toDirname } from '@-xun/fs';
+import { ensurePackageHasBeenBuilt } from '@-xun/jest';
+import { createDebugLogger } from 'rejoinder';
 import stripAnsi from 'strip-ansi';
 
-import { exports as pkgExports, name as pkgName, version as pkgVersion } from 'package';
+import {
+  exports as packageExports,
+  name as packageName,
+  version as packageVersion
+} from 'rootverse:package.json';
 
 import {
   dummyNpmPackageFixture,
   mockFixtureFactory,
   nodeImportAndRunTestFixture,
-  npmCopySelfFixture,
-  run
-} from 'testverse/setup';
+  npmCopySelfFixture
+} from 'testverse:setup.ts';
 
-import { getNextjsReactPeerDependencies } from 'testverse/util';
+import {
+  getNextjsReactPeerDependencies,
+  reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
+} from 'testverse:util.ts';
+
+reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
 const TEST_IDENTIFIER = 'integration-client-next';
 
@@ -39,36 +47,25 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@latest', 'both'] //    ! Latest release (must always be here and last)
 ];
 
-const pkgMainPaths = Object.values(pkgExports)
-  .map((xport) =>
-    typeof xport === 'string' ? null : `${__dirname}/../${xport.node ?? xport.default}`
-  )
-  .filter(Boolean) as string[];
+// TODO: update this and all others to use single unified ntarh namespace
+const debug = createDebugLogger({ namespace: `${packageName}:${TEST_IDENTIFIER}` });
 
-const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
-
-// eslint-disable-next-line jest/require-hook
 debug('NEXT_VERSIONS_UNDER_TEST: %O', NEXT_VERSIONS_UNDER_TEST);
+
+beforeAll(async () => {
+  await ensurePackageHasBeenBuilt(
+    toAbsolutePath(toDirname(require.resolve('rootverse:package.json'))),
+    packageName,
+    packageExports
+  );
+});
 
 const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   performCleanup: true,
   initialFileContents: {
-    'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`
+    'package.json': `{"name":"dummy-pkg","dependencies":{"${packageName}":"${packageVersion}"}}`
   },
   use: [dummyNpmPackageFixture(), npmCopySelfFixture(), nodeImportAndRunTestFixture()]
-});
-
-beforeAll(async () => {
-  debug('pkgMainPaths: %O', pkgMainPaths);
-
-  await Promise.all(
-    pkgMainPaths.map(async (pkgMainPath) => {
-      if ((await run('test', ['-e', pkgMainPath])).code != 0) {
-        debug(`unable to find main distributable: ${pkgMainPath}`);
-        throw new Error('must build distributables first (try `npm run build:dist`)');
-      }
-    })
-  );
 });
 
 for (const [
@@ -82,7 +79,7 @@ for (const [
   for (const esm of [true, false]) {
     for (const routerType of routerTypes) {
       it(`works with ${nextVersion} via ${
-        routerType[0].toUpperCase() + routerType.slice(1)
+        routerType[0]!.toUpperCase() + routerType.slice(1)
       } Router ${
         esm ? 'ESM import (w/o jest)' : 'CJS require (w/ jest)'
       } syntax`, async () => {
@@ -139,7 +136,7 @@ const getHandler = (status) => async (_, res) => {
           esm
             ? {
                 initialFileContents: {
-                  [indexPath]: `import { testApiHandler } from '${pkgName}';
+                  [indexPath]: `import { testApiHandler } from '${packageName}';
 ${commonSrc}
 
 (async () => {
@@ -172,7 +169,7 @@ ${commonSrc}
               }
             : {
                 initialFileContents: {
-                  [indexPath]: `const { testApiHandler } = require('${pkgName}');
+                  [indexPath]: `const { testApiHandler } = require('${packageName}');
 ${commonSrc}
 
 it('does what I want', async () => {
@@ -252,7 +249,7 @@ it('fails fast (no jest timeout) when using App Router and incompatible Next.js 
     {
       initialFileContents: {
         [indexPath]: `
-const { testApiHandler } = require('${pkgName}');
+const { testApiHandler } = require('${packageName}');
 
 jest.setTimeout(5000);
 
@@ -338,7 +335,7 @@ it('fails fast (no jest timeout) when using Rages Router and incompatible Next.j
     {
       initialFileContents: {
         [indexPath]: `
-const { testApiHandler } = require('${pkgName}');
+const { testApiHandler } = require('${packageName}');
 
 jest.setTimeout(5000);
 

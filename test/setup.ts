@@ -18,10 +18,10 @@ import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join as joinPath, resolve as resolvePath } from 'node:path';
 
-import debugFactory from 'debug';
 import execa from 'execa';
 import glob from 'glob';
 import deepMerge from 'lodash.mergewith';
+import { createDebugLogger } from 'rejoinder';
 import uniqueFilename from 'unique-filename';
 //import gitFactory from 'simple-git';
 // ? https://github.com/jest-community/jest-extended#typescript
@@ -34,8 +34,8 @@ import {
   version as packageVersion
 } from 'rootverse:package.json';
 
-import type { Debugger } from 'debug';
 import type { ExecaReturnValue } from 'execa';
+import type { ExtendedDebugger } from 'rejoinder';
 import type { EmptyObject, Merge, PartialDeep, Promisable } from 'type-fest';
 //import type { SimpleGit } from 'simple-git';
 
@@ -61,7 +61,7 @@ import type { EmptyObject, Merge, PartialDeep, Promisable } from 'type-fest';
 // TODO: ability to copy entire arbitrary directories recursively into fixture
 // TODO: root
 
-const globalDebug = debugFactory(`${packageName}:jest-setup`);
+const globalDebug = createDebugLogger({ namespace: `${packageName}:jest-setup` });
 
 globalDebug(`pkgName: "${packageName}"`);
 globalDebug(`pkgVersion: "${packageVersion}"`);
@@ -491,6 +491,7 @@ export async function withMockedOutput(
             // @ts-expect-error: TypeScript isn't smart enough to figure this out
             target[property];
 
+          // eslint-disable-next-line no-restricted-syntax
           if (value instanceof Function) {
             return function (...args: unknown[]) {
               // ? "this-recovering" code
@@ -660,7 +661,7 @@ export interface FixtureContext<
   options: FixtureOptions & CustomOptions;
   using: MockFixture[];
   fileContents: { [filePath: string]: string };
-  debug: Debugger;
+  debug: ExtendedDebugger;
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
