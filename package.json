@@ -85,17 +85,14 @@
     "core-js": "^3.40.0"
   },
   "devDependencies": {
-    "@-xun/project": "^1.0.1",
+    "@-xun/fs": "^1.0.0",
     "@-xun/run": "^0.0.1",
     "@-xun/symbiote": "^2.23.3",
     "@octokit/rest": "^21.1.0",
-    "@types/confusing-browser-globals": "^1.0.3",
     "@types/find-package-json": "^1.2.6",
     "@types/glob": "^8.1.0",
     "@types/lodash.mergewith": "^4.6.9",
     "@types/semver": "^7.5.8",
-    "@xunnamius/jest-types": "^1.1.3",
-    "confusing-browser-globals": "^1.0.11",
     "execa": "^5.1.1",
     "find-package-json": "^1.2.0",
     "glob": "^9.3.2",
