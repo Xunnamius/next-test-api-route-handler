@@ -29,6 +29,8 @@ Confidently test your Next.js API routes in an isolated Next-like environment
 
 # next-test-api-route-handler
 
+<!-- symbiote-template-region-end -->
+
 **Trying to unit test your Next.js API routes?** Tired of hacking something
 together with express or node-mocks-http or writing a bunch of boring dummy
 infra just to get some passing tests? And what does a "passing test" mean anyway
@@ -62,6 +64,8 @@ src="https://xunn.at/ntarh-compat" /></a> ✨
 </div>
 
 <br />
+
+<!-- symbiote-template-region-start 3 -->
 
 ---
 
@@ -120,8 +124,6 @@ npm install --save-dev next-test-api-route-handler
 <br />
 
 ## Usage
-
-<!-- symbiote-template-region-start 5 -->
 
 > [!IMPORTANT]
 >
@@ -1372,6 +1374,8 @@ it('injects contrived errors at the required rate', async () => {
 ```
 
 <br />
+
+<!-- symbiote-template-region-start 5 -->
 
 ## Appendix
 
