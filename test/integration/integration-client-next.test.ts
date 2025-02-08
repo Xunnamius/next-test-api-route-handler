@@ -1,4 +1,7 @@
-// * These tests ensure NTARH and Next.js integrate as expected
+// * These tests ensure NTARH and Next.js integrate as expected. Typically,
+// * these integration tests limit module-level mocking to peripheral concerns
+// * (e.g. mocking output handling and mocking networking while eschewing
+// * filesystem mocking) in favor of testing a "fully integrated" system.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
 import { ensurePackageHasBeenBuilt } from '@-xun/jest';
