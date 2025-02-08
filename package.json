@@ -87,23 +87,16 @@
   "devDependencies": {
     "@-xun/fs": "^1.0.0",
     "@-xun/run": "^0.0.1",
-    "@-xun/symbiote": "^2.23.5",
+    "@-xun/symbiote": "^2.23.6",
     "@octokit/rest": "^21.1.0",
     "@types/find-package-json": "^1.2.6",
-    "@types/glob": "^8.1.0",
-    "@types/lodash.mergewith": "^4.6.9",
     "@types/semver": "^7.5.8",
-    "execa": "^5.1.1",
     "find-package-json": "^1.2.0",
-    "glob": "^9.3.2",
-    "lodash.mergewith": "^4.6.2",
     "mongodb": "^6.13.0",
     "msw": "^2.7.0",
     "rejoinder": "^1.2.4",
     "semver": "^7.7.1",
-    "strip-ansi": "^6.0.1",
-    "type-fest": "^4.33.0",
-    "unique-filename": "^4.0.0"
+    "strip-ansi~6": "npm:strip-ansi@^6.0.1"
   },
   "peerDependencies": {
     "next": ">=9"
