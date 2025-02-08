@@ -1,7 +1,10 @@
-// * These tests ensure NTARH and Next.js integrate as expected. Typically,
-// * these integration tests limit module-level mocking to peripheral concerns
-// * (e.g. mocking output handling and mocking networking while eschewing
-// * filesystem mocking) in favor of testing a "fully integrated" system.
+// * These tests run through the entire process of acquiring this software,
+// * using its features, and dealing with its error conditions across a variety
+// * of runtimes (e.g. the currently maintained node versions).
+// *
+// * Typically, these tests involve the use of deep mock fixtures and/or Docker
+// * containers, and are built to run in GitHub Actions CI pipelines; some can
+// * also be run locally.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
 import { ensurePackageHasBeenBuilt } from '@-xun/jest';
