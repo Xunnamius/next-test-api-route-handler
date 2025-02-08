@@ -73,11 +73,11 @@
     "renovate:aliases": "symbiote project renovate --env NODE_NO_WARNINGS=1 --regenerate-assets --assets-preset 'basic cli lib lib-esm lib-web react nextjs' --only-aliases",
     "start": "symbiote start --env NODE_NO_WARNINGS=1 --",
     "test": "npm run test:package:unit --",
-    "test:package:all": "symbiote test --env NODE_NO_WARNINGS=1 --coverage",
+    "test:package:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --coverage",
     "test:package:e2e": "symbiote test --env NODE_NO_WARNINGS=1 --tests end-to-end",
     "test:package:integration": "symbiote test --env NODE_NO_WARNINGS=1 --tests integration",
-    "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit",
-    "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --scope unlimited --coverage"
+    "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type",
+    "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --scope unlimited --coverage"
   },
   "dependencies": {
     "@whatwg-node/server": "^0.9.66",
