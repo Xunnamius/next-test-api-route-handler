@@ -13,6 +13,14 @@ import { maxSatisfying } from 'semver';
 export * from '@-xun/jest';
 
 /**
+ * The project-wide namespace that appears in debugger output. Only used in
+ * tests.
+ */
+export const globalDebuggerNamespace = 'ntarh';
+
+export const globalDebugger = createDebugLogger({ namespace: globalDebuggerNamespace });
+
+/**
  * Since some versions of Next.js are released with flawed
  * `package.json::peerDependencies`, sometimes we need to ensure the correct
  * versions of Next.js's peer dependencies are actually installed.
@@ -23,8 +31,7 @@ export async function getNextjsReactPeerDependencies(
    */
   npmInstallNextJsString: string
 ): Promise<string[]> {
-  // TODO: update this and all others to use single unified ntarh namespace
-  const debug = createDebugLogger({ namespace: 'util:getNextPeerDependencies' });
+  const debug = globalDebugger.extend('getNextPeerDependencies');
 
   return Promise.all([
     run('npm', ['show', 'react', 'versions', '--json']),

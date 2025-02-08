@@ -1,9 +1,15 @@
-// * These are smoke tests to ensure the externals are runnable
+// * These brutally minimal "smoke" tests ensure the externals can be invoked
+// * and, when it is, exits cleanly. Functionality testing is not the goal here.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
-import { ensurePackageHasBeenBuilt } from '@-xun/jest';
+
+import {
+  dummyNpmPackageFixture,
+  ensurePackageHasBeenBuilt,
+  mockFixtureFactory
+} from '@-xun/jest';
+
 import { runnerFactory } from '@-xun/run';
-import { createDebugLogger } from 'rejoinder';
 
 import {
   exports as packageExports,
@@ -11,13 +17,14 @@ import {
   peerDependencies
 } from 'rootverse:package.json';
 
-import { dummyNpmPackageFixture, mockFixtureFactory } from 'testverse:setup.ts';
-import { reconfigureJestGlobalsToSkipTestsInThisFileIfRequested } from 'testverse:util.ts';
+import {
+  globalDebugger,
+  reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
+} from 'testverse:util.ts';
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
-const TEST_IDENTIFIER = 'integration-externals';
-
+const TEST_IDENTIFIER = 'integration-external';
 const EXTERNAL_BIN_PATH = toAbsolutePath(
   __dirname,
   '..',
@@ -27,8 +34,7 @@ const EXTERNAL_BIN_PATH = toAbsolutePath(
   'is-next-compat.js'
 );
 
-// TODO: update this and all others to use single unified ntarh namespace
-const debug = createDebugLogger({ namespace: `${packageName}:${TEST_IDENTIFIER}` });
+const debug = globalDebugger.extend(TEST_IDENTIFIER);
 const runExternal = runnerFactory('node', ['--no-warnings', EXTERNAL_BIN_PATH]);
 
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;

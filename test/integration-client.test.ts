@@ -5,29 +5,28 @@
 // * filesystem mocking) in favor of testing a "fully integrated" system.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
-import { createDebugLogger } from 'rejoinder';
-
-import { exports as packageExports, name as packageName } from 'rootverse:package.json';
 
 import {
   dummyFilesFixture,
   dummyNpmPackageFixture,
   mockFixtureFactory,
   nodeImportAndRunTestFixture,
-  npmCopySelfFixture
-} from 'testverse:setup.ts';
+  npmCopyPackageFixture
+} from '@-xun/jest';
+
+import { exports as packageExports, name as packageName } from 'rootverse:package.json';
 
 import {
   ensurePackageHasBeenBuilt,
   getNextjsReactPeerDependencies,
+  globalDebugger,
   reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
 } from 'testverse:util.ts';
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested();
 
-const TEST_IDENTIFIER = 'integration-node';
-// TODO: update this and all others to use single unified ntarh namespace
-const debug = createDebugLogger({ namespace: `${packageName}:${TEST_IDENTIFIER}` });
+const TEST_IDENTIFIER = 'integration-client';
+const debug = globalDebugger.extend(TEST_IDENTIFIER);
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 
 debug(`nodeVersion: "${nodeVersion}"`);
@@ -44,7 +43,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   performCleanup: true,
   use: [
     dummyNpmPackageFixture(),
-    npmCopySelfFixture(),
+    npmCopyPackageFixture(),
     dummyFilesFixture(),
     nodeImportAndRunTestFixture()
   ]

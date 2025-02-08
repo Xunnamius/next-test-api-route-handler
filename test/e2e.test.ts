@@ -7,9 +7,16 @@
 // * also be run locally.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
-import { ensurePackageHasBeenBuilt } from '@-xun/jest';
-import { createDebugLogger } from 'rejoinder';
-import stripAnsi from 'strip-ansi';
+
+import {
+  dummyNpmPackageFixture,
+  ensurePackageHasBeenBuilt,
+  mockFixtureFactory,
+  nodeImportAndRunTestFixture,
+  npmCopyPackageFixture
+} from '@-xun/jest';
+
+import stripAnsi from 'strip-ansi~6';
 
 import {
   exports as packageExports,
@@ -18,20 +25,14 @@ import {
 } from 'rootverse:package.json';
 
 import {
-  dummyNpmPackageFixture,
-  mockFixtureFactory,
-  nodeImportAndRunTestFixture,
-  npmCopySelfFixture
-} from 'testverse:setup.ts';
-
-import {
   getNextjsReactPeerDependencies,
+  globalDebugger,
   reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
 } from 'testverse:util.ts';
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
-const TEST_IDENTIFIER = 'integration-client-next';
+const TEST_IDENTIFIER = 'e2e';
 
 const NEXT_VERSIONS_UNDER_TEST: [
   next: `next@${string}`,
@@ -53,8 +54,7 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@latest', 'both'] //    ! Latest release (must always be here and last)
 ];
 
-// TODO: update this and all others to use single unified ntarh namespace
-const debug = createDebugLogger({ namespace: `${packageName}:${TEST_IDENTIFIER}` });
+const debug = globalDebugger.extend(TEST_IDENTIFIER);
 
 debug('NEXT_VERSIONS_UNDER_TEST: %O', NEXT_VERSIONS_UNDER_TEST);
 
@@ -71,7 +71,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
   initialFileContents: {
     'package.json': `{"name":"dummy-pkg","dependencies":{"${packageName}":"${packageVersion}"}}`
   },
-  use: [dummyNpmPackageFixture(), npmCopySelfFixture(), nodeImportAndRunTestFixture()]
+  use: [dummyNpmPackageFixture(), npmCopyPackageFixture(), nodeImportAndRunTestFixture()]
 });
 
 for (const [
