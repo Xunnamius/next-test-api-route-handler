@@ -11,7 +11,6 @@ import { NextResponse } from 'next/server';
 import { $originalGlobalFetch, testApiHandler } from 'universe';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { NextRequest } from 'next/server';
 
 jest.mock('cookie');
 
@@ -1458,49 +1457,6 @@ describe('::testApiHandler', () => {
         ]);
       });
     });
-
-    // TODO: move this test to tstyche
-    it('supports type generics', async () => {
-      expect.hasAssertions();
-
-      await testApiHandler<{ a: number }>({
-        appHandler: {
-          async GET() {
-            // ? We shouldn't be type checking this deep
-            return Response.json({ b: 1 });
-          }
-        },
-        test: async ({ fetch }) => {
-          // @ts-expect-error: b does not exist (this test "fails" if no TS error)
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          (await (await fetch()).json()).b;
-          expect(true).toBe(true);
-        }
-      });
-    });
-
-    it('does not throw any AppRouteUserlandModule-related type errors', async () => {
-      expect.hasAssertions();
-
-      const appHandler = {
-        async GET(req: NextRequest, { params }: { params: { recipeId: string } }) {
-          const { recipeId } = params;
-          expect(req).toBeDefined();
-          expect(recipeId).toBe('1');
-          return NextResponse.json({});
-        }
-      };
-
-      await testApiHandler({
-        rejectOnHandlerError: true,
-        // This test "fails" if there is a TS error (caught by CI/linting)
-        appHandler,
-        params: { recipeId: '1' },
-        async test({ fetch }) {
-          await expect(fetch()).resolves.toBeDefined();
-        }
-      });
-    });
   });
 
   describe('<pages router>', () => {
@@ -2446,27 +2402,6 @@ describe('::testApiHandler', () => {
         ).rejects.toMatchObject({ message: 'bad bad bad bad not good' });
 
         expect(errorSpy).toHaveBeenCalledTimes(4);
-      });
-    });
-
-    // TODO: move this test to tstyche
-    it('supports type generics', async () => {
-      expect.hasAssertions();
-
-      await testApiHandler<{ a: number }>({
-        pagesHandler: async (_, res) => {
-          // ? Formerly we would expect an error to be thrown here, but in
-          // ? NTARH@4 we've relaxed the type checking so that only fetch::json
-          // ? is affected. I believe this leads to more accurate and more
-          // ? useful type checking for NTARH users.
-          res.send({ b: 1 });
-        },
-        test: async ({ fetch }) => {
-          // @ts-expect-error: b does not exist (this test "fails" if no TS error)
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          (await (await fetch()).json()).b;
-          expect(true).toBe(true);
-        }
       });
     });
   });
