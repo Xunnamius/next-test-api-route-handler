@@ -239,7 +239,7 @@ it('handles compatibility test failure', async () => {
         mockLatestRelease = '100.99.0';
 
         mockedRun.mockImplementation(async (file: string, args?: string[]) => {
-          if (file === 'npm' && args?.[0] === 'run' && args[1]?.endsWith('unit')) {
+          if (file === 'npm' && args?.[0] === 'run' && args[1]?.endsWith('all')) {
             return Promise.reject({ stderr: 'bad!' }) as unknown as RunReturnType;
           }
 
@@ -248,32 +248,9 @@ it('handles compatibility test failure', async () => {
 
         await protectedImport({ expectedExitCode: 2 });
 
-        expect(mockedRun).not.toHaveBeenCalledWith('npm', [
-          'run',
-          'test:integration:client'
-        ]);
-
+        expect(logSpy).not.toHaveBeenCalledWith('test succeeded');
         expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('bad!'));
         expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
-
-        mockedRun.mockImplementation(async (file: string, args?: string[]) => {
-          if (file === 'npm' && args?.[0] === 'run' && args[1]?.endsWith('client')) {
-            return Promise.reject({ stderr: 'bad!' }) as unknown as RunReturnType;
-          }
-
-          return baseMockRunImplementation(file, args);
-        });
-
-        await protectedImport({ expectedExitCode: 2 });
-
-        expect(mockedRun).toHaveBeenCalledWith('npm', ['run', 'test:unit']);
-        expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
-
-        expect(logSpy).toHaveBeenCalled();
-        expect(errorSpy.mock.calls).toStrictEqual([
-          [expect.stringContaining('bad!')],
-          [expect.stringContaining('bad!')]
-        ]);
       },
       { MONGODB_URI: 'fake-uri' }
     );

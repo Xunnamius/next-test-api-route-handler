@@ -142,8 +142,7 @@ async function main() {
 
   log('running compatibility tests');
 
-  await run('npm', ['run', 'test:unit']);
-  await run('npm', ['run', 'test:integration:client']);
+  await run('npm', ['run', 'test:packages:all']);
 
   log('test succeeded');
 

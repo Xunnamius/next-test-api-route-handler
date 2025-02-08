@@ -52,8 +52,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
     'package.json': `{
       "name": "dummy-pkg",
       "scripts": {
-        "test:unit": "true",
-        "test:integration:client": "true",
+        "test:packages:all": "true",
         "_is_next_compat_test_mode": "true"
       },
       "peerDependencies": {
