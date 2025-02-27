@@ -533,9 +533,9 @@ export async function testApiHandler<NextResponseJsonType = any>({
               // ? even though it doesn't appear in the types as far as I can
               // ? tell
               // @ts-ignore: the types for renderOpts are wrong?!
-              staticGenerationContext: {
-                supportsDynamicHTML: true
-              }
+              staticGenerationContext: { supportsDynamicHTML: true },
+              // For next@>=15.2
+              sharedContext: { buildId: 'ntarh' }
             }
           );
 
