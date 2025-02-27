@@ -49,6 +49,7 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@14.0.4', 'both'], //   ? Ntarh guarantees App Router support here on
   ['next@14.2.11', 'both'], //  ? See issue #1076
   ['next@15.0.0', 'both'], //   ? Updated from 15.0.0-rc.1
+  ['next@15.2.0', 'both'], //   ? See issue #1129
   ['next@latest', 'both'] //    ! Latest release (must always be here and last)
 ];
 
