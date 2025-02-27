@@ -5,28 +5,27 @@
 // * filesystem mocking) in favor of testing a "fully integrated" system.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
-
-import {
-  dummyFilesFixture,
-  dummyNpmPackageFixture,
-  mockFixtureFactory,
-  nodeImportAndRunTestFixture,
-  npmCopyPackageFixture
-} from '@-xun/jest';
+import { readXPackageJsonAtRoot } from '@-xun/project-fs';
 
 import { exports as packageExports, name as packageName } from 'rootverse:package.json';
 
 import {
+  dummyFilesFixture,
+  dummyNpmPackageFixture,
   ensurePackageHasBeenBuilt,
   getNextjsReactPeerDependencies,
   globalDebugger,
+  mockFixturesFactory,
+  nodeImportAndRunTestFixture,
+  npmCopyPackageFixture,
   reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
 } from 'testverse:util.ts';
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested();
 
-const TEST_IDENTIFIER = 'integration-client';
+const TEST_IDENTIFIER = 'ntarh-client-changelog';
 const debug = globalDebugger.extend(TEST_IDENTIFIER);
+const packageRoot = toAbsolutePath(__dirname, '../..');
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 
 debug(`nodeVersion: "${nodeVersion}"`);
@@ -39,15 +38,23 @@ beforeAll(async () => {
   );
 });
 
-const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
-  performCleanup: true,
-  use: [
-    dummyNpmPackageFixture(),
-    npmCopyPackageFixture(),
-    dummyFilesFixture(),
-    nodeImportAndRunTestFixture()
-  ]
-});
+const withMockedFixture = mockFixturesFactory(
+  [
+    dummyNpmPackageFixture,
+    npmCopyPackageFixture,
+    dummyFilesFixture,
+    nodeImportAndRunTestFixture
+  ],
+  {
+    performCleanup: true,
+    initialVirtualFiles: {},
+    packageUnderTest: {
+      root: packageRoot,
+      json: readXPackageJsonAtRoot.sync(packageRoot, { useCached: true }),
+      attributes: { cjs: true }
+    }
+  }
+);
 
 const runTest = async ({
   importAs,
@@ -75,12 +82,12 @@ const runTest = async ({
     ...(await getNextjsReactPeerDependencies('next@latest'))
   ];
 
-  const initialFileContents: Record<string, string> = {
+  const initialVirtualFiles: Record<string, string> = {
     'package.json': '{"name":"dummy-pkg"}'
   };
 
   Object.assign(
-    initialFileContents,
+    initialVirtualFiles,
     {
       [indexPath]:
         insertAdditionalImportsFirst && additionalImports ? `${additionalImports}\n` : ''
@@ -88,15 +95,15 @@ const runTest = async ({
     additionalImports ? { [routePath]: `${additionalImports}\n` } : {}
   );
 
-  initialFileContents[indexPath]! += importAsEsm
+  initialVirtualFiles[indexPath]! += importAsEsm
     ? `import { testApiHandler } from '${packageName}';\nimport * as handler from '../${routePath}';`
     : `const { testApiHandler } = require('${packageName}');\nconst handler = require('../${routePath}');`;
 
   if (!insertAdditionalImportsFirst && additionalImports) {
-    initialFileContents[indexPath]! += `${additionalImports}\n`;
+    initialVirtualFiles[indexPath]! += `${additionalImports}\n`;
   }
 
-  initialFileContents[indexPath]! += `
+  initialVirtualFiles[indexPath]! += `
 (async () => {
   await testApiHandler({
     ${routerType === 'app' ? 'appHandler' : 'pagesHandler'}: handler,
@@ -104,7 +111,7 @@ const runTest = async ({
   });
 })();`;
 
-  initialFileContents[routePath]! +=
+  initialVirtualFiles[routePath]! +=
     routerType === 'app'
       ? `
 ${importAsEsm ? 'export const ' : 'module.exports.'}GET = async function(request, context) {
@@ -115,14 +122,10 @@ ${importAsEsm ? 'export default ' : 'module.exports ='} async function(req, res)
   ${handlerCode}
 };`;
 
-  await withMockedFixture(
-    async (context) => {
-      if (!context.testResult)
-        throw new Error('must use node-import-and-run-test fixture');
-      await testFixtureFn(context);
-    },
-    { initialFileContents, npmInstall: dependencies }
-  );
+  await withMockedFixture(async (context) => testFixtureFn(context), {
+    initialVirtualFiles,
+    additionalPackagesToInstall: dependencies
+  });
 };
 
 describe('<app router>', () => {
@@ -138,9 +141,9 @@ describe('<app router>', () => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
-        expect(context.testResult?.stderr).toBeEmpty();
-        expect(context.testResult?.stdout).toBe('working');
-        expect(context.testResult?.code).toBe(0);
+        expect(context.testResult.stderr).toBeEmpty();
+        expect(context.testResult.stdout).toBe('working');
+        expect(context.testResult.code).toBe(0);
       }
     });
   });
@@ -158,9 +161,9 @@ describe('<app router>', () => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
-        expect(context.testResult?.stderr).toBeEmpty();
-        expect(context.testResult?.stdout).toBe('working');
-        expect(context.testResult?.code).toBe(0);
+        expect(context.testResult.stderr).toBeEmpty();
+        expect(context.testResult.stdout).toBe('working');
+        expect(context.testResult.code).toBe(0);
       }
     });
   });
@@ -181,11 +184,11 @@ describe('<app router>', () => {
         );
         debug('(expecting exit code to be non-zero)');
 
-        expect(context.testResult?.stdout).toBeEmpty();
-        expect(context.testResult?.stderr).toInclude(
+        expect(context.testResult.stdout).toBeEmpty();
+        expect(context.testResult.stderr).toInclude(
           'AsyncLocalStorage accessed in runtime where it is not available'
         );
-        expect(context.testResult?.code).not.toBe(0);
+        expect(context.testResult.code).not.toBe(0);
       }
     });
   });
@@ -207,11 +210,11 @@ describe('<app router>', () => {
         );
         debug('(expecting exit code to be non-zero)');
 
-        expect(context.testResult?.stdout).toBeEmpty();
-        expect(context.testResult?.stderr).toInclude(
+        expect(context.testResult.stdout).toBeEmpty();
+        expect(context.testResult.stderr).toInclude(
           'AsyncLocalStorage accessed in runtime where it is not available'
         );
-        expect(context.testResult?.code).not.toBe(0);
+        expect(context.testResult.code).not.toBe(0);
       }
     });
   });
@@ -228,11 +231,11 @@ describe('<app router>', () => {
         debug('(expecting stderr to contain "BadBadNotGood")');
         debug('(expecting exit code to be zero)');
 
-        expect(context.testResult?.stdout).toBe('Internal Server Error');
-        expect(context.testResult?.stderr).toStrictEqual(
+        expect(context.testResult.stdout).toBe('Internal Server Error');
+        expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
         );
-        expect(context.testResult?.code).toBe(0);
+        expect(context.testResult.code).toBe(0);
       }
     });
   }, 10_000);
@@ -250,9 +253,9 @@ describe('<app router>', () => {
         debug('(expecting stdout to be "")');
         debug('(expecting stderr to contain "BadBadNotGood")');
 
-        expect(context.testResult?.code).toBe(1);
-        expect(context.testResult?.stdout).toBeEmpty();
-        expect(context.testResult?.stderr).toStrictEqual(
+        expect(context.testResult.code).toBe(1);
+        expect(context.testResult.stdout).toBeEmpty();
+        expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
         );
       }
@@ -272,9 +275,9 @@ describe('<pages router>', () => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
-        expect(context.testResult?.stderr).toBeEmpty();
-        expect(context.testResult?.stdout).toBe('working');
-        expect(context.testResult?.code).toBe(0);
+        expect(context.testResult.stderr).toBeEmpty();
+        expect(context.testResult.stdout).toBe('working');
+        expect(context.testResult.code).toBe(0);
       }
     });
   });
@@ -290,9 +293,9 @@ describe('<pages router>', () => {
         debug('(expecting stdout to be "working")');
         debug('(expecting exit code to be 0)');
 
-        expect(context.testResult?.stderr).toBeEmpty();
-        expect(context.testResult?.stdout).toBe('working');
-        expect(context.testResult?.code).toBe(0);
+        expect(context.testResult.stderr).toBeEmpty();
+        expect(context.testResult.stdout).toBe('working');
+        expect(context.testResult.code).toBe(0);
       }
     });
   });
@@ -309,11 +312,11 @@ describe('<pages router>', () => {
         debug('(expecting stderr to contain "BadBadNotGood")');
         debug('(expecting exit code to be zero)');
 
-        expect(context.testResult?.stdout).toBe('Internal Server Error');
-        expect(context.testResult?.stderr).toStrictEqual(
+        expect(context.testResult.stdout).toBe('Internal Server Error');
+        expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
         );
-        expect(context.testResult?.code).toBe(0);
+        expect(context.testResult.code).toBe(0);
       }
     });
   }, 10_000);
@@ -330,9 +333,9 @@ describe('<pages router>', () => {
         debug('(expecting stdout to be "")');
         debug('(expecting stderr to contain "BadBadNotGood")');
 
-        expect(context.testResult?.code).toBe(1);
-        expect(context.testResult?.stdout).toBeEmpty();
-        expect(context.testResult?.stderr).toStrictEqual(
+        expect(context.testResult.code).toBe(1);
+        expect(context.testResult.stdout).toBeEmpty();
+        expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
         );
       }

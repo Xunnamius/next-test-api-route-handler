@@ -2,13 +2,6 @@
 // * and, when it is, exits cleanly. Functionality testing is not the goal here.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
-
-import {
-  dummyNpmPackageFixture,
-  ensurePackageHasBeenBuilt,
-  mockFixtureFactory
-} from '@-xun/jest';
-
 import { runnerFactory } from '@-xun/run';
 
 import {
@@ -18,13 +11,16 @@ import {
 } from 'rootverse:package.json';
 
 import {
+  dummyNpmPackageFixture,
+  ensurePackageHasBeenBuilt,
   globalDebugger,
+  mockFixturesFactory,
   reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
 } from 'testverse:util.ts';
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
-const TEST_IDENTIFIER = 'integration-external';
+const TEST_IDENTIFIER = 'ntarh-client-changelog';
 const EXTERNAL_BIN_PATH = toAbsolutePath(
   __dirname,
   '..',
@@ -36,7 +32,6 @@ const EXTERNAL_BIN_PATH = toAbsolutePath(
 
 const debug = globalDebugger.extend(TEST_IDENTIFIER);
 const runExternal = runnerFactory('node', ['--no-warnings', EXTERNAL_BIN_PATH]);
-
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 
 debug(`nodeVersion: "${nodeVersion}"`);
@@ -49,12 +44,13 @@ beforeAll(async () => {
   );
 });
 
-const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
+const withMockedFixture = mockFixturesFactory([dummyNpmPackageFixture], {
   performCleanup: true,
+  identifier: TEST_IDENTIFIER,
   // ? We use _is_next_compat_test_mode to prevent the external script (compiled
   // ? using a .env file potentially with production keys) from attempting
   // ? external connections
-  initialFileContents: {
+  initialVirtualFiles: {
     'package.json': `{
       "name": "dummy-pkg",
       "scripts": {
@@ -65,8 +61,7 @@ const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
         "next": "${peerDependencies.next}"
       }
     }`
-  },
-  use: [dummyNpmPackageFixture()]
+  }
 });
 
 it('runs to completion', async () => {

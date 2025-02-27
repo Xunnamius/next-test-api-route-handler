@@ -7,15 +7,7 @@
 // * also be run locally.
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
-
-import {
-  dummyNpmPackageFixture,
-  ensurePackageHasBeenBuilt,
-  mockFixtureFactory,
-  nodeImportAndRunTestFixture,
-  npmCopyPackageFixture
-} from '@-xun/jest';
-
+import { readXPackageJsonAtRoot } from '@-xun/project-fs';
 import stripAnsi from 'strip-ansi~6';
 
 import {
@@ -25,14 +17,20 @@ import {
 } from 'rootverse:package.json';
 
 import {
+  dummyNpmPackageFixture,
+  ensurePackageHasBeenBuilt,
   getNextjsReactPeerDependencies,
   globalDebugger,
+  mockFixturesFactory,
+  nodeImportAndRunTestFixture,
+  npmCopyPackageFixture,
   reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
 } from 'testverse:util.ts';
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
-const TEST_IDENTIFIER = 'e2e';
+const TEST_IDENTIFIER = 'ntarh-client-changelog';
+const TIMEOUTTEST_TIMEOUT_MS = 15_000;
 
 const NEXT_VERSIONS_UNDER_TEST: [
   next: `next@${string}`,
@@ -55,6 +53,7 @@ const NEXT_VERSIONS_UNDER_TEST: [
 ];
 
 const debug = globalDebugger.extend(TEST_IDENTIFIER);
+const packageRoot = toAbsolutePath(__dirname, '../..');
 
 debug('NEXT_VERSIONS_UNDER_TEST: %O', NEXT_VERSIONS_UNDER_TEST);
 
@@ -66,13 +65,20 @@ beforeAll(async () => {
   );
 });
 
-const withMockedFixture = mockFixtureFactory(TEST_IDENTIFIER, {
-  performCleanup: true,
-  initialFileContents: {
-    'package.json': `{"name":"dummy-pkg","dependencies":{"${packageName}":"${packageVersion}"}}`
-  },
-  use: [dummyNpmPackageFixture(), npmCopyPackageFixture(), nodeImportAndRunTestFixture()]
-});
+const withMockedFixture = mockFixturesFactory(
+  [dummyNpmPackageFixture, npmCopyPackageFixture, nodeImportAndRunTestFixture],
+  {
+    performCleanup: true,
+    initialVirtualFiles: {
+      'package.json': `{"name":"dummy-pkg","dependencies":{"${packageName}":"${packageVersion}"}}`
+    },
+    packageUnderTest: {
+      root: packageRoot,
+      json: readXPackageJsonAtRoot.sync(packageRoot, { useCached: true }),
+      attributes: { cjs: true }
+    }
+  }
+);
 
 for (const [
   nextVersion,
@@ -105,7 +111,7 @@ const getHandler = (status) => async (_, res) => {
   res.status(status || 200).send({ works: 'working' });
 };`;
 
-        const npmInstall = [
+        const additionalPackagesToInstall = [
           nextVersion,
           ...(await getNextjsReactPeerDependencies(nextVersion)),
           ...extraInstalls
@@ -113,9 +119,6 @@ const getHandler = (status) => async (_, res) => {
 
         await withMockedFixture(
           async (context) => {
-            if (!context.testResult)
-              throw new Error('must use node-import-and-run-test fixture');
-
             if (esm) {
               debug('(expecting stderr to be "")');
               debug(String.raw`(expecting stdout to be "working\nworking\nworking")`);
@@ -129,7 +132,7 @@ const getHandler = (status) => async (_, res) => {
               debug('(expecting stdout to contain "working")');
               debug('(expecting exit code to be 0)');
 
-              expect(stripAnsi(context.testResult.stderr)).toMatch(
+              expect(stripAnsi(String(context.testResult.stderr))).toMatch(
                 /PASS.*?\s+src\/index\.test\.js/
               );
 
@@ -141,7 +144,7 @@ const getHandler = (status) => async (_, res) => {
           },
           esm
             ? {
-                initialFileContents: {
+                initialVirtualFiles: {
                   [indexPath]: `import { testApiHandler } from '${packageName}';
 ${commonSrc}
 
@@ -171,10 +174,10 @@ ${commonSrc}
   });
 })();`
                 },
-                npmInstall
+                additionalPackagesToInstall
               }
             : {
-                initialFileContents: {
+                initialVirtualFiles: {
                   [indexPath]: `const { testApiHandler } = require('${packageName}');
 ${commonSrc}
 
@@ -209,11 +212,8 @@ it('does what I want 3', async () => {
   });
 });`
                 },
-                npmInstall: ['jest', ...npmInstall],
-                runWith: {
-                  binary: 'npx',
-                  args: ['jest']
-                }
+                additionalPackagesToInstall: ['jest', ...additionalPackagesToInstall],
+                runWith: { binary: 'npx', args: ['jest'] }
               }
         );
       });
@@ -228,9 +228,6 @@ it('fails fast (no jest timeout) when using App Router and incompatible Next.js 
 
   await withMockedFixture(
     async (context) => {
-      if (!context.testResult)
-        throw new Error('must use node-import-and-run-test fixture');
-
       debug('(expecting stderr not to contain "Exceeded timeout")');
       expect(context.testResult.stderr).not.toStrictEqual(
         expect.stringContaining('Exceeded timeout')
@@ -253,7 +250,7 @@ it('fails fast (no jest timeout) when using App Router and incompatible Next.js 
       expect(context.testResult.code).toBeNumber();
     },
     {
-      initialFileContents: {
+      initialVirtualFiles: {
         [indexPath]: `
 const { testApiHandler } = require('${packageName}');
 
@@ -297,11 +294,11 @@ it('does what I want 3', async () => {
 });`
       },
 
-      npmInstall: ['next@12', 'jest'],
+      additionalPackagesToInstall: ['next@12', 'jest'],
       runWith: {
         binary: 'npx',
         args: ['jest'],
-        opts: { timeout: 10_000 }
+        runnerOptions: { timeout: TIMEOUTTEST_TIMEOUT_MS }
       }
     }
   );
@@ -314,9 +311,6 @@ it('fails fast (no jest timeout) when using Rages Router and incompatible Next.j
 
   await withMockedFixture(
     async (context) => {
-      if (!context.testResult)
-        throw new Error('must use node-import-and-run-test fixture');
-
       debug('(expecting stderr not to contain "Exceeded timeout")');
       expect(context.testResult.stderr).not.toStrictEqual(
         expect.stringContaining('Exceeded timeout')
@@ -339,7 +333,7 @@ it('fails fast (no jest timeout) when using Rages Router and incompatible Next.j
       expect(context.testResult.code).toBeNumber();
     },
     {
-      initialFileContents: {
+      initialVirtualFiles: {
         [indexPath]: `
 const { testApiHandler } = require('${packageName}');
 
@@ -381,11 +375,11 @@ it('does what I want 3', async () => {
 });`
       },
 
-      npmInstall: ['next@8', 'jest'],
+      additionalPackagesToInstall: ['next@8', 'jest'],
       runWith: {
         binary: 'npx',
         args: ['jest'],
-        opts: { timeout: 10_000 }
+        runnerOptions: { timeout: TIMEOUTTEST_TIMEOUT_MS }
       }
     }
   );
