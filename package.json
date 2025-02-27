@@ -93,7 +93,7 @@
     "@types/semver": "^7.5.8",
     "find-package-json": "^1.2.0",
     "mongodb": "^6.13.1",
-    "msw": "^2.7.0",
+    "msw": "^2.7.3",
     "rejoinder": "^1.2.4",
     "semver": "^7.7.1",
     "strip-ansi~6": "npm:strip-ansi@^6.0.1"
