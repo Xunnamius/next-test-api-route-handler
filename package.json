@@ -86,7 +86,7 @@
   },
   "devDependencies": {
     "@-xun/fs": "^1.0.0",
-    "@-xun/run": "^0.0.1",
+    "@-xun/run": "^1.0.3",
     "@-xun/symbiote": "^2.23.6",
     "@octokit/rest": "^21.1.0",
     "@types/find-package-json": "^1.2.6",
