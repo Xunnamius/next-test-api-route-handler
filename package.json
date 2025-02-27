@@ -77,7 +77,8 @@
     "test:package:e2e": "symbiote test --env NODE_NO_WARNINGS=1 --tests end-to-end",
     "test:package:integration": "symbiote test --env NODE_NO_WARNINGS=1 --tests integration",
     "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type",
-    "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all --scope unlimited --coverage"
+    "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all --scope unlimited --coverage",
+    "test:packages:all:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type --scope unlimited --coverage"
   },
   "dependencies": {
     "@whatwg-node/server": "^0.9.70",

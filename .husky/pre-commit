@@ -11,3 +11,4 @@ fi
 
 if [ -z "$GAC_VERIFY_SIMPLE" ]; then npm run lint:package; fi
 NODE_NO_WARNINGS=1 lint-staged --concurrent false
+symbiote clean --env NODE_NO_WARNINGS=1 --only-empty-directories --hush --scope unlimited

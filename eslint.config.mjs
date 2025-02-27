@@ -9,7 +9,7 @@ import { createDebugLogger } from 'rejoinder';
 
 const debug = createDebugLogger({ namespace: 'symbiote:config:eslint' });
 
-const config = moduleExport({
+const config = await moduleExport({
   derivedAliases: getEslintAliases(),
   ...(await assertEnvironment())
 });
