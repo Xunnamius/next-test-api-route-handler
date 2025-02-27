@@ -1,25 +1,11 @@
-**next-test-api-route-handler** • **Docs**
+**next-test-api-route-handler**
 
 ***
 
 # next-test-api-route-handler
 
-## Interfaces
+## Modules
 
-- [NtarhInit](interfaces/NtarhInit.md)
-- [NtarhInitAppRouter](interfaces/NtarhInitAppRouter.md)
-- [NtarhInitPagesRouter](interfaces/NtarhInitPagesRouter.md)
-
-## Type Aliases
-
-- [FetchReturnType](type-aliases/FetchReturnType.md)
-- [Promisable](type-aliases/Promisable.md)
-
-## Variables
-
-- [$isPatched](variables/$isPatched.md)
-- [$originalGlobalFetch](variables/$originalGlobalFetch.md)
-
-## Functions
-
-- [testApiHandler](functions/testApiHandler.md)
+- [src](src/README.md)
+- [test/setup](test/setup/README.md)
+- [test/util](test/util/README.md)
