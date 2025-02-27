@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 /* eslint-disable jest/no-untyped-mock-factory */
 
-import { isolatedImport } from '@-xun/jest';
+import { isolatedImport } from 'testverse:util.ts';
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -258,20 +258,14 @@ const mockAppRouteRouteModulePaths = [
 
 const mockResolversMetadata: Record<
   string,
-  {
-    called: boolean;
-    shouldFail: boolean;
-    shouldReturnBadValue: boolean;
-  }
+  { called: boolean; shouldFail: boolean; shouldReturnBadValue: boolean }
 > = Object.fromEntries(
-  [mockApiResolverPaths, mockAppRouteRouteModulePaths].flat().map((path) => [
-    path,
-    {
-      called: false,
-      shouldFail: false,
-      shouldReturnBadValue: false
-    }
-  ])
+  [mockApiResolverPaths, mockAppRouteRouteModulePaths]
+    .flat()
+    .map((path) => [
+      path,
+      { called: false, shouldFail: false, shouldReturnBadValue: false }
+    ])
 );
 
 const getMockApiResolver = (meta: {

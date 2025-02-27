@@ -2,13 +2,14 @@
 
 import 'next-test-api-route-handler';
 
-import { asMocked, withMockedOutput } from '@-xun/jest';
 import { parse, serialize } from 'cookie';
 import { cookies, headers } from 'next/headers';
 import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
 
 import { $originalGlobalFetch, testApiHandler } from 'universe';
+
+import { asMocked, withMockedOutput } from 'testverse:util.ts';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
