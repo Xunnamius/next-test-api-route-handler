@@ -443,7 +443,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 cache,
                 credentials,
                 // https://github.com/nodejs/node/issues/46221
-                // @ts-expect-error: Next.js's RequestInit is lacking "duplex"
                 duplex: 'half',
                 headers,
                 integrity,
@@ -465,7 +464,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
               ? patchedRequest
               : new NextRequest(patchedRequest, {
                   // https://github.com/nodejs/node/issues/46221
-                  // @ts-expect-error: TS types are not yet updated?
                   duplex: 'half'
                 });
 

@@ -274,9 +274,7 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           const res = await fetch();
           expect(res.status).toBe(200);
-          await expect(res.json()).resolves.toStrictEqual({
-            mswBypass: 'bypass'
-          });
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'bypass' });
         }
       });
     });
@@ -555,11 +553,7 @@ describe('::testApiHandler', () => {
           async GET(_request, { params }) {
             //await expect(params).resolves.toStrictEqual({
             // eslint-disable-next-line jest/prefer-expect-resolves
-            expect(await params).toStrictEqual({
-              a: '1',
-              b: '2',
-              c: '3'
-            });
+            expect(await params).toStrictEqual({ a: '1', b: '2', c: '3' });
 
             return Response.json({});
           }
@@ -581,9 +575,7 @@ describe('::testApiHandler', () => {
           async GET(_request, { params }) {
             //await expect(params).resolves.toStrictEqual({
             // eslint-disable-next-line jest/prefer-expect-resolves
-            expect(await params).toStrictEqual({
-              a: 'a'
-            });
+            expect(await params).toStrictEqual({ a: 'a' });
 
             return Response.json({});
           }
@@ -601,9 +593,7 @@ describe('::testApiHandler', () => {
           async GET(_request, { params }) {
             //await expect(params).resolves.toStrictEqual({
             // eslint-disable-next-line jest/prefer-expect-resolves
-            expect(await params).toStrictEqual({
-              a: 'a'
-            });
+            expect(await params).toStrictEqual({ a: 'a' });
 
             return Response.json({});
           }
@@ -618,9 +608,7 @@ describe('::testApiHandler', () => {
           async GET(_request, { params }) {
             //await expect(params).resolves.toStrictEqual({
             // eslint-disable-next-line jest/prefer-expect-resolves
-            expect(await params).toStrictEqual({
-              obj: 'ect'
-            });
+            expect(await params).toStrictEqual({ obj: 'ect' });
 
             return Response.json({});
           }
@@ -637,9 +625,7 @@ describe('::testApiHandler', () => {
           async GET(_request, { params }) {
             //await expect(params).resolves.toStrictEqual({
             // eslint-disable-next-line jest/prefer-expect-resolves
-            expect(await params).toStrictEqual({
-              obj: 'ect'
-            });
+            expect(await params).toStrictEqual({ obj: 'ect' });
 
             return Response.json({});
           }
@@ -1587,9 +1573,7 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           const res = await fetch();
           expect(res.status).toBe(200);
-          await expect(res.json()).resolves.toStrictEqual({
-            mswBypass: 'bypass'
-          });
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'bypass' });
         }
       });
     });
@@ -1602,10 +1586,9 @@ describe('::testApiHandler', () => {
           req.headers.key = 'secret';
         },
         pagesHandler: async (req, res) => {
-          res.status(200).send({
-            mswBypass: req.headers['x-msw-intention'],
-            key: req.headers.key
-          });
+          res
+            .status(200)
+            .send({ mswBypass: req.headers['x-msw-intention'], key: req.headers.key });
         },
         test: async ({ fetch }) => {
           const res = await fetch();
