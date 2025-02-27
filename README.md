@@ -1793,7 +1793,7 @@ specification. Contributions of any kind welcome!
 [11]: #working-around-global-asynclocalstorage-availability
 [12]: #usage
 [13]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#appHandler
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitAppRouter.md#appHandler
 [14]:
   https://github.com/vercel/next.js/blob/0aa0179246d4e59f74cd1d62e3beb8e9b670fc4e/packages/next/src/server/web/http.ts#L5
 [15]:
@@ -1805,9 +1805,9 @@ specification. Contributions of any kind welcome!
 [18]: #rejectonhandlererror
 [19]: #working-around-the-app-router-patching-the-global-fetch-function
 [20]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#pagesHandler
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitPagesRouter.md#pagesHandler
 [21]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInit.md#test
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInit.md#test
 [22]: https://nodejs.org/dist/latest-v18.x/docs/api/globals.html#fetch
 [23]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#resource
 [24]: https://developer.mozilla.org/en-US/docs/Web/API/fetch#options
@@ -1822,43 +1822,43 @@ specification. Contributions of any kind welcome!
 [31]: https://www.npmjs.com/package/cookie
 [32]: ./test/unit-index.test.ts
 [33]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInit.md#rejectOnHandlerError
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInit.md#rejectOnHandlerError
 [34]:
   https://github.com/vercel/next.js/blob/f4e49377ac3ca2807f773bc1dcd5375c89bde9ef/packages/next/server/api-utils.ts#L134
 [35]: #testing-nextjss-official-apollo-example--pagesapigraphql
 [36]: #testing-an-authenticated-flight-search-handler--pagesapiv3flightssearch
 [37]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#requestpatcher
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitAppRouter.md#requestpatcher
 [38]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#url
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitAppRouter.md#url
 [39]: https://developer.mozilla.org/en-US/docs/Web/API/Request
 [40]: https://nextjs.org/docs/messages/middleware-relative-urls
 [41]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#requestpatcher
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitPagesRouter.md#requestpatcher
 [42]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#url
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitPagesRouter.md#url
 [43]: https://nodejs.org/api/http.html#http_class_http_incomingmessage
 [44]: https://developer.mozilla.org/en-US/docs/Web/API/URL/URL#url
 [45]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#responsePatcher
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitAppRouter.md#responsePatcher
 [46]: https://developer.mozilla.org/en-US/docs/Web/API/Response
 [47]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#responsePatcher
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitPagesRouter.md#responsePatcher
 [48]: https://nodejs.org/api/http.html#http_class_http_serverresponse
 [49]:
   https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes
 [50]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#paramsPatcher
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitAppRouter.md#paramsPatcher
 [51]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitAppRouter.md#params
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitAppRouter.md#params
 [52]: https://github.com/vercel/next.js/pull/70568
 [53]:
   https://nextjs.org/docs/app/building-your-application/upgrading/version-15#params--searchparams
 [54]: https://en.wikipedia.org/wiki/Query_string
 [55]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#paramsPatcher
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitPagesRouter.md#paramsPatcher
 [56]:
-  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/interfaces/NtarhInitPagesRouter.md#params
+  https://github.com/Xunnamius/next-test-api-route-handler/blob/main/docs/src/interfaces/NtarhInitPagesRouter.md#params
 [57]: #using-the-app-router
 [58]: #using-the-pages-router
 [59]: test/unit-index.test.ts

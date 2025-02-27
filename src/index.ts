@@ -116,9 +116,6 @@ export type FetchReturnType<NextResponseJsonType> = Promise<
   }
 >;
 
-/**
- * @internal
- */
 export interface NtarhInit<NextResponseJsonType = unknown> {
   /**
    * If `false`, errors thrown from within a handler are kicked up to Next.js's
