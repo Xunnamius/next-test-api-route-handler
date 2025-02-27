@@ -88,7 +88,7 @@
     "@-xun/fs": "^1.0.0",
     "@-xun/run": "^1.0.3",
     "@-xun/symbiote": "^3.3.8",
-    "@octokit/rest": "^21.1.0",
+    "@octokit/rest": "^21.1.1",
     "@types/find-package-json": "^1.2.6",
     "@types/semver": "^7.5.8",
     "find-package-json": "^1.2.0",
