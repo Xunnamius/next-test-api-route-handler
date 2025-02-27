@@ -566,8 +566,9 @@ export async function testApiHandler<NextResponseJsonType = any>({
           // ? Unless they're stepping through deep code, end developers should
           // ? never encounter this response since deferredReject rejects first.
           return new Response(
-            '[NTARH Internal Server Error]: an error occurred during this test that caused testApiHandler to reject (i.e. rejectOnHandlerError === true). This response was returned as a courtesy so your handler does not potentially hang forever. Error: ' +
-              String(error),
+            `[NTARH Internal Server Error]: an error occurred during this test that caused testApiHandler to reject (i.e. rejectOnHandlerError === true). This response was returned as a courtesy so your handler does not potentially hang forever.\n\nError: ${
+              isNativeError(error) ? error.stack || error : String(error)
+            }`,
             { status: 500 }
           );
         }
