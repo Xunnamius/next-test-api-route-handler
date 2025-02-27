@@ -260,7 +260,7 @@ describe('::testApiHandler', () => {
       });
     });
 
-    it('automatically inserts x-msw-intention when no header is set', async () => {
+    it('automatically inserts x-msw-intention (and x-msw-bypass) when no header is set', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -278,9 +278,25 @@ describe('::testApiHandler', () => {
           await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'bypass' });
         }
       });
+
+      await testApiHandler({
+        appHandler: {
+          async GET(request) {
+            return Response.json(
+              { mswBypass: request.headers.get('x-msw-bypass') },
+              { status: 200 }
+            );
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'true' });
+        }
+      });
     });
 
-    it('automatically inserts x-msw-intention when other headers are set via request patcher', async () => {
+    it('automatically inserts x-msw-intention (and x-msw-bypass) when other headers are set via request patcher', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -307,9 +323,34 @@ describe('::testApiHandler', () => {
           });
         }
       });
+
+      await testApiHandler({
+        requestPatcher: (request) => {
+          request.headers.set('key', 'secret');
+        },
+        appHandler: {
+          async GET(request) {
+            return Response.json(
+              {
+                mswBypass: request.headers.get('x-msw-bypass'),
+                key: request.headers.get('key')
+              },
+              { status: 200 }
+            );
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({
+            mswBypass: 'true',
+            key: 'secret'
+          });
+        }
+      });
     });
 
-    it('automatically inserts x-msw-intention when other headers are set via the fetch init argument', async () => {
+    it('automatically inserts x-msw-intention (and x-msw-bypass) when other headers are set via the fetch init argument', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -333,9 +374,31 @@ describe('::testApiHandler', () => {
           });
         }
       });
+
+      await testApiHandler({
+        appHandler: {
+          async GET(request) {
+            return Response.json(
+              {
+                mswBypass: request.headers.get('x-msw-bypass'),
+                authorization: request.headers.get('authorization')
+              },
+              { status: 200 }
+            );
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: { authorization: 'Bearer XYZ123' } });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({
+            mswBypass: 'true',
+            authorization: 'Bearer XYZ123'
+          });
+        }
+      });
     });
 
-    it('allows overriding x-msw-intention via various permutations of fetch init argument', async () => {
+    it('allows overriding x-msw-intention (and x-msw-bypass) via various permutations of fetch init argument', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -385,6 +448,56 @@ describe('::testApiHandler', () => {
           });
           expect(res.status).toBe(200);
           await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'none' });
+        }
+      });
+
+      await testApiHandler({
+        appHandler: {
+          async GET(request) {
+            return Response.json(
+              { mswBypass: request.headers.get('x-msw-bypass') },
+              { status: 200 }
+            );
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: { 'x-msw-bypass': 'false' } });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
+        }
+      });
+
+      await testApiHandler({
+        appHandler: {
+          async GET(request) {
+            return Response.json(
+              { mswBypass: request.headers.get('x-msw-bypass') },
+              { status: 200 }
+            );
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: [['x-msw-bypass', 'false']] });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
+        }
+      });
+
+      await testApiHandler({
+        appHandler: {
+          async GET(request) {
+            return Response.json(
+              { mswBypass: request.headers.get('x-msw-bypass') },
+              { status: 200 }
+            );
+          }
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({
+            headers: new Headers({ 'x-msw-bypass': 'false' })
+          });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
         }
       });
     });
@@ -1564,7 +1677,7 @@ describe('::testApiHandler', () => {
       });
     });
 
-    it('automatically inserts x-msw-intention when no header is set', async () => {
+    it('automatically inserts x-msw-intention (and x-msw-bypass) when no header is set', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -1577,9 +1690,20 @@ describe('::testApiHandler', () => {
           await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'bypass' });
         }
       });
+
+      await testApiHandler({
+        pagesHandler: async (req, res) => {
+          res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'true' });
+        }
+      });
     });
 
-    it('automatically inserts x-msw-intention when other headers are set via request patcher', async () => {
+    it('automatically inserts x-msw-intention (and x-msw-bypass) when other headers are set via request patcher', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -1600,9 +1724,28 @@ describe('::testApiHandler', () => {
           });
         }
       });
+
+      await testApiHandler({
+        requestPatcher: (req) => {
+          req.headers.key = 'secret';
+        },
+        pagesHandler: async (req, res) => {
+          res
+            .status(200)
+            .send({ mswBypass: req.headers['x-msw-bypass'], key: req.headers.key });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch();
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({
+            mswBypass: 'true',
+            key: 'secret'
+          });
+        }
+      });
     });
 
-    it('automatically inserts x-msw-intention when other headers are set via the fetch init argument', async () => {
+    it('automatically inserts x-msw-intention (and x-msw-bypass) when other headers are set via the fetch init argument', async () => {
       expect.hasAssertions();
 
       await testApiHandler({
@@ -1617,6 +1760,23 @@ describe('::testApiHandler', () => {
           expect(res.status).toBe(200);
           await expect(res.json()).resolves.toStrictEqual({
             mswBypass: 'bypass',
+            authorization: 'Bearer XYZ123'
+          });
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: async (req, res) => {
+          res.status(200).send({
+            mswBypass: req.headers['x-msw-bypass'],
+            authorization: req.headers.authorization
+          });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: { authorization: 'Bearer XYZ123' } });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({
+            mswBypass: 'true',
             authorization: 'Bearer XYZ123'
           });
         }
@@ -1658,6 +1818,41 @@ describe('::testApiHandler', () => {
           });
           expect(res.status).toBe(200);
           await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'none' });
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: async (req, res) => {
+          res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: { 'x-msw-bypass': 'false' } });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: async (req, res) => {
+          res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({ headers: [['x-msw-bypass', 'false']] });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
+        }
+      });
+
+      await testApiHandler({
+        pagesHandler: async (req, res) => {
+          res.status(200).send({ mswBypass: req.headers['x-msw-bypass'] });
+        },
+        test: async ({ fetch }) => {
+          const res = await fetch({
+            headers: new Headers({ 'x-msw-bypass': 'false' })
+          });
+          expect(res.status).toBe(200);
+          await expect(res.json()).resolves.toStrictEqual({ mswBypass: 'false' });
         }
       });
     });

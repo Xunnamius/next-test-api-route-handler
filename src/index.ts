@@ -329,6 +329,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
               )
             );
           } else {
+            /* istanbul ignore next */
             resolve({
               port: addr.port,
               address: addr.family === 'IPv6' ? `[${addr.address}]` : addr.address
@@ -565,6 +566,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           // ? never encounter this response since deferredReject rejects first.
           return new Response(
             `[NTARH Internal Server Error]: an error occurred during this test that caused testApiHandler to reject (i.e. rejectOnHandlerError === true). This response was returned as a courtesy so your handler does not potentially hang forever.\n\nError: ${
+              /* istanbul ignore next */
               isNativeError(error) ? error.stack || error : String(error)
             }`,
             { status: 500 }

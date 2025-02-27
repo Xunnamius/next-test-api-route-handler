@@ -52,6 +52,7 @@ async function setCompatFlagTo(version: string) {
           `skipped updating database (node version ${process.versions.node} not in range)`
         );
       } else {
+        /* istanbul ignore next */
         if (process.env.MONGODB_URI) {
           const client = await MongoClient.connect(process.env.MONGODB_URI);
 

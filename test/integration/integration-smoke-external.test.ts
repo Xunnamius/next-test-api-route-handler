@@ -1,18 +1,14 @@
 // * These brutally minimal "smoke" tests ensure the externals can be invoked
 // * and, when it is, exits cleanly. Functionality testing is not the goal here.
 
-import { toAbsolutePath, toDirname } from '@-xun/fs';
+import { toAbsolutePath } from '@-xun/fs';
+import { isAccessible } from '@-xun/project-fs';
 import { runnerFactory } from '@-xun/run';
 
-import {
-  exports as packageExports,
-  name as packageName,
-  peerDependencies
-} from 'rootverse:package.json';
+import { peerDependencies } from 'rootverse:package.json';
 
 import {
   dummyNpmPackageFixture,
-  ensurePackageHasBeenBuilt,
   globalDebugger,
   mockFixturesFactory,
   reconfigureJestGlobalsToSkipTestsInThisFileIfRequested
@@ -37,11 +33,10 @@ const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
 debug(`nodeVersion: "${nodeVersion}"`);
 
 beforeAll(async () => {
-  await ensurePackageHasBeenBuilt(
-    toAbsolutePath(toDirname(require.resolve('rootverse:package.json'))),
-    packageName,
-    packageExports
-  );
+  // TODO: remove this customization once externals retired
+  if (!(await isAccessible(EXTERNAL_BIN_PATH, { useCached: false }))) {
+    throw new Error('must build externals first (try `npm run build:externals`)');
+  }
 });
 
 const withMockedFixture = mockFixturesFactory([dummyNpmPackageFixture], {

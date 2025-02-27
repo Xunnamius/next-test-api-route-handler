@@ -127,7 +127,7 @@ const getHandler = (status) => async (_, res) => {
 
               expect(context.testResult.stderr).toBeEmpty();
               expect(context.testResult.stdout).toBe('working\nworking\nworking');
-              expect(context.testResult.code).toBe(0);
+              expect(context.testResult.exitCode).toBe(0);
             } else {
               debug('(expecting stderr to contain jest test PASS confirmation)');
               debug('(expecting stdout to contain "working")');
@@ -140,7 +140,7 @@ const getHandler = (status) => async (_, res) => {
               expect(context.testResult.stdout).toStrictEqual(
                 expect.stringContaining('working')
               );
-              expect(context.testResult.code).toBe(0);
+              expect(context.testResult.exitCode).toBe(0);
             }
           },
           esm
@@ -245,10 +245,10 @@ it('fails fast (no jest timeout) when using App Router and incompatible Next.js 
       );
 
       debug('(expecting exit code to be non-zero)');
-      expect(context.testResult.code).not.toBe(0);
+      expect(context.testResult.exitCode).not.toBe(0);
 
       debug('(expecting no forced timeout: exit code must be a number)');
-      expect(context.testResult.code).toBeNumber();
+      expect(context.testResult.exitCode).toBeNumber();
     },
     {
       initialVirtualFiles: {
@@ -328,10 +328,10 @@ it('fails fast (no jest timeout) when using Rages Router and incompatible Next.j
       );
 
       debug('(expecting exit code to be non-zero)');
-      expect(context.testResult.code).not.toBe(0);
+      expect(context.testResult.exitCode).not.toBe(0);
 
       debug('(expecting no forced timeout: exit code must be a number)');
-      expect(context.testResult.code).toBeNumber();
+      expect(context.testResult.exitCode).toBeNumber();
     },
     {
       initialVirtualFiles: {

@@ -143,7 +143,7 @@ describe('<app router>', () => {
 
         expect(context.testResult.stderr).toBeEmpty();
         expect(context.testResult.stdout).toBe('working');
-        expect(context.testResult.code).toBe(0);
+        expect(context.testResult.exitCode).toBe(0);
       }
     });
   });
@@ -163,7 +163,7 @@ describe('<app router>', () => {
 
         expect(context.testResult.stderr).toBeEmpty();
         expect(context.testResult.stdout).toBe('working');
-        expect(context.testResult.code).toBe(0);
+        expect(context.testResult.exitCode).toBe(0);
       }
     });
   });
@@ -188,7 +188,7 @@ describe('<app router>', () => {
         expect(context.testResult.stderr).toInclude(
           'AsyncLocalStorage accessed in runtime where it is not available'
         );
-        expect(context.testResult.code).not.toBe(0);
+        expect(context.testResult.exitCode).not.toBe(0);
       }
     });
   });
@@ -214,7 +214,7 @@ describe('<app router>', () => {
         expect(context.testResult.stderr).toInclude(
           'AsyncLocalStorage accessed in runtime where it is not available'
         );
-        expect(context.testResult.code).not.toBe(0);
+        expect(context.testResult.exitCode).not.toBe(0);
       }
     });
   });
@@ -235,7 +235,7 @@ describe('<app router>', () => {
         expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
         );
-        expect(context.testResult.code).toBe(0);
+        expect(context.testResult.exitCode).toBe(0);
       }
     });
   }, 10_000);
@@ -253,7 +253,7 @@ describe('<app router>', () => {
         debug('(expecting stdout to be "")');
         debug('(expecting stderr to contain "BadBadNotGood")');
 
-        expect(context.testResult.code).toBe(1);
+        expect(context.testResult.exitCode).toBe(1);
         expect(context.testResult.stdout).toBeEmpty();
         expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
@@ -277,7 +277,7 @@ describe('<pages router>', () => {
 
         expect(context.testResult.stderr).toBeEmpty();
         expect(context.testResult.stdout).toBe('working');
-        expect(context.testResult.code).toBe(0);
+        expect(context.testResult.exitCode).toBe(0);
       }
     });
   });
@@ -295,7 +295,7 @@ describe('<pages router>', () => {
 
         expect(context.testResult.stderr).toBeEmpty();
         expect(context.testResult.stdout).toBe('working');
-        expect(context.testResult.code).toBe(0);
+        expect(context.testResult.exitCode).toBe(0);
       }
     });
   });
@@ -316,7 +316,7 @@ describe('<pages router>', () => {
         expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
         );
-        expect(context.testResult.code).toBe(0);
+        expect(context.testResult.exitCode).toBe(0);
       }
     });
   }, 10_000);
@@ -333,7 +333,7 @@ describe('<pages router>', () => {
         debug('(expecting stdout to be "")');
         debug('(expecting stderr to contain "BadBadNotGood")');
 
-        expect(context.testResult.code).toBe(1);
+        expect(context.testResult.exitCode).toBe(1);
         expect(context.testResult.stdout).toBeEmpty();
         expect(context.testResult.stderr).toStrictEqual(
           expect.stringContaining('Error: BadBadNotGood')
