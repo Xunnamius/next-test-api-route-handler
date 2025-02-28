@@ -126,7 +126,7 @@ async function main() {
   const nextVersionUnderTestFullNameAndVersion = `next@${latestReleaseVersion}`;
 
   log('installing %O for unit tests', nextVersionUnderTestFullNameAndVersion);
-  log(`(integration tests use their own Next.js versions)`);
+  log('(integration tests use their own Next.js versions)');
 
   // ? Install peer deps manually for Next.js
   const nextLatestReleaseVersionPeerDependencies = await getNextjsReactPeerDependencies(
@@ -140,6 +140,10 @@ async function main() {
     nextVersionUnderTestFullNameAndVersion,
     ...nextLatestReleaseVersionPeerDependencies
   ]);
+
+  log(`repairing node_modules after install using \`npm run prepare\``);
+
+  await run('npm', ['run', 'prepare']);
 
   log('running compatibility tests');
 
