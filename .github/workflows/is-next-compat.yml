@@ -67,7 +67,7 @@ jobs:
           ssh://git@github.com/
 
       - name: Use node ${{ matrix.node }}
-        uses: actions/setup-node@v4.2.0
+        uses: actions/setup-node@v4.3.0
         with:
           node-version: ${{ matrix.node }}
 
