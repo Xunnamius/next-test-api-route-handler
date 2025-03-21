@@ -74,14 +74,14 @@
     "start": "symbiote start --env NODE_NO_WARNINGS=1 --",
     "test": "npm run test:package:unit --",
     "test:package:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all --coverage",
-    "test:package:e2e": "symbiote test --env NODE_NO_WARNINGS=1 --tests end-to-end",
+    "test:package:e2e": "symbiote test --env NODE_NO_WARNINGS=1 --tests e2e-local",
     "test:package:integration": "symbiote test --env NODE_NO_WARNINGS=1 --tests integration",
     "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type",
     "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all --scope unlimited --coverage",
     "test:packages:all:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type --scope unlimited --coverage"
   },
   "dependencies": {
-    "@whatwg-node/server": "^0.9.71",
+    "@whatwg-node/server": "^0.10.1",
     "cookie": "^1.0.2",
     "core-js": "^3.40.0"
   },
