@@ -92,7 +92,7 @@
     "@-xun/symbiote": "^3.6.0",
     "@octokit/rest": "^21.1.1",
     "@types/find-package-json": "^1.2.6",
-    "@types/semver": "^7.5.8",
+    "@types/semver": "^7.7.0",
     "find-package-json": "^1.2.0",
     "mongodb": "^6.15.0",
     "msw": "^2.7.3",
