@@ -40,9 +40,12 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@11.0.x', 'pages'], //  ? See issue #295
   ['next@^11', 'pages'], //     ? Latest version 11 release
   ['next@12.0.x', 'pages'], //  ? See issue #487
+  ['next@^12', 'pages'], //     ? Latest version 12 release
   ['next@13.5.3', 'pages'], //  ? See issue #887
+  ['next@^13', 'pages'], //     ? Latest version 13 release
   ['next@14.0.4', 'both'], //   ? Ntarh guarantees App Router support here on
   ['next@14.2.11', 'both'], //  ? See issue #1076
+  ['next@^14', 'both'], //      ? Latest version 14 release
   ['next@15.0.0', 'both'], //   ? Updated from 15.0.0-rc.1
   ['next@15.2.0', 'both'], //   ? See issue #1129
   ['next@latest', 'both'] //    ! Latest release (must always be here and last)
