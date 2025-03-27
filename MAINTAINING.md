@@ -50,21 +50,21 @@ commits with adjusted messages to the PR branch before merging it in.
 > **Always favor rebase over squash for large and/or complex contributions**
 > since squashing commits may damage the [generated][6] [CHANGELOG.md][7],
 > hinder [bisection][8], yield [non-atomic commits][9], and could even result in
-> [the wrong version][26] being [released][10].
+> [the wrong version][10] being [released][11].
 
 ## Releases
 
 Our releases are automatic. They happen whenever certain commits are pushed to a
 relevant branch. That means a new release is generated only when there are
-useful changes to justify it. See [the release rules][11] for a list of commit
+useful changes to justify it. See [the release rules][12] for a list of commit
 types that trigger releases.
 
 To generate a new release, a GitHub Actions build gets kicked off and, if it's
-successful, [xrelease][10] is used to automatically publish a new release to npm
+successful, [xrelease][11] is used to automatically publish a new release to npm
 and GitHub along with an updated changelog. xrelease determines whether a
 release is necessary, and what the new version number will be, by analyzing git
 commit messages. With this in mind, **it is imperative you brush up on [the
-commit message convention][25] which drives our releases.**
+commit message convention][13] which drives our releases.**
 
 > [!IMPORTANT]
 >
@@ -82,7 +82,7 @@ locally.
 > [!CAUTION]
 >
 > Note that any manual releases generated outside of the CI/CD pipeline will be
-> published [_without established provenance_][21]! It is for that reason that,
+> published [_without established provenance_][14]! It is for that reason that,
 > outside of truly exceptional events, manual releases should be avoided at all
 > costs.
 
@@ -210,21 +210,21 @@ With somber focus, the following steps should be taken:
 
 > [!TIP]
 >
-> If you're using [symbiote][12], all of this can be done automatically:
+> If you're using [symbiote][15], all of this can be done automatically:
 >
 > ```bash
 > npx symbiote project renovate --deprecate
 > ```
 
-> These steps were inspired by [Richard Litt's checklist][13].
+> These steps were inspired by [Richard Litt's checklist][16].
 
 ### Deprecate the Remote (GitHub) repository
 
 > [!IMPORTANT]
 >
-> If the deprecated project is using [symbiote][12]/[xpipeline][14], at least
+> If the deprecated project is using [symbiote][15]/[xpipeline][17], at least
 > one of the commits created as a result of following these instructions must be
-> of the [`build` type][15] so that a final "deprecated" version with updated
+> of the [`build` type][18] so that a final "deprecated" version with updated
 > deprecation documentation is released. If operating on a monorepo, said commit
 > must touch every deprecated package.
 
@@ -233,7 +233,7 @@ With somber focus, the following steps should be taken:
 - [ ] **Update Metadata**.
 
 GitHub repositories have metadata settings that can be configured via the [gear
-icon][16]. Once the modal is revealed, the following settings should be updated:
+icon][19]. Once the modal is revealed, the following settings should be updated:
 
 - `⛔️ [DEPRECATED]` should be prepended to the description.
 
@@ -257,7 +257,7 @@ The project root `README.md` file and any README files at `packages/*/README.md`
 - All badges except badge-blm should be removed; badge-unmaintained should be
   added.
 
-- Under the updated level one heading, a [caution alert][17] should be included
+- Under the updated level one heading, a [caution alert][20] should be included
   that details the reason why this project is being deprecated. Any
   alternatives, forks, see-also's, and/or future projects should be linked here.
 
@@ -295,26 +295,26 @@ What follows is an example outcome of the above steps:
 If the project has a `package.json` file at its root and/or at
 `packages/*/package.json` (if applicable), they should be updated as follows:
 
-- The [`description` string][18] should be prefixed with `⛔️ [DEPRECATED]`.
+- The [`description` string][21] should be prefixed with `⛔️ [DEPRECATED]`.
 
 - The strings `"deprecated", "obsolete", "archived"` should be added to the
-  [`keywords` array][19] if this file defines a published package.
+  [`keywords` array][22] if this file defines a published package.
 
 ### Deprecate the Published Packages
 
 - [ ] **Update `package.json` (if applicable)**.
 
-[See above][20].
+[See above][23].
 
 - [ ] **Publish Final Version**.
 
-Any updates to [source repository][20] assets (including `package.json` files
+Any updates to [source repository][23] assets (including `package.json` files
 and adding deprecation language to `README.md` files) should be published as a
 single patch release in a polyrepo, or one release per package in a monorepo.
 
 - [ ] **Issue Package-Wide Deprecation Command**.
 
-Use [`npm deprecate`][22] to [officially deprecate][23] each package after their
+Use [`npm deprecate`][24] to [officially deprecate][25] each package after their
 final patch releases are published.
 
 ### Deprecate the Local Repository
@@ -338,25 +338,25 @@ Thank you so much for helping to maintain this project!
 [8]:
   https://www.metaltoad.com/blog/beginners-guide-git-bisect-process-elimination
 [9]: https://dev.to/paulinevos/atomic-commits-will-help-you-git-legit-35i7
-[10]: https://github.com/Xunnamius/xrelease
-[11]:
+[10]: https://github.com/semantic-release/commit-analyzer
+[11]: https://github.com/Xunnamius/xrelease
+[12]:
   https://github.com/Xunnamius/symbiote/blob/151f64052b9160fca6dd519ea6e6787a95160544/src/assets/transformers/_release.config.cjs.ts#L147-L157
-[12]: https://github.com/Xunnamius/symbiote
 [13]:
-  https://github.com/RichardLitt/knowledge/blob/master/github/how-to-deprecate-a-repository-on-github.md
-[14]: https://github.com/Xunnamius/pipeline
-[15]:
-  https://github.com/Xunnamius/symbiote/blob/151f64052b9160fca6dd519ea6e6787a95160544/src/assets/transformers/_conventional.config.cjs.ts#L264-L277
-[16]: https://github.com/orgs/community/discussions/54372
-[17]: https://github.com/orgs/community/discussions/16925
-[18]: https://docs.npmjs.com/cli/v10/configuring-npm/package-json#description-1
-[19]: https://docs.npmjs.com/cli/v10/configuring-npm/package-json#keywords
-[20]: #deprecate-the-remote-github-repository
-[21]:
-  https://docs.npmjs.com/generating-provenance-statements#provenance-limitations
-[22]: https://docs.npmjs.com/cli/v8/commands/npm-deprecate
-[23]:
-  https://docs.npmjs.com/deprecating-and-undeprecating-packages-or-package-versions
-[25]:
   https://github.com/conventional-changelog-archived-repos/conventional-changelog-angular/blob/ed32559941719a130bb0327f886d6a32a8cbc2ba/convention.md
-[26]: https://github.com/semantic-release/commit-analyzer
+[14]:
+  https://docs.npmjs.com/generating-provenance-statements#provenance-limitations
+[15]: https://github.com/Xunnamius/symbiote
+[16]:
+  https://github.com/RichardLitt/knowledge/blob/master/github/how-to-deprecate-a-repository-on-github.md
+[17]: https://github.com/Xunnamius/pipeline
+[18]:
+  https://github.com/Xunnamius/symbiote/blob/151f64052b9160fca6dd519ea6e6787a95160544/src/assets/transformers/_conventional.config.cjs.ts#L264-L277
+[19]: https://github.com/orgs/community/discussions/54372
+[20]: https://github.com/orgs/community/discussions/16925
+[21]: https://docs.npmjs.com/cli/v10/configuring-npm/package-json#description-1
+[22]: https://docs.npmjs.com/cli/v10/configuring-npm/package-json#keywords
+[23]: #deprecate-the-remote-github-repository
+[24]: https://docs.npmjs.com/cli/v8/commands/npm-deprecate
+[25]:
+  https://docs.npmjs.com/deprecating-and-undeprecating-packages-or-package-versions

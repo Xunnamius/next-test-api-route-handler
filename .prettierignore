@@ -30,7 +30,11 @@ ignore.*
 **/build/**
 # ? This negation must end in "/**" to be interpreted properly.
 !**/src/**/build/**
-docs
+# ? Preceding AND proceeding asterisks (**) are needed to match any docs subdir
+# ? in monorepos and allow subsequent negations to be interpreted properly.
+**/docs/**
+# ? This negation must end in "/**" to be interpreted properly.
+!**/src/**/docs/**
 dist
 coverage
 .vercel
@@ -45,6 +49,7 @@ node_modules
 package-lock.json
 
 # Ignore test fixtures in any subdir (which may depend on remaining as they are)
+# ? This must end in "/**" to be interpreted properly.
 **/test/**/fixtures/**
 __*__
 

@@ -10,5 +10,5 @@ if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
 fi
 
 if [ -z "$GAC_VERIFY_SIMPLE" ]; then npm run lint:package; fi
-NODE_NO_WARNINGS=1 lint-staged --concurrent false
+NODE_NO_WARNINGS=1 lint-staged --concurrent false --config lint-staged.config.mjs
 symbiote clean --env NODE_NO_WARNINGS=1 --only-empty-directories --hush --scope unlimited
