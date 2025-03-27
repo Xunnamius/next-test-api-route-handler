@@ -9,11 +9,7 @@
 import { toAbsolutePath, toDirname } from '@-xun/fs';
 import { readXPackageJsonAtRoot } from '@-xun/project-fs';
 
-import {
-  exports as packageExports,
-  name as packageName,
-  version as packageVersion
-} from 'rootverse:package.json';
+import { exports as packageExports, name as packageName } from 'rootverse:package.json';
 
 import {
   dummyNpmPackageFixture,
@@ -69,8 +65,9 @@ const withMockedFixture = mockFixturesFactory(
   [dummyNpmPackageFixture, npmCopyPackageFixture, nodeImportAndRunTestFixture],
   {
     performCleanup: true,
+    identifier: TEST_IDENTIFIER,
     initialVirtualFiles: {
-      'package.json': `{"name":"dummy-pkg","dependencies":{"${packageName}":"${packageVersion}"}}`
+      'package.json': { name: 'dummy-pkg' }
     },
     packageUnderTest: {
       root: packageRoot,
