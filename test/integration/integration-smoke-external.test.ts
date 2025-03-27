@@ -66,12 +66,7 @@ it('runs to completion', async () => {
     const { exitCode, stdout, stderr } = await runExternal(undefined, { cwd: root });
 
     expect(stdout).toStrictEqual(expect.stringContaining('execution complete'));
-
-    expect(
-      stderr
-        .replace(/Debugger attached\.\s*/, '')
-        .replace('Waiting for the debugger to disconnect...', '')
-    ).toBeEmpty();
+    expect(stderr).toBeEmpty();
 
     expect(exitCode).toBe(0);
   });
