@@ -4,7 +4,7 @@ import { getCurrentWorkingDirectory } from '@-xun/fs';
 import { run, runNoRejectOnBadExit } from '@-xun/run';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
-import { createGenericLogger } from 'rejoinder';
+import { createDebugLogger, createGenericLogger } from 'rejoinder';
 import { satisfies as satisfiesRange, validRange } from 'semver';
 
 import { name as packageName, version as packageVersion } from 'rootverse:package.json';
@@ -12,6 +12,7 @@ import { name as packageName, version as packageVersion } from 'rootverse:packag
 import { getNextjsReactPeerDependencies } from 'testverse:util.ts';
 
 const log = createGenericLogger({ namespace: 'is-next-compat' });
+const debug = createDebugLogger({ namespace: 'is-next-compat' });
 
 log(`package name: "${packageName}"`);
 log(`package version: "${packageVersion}"`);
@@ -141,9 +142,15 @@ async function main() {
     ...nextLatestReleaseVersionPeerDependencies
   ]);
 
-  log(`repairing node_modules after install using \`npm run prepare\``);
+  log('attempting to repair node_modules after install using %O', 'npm run prepare');
 
-  await run('npm', ['run', 'prepare']);
+  const { exitCode, all } = await runNoRejectOnBadExit('npm', ['run', 'prepare'], {
+    all: true
+  });
+
+  if (exitCode !== 0) {
+    debug.warn('%O command did not complete successfully: %O', 'npm run prepare', all);
+  }
 
   log('running compatibility tests');
 
