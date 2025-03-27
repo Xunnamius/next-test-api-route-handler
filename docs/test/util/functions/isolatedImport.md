@@ -22,7 +22,9 @@ test to hang unexpectedly, even when all tests pass.
 
 ## Type Parameters
 
-• **Module**
+### Module
+
+`Module`
 
 ## Parameters
 

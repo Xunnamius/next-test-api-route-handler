@@ -6,7 +6,7 @@
 
 # Type Alias: RootFixture
 
-> **RootFixture**: [`MockFixture`](MockFixture.md)\<*typeof* [`rootFixtureName`](../variables/rootFixtureName.md), [`GenericFixtureContext`](GenericFixtureContext.md)\>
+> **RootFixture** = [`MockFixture`](MockFixture.md)\<*typeof* [`rootFixtureName`](../variables/rootFixtureName.md), [`GenericFixtureContext`](GenericFixtureContext.md)\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/fixtures/root.d.ts:8
 

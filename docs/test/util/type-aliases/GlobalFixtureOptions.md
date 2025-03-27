@@ -6,17 +6,19 @@
 
 # Type Alias: GlobalFixtureOptions
 
-> **GlobalFixtureOptions**: `object`
+> **GlobalFixtureOptions** = `object`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/options.d.ts:18
 
 The options available to every fixture.
 
-## Type declaration
+## Properties
 
 ### identifier?
 
 > `optional` **identifier**: `string`
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/options.d.ts:28
 
 The identifier used in various places, including when creating the dummy
 root directory and when describing the test environment in output text.
@@ -30,18 +32,27 @@ other character will be replaced with a hyphen.
 "fixtures-test"
 ```
 
+***
+
 ### initialVirtualFiles?
 
 > `optional` **initialVirtualFiles**: `object`
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/options.d.ts:57
 
 An object describing "virtual files" represented by mappings between
 non-existent RelativePaths and their theoretical (immutable)
 contents. These paths are relative to the dummy root directory.
 
-Some fixtures use the `initialVirtualFiles` option to lookup certain
-values, such as picking out keys from a virtual `package.json` file.
+Non-string contents will be stringified via `JSON.stringify(entry,
+undefined, 2)`.
 
-**These virtual files are not created on the filesystem automatically!**
+Note that some fixtures use the `initialVirtualFiles` option to lookup
+certain values, such as picking out keys from a virtual `package.json`
+file.
+
+Also note that **these virtual files are not created on the filesystem
+automatically!**
 
 To have the virtual files described in `initialVirtualFiles` actually
 written out to the filesystem (relative to the dummy root directory), you
@@ -52,11 +63,15 @@ filesystem using the `initialDirectories` option.
 
 #### Index Signature
 
-\[`filePath`: `string` \| `RelativePath`\]: `string`
+\[`filePath`: `string` \| `RelativePath`\]: `unknown`
+
+***
 
 ### performCleanup
 
 > **performCleanup**: `boolean`
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/options.d.ts:34
 
 When `true`, the dummy root directory will be deleted after the test
 complete (regardless of the outcome). Set `performCleanup` to `false` to

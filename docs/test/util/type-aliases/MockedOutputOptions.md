@@ -6,15 +6,21 @@
 
 # Type Alias: MockedOutputOptions
 
-> **MockedOutputOptions**: `object`
+> **MockedOutputOptions** = `object`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-output/dist/packages/test-mock-output/src/index.d.ts:5
 
-## Type declaration
+## See
+
+[withMockedOutput](../functions/withMockedOutput.md)
+
+## Properties
 
 ### passthrough?
 
 > `optional` **passthrough**: (`"log"` \| `"warn"` \| `"error"` \| `"info"` \| `"stdout"` \| `"stderr"`)[]
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-output/dist/packages/test-mock-output/src/index.d.ts:21
 
 Prevent mocking the implementation of one or more output spies, allowing
 output to be passed through to the original function. Said spies will
@@ -26,9 +32,13 @@ remain functional.
 []
 ```
 
+***
+
 ### passthroughOutputIfDebugging?
 
 > `optional` **passthroughOutputIfDebugging**: `boolean`
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-output/dist/packages/test-mock-output/src/index.d.ts:13
 
 If `true`, whenever `process.env.DEBUG` is present, output functions will
 still be spied on but their implementations will not be mocked, allowing
@@ -39,7 +49,3 @@ debug output to make it to the screen.
 ```ts
 true
 ```
-
-## See
-
-[withMockedOutput](../functions/withMockedOutput.md)

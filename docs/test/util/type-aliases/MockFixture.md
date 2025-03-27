@@ -6,7 +6,7 @@
 
 # Type Alias: MockFixture\<Name, Context\>
 
-> **MockFixture**\<`Name`, `Context`\>: `object`
+> **MockFixture**\<`Name`, `Context`\> = `object`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/fixtures.d.ts:22
 
@@ -15,31 +15,45 @@ one or more runtime environments for the package under test.
 
 ## Type Parameters
 
-• **Name** *extends* `string`
+### Name
 
-• **Context**
+`Name` *extends* `string`
 
-## Type declaration
+### Context
+
+`Context`
+
+## Properties
 
 ### description
 
 > **description**: `string`
 
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/fixtures.d.ts:34
+
 A short string output during debugging that describes what the fixture is
 doing.
+
+***
 
 ### name
 
 > **name**: `Name` \| `symbol`
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/fixtures.d.ts:29
 
 An alphanumeric (including hyphens and underscores) string used to identify
 the fixture. This string _should_ be unique per fixture.
 
 Including invalid characters in the fixture name will cause an error.
 
+***
+
 ### setup()?
 
 > `optional` **setup**: (`context`) => `Promisable`\<`unknown`\>
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/fixtures.d.ts:44
 
 An optional function that is run before the `test` function is invoked.
 
@@ -59,9 +73,13 @@ essentially a no-op.
 
 `Promisable`\<`unknown`\>
 
+***
+
 ### teardown()?
 
 > `optional` **teardown**: (`context`) => `Promisable`\<`unknown`\>
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/fixtures.d.ts:59
 
 An optional function that is run after the `test` function completes.
 

@@ -20,7 +20,9 @@ specific exit code.
 
 ## Type Parameters
 
-• **Module**
+### Module
+
+`Module`
 
 ## Parameters
 
@@ -34,7 +36,9 @@ specific exit code.
 
 ### Type Parameters
 
-• **LocalModule** = `Module`
+#### LocalModule
+
+`LocalModule` = `Module`
 
 ### Parameters
 

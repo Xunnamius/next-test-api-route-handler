@@ -21,7 +21,9 @@ jest.MockedFn.
 
 ### Type Parameters
 
-• **T** *extends* (...`args`) => `any`
+#### T
+
+`T` *extends* (...`args`) => `any`
 
 ### Parameters
 
@@ -60,7 +62,9 @@ jest.MockedFn.
 
 ### Type Parameters
 
-• **T** *extends* (...`args`) => `any`
+#### T
+
+`T` *extends* (...`args`) => `any`
 
 ### Parameters
 
@@ -98,7 +102,9 @@ This is a more powerful version of Jest's own jest.mocked function.
 
 ### Type Parameters
 
-• **T** *extends* `object`
+#### T
+
+`T` *extends* `object`
 
 ### Parameters
 
@@ -138,7 +144,9 @@ This is a more powerful version of Jest's own jest.mocked function.
 
 ### Type Parameters
 
-• **T** *extends* `object`
+#### T
+
+`T` *extends* `object`
 
 ### Parameters
 
@@ -179,7 +187,9 @@ This is a more powerful version of Jest's own jest.mocked function.
 
 ### Type Parameters
 
-• **T** *extends* `object`
+#### T
+
+`T` *extends* `object`
 
 ### Parameters
 

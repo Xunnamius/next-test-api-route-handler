@@ -6,7 +6,7 @@
 
 # Type Alias: AsDefault\<T\>
 
-> **AsDefault**\<`T`\>: `T` *extends* `object` ? `T`\[`"default"`\] : `T`
+> **AsDefault**\<`T`\> = `T` *extends* `object` ? `T`\[`"default"`\] : `T`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-import/dist/packages/test-mock-import/src/index.d.ts:6
 
@@ -15,4 +15,6 @@ a property exists, or returns it as-is if it does not.
 
 ## Type Parameters
 
-• **T**
+### T
+
+`T`

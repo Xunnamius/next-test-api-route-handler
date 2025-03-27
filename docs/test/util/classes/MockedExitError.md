@@ -17,9 +17,9 @@ Represents a call to `process.exit` when said function was mocked by
 
 ## Constructors
 
-### new MockedExitError()
+### Constructor
 
-> **new MockedExitError**(`code`): [`MockedExitError`](MockedExitError.md)
+> **new MockedExitError**(`code`): `MockedExitError`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-exit/dist/packages/test-mock-exit/src/error.d.ts:13
 
@@ -34,15 +34,15 @@ Represents a call to `process.exit` when said function was mocked by
 
 #### Returns
 
-[`MockedExitError`](MockedExitError.md)
+`MockedExitError`
 
 #### Overrides
 
 `Error.constructor`
 
-### new MockedExitError()
+### Constructor
 
-> **new MockedExitError**(`code`, `message`, `superOptions`): [`MockedExitError`](MockedExitError.md)
+> **new MockedExitError**(`code`, `message`, `superOptions`): `MockedExitError`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-exit/dist/packages/test-mock-exit/src/error.d.ts:18
 
@@ -65,7 +65,7 @@ via `super`.
 
 #### Returns
 
-[`MockedExitError`](MockedExitError.md)
+`MockedExitError`
 
 #### Overrides
 

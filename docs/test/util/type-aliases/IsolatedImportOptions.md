@@ -6,15 +6,21 @@
 
 # Type Alias: IsolatedImportOptions
 
-> **IsolatedImportOptions**: `object`
+> **IsolatedImportOptions** = `object`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-import/dist/packages/test-mock-import/src/index.d.ts:12
 
-## Type declaration
+## See
+
+[isolatedImport](../functions/isolatedImport.md)
+
+## Properties
 
 ### reduceToDefault?
 
 > `optional` **reduceToDefault**: `boolean`
+
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-import/dist/packages/test-mock-import/src/index.d.ts:21
 
 By default, if `module.__esModule === true` and the only other property of
 `module.exports` is `"default"`, then said `"default"` export will be
@@ -26,7 +32,3 @@ behavior in either direction.
 ```ts
 undefined
 ```
-
-## See
-
-[isolatedImport](../functions/isolatedImport.md)

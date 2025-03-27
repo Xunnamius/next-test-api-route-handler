@@ -6,7 +6,7 @@
 
 # Interface: NtarhInitPagesRouter\<NextResponseJsonType\>
 
-Defined in: [src/index.ts:225](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L225)
+Defined in: [src/index.ts:238](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L238)
 
 The parameters expected by `testApiHandler` when using `pagesHandler`.
 
@@ -16,7 +16,9 @@ The parameters expected by `testApiHandler` when using `pagesHandler`.
 
 ## Type Parameters
 
-• **NextResponseJsonType** = `unknown`
+### NextResponseJsonType
+
+`NextResponseJsonType` = `unknown`
 
 ## Properties
 
@@ -24,7 +26,7 @@ The parameters expected by `testApiHandler` when using `pagesHandler`.
 
 > `optional` **appHandler**: `undefined`
 
-Defined in: [src/index.ts:237](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L237)
+Defined in: [src/index.ts:250](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L250)
 
 ***
 
@@ -32,7 +34,7 @@ Defined in: [src/index.ts:237](https://github.com/Xunnamius/next-test-api-route-
 
 > **pagesHandler**: `NextApiHandler` \| \{ `default`: `NextApiHandler`; \}
 
-Defined in: [src/index.ts:236](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L236)
+Defined in: [src/index.ts:249](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L249)
 
 The actual Pages Router route handler under test. It should be an async
 function that accepts `NextApiRequest` and `NextApiResult` objects (in
@@ -48,7 +50,7 @@ will have a typed result.
 
 > `optional` **params**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/index.ts:247](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L247)
+Defined in: [src/index.ts:260](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L260)
 
 `params` is passed directly to the handler and represents processed dynamic
 routes. This should not be confused with query string parsing, which is
@@ -64,7 +66,7 @@ once.
 
 > `optional` **paramsPatcher**: (`params`) => `Promisable`\<`void` \| `Record`\<`string`, `unknown`\>\>
 
-Defined in: [src/index.ts:257](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L257)
+Defined in: [src/index.ts:270](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L270)
 
 A function that receives `params`, an object representing "processed"
 dynamic route parameters. Modifications to `params` are passed directly to
@@ -90,7 +92,7 @@ is handled automatically.
 
 > `optional` **rejectOnHandlerError**: `boolean`
 
-Defined in: [src/index.ts:132](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L132)
+Defined in: [src/index.ts:145](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L145)
 
 If `false`, errors thrown from within a handler are kicked up to Next.js's
 resolver to deal with, which is what would happen in production. If `true`,
@@ -117,7 +119,7 @@ false
 
 > `optional` **requestPatcher**: (`request`) => `Promisable`\<`void`\>
 
-Defined in: [src/index.ts:267](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L267)
+Defined in: [src/index.ts:280](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L280)
 
 A function that receives an `IncomingMessage` object. Use this function
 to edit the request _before_ it's injected into the handler.
@@ -141,7 +143,7 @@ lowercase.**
 
 > `optional` **responsePatcher**: (`res`) => `Promisable`\<`void`\>
 
-Defined in: [src/index.ts:272](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L272)
+Defined in: [src/index.ts:285](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L285)
 
 A function that receives a `ServerResponse` object. Use this function
 to edit the response _before_ it's injected into the handler.
@@ -162,7 +164,7 @@ to edit the response _before_ it's injected into the handler.
 
 > **test**: (`parameters`) => `Promisable`\<`void`\>
 
-Defined in: [src/index.ts:138](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L138)
+Defined in: [src/index.ts:151](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L151)
 
 `test` is a function that runs your test assertions. This function receives
 one destructured parameter: `fetch`, which is equivalent to
@@ -190,7 +192,7 @@ one destructured parameter: `fetch`, which is equivalent to
 
 > `optional` **url**: `string`
 
-Defined in: [src/index.ts:277](https://github.com/Xunnamius/next-test-api-route-handler/blob/85e69e8c9f0f5d099e62128bf945b508df618dd6/src/index.ts#L277)
+Defined in: [src/index.ts:290](https://github.com/Xunnamius/next-test-api-route-handler/blob/5e0ab38964ad8658174f23f3babfa03f89d957dd/src/index.ts#L290)
 
 `url: 'your-url'` is shorthand for `requestPatcher: (req) => { req.url =
 'your-url' }`

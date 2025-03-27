@@ -6,7 +6,7 @@
 
 # Type Alias: RunTestFixture
 
-> **RunTestFixture**: [`MockFixture`](MockFixture.md)\<*typeof* [`runTestFixtureName`](../variables/runTestFixtureName.md), [`FixtureContext`](FixtureContext.md)\<[`RunTestFixtureOptions`](RunTestFixtureOptions.md)\>\>
+> **RunTestFixture** = [`MockFixture`](MockFixture.md)\<*typeof* [`runTestFixtureName`](../variables/runTestFixtureName.md), [`FixtureContext`](FixtureContext.md)\<[`RunTestFixtureOptions`](RunTestFixtureOptions.md)\>\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/fixtures/run-test.d.ts:10
 

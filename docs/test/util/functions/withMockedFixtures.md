@@ -19,11 +19,17 @@ any additional options and context where necessary.
 
 ## Type Parameters
 
-• **Fixtures** *extends* [`GenericMockFixtureFunctions`](../type-aliases/GenericMockFixtureFunctions.md)
+### Fixtures
 
-• **AdditionalOptions** *extends* `Record`\<`string`, `unknown`\> = `EmptyObject`
+`Fixtures` *extends* [`GenericMockFixtureFunctions`](../type-aliases/GenericMockFixtureFunctions.md)
 
-• **AdditionalContext** *extends* `Record`\<`string`, `unknown`\> = `EmptyObject`
+### AdditionalOptions
+
+`AdditionalOptions` *extends* `Record`\<`string`, `unknown`\> = `EmptyObject`
+
+### AdditionalContext
+
+`AdditionalContext` *extends* `Record`\<`string`, `unknown`\> = `EmptyObject`
 
 ## Parameters
 
