@@ -100,13 +100,13 @@ for (const [
         const indexPath = `src/index.${esm ? 'm' : 'test.'}js`;
         const commonSrc =
           routerType === 'app'
-            ? `
+            ? /* js */ `
 const getHandler = (status) => ({
   GET(request) {
     return Response.json({ works: 'working' }, { status: status || 200 });
   }
 });`
-            : `
+            : /* js */ `
 const getHandler = (status) => async (_, res) => {
   res.status(status || 200).send({ works: 'working' });
 };`;
@@ -145,7 +145,8 @@ const getHandler = (status) => async (_, res) => {
           esm
             ? {
                 initialVirtualFiles: {
-                  [indexPath]: `import { testApiHandler } from '${packageName}';
+                  [indexPath]: /* js */ `import console from 'node:console';
+import { testApiHandler } from '${packageName}';
 ${commonSrc}
 
 (async () => {
@@ -178,7 +179,8 @@ ${commonSrc}
               }
             : {
                 initialVirtualFiles: {
-                  [indexPath]: `const { testApiHandler } = require('${packageName}');
+                  [indexPath]: /* js */ `const console = require('node:console');
+const { testApiHandler } = require('${packageName}');
 ${commonSrc}
 
 it('does what I want', async () => {
@@ -251,7 +253,7 @@ it('fails fast (no jest timeout) when using App Router and incompatible Next.js 
     },
     {
       initialVirtualFiles: {
-        [indexPath]: `
+        [indexPath]: /* js */ `const console = require('node:console');
 const { testApiHandler } = require('${packageName}');
 
 jest.setTimeout(5000);
@@ -334,7 +336,7 @@ it('fails fast (no jest timeout) when using Rages Router and incompatible Next.j
     },
     {
       initialVirtualFiles: {
-        [indexPath]: `
+        [indexPath]: /* js */ `const console = require('node:console');
 const { testApiHandler } = require('${packageName}');
 
 jest.setTimeout(5000);
