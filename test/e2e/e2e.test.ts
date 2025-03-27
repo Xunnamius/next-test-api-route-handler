@@ -119,27 +119,20 @@ const getHandler = (status) => async (_, res) => {
 
         await withMockedFixture(
           async (context) => {
+            const { stdout, stderr, exitCode } = context.testResult;
+
             if (esm) {
-              debug('(expecting stderr to be "")');
-              debug(String.raw`(expecting stdout to be "working\nworking\nworking")`);
-              debug('(expecting exit code to be 0)');
-
-              expect(context.testResult.stderr).toBeEmpty();
-              expect(context.testResult.stdout).toBe('working\nworking\nworking');
-              expect(context.testResult.exitCode).toBe(0);
+              expect({ stdout, stderr, exitCode }).toStrictEqual({
+                stdout: 'working\nworking\nworking',
+                stderr: '',
+                exitCode: 0
+              });
             } else {
-              debug('(expecting stderr to contain jest test PASS confirmation)');
-              debug('(expecting stdout to contain "working")');
-              debug('(expecting exit code to be 0)');
-
-              expect(stripAnsi(String(context.testResult.stderr))).toMatch(
-                /PASS.*?\s+src\/index\.test\.js/
-              );
-
-              expect(context.testResult.stdout).toStrictEqual(
-                expect.stringContaining('working')
-              );
-              expect(context.testResult.exitCode).toBe(0);
+              expect({ stdout, stderr, exitCode }).toStrictEqual({
+                stdout: 'working',
+                stderr: expect.stringMatching(/PASS.*?\s+src\/index\.test\.js/),
+                exitCode: 0
+              });
             }
           },
           esm
