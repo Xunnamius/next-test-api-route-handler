@@ -22,6 +22,19 @@ if (!globalThis.AsyncLocalStorage) {
   globalThis.AsyncLocalStorage = require('node:async_hooks').AsyncLocalStorage;
 }
 
+// ? next@>=14.2.20 expects react to export a .cache() function, but react@18,
+// ? which is next@14's peer dependency, doesn't export a .cache() function. If
+// ? we don't see a .cache() function, we'll polyfill it.
+// * https://github.com/Xunnamius/next-test-api-route-handler/issues/1167
+// {@symbiote/notInvalid react} // ? We assume this is coming from Next
+if (!require('react').cache) {
+  require('react').cache = function (fn: (args: never[]) => unknown) {
+    return function (...args: never[]) {
+      return Reflect.apply(fn, null, args);
+    };
+  };
+}
+
 /**
  * This is the default "pretty" URL that resolvers will associate with requests
  * from our dummy HTTP server. We use this to hide the uglier localhost url as
