@@ -8,7 +8,6 @@
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
 import { readXPackageJsonAtRoot } from '@-xun/project-fs';
-import stripAnsi from 'strip-ansi~6';
 
 import {
   exports as packageExports,
