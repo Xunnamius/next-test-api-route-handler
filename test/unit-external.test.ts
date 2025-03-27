@@ -1,6 +1,5 @@
 import { toAbsolutePath } from '@-xun/fs';
 import * as xrun from '@-xun/run';
-// @ts-expect-error: jest will compile this to CJS on the fly
 import { Octokit } from '@octokit/rest';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
