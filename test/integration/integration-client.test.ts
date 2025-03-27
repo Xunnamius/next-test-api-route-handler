@@ -24,6 +24,8 @@ import {
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested();
 
 const TEST_IDENTIFIER = 'ntarh-client-changelog';
+const TIMEOUTTEST_TIMEOUT_MS = 15_000;
+
 const debug = globalDebugger.extend(TEST_IDENTIFIER);
 const packageRoot = toAbsolutePath(__dirname, '../..');
 const nodeVersion = process.env.MATRIX_NODE_VERSION || process.version;
@@ -219,48 +221,56 @@ describe('<app router>', () => {
     });
   });
 
-  it('does not hang on exception in handler function (probably requires SSD)', async () => {
-    expect.hasAssertions();
-    await runTest({
-      importAs: 'cjs',
-      routerType: 'app',
-      handlerCode: `throw new Error('BadBadNotGood');`,
-      testCode: `console.log(await (await fetch({ headers: { 'x-works': 'working' }})).text())`,
-      testFixtureFn: async (context) => {
-        debug('(expecting stdout to be "Internal Server Error")');
-        debug('(expecting stderr to contain "BadBadNotGood")');
-        debug('(expecting exit code to be zero)');
+  it(
+    'does not hang on exception in handler function (probably requires SSD)',
+    async () => {
+      expect.hasAssertions();
+      await runTest({
+        importAs: 'cjs',
+        routerType: 'app',
+        handlerCode: `throw new Error('BadBadNotGood');`,
+        testCode: `console.log(await (await fetch({ headers: { 'x-works': 'working' }})).text())`,
+        testFixtureFn: async (context) => {
+          debug('(expecting stdout to be "Internal Server Error")');
+          debug('(expecting stderr to contain "BadBadNotGood")');
+          debug('(expecting exit code to be zero)');
 
-        expect(context.testResult.stdout).toBe('Internal Server Error');
-        expect(context.testResult.stderr).toStrictEqual(
-          expect.stringContaining('Error: BadBadNotGood')
-        );
-        expect(context.testResult.exitCode).toBe(0);
-      }
-    });
-  }, 10_000);
+          expect(context.testResult.stdout).toBe('Internal Server Error');
+          expect(context.testResult.stderr).toStrictEqual(
+            expect.stringContaining('Error: BadBadNotGood')
+          );
+          expect(context.testResult.exitCode).toBe(0);
+        }
+      });
+    },
+    TIMEOUTTEST_TIMEOUT_MS
+  );
 
-  it('does not hang on exception in test function (probably requires SSD)', async () => {
-    expect.hasAssertions();
-    await runTest({
-      importAs: 'cjs',
-      routerType: 'app',
-      additionalImports: `const { headers } = require('next/headers');`,
-      handlerCode: `return Response.json({ works: (await headers()).get('x-works') });`,
-      testCode: `{ throw new Error('BadBadNotGood'); }`,
-      testFixtureFn: async (context) => {
-        debug('(expecting exit code to be non-zero)');
-        debug('(expecting stdout to be "")');
-        debug('(expecting stderr to contain "BadBadNotGood")');
+  it(
+    'does not hang on exception in test function (probably requires SSD)',
+    async () => {
+      expect.hasAssertions();
+      await runTest({
+        importAs: 'cjs',
+        routerType: 'app',
+        additionalImports: `const { headers } = require('next/headers');`,
+        handlerCode: `return Response.json({ works: (await headers()).get('x-works') });`,
+        testCode: `{ throw new Error('BadBadNotGood'); }`,
+        testFixtureFn: async (context) => {
+          debug('(expecting exit code to be non-zero)');
+          debug('(expecting stdout to be "")');
+          debug('(expecting stderr to contain "BadBadNotGood")');
 
-        expect(context.testResult.exitCode).toBe(1);
-        expect(context.testResult.stdout).toBeEmpty();
-        expect(context.testResult.stderr).toStrictEqual(
-          expect.stringContaining('Error: BadBadNotGood')
-        );
-      }
-    });
-  }, 10_000);
+          expect(context.testResult.exitCode).toBe(1);
+          expect(context.testResult.stdout).toBeEmpty();
+          expect(context.testResult.stderr).toStrictEqual(
+            expect.stringContaining('Error: BadBadNotGood')
+          );
+        }
+      });
+    },
+    TIMEOUTTEST_TIMEOUT_MS
+  );
 });
 
 describe('<pages router>', () => {
@@ -300,45 +310,53 @@ describe('<pages router>', () => {
     });
   });
 
-  it('does not hang on exception in handler function (probably requires SSD)', async () => {
-    expect.hasAssertions();
-    await runTest({
-      importAs: 'cjs',
-      routerType: 'pages',
-      handlerCode: `throw new Error('BadBadNotGood');`,
-      testCode: `console.log(await (await fetch({ headers: { 'x-works': 'working' }})).text())`,
-      testFixtureFn: async (context) => {
-        debug('(expecting stdout to be "Internal Server Error")');
-        debug('(expecting stderr to contain "BadBadNotGood")');
-        debug('(expecting exit code to be zero)');
+  it(
+    'does not hang on exception in handler function (probably requires SSD)',
+    async () => {
+      expect.hasAssertions();
+      await runTest({
+        importAs: 'cjs',
+        routerType: 'pages',
+        handlerCode: `throw new Error('BadBadNotGood');`,
+        testCode: `console.log(await (await fetch({ headers: { 'x-works': 'working' }})).text())`,
+        testFixtureFn: async (context) => {
+          debug('(expecting stdout to be "Internal Server Error")');
+          debug('(expecting stderr to contain "BadBadNotGood")');
+          debug('(expecting exit code to be zero)');
 
-        expect(context.testResult.stdout).toBe('Internal Server Error');
-        expect(context.testResult.stderr).toStrictEqual(
-          expect.stringContaining('Error: BadBadNotGood')
-        );
-        expect(context.testResult.exitCode).toBe(0);
-      }
-    });
-  }, 10_000);
+          expect(context.testResult.stdout).toBe('Internal Server Error');
+          expect(context.testResult.stderr).toStrictEqual(
+            expect.stringContaining('Error: BadBadNotGood')
+          );
+          expect(context.testResult.exitCode).toBe(0);
+        }
+      });
+    },
+    TIMEOUTTEST_TIMEOUT_MS
+  );
 
-  it('does not hang on exception in test function (probably requires SSD)', async () => {
-    expect.hasAssertions();
-    await runTest({
-      importAs: 'cjs',
-      routerType: 'pages',
-      handlerCode: `res.status(200).send({ works: req.headers['x-works'] });`,
-      testCode: `{ throw new Error('BadBadNotGood'); }`,
-      testFixtureFn: async (context) => {
-        debug('(expecting exit code to be non-zero)');
-        debug('(expecting stdout to be "")');
-        debug('(expecting stderr to contain "BadBadNotGood")');
+  it(
+    'does not hang on exception in test function (probably requires SSD)',
+    async () => {
+      expect.hasAssertions();
+      await runTest({
+        importAs: 'cjs',
+        routerType: 'pages',
+        handlerCode: `res.status(200).send({ works: req.headers['x-works'] });`,
+        testCode: `{ throw new Error('BadBadNotGood'); }`,
+        testFixtureFn: async (context) => {
+          debug('(expecting exit code to be non-zero)');
+          debug('(expecting stdout to be "")');
+          debug('(expecting stderr to contain "BadBadNotGood")');
 
-        expect(context.testResult.exitCode).toBe(1);
-        expect(context.testResult.stdout).toBeEmpty();
-        expect(context.testResult.stderr).toStrictEqual(
-          expect.stringContaining('Error: BadBadNotGood')
-        );
-      }
-    });
-  }, 10_000);
+          expect(context.testResult.exitCode).toBe(1);
+          expect(context.testResult.stdout).toBeEmpty();
+          expect(context.testResult.stderr).toStrictEqual(
+            expect.stringContaining('Error: BadBadNotGood')
+          );
+        }
+      });
+    },
+    TIMEOUTTEST_TIMEOUT_MS
+  );
 });
