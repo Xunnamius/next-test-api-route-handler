@@ -27,6 +27,7 @@ if (!globalThis.AsyncLocalStorage) {
 // ? we don't see a .cache() function, we'll polyfill it.
 // * https://github.com/Xunnamius/next-test-api-route-handler/issues/1167
 // {@symbiote/notInvalid react} // ? We assume this is coming from Next
+// istanbul ignore next
 if (!require('react').cache) {
   require('react').cache = function (fn: (args: never[]) => unknown) {
     return function (...args: never[]) {
