@@ -97,7 +97,7 @@
     "mongodb": "^6.17.0",
     "msw": "^2.9.0",
     "rejoinder": "^1.2.5",
-    "semver": "^7.7.1"
+    "semver": "^7.7.2"
   },
   "peerDependencies": {
     "next": ">=9"
