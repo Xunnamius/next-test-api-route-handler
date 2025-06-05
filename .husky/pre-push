@@ -13,33 +13,37 @@ fi
 echo 'husky-hook::pre-push: checking for commits that should not be pushed...'
 
 log=$(git log HEAD --oneline --not --remotes)
+
 set +e
+
 incompleteCommitsGrep=$(echo "$log" | grep -q -i -e 'mergeme' -e '\[WIP\]' -e '\[NOPUSH\]'; echo $?)
-set -e
 
 # ? In the below lines, 'x' is passed as the "zero parameter" so "$@" spits out
 # ? the right stuff. Stuff like this won't be an issue when we switch this to JS
 
 interestingXxxFiles=$(git ls-tree -r --full-tree --name-only HEAD | grep -vE '(^|/)(\.husky|assets/templates/husky)/' | grep -vE '\.snap$')
-set +e
-incompleteXxxFilesGrep=$(echo "$interestingXxxFiles" | xargs -P 0 sh -c 'if grep -q -F -e "XXX: " "$@"; then exit 255; else true; fi' 'x' 1>/dev/null 2>&1; echo $?)
-set -e
+
+incompleteXxxFilesGrep=$(echo "$interestingXxxFiles" | xargs -d '\n' -P 0 sh -c 'if grep -q -F -e "XXX: " "$@"; then exit 255; else true; fi' 'x' 1>/dev/null 2>&1; echo $?)
+
+interestingPackageJsonFiles=$(echo "$interestingXxxFiles" | grep -E '^(packages/[^/]+/)?package\.json$')
+
+incompletePackageJsonFilesGrep=$(echo "$interestingPackageJsonFiles" | xargs -d '\n' -P 0 sh -c 'if grep -q -i -P -e "--assets-preset [^\x22]*?(\x27|((basic|cli|lib|react|nextjs) [^\x22]*){3})" "$@"; then exit 255; else true; fi' 'x' 1>/dev/null 2>&1; echo $?)
 
 interestingMdFiles=$(echo "$interestingXxxFiles" | grep '\.md$' | grep -vE '(^|/)(src|test|docs)/' | grep -vE '/CHANGELOG.md$')
-set +e
-incompleteMdFilesGrep=$(echo "$interestingMdFiles" | xargs -P 0 sh -c 'if grep -q -i -F -e "-✄-" "$@"; then exit 255; else true; fi' 'x' 1>/dev/null 2>&1; echo $?)
-set -e
+
+incompleteMdFilesGrep=$(echo "$interestingMdFiles" | xargs -d '\n' -P 0 sh -c 'if grep -q -i -F -e "-✄-" "$@"; then exit 255; else true; fi' 'x' 1>/dev/null 2>&1; echo $?)
 
 interestingTestFiles=$(echo "$interestingXxxFiles" | grep '\.test\.ts$')
-set +e
-incompleteTestFilesGrep=$(echo "$interestingTestFiles" | xargs -P 0 sh -c 'if grep -q -i -E -e "(it|test|describe)\.only\(" "$@"; then exit 255; else true; fi' 'x' 1>/dev/null 2>&1; echo $?)
+
+incompleteTestFilesGrep=$(echo "$interestingTestFiles" | xargs -d '\n' -P 0 sh -c 'if grep -q -i -E -e "(it|test|describe)\.only\(" "$@"; then exit 255; else true; fi' 'x' 1>/dev/null 2>&1; echo $?)
+
 set -e
 
 # ? Make sure no commits to be pushed contain "mergeme" etc in their headers, no
 # ? relevant markdown files contain "-✄-" in their contents, no files anywhere
-# ? anywhere contain "XXX: " in their contents, and no test files contain
-# ? erroneously focused tests
-if [ "$incompleteCommitsGrep" = 0 ] || [ "$incompleteMdFilesGrep" != 0 ] || [ "$incompleteXxxFilesGrep" != 0 ] || [ "$incompleteTestFilesGrep" != 0 ]; then
+# ? anywhere contain "XXX: " in their contents, no test files contain
+# ? erroneously focused tests, and no package.json files have incomplete scripts
+if [ "$incompleteCommitsGrep" = 0 ] || [ "$incompleteMdFilesGrep" != 0 ] || [ "$incompleteXxxFilesGrep" != 0 ] || [ "$incompleteTestFilesGrep" != 0 ] || [ "$incompletePackageJsonFilesGrep" != 0 ]; then
   echo 'husky-hook::pre-push: BAD COMMIT(S) DETECTED!'
   echo 'husky-hook::pre-push: merge, delete, reword, or otherwise rectify the following commits before trying again:'
 
@@ -54,21 +58,28 @@ if [ "$incompleteCommitsGrep" = 0 ] || [ "$incompleteMdFilesGrep" != 0 ] || [ "$
     echo
     echo 'husky-hook::pre-push: markdown files at HEAD with unmerged replacer regions:'
     echo
-    echo "$interestingMdFiles" | xargs -P 0 grep -i -l -H -F -e '-✄-' | prepend '  ⋗ '
+    echo "$interestingMdFiles" | xargs -d '\n' -P 0 grep -i -l -H -F -e '-✄-' | prepend '  ⋗ '
   fi
 
   if [ "$incompleteXxxFilesGrep" != 0 ]; then
     echo
     echo 'husky-hook::pre-push: files at HEAD with "XXX" error comments:'
     echo
-    echo "$interestingXxxFiles" | xargs -P 0 grep -l -H -F -e 'XXX: ' | prepend '  ⋗ '
+    echo "$interestingXxxFiles" | xargs -d '\n' -P 0 grep -l -H -F -e 'XXX: ' | prepend '  ⋗ '
   fi
 
   if [ "$incompleteTestFilesGrep" != 0 ]; then
     echo
     echo 'husky-hook::pre-push: files at HEAD with erroneously focused tests:'
     echo
-    echo "$interestingTestFiles" | xargs -P 0 grep -l -H -E -e '(it|test|describe)\.only\(' | prepend '  ⋗ '
+    echo "$interestingTestFiles" | xargs -d '\n' -P 0 grep -i -l -H -E -e '(it|test|describe)\.only\(' | prepend '  ⋗ '
+  fi
+
+  if [ "$incompletePackageJsonFilesGrep" != 0 ]; then
+    echo
+    echo 'husky-hook::pre-push: package.json files at HEAD with incomplete scripts:'
+    echo
+    echo "$interestingPackageJsonFiles" | xargs -d '\n' -P 0 grep -i -l -H -P -e "--assets-preset [^\x22]*?(\x27|((basic|cli|lib|react|nextjs) [^\x22]*){3})" | prepend '  ⋗ '
   fi
 
   echo
