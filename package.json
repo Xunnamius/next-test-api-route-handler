@@ -83,7 +83,7 @@
   "dependencies": {
     "@whatwg-node/server": "^0.10.10",
     "cookie": "^1.0.2",
-    "core-js": "^3.41.0"
+    "core-js": "^3.42.0"
   },
   "devDependencies": {
     "@-xun/fs": "^1.0.0",
