@@ -86,7 +86,7 @@
     "core-js": "^3.42.0"
   },
   "devDependencies": {
-    "@-xun/fs": "^1.0.0",
+    "@-xun/fs": "^2.0.0",
     "@-xun/project-fs": "^1.2.0",
     "@-xun/run": "^1.1.0",
     "@-xun/symbiote": "^3.6.0",
