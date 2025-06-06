@@ -49,20 +49,17 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@^14', 'both'], //      ? Latest version 14 release
   ['next@15.0.0', 'both'], //   ? Updated from 15.0.0-rc.1
   ['next@15.2.0', 'both'], //   ? See issue #1129
-  ['next@latest', 'both'] //    ! Latest release (must always be here and last)
+  ['next@latest', 'both'], //   ! Latest release (must always be here)
+  ['next@canary', 'both'] //    ! Latest release (must always be here and last)
 ];
 
 const debug = globalDebugger.extend(TEST_IDENTIFIER);
-const packageRoot = toAbsolutePath(__dirname, '../..');
+const packageRoot = toAbsolutePath(toDirname(require.resolve('rootverse:package.json')));
 
 debug('NEXT_VERSIONS_UNDER_TEST: %O', NEXT_VERSIONS_UNDER_TEST);
 
 beforeAll(async () => {
-  await ensurePackageHasBeenBuilt(
-    toAbsolutePath(toDirname(require.resolve('rootverse:package.json'))),
-    packageName,
-    packageExports
-  );
+  await ensurePackageHasBeenBuilt(packageRoot, packageName, packageExports);
 });
 
 const withMockedFixture = mockFixturesFactory(
