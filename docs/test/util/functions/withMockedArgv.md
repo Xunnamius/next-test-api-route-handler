@@ -6,7 +6,7 @@
 
 # Function: withMockedArgv()
 
-> **withMockedArgv**(`test`, `simulatedArgv`, `__namedParameters`?): `Promise`\<`void`\>
+> **withMockedArgv**(`test`, `simulatedArgv`, `__namedParameters?`): `Promise`\<`void`\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-argv/dist/packages/test-mock-argv/src/index.d.ts:22
 

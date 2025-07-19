@@ -6,7 +6,7 @@
 
 # Function: mockArgvFactory()
 
-> **mockArgvFactory**(`factorySimulatedArgv`, `factoryOptions`?): (`test`, `simulatedArgv`?, `options`?) => `Promise`\<`void`\>
+> **mockArgvFactory**(`factorySimulatedArgv`, `factoryOptions?`): (`test`, `simulatedArgv?`, `options?`) => `Promise`\<`void`\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-argv/dist/packages/test-mock-argv/src/index.d.ts:32
 
@@ -28,7 +28,7 @@ duplicating configuration across [withMockedArgv](withMockedArgv.md) calls.
 
 ## Returns
 
-`Function`
+> (`test`, `simulatedArgv?`, `options?`): `Promise`\<`void`\>
 
 ### Parameters
 

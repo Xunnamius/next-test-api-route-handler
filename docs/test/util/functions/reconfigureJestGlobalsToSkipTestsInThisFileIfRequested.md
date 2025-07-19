@@ -6,7 +6,7 @@
 
 # Function: reconfigureJestGlobalsToSkipTestsInThisFileIfRequested()
 
-> **reconfigureJestGlobalsToSkipTestsInThisFileIfRequested**(`targets`?): `object`
+> **reconfigureJestGlobalsToSkipTestsInThisFileIfRequested**(`targets?`): `object`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/jest/dist/packages/jest/src/index.d.ts:141
 

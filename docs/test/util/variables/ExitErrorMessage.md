@@ -8,13 +8,15 @@
 
 > `const` **ExitErrorMessage**: `object`
 
-Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-exit/dist/packages/test-mock-exit/src/error.d.ts:23
+Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-exit/dist/packages/test-mock-exit/src/error.d.ts:20
 
 A collection of possible error and warning messages.
 
 ## Type declaration
 
 ### SuppressedExitAttempt()
+
+> **SuppressedExitAttempt**(`code`): `string`
 
 #### Parameters
 

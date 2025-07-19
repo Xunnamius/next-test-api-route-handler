@@ -6,7 +6,7 @@
 
 # Function: isolatedImport()
 
-> **isolatedImport**\<`Module`\>(`specifier`, `options`?): `Module`
+> **isolatedImport**\<`Module`\>(`specifier`, `options?`): `Module`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-import/dist/packages/test-mock-import/src/index.d.ts:34
 

@@ -6,10 +6,6 @@
 
 # test/util
 
-## Classes
-
-- [MockedExitError](classes/MockedExitError.md)
-
 ## Type Aliases
 
 - [AsDefault](type-aliases/AsDefault.md)
@@ -25,6 +21,9 @@
 - [DummyNpmPackageFixture](type-aliases/DummyNpmPackageFixture.md)
 - [DummyNpmPackageFixtureContext](type-aliases/DummyNpmPackageFixtureContext.md)
 - [DummyNpmPackageFixtureOptions](type-aliases/DummyNpmPackageFixtureOptions.md)
+- [ExpectExceptionsWithMatchingErrorsFunction](type-aliases/ExpectExceptionsWithMatchingErrorsFunction.md)
+- [ExpectExceptionsWithMatchingErrorsOptions](type-aliases/ExpectExceptionsWithMatchingErrorsOptions.md)
+- [ExpectExceptionsWithMatchingErrorsSpec](type-aliases/ExpectExceptionsWithMatchingErrorsSpec.md)
 - [FixtureContext](type-aliases/FixtureContext.md)
 - [FixtureFs](type-aliases/FixtureFs.md)
 - [FixtureOptions](type-aliases/FixtureOptions.md)
@@ -39,6 +38,7 @@
 - [IsolatedImportOptions](type-aliases/IsolatedImportOptions.md)
 - [MockedArgvOptions](type-aliases/MockedArgvOptions.md)
 - [MockedEnvOptions](type-aliases/MockedEnvOptions.md)
+- [MockedExitError](type-aliases/MockedExitError.md)
 - [MockedOutputOptions](type-aliases/MockedOutputOptions.md)
 - [MockedOutputSpies](type-aliases/MockedOutputSpies.md)
 - [MockFixture](type-aliases/MockFixture.md)
@@ -69,6 +69,9 @@
 - [gitRepositoryFixtureName](variables/gitRepositoryFixtureName.md)
 - [globalDebugger](variables/globalDebugger.md)
 - [globalDebuggerNamespace](variables/globalDebuggerNamespace.md)
+- [isMockedExitError](variables/isMockedExitError.md)
+- [mockDateNowMs](variables/mockDateNowMs.md)
+- [MockedExitError](variables/MockedExitError.md)
 - [nodeImportAndRunTestFixtureName](variables/nodeImportAndRunTestFixtureName.md)
 - [npmCopyPackageFixtureName](variables/npmCopyPackageFixtureName.md)
 - [npmLinkPackageFixtureName](variables/npmLinkPackageFixtureName.md)
@@ -84,9 +87,9 @@
 - [dummyFilesFixture](functions/dummyFilesFixture.md)
 - [dummyNpmPackageFixture](functions/dummyNpmPackageFixture.md)
 - [ensurePackageHasBeenBuilt](functions/ensurePackageHasBeenBuilt.md)
+- [expectExceptionsWithMatchingErrors](functions/expectExceptionsWithMatchingErrors.md)
 - [getNextjsReactPeerDependencies](functions/getNextjsReactPeerDependencies.md)
 - [gitRepositoryFixture](functions/gitRepositoryFixture.md)
-- [isMockedExitError](functions/isMockedExitError.md)
 - [isolatedImport](functions/isolatedImport.md)
 - [mockArgvFactory](functions/mockArgvFactory.md)
 - [mockEnvFactory](functions/mockEnvFactory.md)
@@ -98,6 +101,7 @@
 - [reconfigureJestGlobalsToSkipTestsInThisFileIfRequested](functions/reconfigureJestGlobalsToSkipTestsInThisFileIfRequested.md)
 - [rootFixture](functions/rootFixture.md)
 - [runTestFixture](functions/runTestFixture.md)
+- [useMockDateNow](functions/useMockDateNow.md)
 - [webpackTestFixture](functions/webpackTestFixture.md)
 - [withMockedArgv](functions/withMockedArgv.md)
 - [withMockedEnv](functions/withMockedEnv.md)

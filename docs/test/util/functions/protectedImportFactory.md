@@ -6,7 +6,7 @@
 
 # Function: protectedImportFactory()
 
-> **protectedImportFactory**\<`Module`\>(...`__namedParameters`): \<`LocalModule`\>(`__namedParameters`?) => `Promise`\<`LocalModule`\>
+> **protectedImportFactory**\<`Module`\>(...`__namedParameters`): \<`LocalModule`\>(`__namedParameters?`) => `Promise`\<`LocalModule`\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-import/dist/packages/test-mock-import/src/index.d.ts:52
 
@@ -32,7 +32,7 @@ specific exit code.
 
 ## Returns
 
-`Function`
+> \<`LocalModule`\>(`__namedParameters?`): `Promise`\<`LocalModule`\>
 
 ### Type Parameters
 

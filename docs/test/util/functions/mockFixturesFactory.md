@@ -36,7 +36,7 @@ for the package under test.
 
 ## Returns
 
-`Function`
+> (...`args`): `Promise`\<`void`\>
 
 ### Parameters
 

@@ -6,7 +6,7 @@
 
 # Function: withMockedOutput()
 
-> **withMockedOutput**(`test`, `__namedParameters`?): `Promise`\<`void`\>
+> **withMockedOutput**(`test`, `__namedParameters?`): `Promise`\<`void`\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-output/dist/packages/test-mock-output/src/index.d.ts:76
 

@@ -6,7 +6,7 @@
 
 # Function: withMocks()
 
-> **withMocks**(`fn`, `__namedParameters`?): `Promise`\<`void`\>
+> **withMocks**(`fn`, `__namedParameters?`): `Promise`\<`void`\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/jest/dist/packages/jest/src/index.d.ts:171
 
@@ -23,7 +23,7 @@ Wraps [withMockedArgv](withMockedArgv.md) + [withMockedEnv](withMockedEnv.md) wi
 
 #### options?
 
-\{ `passthrough`: (`"log"` \| `"error"` \| `"warn"` \| `"info"` \| `"stdout"` \| `"stderr"`)[]; `passthroughDebugEnv`: `boolean`; `passthroughOutputIfDebugging`: `boolean`; `replaceEntireArgv`: `boolean`; `replaceEntireEnv`: `boolean`; \}
+\{ `passthrough?`: (`"log"` \| `"error"` \| `"warn"` \| `"info"` \| `"stdout"` \| `"stderr"`)[]; `passthroughDebugEnv?`: `boolean`; `passthroughOutputIfDebugging?`: `boolean`; `replaceEntireArgv?`: `boolean`; `replaceEntireEnv?`: `boolean`; \}
 
 #### options.passthrough?
 
