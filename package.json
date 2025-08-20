@@ -81,7 +81,7 @@
     "test:packages:all:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type --scope unlimited --coverage"
   },
   "dependencies": {
-    "@whatwg-node/server": "^0.10.10",
+    "@whatwg-node/server": "^0.10.12",
     "cookie": "^1.0.2",
     "core-js": "^3.44.0"
   },
