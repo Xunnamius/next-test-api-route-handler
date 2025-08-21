@@ -250,11 +250,15 @@ jest.mock(
 
 // * ^^^ REMAINING apiResolver MOCKS ^^^ * \\
 
-const mockApiResolverPaths = [...altApiResolverPaths, actualApiResolverPath].reverse();
+const mockApiResolverPaths = [
+  ...altApiResolverPaths,
+  actualApiResolverPath
+].toReversed();
+
 const mockAppRouteRouteModulePaths = [
   ...altAppRouteRouteModulePaths,
   actualAppRouteRouteModulePath
-].reverse();
+].toReversed();
 
 const mockResolversMetadata: Record<
   string,
@@ -424,7 +428,7 @@ describe('::testApiHandler', () => {
             length: mockAppRouteRouteModulePaths.length
           })
             .map((_, index) => String.fromCodePoint(65 + index))
-            .reverse();
+            .toReversed();
 
           // eslint-disable-next-line no-await-in-loop
           await expect(
@@ -528,7 +532,7 @@ describe('::testApiHandler', () => {
             length: mockApiResolverPaths.length
           })
             .map((_, index) => String.fromCodePoint(65 + index))
-            .reverse();
+            .toReversed();
 
           // eslint-disable-next-line no-await-in-loop
           await expect(
