@@ -510,9 +510,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 nextConfigOutput: undefined,
                 resolvedPagePath: 'ntarh://testApiHandler',
                 userland: appHandler as AppRouteUserlandModule,
-                // TODO: remove this line the next time you see it
-                // @ts-ignore: necessary in upcoming canary
                 distDir: 'ntarh://fake-dir',
+                // @ts-ignore: necessary in next@<=15.4
                 projectDir: 'ntarh://fake-dir'
               });
             }
