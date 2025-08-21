@@ -6,7 +6,6 @@
 
 import assert from 'node:assert';
 import { createServer } from 'node:http';
-import { isNativeError } from 'node:util/types';
 
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import type { NextApiHandler } from 'next';
@@ -389,8 +388,8 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 Object.fromEntries(
                   Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
                     return [
-                      [String(k), String(v)],
-                      [String(k).toLowerCase(), String(v)]
+                      [k, String(v)],
+                      [k.toLowerCase(), String(v)]
                     ];
                   })
                 )
@@ -582,7 +581,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
           return new Response(
             `[NTARH Internal Server Error]: an error occurred during this test that caused testApiHandler to reject (i.e. rejectOnHandlerError === true). This response was returned as a courtesy so your handler does not potentially hang forever.\n\nError: ${
               /* istanbul ignore next */
-              isNativeError(error) ? error.stack || error : String(error)
+              Error.isError(error) ? error.stack || error : String(error)
             }`,
             { status: 500 }
           );
@@ -762,7 +761,7 @@ function findNextjsInternalResolver<T = NonNullable<unknown>>(
       break;
     } catch (error) {
       errors.push(
-        isNativeError(error)
+        Error.isError(error)
           ? error.message
               .split(/(?<=')( imported)? from ('|\S)/)[0]!
               .split(`\nRequire`)[0]!
