@@ -35,6 +35,18 @@ if (!require('react').cache) {
   };
 }
 
+// ? next's "react-server" condition expects react to export a .createContext()
+// ? function, but it is not always available for various reasons. If we don't
+// ? see a .createContext() function, we'll polyfill it.
+// * https://github.com/Xunnamius/next-test-api-route-handler/issues/1151
+// {@symbiote/notInvalid react} // ? We assume this is coming from Next
+// istanbul ignore next
+if (!require('react').createContext) {
+  require('react').createContext = function () {
+    return {};
+  };
+}
+
 /**
  * This is the default "pretty" URL that resolvers will associate with requests
  * from our dummy HTTP server. We use this to hide the uglier localhost url as
