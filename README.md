@@ -118,8 +118,9 @@ npm install --save-dev next-test-api-route-handler
 
 > See [the appendix][9] for legacy Next.js support options.
 
-> Also see [the appendix][10] if you're using `jest` and
-> `jest-environment-jsdom`.
+> Also see [the appendix][10] if you're using `jest` (or `vitest`) with
+> `jest-environment-jsdom` / `jsdom` / `jest-fixed-jsdom`. Note that **you
+> should not be using a dom-like environment to test your API handlers.**
 
 <br />
 
@@ -1514,8 +1515,16 @@ test('use the node test environment for all tests in this file', () => {
 });
 ```
 
-If you're dead set on using jsdom over the node testing environment with NTARH,
-see [here][98] and [here][99] for workarounds.
+If you're seeing strange behavior or weird errors like
+`TypeError: RequestInit: Expected signal ("CustomAbortControllerSignal [EventTarget]") to be an instance of AbortSignal`,
+this is because you're using jsdom or something else that messes with Node's
+globals. The fix is to [not][103] [use][104] [jsdom][105] to test your API
+routes since they'll never\* run in a DOM-ready environment anyway.
+
+> [!NOTE]
+>
+> If you're dead set on using jsdom with NTARH instead of a node or node-like
+> testing environment, see [here][98] and [here][99] for workarounds.
 
 <br />
 
@@ -1922,3 +1931,6 @@ specification. Contributions of any kind welcome!
 [101]: ./very-first-version-of-ntarh.png
 [102]:
   https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/order.md#limitations-of---fix
+[103]: https://github.com/Xunnamius/next-test-api-route-handler/issues/999
+[104]: https://github.com/Xunnamius/next-test-api-route-handler/issues/1215
+[105]: https://github.com/Xunnamius/next-test-api-route-handler/issues/1151
