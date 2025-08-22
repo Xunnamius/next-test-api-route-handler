@@ -1517,7 +1517,7 @@ test('use the node test environment for all tests in this file', () => {
 
 If you're seeing strange behavior or weird errors like
 `TypeError: RequestInit: Expected signal ("CustomAbortControllerSignal [EventTarget]") to be an instance of AbortSignal`,
-this is because you're using jsdom or something else that messes with Node's
+this is because you're using jsdom or something else that messes with node's
 globals. The fix is to [not][103] [use][104] [jsdom][105] to test your API
 routes since they'll never\* run in a DOM-ready environment anyway.
 
