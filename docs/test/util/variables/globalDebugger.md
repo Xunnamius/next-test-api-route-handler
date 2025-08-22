@@ -8,4 +8,4 @@
 
 > `const` **globalDebugger**: `ExtendedDebugger`
 
-Defined in: [test/util.ts:21](https://github.com/Xunnamius/next-test-api-route-handler/blob/e9d6c65a2563c98f0367b0ff43cd7ea952acf10a/test/util.ts#L21)
+Defined in: [test/util.ts:21](https://github.com/Xunnamius/next-test-api-route-handler/blob/fc0972ebac2c7f073379ab76e95e9fc328afef50/test/util.ts#L21)

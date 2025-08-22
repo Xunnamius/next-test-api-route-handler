@@ -8,7 +8,7 @@
 
 > **getNextjsReactPeerDependencies**(`npmInstallNextJsString`): `Promise`\<`string`[]\>
 
-Defined in: [test/util.ts:28](https://github.com/Xunnamius/next-test-api-route-handler/blob/e9d6c65a2563c98f0367b0ff43cd7ea952acf10a/test/util.ts#L28)
+Defined in: [test/util.ts:28](https://github.com/Xunnamius/next-test-api-route-handler/blob/fc0972ebac2c7f073379ab76e95e9fc328afef50/test/util.ts#L28)
 
 Since some versions of Next.js are released with flawed
 `package.json::peerDependencies`, sometimes we need to ensure the correct
