@@ -6,6 +6,7 @@
 
 import assert from 'node:assert';
 import { createServer } from 'node:http';
+import { ReadableStream as WebReadableStream } from 'node:stream/web';
 
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import type { NextApiHandler } from 'next';
@@ -686,11 +687,7 @@ async function mockEnvVariable<T>(
 }
 
 /**
- * The Node devs gated the essential ReadableStream.from(...) behind Node@20,
- * and Readable.toWeb(...) just doesn't work properly for whatever lame reason,
- * so f**k it we ball.
- *
- * * https://github.com/nodejs/node/blob/d102d16e98a8845cba96157b6396bd448241e47c/lib/internal/webstreams/readablestream.js#L1309
+ * Convert an AsyncIterable (Node stream-like) into a ReadableStream from node:stream/web.
  *
  * @internal
  */
@@ -701,32 +698,7 @@ function readableStreamOrNullFromAsyncIterable(
     return null;
   }
 
-  const asyncIterator = iterable[Symbol.asyncIterator]();
-
-  return new ReadableStream(
-    {
-      // ? Node's own internal implementation does this, so we'll do it too.
-      start: () => undefined,
-      async pull(controller) {
-        const nextChunk = await asyncIterator.next();
-
-        if (nextChunk.done) {
-          controller.close();
-        } else {
-          controller.enqueue(nextChunk.value);
-        }
-      },
-      /* istanbul ignore next */
-      async cancel(reason) {
-        await asyncIterator.return?.(reason);
-        return undefined;
-      }
-    },
-    {
-      // ? Node's own internal implementation does this, so we'll do it too.
-      highWaterMark: 0
-    }
-  );
+  return WebReadableStream.from(iterable) as ReadableStream;
 }
 
 /**
