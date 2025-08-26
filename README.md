@@ -1639,7 +1639,7 @@ more information.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-40-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-41-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1707,6 +1707,7 @@ key][x-repo-all-contributors-emojis]):
       <td align="center" valign="top" width="16.66%"><a href="https://columkelly.com/"><img src="https://avatars.githubusercontent.com/u/98435978?v=4?s=100" width="100px;" alt="Colum Kelly"/><br /><sub><b>Colum Kelly</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Acolumk1" title="Bug reports">🐛</a> <a href="#research-columk1" title="Research">🔬</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/Oakyden"><img src="https://avatars.githubusercontent.com/u/35015858?v=4?s=100" width="100px;" alt="Oak"/><br /><sub><b>Oak</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3AOakyden" title="Bug reports">🐛</a> <a href="#research-Oakyden" title="Research">🔬</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://camronflanders.com/"><img src="https://avatars.githubusercontent.com/u/27292?v=4?s=100" width="100px;" alt="Camron Flanders"/><br /><sub><b>Camron Flanders</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/issues?q=author%3Acamflan" title="Bug reports">🐛</a> <a href="#research-camflan" title="Research">🔬</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://trevorburnham.com/"><img src="https://avatars.githubusercontent.com/u/224895?v=4?s=100" width="100px;" alt="Trevor Burnham"/><br /><sub><b>Trevor Burnham</b></sub></a><br /><a href="https://github.com/Xunnamius/next-test-api-route-handler/commits?author=TrevorBurnham" title="Code">💻</a> <a href="#research-TrevorBurnham" title="Research">🔬</a> <a href="#infra-TrevorBurnham" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-TrevorBurnham" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
   <tfoot>
