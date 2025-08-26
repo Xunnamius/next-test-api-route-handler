@@ -687,7 +687,8 @@ async function mockEnvVariable<T>(
 }
 
 /**
- * Convert an AsyncIterable (Node stream-like) into a ReadableStream from node:stream/web.
+ * Convert an AsyncIterable (Node stream-like) into a ReadableStream from
+ * node:stream/web.
  *
  * @internal
  */
