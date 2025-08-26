@@ -96,7 +96,7 @@
     "find-package-json": "^1.2.0",
     "mongodb": "^6.18.0",
     "msw": "^2.10.5",
-    "rejoinder": "^2.0.2",
+    "rejoinder": "^2.0.3",
     "semver": "^7.7.2"
   },
   "peerDependencies": {
