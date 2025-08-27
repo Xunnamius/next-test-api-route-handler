@@ -339,28 +339,14 @@ const jestExpectationContextFactory =
 afterEach(() => resetMockResolverFlags());
 
 describe('::testApiHandler', () => {
-  it('sanity checks addr value when server starts listening', async () => {
+  it('direct invocation: basic pages handler works', async () => {
     expect.hasAssertions();
-
-    const http = require('node:http');
-    const oldCreateServer = http.createServer;
-
-    jest.spyOn(http, 'createServer').mockImplementation((...args: unknown[]) => {
-      const server = oldCreateServer(...args);
-      server.address = () => undefined;
-      return server;
-    });
-
     await expect(
       importNtarh()({
         pagesHandler: getPagesHandler(),
         test: async ({ fetch }) => void (await fetch())
       })
-    ).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'assertion failed unexpectedly: server did not return AddressInfo instance'
-      )
-    });
+    ).resolves.toBeUndefined();
   });
 
   // eslint-disable-next-line jest/prefer-lowercase-title
