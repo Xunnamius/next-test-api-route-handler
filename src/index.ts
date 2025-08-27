@@ -5,10 +5,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import assert from 'node:assert';
-import { createServer } from 'node:http';
-import { ReadableStream as WebReadableStream } from 'node:stream/web';
+import { IncomingMessage, ServerResponse } from 'node:http';
+import { Socket } from 'node:net';
 
-import type { IncomingMessage, Server, ServerResponse } from 'node:http';
+// Remove unused Server type and avoid duplicate identifiers
 import type { NextApiHandler } from 'next';
 import type { NextRequest } from 'next/server';
 
@@ -321,7 +321,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
 }:
   | NtarhInitAppRouter<NextResponseJsonType>
   | NtarhInitPagesRouter<NextResponseJsonType>) {
-  let server: Server | undefined = undefined;
   let deferredReject: ((error?: unknown) => void) | undefined = undefined;
 
   // ? Normalize pagesHandler into a NextApiHandler (ESM<=>CJS interop)
@@ -337,32 +336,6 @@ export async function testApiHandler<NextResponseJsonType = any>({
         'next-test-api-route-handler (NTARH) initialization failed: you must provide exactly one of: pagesHandler, appHandler'
       );
     }
-
-    server = pagesHandler ? createPagesRouterServer() : createAppRouterServer();
-
-    const { address, port } = await new Promise<{ address: string; port: number }>(
-      (resolve, reject) => {
-        server?.listen(0, 'localhost', undefined, () => {
-          const addr = server?.address();
-
-          if (!addr || typeof addr === 'string') {
-            reject(
-              new Error(
-                'assertion failed unexpectedly: server did not return AddressInfo instance'
-              )
-            );
-          } else {
-            /* istanbul ignore next */
-            resolve({
-              port: addr.port,
-              address: addr.family === 'IPv6' ? `[${addr.address}]` : addr.address
-            });
-          }
-        });
-      }
-    );
-
-    const localUrl = `http://${address}:${port}`;
 
     await new Promise((resolve, reject) => {
       deferredReject = reject;
@@ -386,281 +359,344 @@ export async function testApiHandler<NextResponseJsonType = any>({
           headers: addDefaultHeaders(new Headers(customInit?.headers))
         };
 
-        return (
-          originalGlobalFetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
-        ).then((response) => {
-          // ? Lazy load (on demand) the contents of the `cookies` field
-          Object.defineProperty(response, 'cookies', {
-            configurable: true,
-            enumerable: true,
-            get: () => {
-              const { parse: parseCookieHeader } = require('cookie');
-              // @ts-expect-error: lazy getter guarantees this will be set
-              delete response.cookies;
-              response.cookies = response.headers.getSetCookie().map((header) =>
-                Object.fromEntries(
-                  Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
-                    return [
-                      [k, String(v)],
-                      [k.toLowerCase(), String(v)]
-                    ];
-                  })
-                )
-              );
-              return response.cookies;
-            }
-          });
+        const response = await (pagesHandler
+          ? runPagesRouter(init)
+          : runAppRouter(init));
 
-          return rebindJsonMethodAsSummoner(response);
+        // ? Lazy load (on demand) the contents of the `cookies` field
+        Object.defineProperty(response, 'cookies', {
+          configurable: true,
+          enumerable: true,
+          get: () => {
+            const { parse: parseCookieHeader } = require('cookie');
+            const parsed = response.headers.getSetCookie().map((header) =>
+              Object.fromEntries(
+                Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
+                  return [
+                    [k, String(v)],
+                    [k.toLowerCase(), String(v)]
+                  ];
+                })
+              )
+            );
+            // Cache result on the instance for subsequent reads
+            Object.defineProperty(response, 'cookies', {
+              configurable: true,
+              enumerable: true,
+              value: parsed
+            });
+            return parsed as any;
+          }
         });
+
+        return rebindJsonMethodAsSummoner(response) as any;
       }
     });
   } finally {
-    server?.close();
-    server?.closeAllConnections();
+    // No network server to close; handlers are invoked directly
   }
-
-  function createAppRouterServer() {
+  async function runAppRouter(init: RequestInit): Promise<Response> {
     // ? Keep these imports local so older Next.js versions don't choke and die.
-    type CreateServerAdapter = typeof import('@whatwg-node/server').createServerAdapter;
-    const createServerAdapter = require('@whatwg-node/server')
-      .createServerAdapter as CreateServerAdapter;
-
     type NextRequest_ = typeof import('next/server').NextRequest;
     const NextRequest = require('next/server').NextRequest as NextRequest_;
 
-    return createServer((req, res) => {
-      const originalRes = res;
-      void createServerAdapter(async (request) => {
-        try {
-          assert(appHandler !== undefined);
+    assert(appHandler !== undefined);
 
-          const {
-            cache,
-            credentials,
-            headers,
-            integrity,
-            keepalive,
-            method,
-            mode,
-            redirect,
-            referrer,
-            referrerPolicy,
-            signal
-          } = request;
+    const request_ = new Request(
+      normalizeUrlForceTrailingSlashIfPathnameEmpty(url || defaultNextRequestMockUrl),
+      init
+    );
 
-          const rawRequest = rebindJsonMethodAsSummoner(
-            new NextRequest(
-              normalizeUrlForceTrailingSlashIfPathnameEmpty(
-                url || defaultNextRequestMockUrl
-              ),
-              /**
-               * See: RequestData from next/dist/server/web/types.d.ts
-               * See also: https://stackoverflow.com/a/57014050/1367414
-               */
-              {
-                body: readableStreamOrNullFromAsyncIterable(
-                  // ? request.body claims to be ReadableStream, but it's
-                  // ? actually a Node.js native stream (i.e. iterable)...
-                  request.body as unknown as AsyncIterable<any>
-                ),
-                cache,
-                credentials,
-                // https://github.com/nodejs/node/issues/46221
-                duplex: 'half',
-                headers,
-                integrity,
-                keepalive,
-                method,
-                mode,
-                redirect,
-                referrer,
-                referrerPolicy,
-                signal
-              }
-            )
-          );
+    const {
+      cache,
+      credentials,
+      headers,
+      integrity,
+      keepalive,
+      method,
+      mode,
+      redirect,
+      referrer,
+      referrerPolicy,
+      signal
+    } = request_;
 
-          const patchedRequest = (await requestPatcher?.(rawRequest)) || rawRequest;
-          const nextRequest =
-            // eslint-disable-next-line no-restricted-syntax
-            patchedRequest instanceof NextRequest
-              ? patchedRequest
-              : new NextRequest(patchedRequest, {
-                  // https://github.com/nodejs/node/issues/46221
-                  duplex: 'half'
-                });
-
-          const rawParameters = { ...params };
-
-          const finalParameters = returnUndefinedIfEmptyObject(
-            (await paramsPatcher?.(rawParameters)) || rawParameters
-          );
-
-          // ? Mocking NODE_ENV here gets AppRouteRouteModule to spit out useful
-          // ? debug info to the end developer.
-          const appRouteRouteModule = await mockEnvVariable(
-            'NODE_ENV',
-            'development',
-            () => {
-              if (typeof AppRouteRouteModule !== 'function') {
-                assert(
-                  AppRouteRouteModule[$importFailed],
-                  'assertion failed unexpectedly: AppRouteRouteModule was not a constructor (function)'
-                );
-
-                throw AppRouteRouteModule[$importFailed];
-              }
-
-              return new AppRouteRouteModule({
-                definition: {
-                  kind: 'APP_ROUTE' as any,
-                  page: '/route',
-                  pathname: 'ntarh://testApiHandler',
-                  filename: 'route',
-                  bundlePath: 'app/route'
-                },
-                nextConfigOutput: undefined,
-                resolvedPagePath: 'ntarh://testApiHandler',
-                userland: appHandler as AppRouteUserlandModule,
-                distDir: 'ntarh://fake-dir',
-                // @ts-ignore: necessary in next@<=15.4
-                projectDir: 'ntarh://fake-dir'
-              });
-            }
-          );
-
-          const response_ = appRouteRouteModule.handle(
-            rebindJsonMethodAsSummoner(nextRequest),
-            {
-              params: finalParameters,
-              prerenderManifest: {
-                version: 4,
-                routes: {},
-                dynamicRoutes: {},
-                notFoundRoutes: [],
-                preview: {} as any
-              },
-              renderOpts: {
-                experimental: {
-                  // @ts-expect-error: for next@<15
-                  ppr: false,
-                  // For next@>=15
-                  isRoutePPREnabled: false
-                },
-                // ? Next.js tries to do things it shouldn't unless we add these
-                // @ts-ignore: the types for renderOpts are wrong?!
-                supportsDynamicHTML: true,
-                // @ts-ignore: the types for renderOpts are wrong?!
-                supportsDynamicResponse: true
-              },
-              // ? Some versions of Next.js poo the bed if we don't include this
-              // ? even though it doesn't appear in the types as far as I can
-              // ? tell
-              // @ts-ignore: the types for renderOpts are wrong?!
-              staticGenerationContext: { supportsDynamicHTML: true },
-              // For next@>=15.2
-              sharedContext: { buildId: 'ntarh' }
-            }
-          );
-
-          // * We essentially copy what the Pages Router apiResolver does,
-          // * which is also what the App Router does too but elsewhere.
-          const response = rebindJsonMethodAsSummoner(
-            await response_.catch((error: unknown) => {
-              // eslint-disable-next-line no-console
-              console.error(error);
-
-              if (rejectOnHandlerError) {
-                throw error;
-              } else {
-                return new Response('Internal Server Error', { status: 500 });
-              }
-            })
-          );
-
-          return (await responsePatcher?.(response)) || response;
-        } catch (error) {
-          handleError(originalRes, error, deferredReject);
-
-          // ? This line (i.e. "await ... setImmediate(...));") allows the
-          // ? event loop to service the rejection caused by deferredReject(...)
-          // ? before continuing the execution of this function.
-          await new Promise((resolve) => setImmediate(resolve));
-
-          // ? Unless they're stepping through deep code, end developers should
-          // ? never encounter this response since deferredReject rejects first.
-          return new Response(
-            `[NTARH Internal Server Error]: an error occurred during this test that caused testApiHandler to reject (i.e. rejectOnHandlerError === true). This response was returned as a courtesy so your handler does not potentially hang forever.\n\nError: ${
-              /* istanbul ignore next */
-              Error.isError(error) ? error.stack || error : String(error)
-            }`,
-            { status: 500 }
-          );
+    const rawRequest = rebindJsonMethodAsSummoner(
+      new NextRequest(
+        normalizeUrlForceTrailingSlashIfPathnameEmpty(url || defaultNextRequestMockUrl),
+        {
+          body: request_.body,
+          cache,
+          credentials,
+          // https://github.com/nodejs/node/issues/46221
+          duplex: 'half',
+          headers,
+          integrity,
+          keepalive,
+          method,
+          mode,
+          redirect,
+          referrer,
+          referrerPolicy,
+          signal
         }
-      })(req, res);
+      )
+    );
+
+    const patchedRequest = (await requestPatcher?.(rawRequest)) || rawRequest;
+    const isNextRequest = (
+      value: unknown
+    ): value is InstanceType<typeof NextRequest> => {
+      return Boolean(value && typeof value === 'object' && 'nextUrl' in (value as any));
+    };
+    const nextRequest = isNextRequest(patchedRequest)
+      ? patchedRequest
+      : new NextRequest(patchedRequest, {
+          // https://github.com/nodejs/node/issues/46221
+          duplex: 'half'
+        });
+
+    const rawParameters = { ...params };
+
+    const finalParameters = returnUndefinedIfEmptyObject(
+      (await paramsPatcher?.(rawParameters)) || rawParameters
+    );
+
+    // ? Mocking NODE_ENV here gets AppRouteRouteModule to spit out useful
+    // ? debug info to the end developer.
+    const appRouteRouteModule = await mockEnvVariable('NODE_ENV', 'development', () => {
+      if (typeof AppRouteRouteModule !== 'function') {
+        assert(
+          AppRouteRouteModule[$importFailed],
+          'assertion failed unexpectedly: AppRouteRouteModule was not a constructor (function)'
+        );
+
+        throw AppRouteRouteModule[$importFailed];
+      }
+
+      return new AppRouteRouteModule({
+        definition: {
+          kind: 'APP_ROUTE' as any,
+          page: '/route',
+          pathname: 'ntarh://testApiHandler',
+          filename: 'route',
+          bundlePath: 'app/route'
+        },
+        nextConfigOutput: undefined,
+        resolvedPagePath: 'ntarh://testApiHandler',
+        userland: appHandler as AppRouteUserlandModule,
+        distDir: 'ntarh://fake-dir',
+        // @ts-ignore: necessary in next@<=15.4
+        projectDir: 'ntarh://fake-dir'
+      });
     });
+
+    const response_ = appRouteRouteModule.handle(
+      rebindJsonMethodAsSummoner(nextRequest),
+      {
+        params: finalParameters,
+        prerenderManifest: {
+          version: 4,
+          routes: {},
+          dynamicRoutes: {},
+          notFoundRoutes: [],
+          preview: {} as any
+        },
+        renderOpts: {
+          experimental: {
+            // @ts-expect-error: for next@<15
+            ppr: false,
+            // For next@>=15
+            isRoutePPREnabled: false
+          },
+          // ? Next.js tries to do things it shouldn't unless we add these
+          // @ts-ignore: the types for renderOpts are wrong?!
+          supportsDynamicHTML: true,
+          // @ts-ignore: the types for renderOpts are wrong?!
+          supportsDynamicResponse: true
+        },
+        // ? Some versions of Next.js poo the bed if we don't include this
+        // ? even though it doesn't appear in the types as far as I can
+        // ? tell
+        // @ts-ignore: the types for renderOpts are wrong?!
+        staticGenerationContext: { supportsDynamicHTML: true },
+        // For next@>=15.2
+        sharedContext: { buildId: 'ntarh' }
+      }
+    );
+
+    let response = rebindJsonMethodAsSummoner(
+      await response_.catch((error: unknown) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+
+        if (rejectOnHandlerError) {
+          throw error;
+        } else {
+          return new Response('Internal Server Error', { status: 500 });
+        }
+      })
+    );
+
+    // Normalize to a plain Response so we can safely attach cookies
+    response = await toPlainResponse(response);
+
+    // Normalize HEAD: empty body
+    if ((init.method || 'GET').toUpperCase() === 'HEAD') {
+      response = new Response(null, {
+        status: response.status,
+        headers: response.headers
+      });
+    }
+
+    return (await responsePatcher?.(response)) || response;
   }
 
-  function createPagesRouterServer() {
-    return createServer((req, res) => {
-      try {
-        assert(pagesHandler_ !== undefined);
+  async function runPagesRouter(init: RequestInit): Promise<Response> {
+    assert(pagesHandler_ !== undefined);
 
-        req.url = url || defaultNextRequestMockUrl;
+    const req = new IncomingMessage(new Socket());
+    const res = new ServerResponse(req);
 
-        Promise.resolve(requestPatcher?.(req))
-          .then(() => responsePatcher?.(res))
-          .then(async () => {
-            // eslint-disable-next-line n/no-deprecated-api
-            const { parse: parseUrl } = require('node:url');
-            const rawParameters: Record<string, unknown> = {
-              ...parseUrl(req.url || '', true).query,
-              ...params
-            };
+    req.method = (init.method || 'GET').toUpperCase();
+    req.url = url || defaultNextRequestMockUrl;
 
-            return (await paramsPatcher?.(rawParameters)) || rawParameters;
-          })
-          .then((finalParameters) => {
-            if (typeof apiResolver !== 'function') {
-              assert(
-                apiResolver[$importFailed],
-                'assertion failed unexpectedly: apiResolver was not a function'
-              );
+    // Set headers
+    const headers = new Headers(init.headers);
+    (req as any).headers = Object.fromEntries(headers.entries());
 
-              throw apiResolver[$importFailed];
+    // Allow patchers to mutate req/res first (e.g., modify req.url)
+    await Promise.resolve(requestPatcher?.(req as any));
+    await Promise.resolve(responsePatcher?.(res as any));
+
+    // Build finalParameters = parsed query (from possibly patched req.url) + params
+    // eslint-disable-next-line n/no-deprecated-api
+    const { parse: parseUrl } = require('node:url');
+    const parsed = parseUrl(req.url || '', true);
+    const rawParameters: Record<string, unknown> = {
+      ...parsed.query,
+      ...params
+    };
+    const patchedParameters =
+      (await Promise.resolve(paramsPatcher?.(rawParameters as any))) || rawParameters;
+    const finalParameters = returnUndefinedIfEmptyObject(patchedParameters as any);
+
+    // Buffer body from init using Request to normalize
+    const request_ = new Request(
+      normalizeUrlForceTrailingSlashIfPathnameEmpty(url || defaultNextRequestMockUrl),
+      init
+    );
+    const bodyArray = new Uint8Array(await request_.arrayBuffer());
+    if (bodyArray.byteLength) {
+      (req as any).push(Buffer.from(bodyArray));
+    }
+    (req as any).push(null);
+
+    // Intercept headers and body writes
+    const headerMap = new Map<string, string | string[]>();
+    const chunks: Buffer[] = [];
+
+    const originalSetHeader = res.setHeader.bind(res);
+    res.setHeader = (name: string, value: number | string | readonly string[]) => {
+      headerMap.set(
+        name.toLowerCase(),
+        Array.isArray(value) ? [...value] : String(value)
+      );
+      return originalSetHeader(name, value as any);
+    };
+    res.getHeader = (name: string) => headerMap.get(name.toLowerCase()) as any;
+    res.getHeaderNames = () => Array.from(headerMap.keys());
+    res.removeHeader = (name: string) => {
+      headerMap.delete(name.toLowerCase());
+      return undefined as any;
+    };
+
+    const originalWrite = res.write.bind(res);
+    res.write = (chunk: any, encoding?: any, callback?: any) => {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk), encoding));
+      if (typeof callback === 'function') callback();
+      return originalWrite.call(res, chunk, encoding, callback);
+    };
+
+    const responsePromise = new Promise<Response>((resolve, reject) => {
+      const endOrig = res.end.bind(res);
+      res.end = (chunk?: any, encoding?: any, callback?: any) => {
+        try {
+          if (chunk)
+            chunks.push(
+              Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk), encoding)
+            );
+          const body = Buffer.concat(chunks);
+          const status = res.statusCode || 200;
+          const headersInit: [string, string | string[]][] = Array.from(
+            headerMap.entries()
+          );
+          const webHeaders = new Headers();
+          for (const [k, v] of headersInit) {
+            if (Array.isArray(v)) v.forEach((vv) => webHeaders.append(k, vv));
+            else webHeaders.set(k, v);
+          }
+          const response = new Response(body, { status, headers: webHeaders });
+          if (typeof callback === 'function') callback();
+          resolve(response);
+        } catch (error) {
+          const error_ = ((): Error => {
+            if (error && typeof error === 'object' && 'message' in (error as any)) {
+              try {
+                // If it quacks like an Error, assume it is
+                return error as Error;
+              } catch {
+                // fall through
+              }
             }
-
-            /**
-             *? From Next.js internals:
-             ** apiResolver(
-             **    req: IncomingMessage,
-             **    res: ServerResponse,
-             **    query: any,
-             **    resolverModule: any,
-             **    apiContext: __ApiPreviewProps,
-             **    propagateError: boolean,
-             **    dev?: boolean,
-             **    page?: boolean,
-             **    onError?: ServerOnInstrumentationRequestError
-             ** )
-             */
-            void apiResolver(
-              req,
-              res,
-              finalParameters,
-              pagesHandler,
-              {} as any,
-              !!rejectOnHandlerError
-            ).catch((error: unknown) => handleError(res, error, deferredReject));
-          })
-          .catch((error: unknown) => {
-            handleError(res, error, deferredReject);
-          });
-      } catch (error) {
-        handleError(res, error, deferredReject);
-      }
+            return new Error(String(error));
+          })();
+          reject(error_);
+        }
+        return endOrig(chunk, encoding, callback);
+      };
     });
+
+    if (typeof apiResolver !== 'function') {
+      assert(
+        apiResolver[$importFailed],
+        'assertion failed unexpectedly: apiResolver was not a function'
+      );
+
+      throw apiResolver[$importFailed];
+    }
+
+    await apiResolver(
+      req as any,
+      res as any,
+      finalParameters,
+      pagesHandler as any,
+      {} as any,
+      !!rejectOnHandlerError
+    ).catch((error: unknown) => handleError(res as any, error, deferredReject));
+
+    let finalResponse = await responsePromise;
+    finalResponse = await toPlainResponse(finalResponse);
+    if ((init.method || 'GET').toUpperCase() === 'HEAD') {
+      finalResponse = new Response(null, {
+        status: finalResponse.status,
+        headers: finalResponse.headers
+      });
+    }
+    return finalResponse;
+  }
+
+  async function toPlainResponse(res: Response): Promise<Response> {
+    // If it's already a plain Response without a cookies prop, reuse
+    const proto = Object.getPrototypeOf(res);
+    const hasCookies =
+      Object.prototype.hasOwnProperty.call(res, 'cookies') || 'cookies' in res;
+    if (proto?.constructor?.name === 'Response' && !hasCookies) return res;
+
+    // Rewrap by materializing the body
+    const clone = res.clone();
+    const ab = await clone.arrayBuffer();
+    return new Response(ab, { status: res.status, headers: res.headers });
   }
 }
 
@@ -686,21 +722,7 @@ async function mockEnvVariable<T>(
   }
 }
 
-/**
- * Convert an AsyncIterable (Node stream-like) into a ReadableStream from
- * node:stream/web.
- *
- * @internal
- */
-function readableStreamOrNullFromAsyncIterable(
-  iterable: AsyncIterable<any> | null | undefined
-) {
-  if (iterable === undefined || iterable === null) {
-    return null;
-  }
-
-  return WebReadableStream.from(iterable) as ReadableStream;
-}
+// (removed) readableStreamOrNullFromAsyncIterable helper was unused in direct invocation mode
 
 /**
  * What is this? Well, when ditching node-fetch for the internal fetch, the way
