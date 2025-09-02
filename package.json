@@ -94,7 +94,7 @@
     "@types/find-package-json": "^1.2.6",
     "@types/semver": "^7.7.0",
     "find-package-json": "^1.2.0",
-    "mongodb": "^6.18.0",
+    "mongodb": "^6.19.0",
     "msw": "^2.10.5",
     "rejoinder": "^2.1.0",
     "semver": "^7.7.2"
