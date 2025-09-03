@@ -1,14 +1,3 @@
 #!/bin/sh
 
-# TODO: replace these uglies with JS (mjs) scripts
-
-beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
-
-if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
-  echo 'husky-hook::commit-msg: skipped pre-commit hook due to rebase'
-  exit 0
-fi
-
-if [ -z "$GAC_VERIFY_SIMPLE" ]; then npm run lint:package; fi
-NODE_NO_WARNINGS=1 lint-staged --concurrent false --config lint-staged.config.mjs
-symbiote clean --env NODE_NO_WARNINGS=1 --only-empty-directories --hush --scope unlimited
+node .husky/pre-commit.mjs
