@@ -96,13 +96,8 @@
   "devDependencies": {
     "@-xun/fs": "^2.0.0",
     "@-xun/project-fs": "^2.0.5",
-    "@-xun/run": "^2.0.0",
-    "@-xun/symbiote": "^4.14.10",
-    "@octokit/rest": "^22.0.0",
-    "@types/find-package-json": "^1.2.6",
+    "@-xun/symbiote": "^4.15.1",
     "@types/semver": "^7.7.0",
-    "find-package-json": "^1.2.0",
-    "mongodb": "^6.19.0",
     "msw": "^2.11.1",
     "rejoinder": "^2.1.0",
     "semver": "^7.7.2"
