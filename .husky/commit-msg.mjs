@@ -1,5 +1,3 @@
-// @ts-check
-
 import {
   // {@symbiote/notInvalid @-xun/run}
   runWithInheritedIo

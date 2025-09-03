@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/prefer-string-starts-ends-with */
-// @ts-check
 
 import { readFile } from 'node:fs/promises';
 
