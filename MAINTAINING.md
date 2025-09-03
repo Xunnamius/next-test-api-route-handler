@@ -115,9 +115,9 @@ To release all packages in a repository:
 
 ```bash
 # Do a dry run first if you're not absolutely sure all is as it should be:
-npx run release:topological -- --options --dry-run
+npm run release:topological -- --options --dry-run
 # Then do the actual topological release:
-npx run release:topological
+npm run release:topological
 ```
 
 To release a specific package (without regard for topology):

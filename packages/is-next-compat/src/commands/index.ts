@@ -1,5 +1,3 @@
-// ! WARNING: don't run this in the real repo dir, but in a duplicate temp dir
-
 import { getCurrentWorkingDirectory } from '@-xun/fs';
 import { run, runNoRejectOnBadExit } from '@-xun/run';
 import findPackageJson from 'find-package-json';
@@ -21,6 +19,8 @@ export default main().catch((error: unknown) => {
   log.error(error);
   process.exitCode = 2;
 });
+
+// TODO: issue warning when running if not in CI: don't run this in the real repo dir, but in a duplicate temp dir
 
 /**
  * Detect if this tool was invoked in the context of an integration test

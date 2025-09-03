@@ -12,13 +12,14 @@ const { createDebugLogger } = require('rejoinder');
 
 const debug = createDebugLogger({ namespace: 'symbiote:config:babel' });
 
-module.exports = deepMergeConfig(
+const config = deepMergeConfig(
   moduleExport({
     derivedAliases: getBabelAliases(),
     ...assertEnvironment({ projectRoot: __dirname })
   }),
   {
     // Any custom configs here will be deep merged with moduleExport's result
+    //
     // You may wish to enable explicit exports references for improved testing
     // DX, but be aware that it is currently a wee buggy as of 5/2025 (fix it!)
     //
@@ -30,14 +31,7 @@ module.exports = deepMergeConfig(
   }
 );
 
-// TODO: delete this
-if (process.env.EXTERNAL_DELETE_THIS) {
-  // @ts-expect-error: delete all of this
-  module.exports.env['production-cjs'].plugins[0][1].replaceExtensions[
-    '^../test/util.js$'
-  ] = './util.js';
-}
-
+module.exports = config;
 debug('exported config: %O', module.exports);
 
 function getBabelAliases() {
@@ -45,10 +39,34 @@ function getBabelAliases() {
   // ! directly, consider regenerating aliases across the entire project with:
   // ! `npx symbiote project renovate --regenerate-assets --assets-preset ...`
   return {
+    '^multiverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      './packages/get-nextjs-react-peer-dependencies/src/$1',
+    '^multiverse\\+is\\x2dnext\\x2dcompat:(.+)$': './packages/is-next-compat/src/$1',
+    '^multiverse\\+shared:(.+)$': './packages/shared/src/$1',
+    '^multiverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies$':
+      './packages/get-nextjs-react-peer-dependencies/src/index.js',
+    '^multiverse\\+is\\x2dnext\\x2dcompat$': './packages/is-next-compat/src/index.js',
+    '^multiverse\\+shared$': './packages/shared/src/index.js',
+    '^universe\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      './packages/get-nextjs-react-peer-dependencies/src/$1',
+    '^universe\\+is\\x2dnext\\x2dcompat:(.+)$': './packages/is-next-compat/src/$1',
+    '^universe\\+shared:(.+)$': './packages/shared/src/$1',
+    '^universe\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies$':
+      './packages/get-nextjs-react-peer-dependencies/src/index.js',
+    '^universe\\+is\\x2dnext\\x2dcompat$': './packages/is-next-compat/src/index.js',
+    '^universe\\+shared$': './packages/shared/src/index.js',
     '^universe:(.+)$': './src/$1',
     '^universe$': './src/index.js',
+    '^testverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      './packages/get-nextjs-react-peer-dependencies/test/$1',
+    '^testverse\\+is\\x2dnext\\x2dcompat:(.+)$': './packages/is-next-compat/test/$1',
+    '^testverse\\+shared:(.+)$': './packages/shared/test/$1',
     '^testverse:(.+)$': './test/$1',
     '^typeverse:(.+)$': './types/$1',
+    '^rootverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      './packages/get-nextjs-react-peer-dependencies/$1',
+    '^rootverse\\+is\\x2dnext\\x2dcompat:(.+)$': './packages/is-next-compat/$1',
+    '^rootverse\\+shared:(.+)$': './packages/shared/$1',
     '^rootverse:(.+)$': './$1'
   };
 }

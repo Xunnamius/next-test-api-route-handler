@@ -1,0 +1,16 @@
+{
+  "name": "shared",
+  "version": "1.0.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xunnamius/next-test-api-route-handler.git"
+  },
+  "license": "MIT",
+  "author": "Xunnamius",
+  "sideEffects": false,
+  "type": "commonjs",
+  "engines": {
+    "node": "^20.18.0 || >=22.12.0"
+  }
+}

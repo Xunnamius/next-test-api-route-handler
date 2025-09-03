@@ -53,12 +53,17 @@
     "/package.json",
     "/README.md"
   ],
+  "workspaces": [
+    "packages/*",
+    "!packages/*.ignore*",
+    "!packages/ignore.*"
+  ],
   "scripts": {
     "build": "npm run build:dist --",
     "build:changelog": "symbiote build changelog --env NODE_NO_WARNINGS=1",
     "build:dist": "symbiote build distributables --env NODE_NO_WARNINGS=1 --not-multiversal",
     "build:docs": "symbiote build docs --env NODE_NO_WARNINGS=1",
-    "build:externals": "echo '\nWARNING: this script and the whole concept of so-called \"externals\" is going away soon (to be replaced by a hybridrepo)!\n\n'; EXTERNAL_DELETE_THIS=true NODE_ENV=production-cjs babel external-scripts --extensions .ts --out-dir external-scripts/bin && NODE_ENV=production-cjs babel test/util.ts --extensions .ts --out-dir external-scripts/bin",
+    "build:topological": "symbiote project topology --run build --env NODE_NO_WARNINGS=1",
     "clean": "symbiote clean --env NODE_NO_WARNINGS=1",
     "format": "symbiote format --env NODE_NO_WARNINGS=1 --hush",
     "info": "symbiote project info --env NODE_NO_WARNINGS=1",
@@ -66,11 +71,13 @@
     "lint:package": "symbiote lint --env NODE_NO_WARNINGS=1 --hush",
     "lint:packages": "symbiote lint --env NODE_NO_WARNINGS=1 --hush --scope unlimited",
     "lint:project": "symbiote project lint --env NODE_NO_WARNINGS=1",
+    "lint:topological": "symbiote project topology --run lint --env NODE_NO_WARNINGS=1",
     "list-tasks": "symbiote list-tasks --env NODE_NO_WARNINGS=1 --scope this-package",
     "prepare": "symbiote project prepare --env NODE_NO_WARNINGS=1",
-    "release": "npm run build:externals && symbiote release --env NODE_NO_WARNINGS=1",
-    "renovate": "symbiote project renovate --env NODE_NO_WARNINGS=1 --github-reconfigure-repo --regenerate-assets --assets-preset lib",
-    "renovate:aliases": "symbiote project renovate --env NODE_NO_WARNINGS=1 --regenerate-assets --assets-preset lib --only-aliases",
+    "release": "symbiote release --env NODE_NO_WARNINGS=1",
+    "release:topological": "symbiote project topology --run release --env NODE_NO_WARNINGS=1",
+    "renovate": "symbiote project renovate --env NODE_NO_WARNINGS=1 --github-reconfigure-repo --regenerate-assets --assets-preset basic cli lib lib-esm lib-web react nextjs wrangler",
+    "renovate:aliases": "symbiote project renovate --env NODE_NO_WARNINGS=1 --regenerate-assets --assets-preset basic cli lib lib-esm lib-web react nextjs wrangler --only-aliases",
     "start": "symbiote start --env NODE_NO_WARNINGS=1 --",
     "test": "npm run test:package:unit --",
     "test:package:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --coverage",
@@ -78,7 +85,8 @@
     "test:package:integration": "symbiote test --env NODE_NO_WARNINGS=1 --tests integration",
     "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type",
     "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --scope unlimited --coverage",
-    "test:packages:all:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type --scope unlimited --coverage"
+    "test:packages:all:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type --scope unlimited --coverage",
+    "test:topological": "symbiote project topology --run test --env NODE_NO_WARNINGS=1"
   },
   "dependencies": {
     "@whatwg-node/server": "^0.10.12",

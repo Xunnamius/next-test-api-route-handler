@@ -14,9 +14,36 @@ const config = await moduleExport({
   ...(await assertEnvironment())
 });
 
-config.push({
-  /* Add custom config here, such as disabling certain rules */
-});
+/* Add custom config objects here, such as those disabling certain rules */
+config
+  .push
+  // ? Paths listed here are ignored by Eslint and related tooling.
+  // { ignores: [] },
+  // * Configs applying to both JavaScript & TypeScript files (all extensions)
+  // ? Keep in mind that JS files can use @ts-check and "become" TS files,
+  // ? hence the existence of this block. Logically, most rules should be
+  // ? loaded here.
+  // ...[
+  //   { ...eslintPluginReactConfigs.flat.recommended, name: 'react:recommended' },
+  //   // ? For react@>=17
+  //   { ...eslintPluginReactConfigs.flat['jsx-runtime'], name: 'react:jsx-runtime' },
+  //   {
+  //     ...eslintPluginReactHooksConfigs['recommended-latest'],
+  //     name: 'react-hooks:recommended-latest'
+  //   },
+  //   { ...eslintPluginJsxA11yFlatConfigs.recommended, name: 'jsx-a11y:recommended' }
+  // ].flatMap((configs) =>
+  //   overwriteProperty(configs, 'files', [
+  //     `**/*.{ts,cts,mts,tsx}`
+  //   ])
+  // ),
+  // {
+  //   rules: {
+  //     'unicorn/no-keyword-prefix': 'off',
+  //     'no-restricted-syntax': 'off'
+  //   }
+  // }
+  ();
 
 export default config;
 
@@ -27,9 +54,45 @@ function getEslintAliases() {
   // ! directly, consider regenerating aliases across the entire project with:
   // ! `npx symbiote project renovate --regenerate-assets --assets-preset ...`
   return [
+    [
+      'multiverse+get-nextjs-react-peer-dependencies:*',
+      './packages/get-nextjs-react-peer-dependencies/src/*'
+    ],
+    ['multiverse+is-next-compat:*', './packages/is-next-compat/src/*'],
+    ['multiverse+shared:*', './packages/shared/src/*'],
+    [
+      'multiverse+get-nextjs-react-peer-dependencies',
+      './packages/get-nextjs-react-peer-dependencies/src/index.ts'
+    ],
+    ['multiverse+is-next-compat', './packages/is-next-compat/src/index.ts'],
+    ['multiverse+shared', './packages/shared/src/index.ts'],
+    [
+      'rootverse+get-nextjs-react-peer-dependencies:*',
+      './packages/get-nextjs-react-peer-dependencies/*'
+    ],
+    ['rootverse+is-next-compat:*', './packages/is-next-compat/*'],
+    ['rootverse+shared:*', './packages/shared/*'],
     ['rootverse:*', './*'],
+    [
+      'universe+get-nextjs-react-peer-dependencies:*',
+      './packages/get-nextjs-react-peer-dependencies/src/*'
+    ],
+    ['universe+is-next-compat:*', './packages/is-next-compat/src/*'],
+    ['universe+shared:*', './packages/shared/src/*'],
+    [
+      'universe+get-nextjs-react-peer-dependencies',
+      './packages/get-nextjs-react-peer-dependencies/src/index.ts'
+    ],
+    ['universe+is-next-compat', './packages/is-next-compat/src/index.ts'],
+    ['universe+shared', './packages/shared/src/index.ts'],
     ['universe:*', './src/*'],
     ['universe', './src/index.ts'],
+    [
+      'testverse+get-nextjs-react-peer-dependencies:*',
+      './packages/get-nextjs-react-peer-dependencies/test/*'
+    ],
+    ['testverse+is-next-compat:*', './packages/is-next-compat/test/*'],
+    ['testverse+shared:*', './packages/shared/test/*'],
     ['testverse:*', './test/*'],
     ['typeverse:*', './types/*']
   ];

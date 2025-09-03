@@ -37,10 +37,35 @@ function getJestAliases() {
   // ! directly, consider regenerating aliases across the entire project with:
   // ! `npx symbiote project renovate --regenerate-assets --assets-preset ...`
   return {
+    '^multiverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      '<rootDir>/packages/get-nextjs-react-peer-dependencies/src/$1',
+    '^multiverse\\+is\\x2dnext\\x2dcompat:(.+)$':
+      '<rootDir>/packages/is-next-compat/src/$1',
+    '^multiverse\\+shared:(.+)$': '<rootDir>/packages/shared/src/$1',
+    '^multiverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies$': `<rootDir>/packages/get-nextjs-react-peer-dependencies/src/index.${extension}`,
+    '^multiverse\\+is\\x2dnext\\x2dcompat$': `<rootDir>/packages/is-next-compat/src/index.${extension}`,
+    '^multiverse\\+shared$': `<rootDir>/packages/shared/src/index.${extension}`,
+    '^universe\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      '<rootDir>/packages/get-nextjs-react-peer-dependencies/src/$1',
+    '^universe\\+is\\x2dnext\\x2dcompat:(.+)$':
+      '<rootDir>/packages/is-next-compat/src/$1',
+    '^universe\\+shared:(.+)$': '<rootDir>/packages/shared/src/$1',
+    '^universe\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies$': `<rootDir>/packages/get-nextjs-react-peer-dependencies/src/index.${extension}`,
+    '^universe\\+is\\x2dnext\\x2dcompat$': `<rootDir>/packages/is-next-compat/src/index.${extension}`,
+    '^universe\\+shared$': `<rootDir>/packages/shared/src/index.${extension}`,
     '^universe:(.+)$': '<rootDir>/src/$1',
     '^universe$': `<rootDir>/src/index.${extension}`,
+    '^testverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      '<rootDir>/packages/get-nextjs-react-peer-dependencies/test/$1',
+    '^testverse\\+is\\x2dnext\\x2dcompat:(.+)$':
+      '<rootDir>/packages/is-next-compat/test/$1',
+    '^testverse\\+shared:(.+)$': '<rootDir>/packages/shared/test/$1',
     '^testverse:(.+)$': '<rootDir>/test/$1',
     '^typeverse:(.+)$': '<rootDir>/types/$1',
+    '^rootverse\\+get\\x2dnextjs\\x2dreact\\x2dpeer\\x2ddependencies:(.+)$':
+      '<rootDir>/packages/get-nextjs-react-peer-dependencies/$1',
+    '^rootverse\\+is\\x2dnext\\x2dcompat:(.+)$': '<rootDir>/packages/is-next-compat/$1',
+    '^rootverse\\+shared:(.+)$': '<rootDir>/packages/shared/$1',
     '^rootverse:(.+)$': '<rootDir>/$1'
   };
 }

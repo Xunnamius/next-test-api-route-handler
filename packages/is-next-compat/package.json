@@ -1,0 +1,59 @@
+{
+  "name": "is-next-compat",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": "https://github.com/Xunnamius/next-test-api-route-handler/tree/main/packages/is-next-compat#readme",
+  "bugs": {
+    "url": "https://github.com/Xunnamius/next-test-api-route-handler/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xunnamius/next-test-api-route-handler.git"
+  },
+  "license": "MIT",
+  "author": "Xunnamius",
+  "sideEffects": false,
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./dist/packages/is-next-compat/src/index.d.ts",
+      "default": "./dist/packages/is-next-compat/src/index.js"
+    },
+    "./package": "./package.json",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "index": [
+        "dist/packages/is-next-compat/src/index.d.ts"
+      ],
+      "package": [
+        "package.json"
+      ]
+    }
+  },
+  "scripts": {
+    "clean": "symbiote clean --env NODE_NO_WARNINGS=1",
+    "format": "symbiote format --env NODE_NO_WARNINGS=1 --hush",
+    "info": "symbiote project info --env NODE_NO_WARNINGS=1",
+    "lint": "npm run lint:package --",
+    "lint:package": "symbiote lint --env NODE_NO_WARNINGS=1 --hush",
+    "lint:packages": "symbiote lint --env NODE_NO_WARNINGS=1 --hush --scope unlimited",
+    "lint:project": "symbiote project lint --env NODE_NO_WARNINGS=1",
+    "list-tasks": "symbiote list-tasks --env NODE_NO_WARNINGS=1 --scope this-package",
+    "start": "symbiote start --env NODE_NO_WARNINGS=1 --",
+    "test": "npm run test:package:unit --",
+    "test:package:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --coverage",
+    "test:package:e2e": "symbiote test --env NODE_NO_WARNINGS=1 --tests e2e-local",
+    "test:package:integration": "symbiote test --env NODE_NO_WARNINGS=1 --tests integration",
+    "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type",
+    "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --scope unlimited --coverage"
+  },
+  "dependencies": {
+    "@black-flag/core": "^3.0.3",
+    "next-test-api-route-handler": "*"
+  },
+  "engines": {
+    "node": "^20.18.0 || >=22.12.0"
+  }
+}

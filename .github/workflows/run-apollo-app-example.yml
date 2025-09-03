@@ -91,8 +91,8 @@ jobs:
           npm install --force > '#pipe.ignore' 2>&1
           rm '#pipe.ignore'
 
-      - name: Build externals (we're only interested in util.js)
-        run: npm run build:externals
+      - name: Build get-nextjs-react-peer-dependencies
+        run: npm -w get-nextjs-react-peer-dependencies run build
 
       # We need to install Next.js's peer dependencies by hand because it is
       # possible that Vercel devs publish broken package.json peerDependencies
@@ -110,7 +110,7 @@ jobs:
           mkfifo '#pipe.ignore'
           tee --append /tmp/output.txt < '#pipe.ignore' &
 
-          extra_installs=$(node -e '(async () => console.log((await require("'"$previous_cwd"'/external-scripts/bin/util.js").getNextjsReactPeerDependencies("next@latest")).join(" ")))()')
+          extra_installs=$(npx get-nextjs-react-peer-dependencies next@latest)
 
           npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env $(echo $extra_installs) > '#pipe.ignore' 2>&1
 

@@ -6,6 +6,7 @@
     "**/type-*.test.ts",
     "**/type-*.test.tsx"
   ],
+  "checkSourceFiles": false,
   "rejectAnyType": true,
   "rejectNeverType": true
 }

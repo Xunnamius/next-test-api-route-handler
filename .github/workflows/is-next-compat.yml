@@ -97,8 +97,8 @@ jobs:
           npm run build:dist > '#pipe.ignore' 2>&1
           rm '#pipe.ignore'
 
-      - name: Build externals
-        run: npm run build:externals
+      - name: Build is-next-compat cli tool
+        run: npm -w is-next-compat run build
 
       - name: Run is-next-compat
         env:
@@ -108,7 +108,7 @@ jobs:
         run: |
           mkfifo '#pipe.ignore'
           tee --append /tmp/output.txt < '#pipe.ignore' &
-          node --no-warnings external-scripts/bin/is-next-compat.js > '#pipe.ignore' 2>&1
+          NODE_OPTIONS='--no-warnings' npx is-next-compat > '#pipe.ignore' 2>&1
           rm '#pipe.ignore'
 
       - name: Upload output artifact

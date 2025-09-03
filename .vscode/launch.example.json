@@ -6,6 +6,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": [
+        "--injectGlobals",
         "--runInBand",
         "--watchAll=false",
         "--testNamePattern",

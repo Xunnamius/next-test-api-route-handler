@@ -8,16 +8,20 @@
 
 {
   "$schema": "https://json.schemastore.org/tsconfig.json",
-  "extends": "./tsconfig.json",
-  "include": ["**/*", "**/.*/**/*", "**/.*"],
+  "extends": "../../tsconfig.json",
+  "include": [
+    "../../test/setup.ts",
+    "../../types/**/*",
+    "**/*",
+    "**/.*/**/*",
+    "**/.*"
+  ],
   "exclude": [
     "**/dist/**/*",
     "**/.next/**/*",
     "**/.wrangler/**/*",
     "**/test/fixtures/**/*",
     "**/node_modules/**/*",
-    "packages/**/*",
-    "packages/**/.*",
     "**/*.ignore",
     "**/*.ignore/**/*",
     "**/ignore.*",

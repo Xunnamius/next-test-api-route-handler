@@ -1,3 +1,5 @@
+// * These tests ensure the exported types under test function as expected.
+
 import { NextResponse } from 'next/server';
 import { describe, expect, it } from 'tstyche';
 

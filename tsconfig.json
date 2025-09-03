@@ -44,8 +44,38 @@
     "paths": {
       "universe": ["src/index.ts"],
       "universe:*": ["src/*"],
+      "universe+get-nextjs-react-peer-dependencies": [
+        "packages/get-nextjs-react-peer-dependencies/src/index.ts"
+      ],
+      "universe+is-next-compat": ["packages/is-next-compat/src/index.ts"],
+      "universe+shared": ["packages/shared/src/index.ts"],
+      "universe+get-nextjs-react-peer-dependencies:*": [
+        "packages/get-nextjs-react-peer-dependencies/src/*"
+      ],
+      "universe+is-next-compat:*": ["packages/is-next-compat/src/*"],
+      "universe+shared:*": ["packages/shared/src/*"],
+      "multiverse+get-nextjs-react-peer-dependencies": [
+        "packages/get-nextjs-react-peer-dependencies/src/index.ts"
+      ],
+      "multiverse+is-next-compat": ["packages/is-next-compat/src/index.ts"],
+      "multiverse+shared": ["packages/shared/src/index.ts"],
+      "multiverse+get-nextjs-react-peer-dependencies:*": [
+        "packages/get-nextjs-react-peer-dependencies/src/*"
+      ],
+      "multiverse+is-next-compat:*": ["packages/is-next-compat/src/*"],
+      "multiverse+shared:*": ["packages/shared/src/*"],
       "testverse:*": ["test/*"],
+      "testverse+get-nextjs-react-peer-dependencies:*": [
+        "packages/get-nextjs-react-peer-dependencies/test/*"
+      ],
+      "testverse+is-next-compat:*": ["packages/is-next-compat/test/*"],
+      "testverse+shared:*": ["packages/shared/test/*"],
       "typeverse:*": ["types/*"],
+      "rootverse+get-nextjs-react-peer-dependencies:*": [
+        "packages/get-nextjs-react-peer-dependencies/*"
+      ],
+      "rootverse+is-next-compat:*": ["packages/is-next-compat/*"],
+      "rootverse+shared:*": ["packages/shared/*"],
       "rootverse:*": ["*"]
     },
     "resolveJsonModule": true,
@@ -58,14 +88,18 @@
     "src/**/*",
     "test/**/*",
     "packages/*/src/**/*",
-    "packages/*/test/**/*",
-    "external-scripts/**/*"
+    "packages/*/test/**/*"
   ],
   "exclude": [
     "**/dist/**/*",
+    "**/.next/**/*",
+    "**/.wrangler/**/*",
     "**/node_modules/**/*",
     "**/*.ignore",
-    "**/*.ignore.*/**/*",
-    "**/ignore.*"
+    "**/*.ignore/**/*",
+    "**/ignore.*",
+    "**/ignore.*/**/*",
+    "**/*.ignore.*",
+    "**/*.ignore.*/**/*"
   ]
 }
