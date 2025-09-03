@@ -1,16 +1,3 @@
 #!/bin/sh
 
-# TODO: replace these uglies with JS (mjs) scripts
-
-beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
-
-if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
-  echo 'husky-hook::commit-msg: skipped commit-msg hook due to rebase'
-  exit 0
-fi
-
-NODE_NO_WARNINGS=1 commitlint -e
-if [ -z "$GAC_VERIFY_SIMPLE" ]; then npm run test:packages:all:unit; fi
-# TODO: bring back spellchecker:
-#echo
-#NODE_NO_WARNINGS=1 node spellcheck-commit.cjs
+node .husky/commit-msg.mjs
