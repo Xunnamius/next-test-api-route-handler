@@ -16,8 +16,12 @@
   "type": "commonjs",
   "exports": {
     ".": {
-      "types": "./dist/packages/is-next-compat/src/index.d.ts",
-      "default": "./dist/packages/is-next-compat/src/index.js"
+      "types": "./dist/packages/is-next-compat/src/cli.d.ts",
+      "default": "./dist/packages/is-next-compat/src/cli.js"
+    },
+    "./commands/*": {
+      "types": "./dist/packages/is-next-compat/src/commands/*.d.ts",
+      "default": "./dist/packages/is-next-compat/src/commands/*.js"
     },
     "./package": "./package.json",
     "./package.json": "./package.json"
@@ -25,14 +29,24 @@
   "typesVersions": {
     "*": {
       "index": [
-        "dist/packages/is-next-compat/src/index.d.ts"
+        "dist/packages/is-next-compat/src/cli.d.ts"
+      ],
+      "commands/*": [
+        "dist/packages/is-next-compat/src/commands/*.d.ts"
       ],
       "package": [
         "package.json"
       ]
     }
   },
+  "bin": {
+    "is-next-compat": "./dist/packages/is-next-compat/src/cli.js"
+  },
   "scripts": {
+    "build": "npm run build:dist --",
+    "build:changelog": "symbiote build changelog --env NODE_NO_WARNINGS=1",
+    "build:dist": "symbiote build distributables --env NODE_NO_WARNINGS=1 --multiversal",
+    "build:docs": "symbiote build docs --env NODE_NO_WARNINGS=1",
     "clean": "symbiote clean --env NODE_NO_WARNINGS=1",
     "format": "symbiote format --env NODE_NO_WARNINGS=1 --hush",
     "info": "symbiote project info --env NODE_NO_WARNINGS=1",
@@ -50,8 +64,19 @@
     "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --scope unlimited --coverage"
   },
   "dependencies": {
+    "@-xun/fs": "^2.0.0",
+    "@-xun/run": "^2.0.0",
     "@black-flag/core": "^3.0.3",
-    "next-test-api-route-handler": "*"
+    "@octokit/rest": "^22.0.0",
+    "@types/find-package-json": "^1.2.6",
+    "core-js": "^3.45.1",
+    "find-package-json": "^1.2.0",
+    "mongodb": "^6.19.0",
+    "rejoinder": "^2.1.0",
+    "semver": "^7.7.2"
+  },
+  "devDependencies": {
+    "@-xun/project-fs": "^2.0.5"
   },
   "engines": {
     "node": "^20.18.0 || >=22.12.0"

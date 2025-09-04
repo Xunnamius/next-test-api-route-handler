@@ -16,8 +16,12 @@
   "type": "commonjs",
   "exports": {
     ".": {
-      "types": "./dist/packages/get-nextjs-react-peer-dependencies/src/index.d.ts",
-      "default": "./dist/packages/get-nextjs-react-peer-dependencies/src/index.js"
+      "types": "./dist/packages/get-nextjs-react-peer-dependencies/src/cli.d.ts",
+      "default": "./dist/packages/get-nextjs-react-peer-dependencies/src/cli.js"
+    },
+    "./commands/*": {
+      "types": "./dist/packages/get-nextjs-react-peer-dependencies/src/commands/*.d.ts",
+      "default": "./dist/packages/get-nextjs-react-peer-dependencies/src/commands/*.js"
     },
     "./package": "./package.json",
     "./package.json": "./package.json"
@@ -25,14 +29,24 @@
   "typesVersions": {
     "*": {
       "index": [
-        "dist/packages/get-nextjs-react-peer-dependencies/src/index.d.ts"
+        "dist/packages/get-nextjs-react-peer-dependencies/src/cli.d.ts"
+      ],
+      "commands/*": [
+        "dist/packages/get-nextjs-react-peer-dependencies/src/commands/*.d.ts"
       ],
       "package": [
         "package.json"
       ]
     }
   },
+  "bin": {
+    "get-nextjs-react-peer-dependencies": "./dist/packages/get-nextjs-react-peer-dependencies/src/cli.js"
+  },
   "scripts": {
+    "build": "npm run build:dist --",
+    "build:changelog": "symbiote build changelog --env NODE_NO_WARNINGS=1",
+    "build:dist": "symbiote build distributables --env NODE_NO_WARNINGS=1 --multiversal",
+    "build:docs": "symbiote build docs --env NODE_NO_WARNINGS=1",
     "clean": "symbiote clean --env NODE_NO_WARNINGS=1",
     "format": "symbiote format --env NODE_NO_WARNINGS=1 --hush",
     "info": "symbiote project info --env NODE_NO_WARNINGS=1",
@@ -50,6 +64,8 @@
     "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --scope unlimited --coverage"
   },
   "dependencies": {
+    "@-xun/fs": "^2.0.0",
+    "@-xun/run": "^2.0.0",
     "@black-flag/core": "^3.0.3"
   },
   "engines": {
