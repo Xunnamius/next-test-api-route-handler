@@ -17,7 +17,7 @@ Note that all relative `PathLike` parameters are considered local to `root`,
 not the current working directory, and will be translated into
 AbsolutePaths as such.
 
-## Type declaration
+## Type Declaration
 
 ### isAccessible()
 

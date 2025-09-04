@@ -12,7 +12,7 @@ Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-exit/dist
 
 A collection of possible error and warning messages.
 
-## Type declaration
+## Type Declaration
 
 ### SuppressedExitAttempt()
 

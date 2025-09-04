@@ -8,7 +8,7 @@
 
 > **testApiHandler**\<`NextResponseJsonType`\>(`__namedParameters`): `Promise`\<`void`\>
 
-Defined in: [src/index.ts:310](https://github.com/Xunnamius/next-test-api-route-handler/blob/fc0972ebac2c7f073379ab76e95e9fc328afef50/src/index.ts#L310)
+Defined in: [src/index.ts:311](https://github.com/Xunnamius/next-test-api-route-handler/blob/7680aa4482550d5e81f4eff590b7532434ed2196/src/index.ts#L311)
 
 Uses Next's internal `apiResolver` (for Pages Router) or an
 `AppRouteRouteModule` instance (for App Router) to execute api route handlers

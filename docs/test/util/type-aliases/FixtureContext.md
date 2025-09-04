@@ -12,7 +12,7 @@ Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/d
 
 The context object passed around between every [MockFixture](MockFixture.md).
 
-## Type declaration
+## Type Declaration
 
 ### debug
 

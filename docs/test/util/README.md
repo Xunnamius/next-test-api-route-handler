@@ -88,7 +88,6 @@
 - [dummyNpmPackageFixture](functions/dummyNpmPackageFixture.md)
 - [ensurePackageHasBeenBuilt](functions/ensurePackageHasBeenBuilt.md)
 - [expectExceptionsWithMatchingErrors](functions/expectExceptionsWithMatchingErrors.md)
-- [getNextjsReactPeerDependencies](functions/getNextjsReactPeerDependencies.md)
 - [gitRepositoryFixture](functions/gitRepositoryFixture.md)
 - [isolatedImport](functions/isolatedImport.md)
 - [mockArgvFactory](functions/mockArgvFactory.md)
