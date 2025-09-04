@@ -96,12 +96,9 @@
   "devDependencies": {
     "@-xun/fs": "^2.0.0",
     "@-xun/project-fs": "^2.0.5",
-    "@-xun/run": "^2.0.0",
     "@-xun/symbiote": "^4.15.2",
-    "@types/semver": "^7.7.1",
     "msw": "^2.11.1",
-    "rejoinder": "^2.1.0",
-    "semver": "^7.7.2"
+    "rejoinder": "^2.1.0"
   },
   "peerDependencies": {
     "next": ">=9"
