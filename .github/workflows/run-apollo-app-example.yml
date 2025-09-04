@@ -105,7 +105,6 @@ jobs:
         run: |
           extra_installs=$(npx --no-install get-nextjs-react-peer-dependencies next@latest)
 
-          previous_cwd=$(pwd)
           mkdir -p /tmp/ntarh-test/test
           cd /tmp/ntarh-test
 
