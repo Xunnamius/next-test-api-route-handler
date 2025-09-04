@@ -69,6 +69,7 @@
     "@black-flag/core": "^3.0.3",
     "@octokit/rest": "^22.0.0",
     "@types/find-package-json": "^1.2.6",
+    "@types/semver": "^7.7.1",
     "core-js": "^3.45.1",
     "find-package-json": "^1.2.0",
     "mongodb": "^6.19.0",
