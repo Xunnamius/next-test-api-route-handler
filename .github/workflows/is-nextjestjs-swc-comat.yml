@@ -97,6 +97,8 @@ jobs:
       - name: Run davidmytton's example repo tests
         # https://github.com/Xunnamius/next-test-api-route-handler/discussions/983#
         run: |
+          extra_installs=$(npx --no-install get-nextjs-react-peer-dependencies next@latest)
+
           previous_cwd=$(pwd)
           mkdir -p /tmp/ntarh-test
           git clone https://github.com/Xunnamius/ntarh-nextjestjs-swc-compat-test /tmp/ntarh-test
@@ -106,8 +108,6 @@ jobs:
           tee --append /tmp/output.txt < '#pipe.ignore' &
 
           npm install --force > '#pipe.ignore' 2>&1
-
-          extra_installs=$(npx get-nextjs-react-peer-dependencies next@latest)
 
           rm '#pipe.ignore'
           mkfifo '#pipe.ignore'

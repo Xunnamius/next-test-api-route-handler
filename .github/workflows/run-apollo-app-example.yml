@@ -103,14 +103,14 @@ jobs:
       - name: Run apollo terminal example
         # https://bit.ly/38702j0
         run: |
+          extra_installs=$(npx --no-install get-nextjs-react-peer-dependencies next@latest)
+
           previous_cwd=$(pwd)
           mkdir -p /tmp/ntarh-test/test
           cd /tmp/ntarh-test
 
           mkfifo '#pipe.ignore'
           tee --append /tmp/output.txt < '#pipe.ignore' &
-
-          extra_installs=$(npx get-nextjs-react-peer-dependencies next@latest)
 
           npm install --force next @apollo/server @as-integrations/next graphql-tag next-test-api-route-handler jest babel-jest @babel/core @babel/preset-env $(echo $extra_installs) > '#pipe.ignore' 2>&1
 
