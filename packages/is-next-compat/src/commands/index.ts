@@ -17,7 +17,7 @@ import type { RootConfiguration } from '@black-flag/core';
 const log = createGenericLogger({ namespace: 'is-next-compat' });
 const debug = createDebugLogger({ namespace: 'is-next-compat' });
 
-export const description: RootConfiguration['description'] = `
+export const description: NonNullable<RootConfiguration['description']> = `
 Runs tests to determine if the current version of NTARH is compatible with the current version of Next.js.
 
 This tool additionally looks for a \`_is_next_compat_test_mode\` npm script with a zero exit code. If found, no DB connections will be made. Said script should appear in integration tests' package files to prevent those tests from making DB connections using a project's (potentially production) .env values.
@@ -31,20 +31,18 @@ ${SINGLE_SPACE} }
 }
 `.trim();
 
-export const handler: RootConfiguration['handler'] = async () => {
+export const handler: NonNullable<RootConfiguration['handler']> = async () => {
   const cwd = getCurrentWorkingDirectory();
-
-  if (!process.env.CI && cwd.includes('/repos/next-test-api-route-handler')) {
-    log.warn(
-      'It is dangerous to run this CLI tool in the actual NTARH repository directory. Consider running this tool in a temporary clone instead'
-    );
-  }
 
   log(`internal NTARH package: ${ntarhPackageName}@${ntarhPackageVersion}`);
   log('connecting to GitHub');
 
   if (!process.env.GH_TOKEN) {
     log('warning: not using a personal access token!');
+  } else if (!process.env.CI && cwd.includes('/repos/next-test-api-route-handler')) {
+    log.warn(
+      'It is dangerous to run this CLI tool in the actual NTARH repository directory with an active GH_TOKEN. Consider running this tool in a temporary clone instead'
+    );
   }
 
   const { Octokit } = await import('@octokit/rest');
@@ -68,7 +66,7 @@ export const handler: RootConfiguration['handler'] = async () => {
     throw new Error('could not find latest Next.js version');
   }
 
-  const { filename: path } = findPackageJson(getCurrentWorkingDirectory()).next();
+  const { filename: path } = findPackageJson(cwd).next();
   log(`using path: %O`, path);
 
   if (!path) {

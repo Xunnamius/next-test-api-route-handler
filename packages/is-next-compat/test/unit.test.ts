@@ -1,40 +1,28 @@
 // * These tests ensure the exported interfaces under test function as expected.
 
-import { toAbsolutePath } from '@-xun/fs';
 import * as xrun from '@-xun/run';
 import { Octokit } from '@octokit/rest';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
 
 import {
-  name as packageName,
-  version as packageVersion
-} from 'rootverse+is-next-compat:package.json';
+  name as ntarhPackageName,
+  version as ntarhPackageVersion
+} from 'rootverse:package.json';
 
-import {
-  asMocked,
-  protectedImportFactory,
-  withMockedEnv,
-  withMockedOutput
-} from 'testverse:util.ts';
+import { handler } from 'universe+is-next-compat:commands/index.ts';
+
+import { asMocked, withMockedEnv, withMockedOutput } from 'testverse:util.ts';
 
 import type { RunReturnType } from '@-xun/run';
+import type { Arguments } from '@black-flag/core';
 import type { Collection, Db } from 'mongodb';
-
-const EXTERNAL_PATH = toAbsolutePath(
-  __dirname,
-  '..',
-  'external-scripts',
-  // ? We don't add the extension on purpose :)
-  'is-next-compat'
-);
 
 jest.mock('@octokit/rest');
 jest.mock('mongodb');
 jest.mock('find-package-json');
 jest.mock('@-xun/run');
 
-const protectedImport = protectedImportFactory(EXTERNAL_PATH);
 const mockedRun = asMocked(xrun.run);
 const mockedRunNoRejectOnBadExit = asMocked(xrun.runNoRejectOnBadExit);
 
@@ -50,6 +38,8 @@ const mockedMongoConnectDbCollection = asMocked<Db['collection']>();
 const mockedMongoConnectDbCollectionUpdateOne = asMocked<Collection['updateOne']>();
 
 let mockLatestRelease: string;
+
+const mockArgv = { $0: 'fake', _: [] } as unknown as Arguments;
 
 beforeEach(() => {
   mockLatestRelease = '';
@@ -101,7 +91,7 @@ it('calls invoker and installs next.js peer dependencies explicitly when importe
   await withMockedOutput(async ({ nodeLogSpy }) => {
     mockLatestRelease = '100.99.0';
 
-    await protectedImport({ expectedExitCode: 0 });
+    await handler(mockArgv);
 
     expect(nodeLogSpy).toHaveBeenCalledWith(
       expect.stringContaining('connecting to GitHub')
@@ -122,14 +112,13 @@ it('calls invoker and installs next.js peer dependencies explicitly when importe
 it('handles thrown error objects', async () => {
   expect.hasAssertions();
 
-  await withMockedOutput(async ({ nodeLogSpy, nodeErrorSpy }) => {
+  await withMockedOutput(async ({ nodeLogSpy }) => {
     mockedOctokitGetLatestRelease.mockImplementationOnce(() => {
       throw new Error('problems!');
     });
 
-    await protectedImport({ expectedExitCode: 2 });
+    await expect(handler(mockArgv)).rejects.toThrow('problems!');
 
-    expect(nodeErrorSpy).toHaveBeenCalledWith(expect.stringContaining('problems!'));
     expect(nodeLogSpy).toHaveBeenCalled();
   });
 });
@@ -137,15 +126,14 @@ it('handles thrown error objects', async () => {
 it('handles thrown string errors', async () => {
   expect.hasAssertions();
 
-  await withMockedOutput(async ({ nodeLogSpy, nodeErrorSpy }) => {
+  await withMockedOutput(async ({ nodeLogSpy }) => {
     mockedOctokitGetLatestRelease.mockImplementationOnce(() => {
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw 'problems!';
     });
 
-    await protectedImport({ expectedExitCode: 2 });
+    await expect(handler(mockArgv)).rejects.toBe('problems!');
 
-    expect(nodeErrorSpy).toHaveBeenCalledWith(expect.stringContaining('problems!'));
     expect(nodeLogSpy).toHaveBeenCalled();
   });
 });
@@ -164,7 +152,7 @@ it('handles setCompatFlagTo rejection', async () => {
 
         pretendWereNotRunningInTestMode();
 
-        await protectedImport({ expectedExitCode: 2 });
+        await expect(handler(mockArgv)).rejects.toThrow('problems!');
 
         expect(mockedMongoConnectDbCollectionUpdateOne).toHaveBeenCalledWith(
           { name: 'ntarh-next' },
@@ -173,7 +161,9 @@ it('handles setCompatFlagTo rejection', async () => {
         );
 
         expect(nodeLogSpy).toHaveBeenCalled();
-        expect(nodeErrorSpy).toHaveBeenCalledWith(expect.stringContaining('problems!'));
+        expect(nodeErrorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('database failed')
+        );
       },
       { MONGODB_URI: 'fake-uri' }
     );
@@ -183,7 +173,7 @@ it('handles setCompatFlagTo rejection', async () => {
 it('handles missing package.json', async () => {
   expect.hasAssertions();
 
-  await withMockedOutput(async ({ nodeLogSpy, nodeErrorSpy }) => {
+  await withMockedOutput(async ({ nodeLogSpy }) => {
     await withMockedEnv(
       async () => {
         mockLatestRelease = '100.99.0';
@@ -194,15 +184,12 @@ it('handles missing package.json', async () => {
             >
         );
 
-        await protectedImport({ expectedExitCode: 2 });
+        await expect(handler(mockArgv)).rejects.toThrow('could not find package.json');
 
         expect(mockedFindPackageJson).toHaveBeenCalled();
         expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
 
         expect(nodeLogSpy).toHaveBeenCalled();
-        expect(nodeErrorSpy).toHaveBeenCalledWith(
-          expect.stringContaining('could not find package.json')
-        );
       },
       { MONGODB_URI: 'fake-uri' }
     );
@@ -212,20 +199,19 @@ it('handles missing package.json', async () => {
 it('handles missing latestRelease', async () => {
   expect.hasAssertions();
 
-  await withMockedOutput(async ({ nodeLogSpy, nodeErrorSpy }) => {
+  await withMockedOutput(async ({ nodeLogSpy }) => {
     await withMockedEnv(
       async () => {
         mockLatestRelease = '';
 
-        await protectedImport({ expectedExitCode: 2 });
+        await expect(handler(mockArgv)).rejects.toThrow(
+          'could not find latest Next.js version'
+        );
 
         expect(mockedFindPackageJson).not.toHaveBeenCalled();
         expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
 
         expect(nodeLogSpy).toHaveBeenCalled();
-        expect(nodeErrorSpy).toHaveBeenCalledWith(
-          expect.stringContaining('could not find latest Next.js version')
-        );
       },
       { MONGODB_URI: 'fake-uri' }
     );
@@ -235,7 +221,7 @@ it('handles missing latestRelease', async () => {
 it('handles compatibility test failure', async () => {
   expect.hasAssertions();
 
-  await withMockedOutput(async ({ nodeLogSpy, nodeErrorSpy }) => {
+  await withMockedOutput(async ({ nodeLogSpy }) => {
     await withMockedEnv(
       async () => {
         mockLatestRelease = '100.99.0';
@@ -248,10 +234,9 @@ it('handles compatibility test failure', async () => {
           return baseMockRunImplementation(file, args);
         });
 
-        await protectedImport({ expectedExitCode: 2 });
+        await expect(handler(mockArgv)).rejects.toStrictEqual({ stderr: 'bad!' });
 
         expect(nodeLogSpy).not.toHaveBeenCalledWith('test succeeded');
-        expect(nodeErrorSpy).toHaveBeenCalledWith(expect.stringContaining('bad!'));
         expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
       },
       { MONGODB_URI: 'fake-uri' }
@@ -266,7 +251,7 @@ it('runs without any environment variables', async () => {
     await withMockedEnv(async () => {
       mockLatestRelease = '100.100.0';
 
-      await protectedImport({ expectedExitCode: 0 });
+      await handler(mockArgv);
 
       expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
       expect(nodeLogSpy).toHaveBeenLastCalledWith(
@@ -283,7 +268,7 @@ it('runs with version string prepended with "v"', async () => {
     await withMockedEnv(async () => {
       mockLatestRelease = 'v100.100.0';
 
-      await protectedImport({ expectedExitCode: 0 });
+      await handler(mockArgv);
 
       expect(mockedMongoConnectDbCollectionUpdateOne).not.toHaveBeenCalled();
       expect(nodeLogSpy).toHaveBeenLastCalledWith(
@@ -303,7 +288,7 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
 
     await withMockedEnv(
       async () => {
-        await protectedImport({ expectedExitCode: 0 });
+        await handler(mockArgv);
       },
       { MONGODB_URI: 'fake-uri', NODE_TARGET_VERSION: '1.x' }
     );
@@ -312,7 +297,7 @@ it('respects NODE_TARGET_VERSION env variable', async () => {
 
     await withMockedEnv(
       async () => {
-        await protectedImport({ expectedExitCode: 0 });
+        await handler(mockArgv);
       },
       {
         MONGODB_URI: 'fake-uri',
@@ -340,7 +325,7 @@ it('respects _is_next_compat_test_mode npm script', async () => {
 
     await withMockedEnv(
       async () => {
-        await protectedImport({ expectedExitCode: 0 });
+        await handler(mockArgv);
       },
       { MONGODB_URI: 'fake-uri' }
     );
@@ -351,7 +336,7 @@ it('respects _is_next_compat_test_mode npm script', async () => {
 
     await withMockedEnv(
       async () => {
-        await protectedImport({ expectedExitCode: 0 });
+        await handler(mockArgv);
       },
       { MONGODB_URI: 'fake-uri' }
     );
@@ -363,23 +348,27 @@ it('respects _is_next_compat_test_mode npm script', async () => {
   });
 });
 
-it('uses GH_TOKEN environment variable if available', async () => {
+it('uses GH_TOKEN environment variable if available and issues warning', async () => {
   expect.hasAssertions();
 
-  await withMockedOutput(async ({ nodeLogSpy }) => {
+  await withMockedOutput(async ({ nodeLogSpy, nodeErrorSpy }) => {
     await withMockedEnv(
       async () => {
         mockLatestRelease = '100.99.0';
 
-        await protectedImport({ expectedExitCode: 0 });
+        await handler(mockArgv);
 
         expect(mockedOctokit).toHaveBeenCalledWith({
           auth: 'fake-token',
-          userAgent: `${packageName}@${packageVersion}`
+          userAgent: `${ntarhPackageName}@${ntarhPackageVersion}`
         });
 
         expect(nodeLogSpy).toHaveBeenLastCalledWith(
           expect.stringContaining('execution complete')
+        );
+
+        expect(nodeErrorSpy).toHaveBeenLastCalledWith(
+          expect.stringContaining('temporary clone')
         );
       },
       { GH_TOKEN: 'fake-token' }
