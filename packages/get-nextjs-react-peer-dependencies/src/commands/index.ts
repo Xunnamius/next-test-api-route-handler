@@ -4,10 +4,10 @@ import { getNextjsReactPeerDependencies } from 'multiverse+shared';
 
 import type { RootConfiguration } from '@black-flag/core';
 
-export const command: RootConfiguration['command'] = '$0 <packageSemver>';
+export const command: NonNullable<RootConfiguration['command']> = '$0 <packageSemver>';
 
-export const handler: RootConfiguration<{ packageSemver: string }>['handler'] = async ({
-  packageSemver
-}) => {
+export const handler: NonNullable<
+  RootConfiguration<{ packageSemver: string }>['handler']
+> = async ({ packageSemver }) => {
   console.log((await getNextjsReactPeerDependencies(packageSemver)).join(' '));
 };
