@@ -20,6 +20,9 @@ const config = deepMergeConfig(
   }
 );
 
+// ? Ensure jest-resolve never attempts to load a module as ESM
+process.env.JEST_RESOLVE_NO_ESM = 'true';
+
 transformSelectEsmPackagesToCjs(config, [
   '@octokit',
   'universal-user-agent',
