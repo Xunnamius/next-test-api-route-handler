@@ -1,3 +1,6 @@
-// TODO
-// eslint-disable-next-line unicorn/require-module-specifiers
-export {};
+import { run } from '@-xun/run';
+
+import { getNextjsReactPeerDependencies } from 'multiverse+shared';
+
+//TODO
+(void run, getNextjsReactPeerDependencies);

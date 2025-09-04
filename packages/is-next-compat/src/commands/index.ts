@@ -5,20 +5,17 @@ import { MongoClient } from 'mongodb';
 import { createDebugLogger, createGenericLogger } from 'rejoinder';
 import { satisfies as satisfiesRange, validRange } from 'semver';
 
-import { name as packageName, version as packageVersion } from 'rootverse:package.json';
+import { getNextjsReactPeerDependencies } from 'multiverse+shared';
 
-import { getNextjsReactPeerDependencies } from 'testverse:util.ts';
+import {
+  name as ntarhPackageName,
+  version as ntarhPackageVersion
+} from 'rootverse:package.json';
 
 const log = createGenericLogger({ namespace: 'is-next-compat' });
 const debug = createDebugLogger({ namespace: 'is-next-compat' });
 
-log(`package name: "${packageName}"`);
-log(`package version: "${packageVersion}"`);
-
-export default main().catch((error: unknown) => {
-  log.error(error);
-  process.exitCode = 2;
-});
+log(`internal NTARH package: ${ntarhPackageName}@${ntarhPackageVersion}`);
 
 // TODO: issue warning when running if not in CI: don't run this in the real repo dir, but in a duplicate temp dir
 
@@ -102,7 +99,7 @@ async function main() {
 
   const { repos } = new Octokit({
     auth: process.env.GH_TOKEN,
-    userAgent: `${packageName}@${packageVersion}`
+    userAgent: `${ntarhPackageName}@${ntarhPackageVersion}`
   });
 
   const {

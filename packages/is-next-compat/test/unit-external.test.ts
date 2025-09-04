@@ -1,10 +1,15 @@
+// * These tests ensure the exported interfaces under test function as expected.
+
 import { toAbsolutePath } from '@-xun/fs';
 import * as xrun from '@-xun/run';
 import { Octokit } from '@octokit/rest';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
 
-import { name as packageName, version as packageVersion } from 'rootverse:package.json';
+import {
+  name as packageName,
+  version as packageVersion
+} from 'rootverse+is-next-compat:package.json';
 
 import {
   asMocked,

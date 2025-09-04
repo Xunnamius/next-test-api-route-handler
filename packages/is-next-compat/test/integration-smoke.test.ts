@@ -5,7 +5,7 @@ import { toAbsolutePath } from '@-xun/fs';
 import { isAccessible } from '@-xun/project-fs';
 import { runnerFactory } from '@-xun/run';
 
-import { peerDependencies } from 'rootverse:package.json';
+import { peerDependencies as ntarhPeerDependencies } from 'rootverse:package.json';
 
 import {
   dummyNpmPackageFixture,
@@ -16,7 +16,7 @@ import {
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
-const TEST_IDENTIFIER = 'ntarh-client-changelog';
+const TEST_IDENTIFIER = 'integration-smoke';
 const EXTERNAL_BIN_PATH = toAbsolutePath(
   __dirname,
   '..',
@@ -53,7 +53,7 @@ const withMockedFixture = mockFixturesFactory([dummyNpmPackageFixture], {
         "_is_next_compat_test_mode": "true"
       },
       "peerDependencies": {
-        "next": "${peerDependencies.next}"
+        "next": "${ntarhPeerDependencies.next}"
       }
     }`
   }

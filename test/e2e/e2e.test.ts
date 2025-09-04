@@ -9,12 +9,16 @@
 import { toAbsolutePath, toDirname } from '@-xun/fs';
 import { readXPackageJsonAtRoot } from '@-xun/project-fs';
 
-import { exports as packageExports, name as packageName } from 'rootverse:package.json';
+import { getNextjsReactPeerDependencies } from 'multiverse+shared';
+
+import {
+  exports as ntarhPackageExports,
+  name as ntarhPackageName
+} from 'rootverse:package.json';
 
 import {
   dummyNpmPackageFixture,
   ensurePackageHasBeenBuilt,
-  getNextjsReactPeerDependencies,
   globalDebugger,
   mockFixturesFactory,
   nodeImportAndRunTestFixture,
@@ -59,7 +63,7 @@ const packageRoot = toAbsolutePath(toDirname(require.resolve('rootverse:package.
 debug('NEXT_VERSIONS_UNDER_TEST: %O', NEXT_VERSIONS_UNDER_TEST);
 
 beforeAll(async () => {
-  await ensurePackageHasBeenBuilt(packageRoot, packageName, packageExports);
+  await ensurePackageHasBeenBuilt(packageRoot, ntarhPackageName, ntarhPackageExports);
 });
 
 const withMockedFixture = mockFixturesFactory(
@@ -137,7 +141,7 @@ const getHandler = (status) => async (_, res) => {
             ? {
                 initialVirtualFiles: {
                   [indexPath]: /* js */ `import console from 'node:console';
-import { testApiHandler } from '${packageName}';
+import { testApiHandler } from '${ntarhPackageName}';
 ${commonSrc}
 
 (async () => {
@@ -171,7 +175,7 @@ ${commonSrc}
             : {
                 initialVirtualFiles: {
                   [indexPath]: /* js */ `const console = require('node:console');
-const { testApiHandler } = require('${packageName}');
+const { testApiHandler } = require('${ntarhPackageName}');
 ${commonSrc}
 
 it('does what I want', async () => {
@@ -245,7 +249,7 @@ it('fails fast (no jest timeout) when using App Router and incompatible Next.js 
     {
       initialVirtualFiles: {
         [indexPath]: /* js */ `const console = require('node:console');
-const { testApiHandler } = require('${packageName}');
+const { testApiHandler } = require('${ntarhPackageName}');
 
 jest.setTimeout(5000);
 
@@ -328,7 +332,7 @@ it('fails fast (no jest timeout) when using Rages Router and incompatible Next.j
     {
       initialVirtualFiles: {
         [indexPath]: /* js */ `const console = require('node:console');
-const { testApiHandler } = require('${packageName}');
+const { testApiHandler } = require('${ntarhPackageName}');
 
 jest.setTimeout(5000);
 

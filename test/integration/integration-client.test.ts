@@ -7,13 +7,14 @@
 import { toAbsolutePath, toDirname } from '@-xun/fs';
 import { readXPackageJsonAtRoot } from '@-xun/project-fs';
 
+import { getNextjsReactPeerDependencies } from 'multiverse+shared';
+
 import { exports as packageExports, name as packageName } from 'rootverse:package.json';
 
 import {
   dummyFilesFixture,
   dummyNpmPackageFixture,
   ensurePackageHasBeenBuilt,
-  getNextjsReactPeerDependencies,
   globalDebugger,
   mockFixturesFactory,
   nodeImportAndRunTestFixture,
