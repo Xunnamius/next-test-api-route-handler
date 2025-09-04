@@ -2,13 +2,7 @@
 'use strict';
 
 import { deepMergeConfig } from '@-xun/symbiote/assets';
-
-import {
-  assertEnvironment,
-  moduleExport,
-  transformSelectEsmPackagesToCjs
-} from '@-xun/symbiote/assets/jest.config.mjs';
-
+import { assertEnvironment, moduleExport } from '@-xun/symbiote/assets/jest.config.mjs';
 import { createDebugLogger } from 'rejoinder';
 
 const debug = createDebugLogger({ namespace: 'symbiote:config:jest' });
@@ -17,17 +11,12 @@ const config = deepMergeConfig(
   moduleExport({ derivedAliases: getJestAliases(), ...assertEnvironment() }),
   {
     // Any custom configs here will be deep merged with moduleExport's result
+    transformIgnorePatterns: ['/node_modules/core-js/']
   }
 );
 
 // ? Ensure jest-resolve never attempts to load a module as ESM
 process.env.JEST_RESOLVE_NO_ESM = 'true';
-
-transformSelectEsmPackagesToCjs(config, [
-  '@octokit',
-  'universal-user-agent',
-  'before-after-hook'
-]);
 
 export default config;
 

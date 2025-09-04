@@ -5,6 +5,7 @@
 
 // ? jest-extended will always come from @-xun/symbiote (i.e. transitively)
 // {@symbiote/notInvalid jest-extended}
+// {@symbiote/notExtraneous jest-resolve}
 
 // ? https://github.com/jest-community/jest-extended#typescript
 import 'jest-extended';

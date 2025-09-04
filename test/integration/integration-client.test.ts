@@ -24,7 +24,7 @@ import {
 
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested();
 
-const TEST_IDENTIFIER = 'ntarh-client-changelog';
+const TEST_IDENTIFIER = 'ntarh-client';
 const TIMEOUTTEST_TIMEOUT_MS = 15_000;
 
 const debug = globalDebugger.extend(TEST_IDENTIFIER);
@@ -86,7 +86,7 @@ const runTest = async ({
   ];
 
   const initialVirtualFiles: Record<string, string> = {
-    'package.json': '{"name":"dummy-pkg"}'
+    'package.json': /*js*/ `{"name": "dummy-pkg"}`
   };
 
   Object.assign(
