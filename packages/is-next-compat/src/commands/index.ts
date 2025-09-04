@@ -2,7 +2,7 @@ import { getCurrentWorkingDirectory } from '@-xun/fs';
 import { run, runNoRejectOnBadExit } from '@-xun/run';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
-import { createDebugLogger, createGenericLogger } from 'rejoinder';
+import { createDebugLogger, createGenericLogger, SINGLE_SPACE } from 'rejoinder';
 import { satisfies as satisfiesRange, validRange } from 'semver';
 
 import { getNextjsReactPeerDependencies } from 'multiverse+shared';
@@ -18,14 +18,16 @@ const log = createGenericLogger({ namespace: 'is-next-compat' });
 const debug = createDebugLogger({ namespace: 'is-next-compat' });
 
 export const description: RootConfiguration['description'] = `
-This tool looks for a \`_is_next_compat_test_mode\` npm script with a zero exit code. If found, no DB connections will be made. Said script should appear in integration tests' package files to prevent those tests from making DB connections using a project's (potentially production) .env values.
+Runs tests to determine if the current version of NTARH is compatible with the current version of Next.js.
+
+This tool additionally looks for a \`_is_next_compat_test_mode\` npm script with a zero exit code. If found, no DB connections will be made. Said script should appear in integration tests' package files to prevent those tests from making DB connections using a project's (potentially production) .env values.
 
 Example:
 
 {
-  "scripts": {
-    "_is_next_compat_test_mode": "true"
-  }
+${SINGLE_SPACE} "scripts": {
+${SINGLE_SPACE}   "_is_next_compat_test_mode": "true"
+${SINGLE_SPACE} }
 }
 `.trim();
 
