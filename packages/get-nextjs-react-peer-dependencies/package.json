@@ -66,7 +66,10 @@
   "dependencies": {
     "@-xun/fs": "^2.0.0",
     "@-xun/run": "^2.0.0",
-    "@black-flag/core": "^3.0.3"
+    "@black-flag/core": "^3.0.3",
+    "core-js": "^3.45.1",
+    "rejoinder": "^2.1.0",
+    "semver": "^7.7.2"
   },
   "engines": {
     "node": "^20.18.0 || >=22.12.0"

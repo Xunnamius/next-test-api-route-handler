@@ -1,6 +1,13 @@
-import { run } from '@-xun/run';
+/* eslint-disable no-console */
 
 import { getNextjsReactPeerDependencies } from 'multiverse+shared';
 
-//TODO
-(void run, getNextjsReactPeerDependencies);
+import type { RootConfiguration } from '@black-flag/core';
+
+export const command: RootConfiguration['command'] = '$0 <packageSemver>';
+
+export const handler: RootConfiguration<{ packageSemver: string }>['handler'] = async ({
+  packageSemver
+}) => {
+  console.log((await getNextjsReactPeerDependencies(packageSemver)).join(' '));
+};
