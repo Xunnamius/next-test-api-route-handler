@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@-xun/fs": "^2.0.0",
-    "@-xun/run": "^2.0.0",
+    "@-xun/run": "^2.0.1",
     "@black-flag/core": "^3.0.3",
     "@octokit/rest": "^22.0.0",
     "@types/find-package-json": "^1.2.6",
