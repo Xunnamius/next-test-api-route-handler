@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@-xun/fs": "^2.0.0",
-    "@-xun/run": "^2.0.0",
+    "@-xun/run": "^2.0.1",
     "@black-flag/core": "^3.0.3",
     "core-js": "^3.45.1",
     "rejoinder": "^2.1.0",
