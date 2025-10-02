@@ -99,6 +99,7 @@
   "devDependencies": {
     "@-xun/fs": "^2.0.0",
     "@-xun/project-fs": "^2.0.6",
+    "@-xun/run": "^2.0.1",
     "@-xun/symbiote": "^4.15.4",
     "jest-resolve": "npm:jest-resolve-no-esm@31",
     "msw": "^2.11.3",
