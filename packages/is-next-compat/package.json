@@ -68,7 +68,7 @@
     "@-xun/run": "^2.0.1",
     "@black-flag/core": "^3.0.3",
     "@octokit/rest": "^22.0.1",
-    "@types/find-package-json": "^1.2.6",
+    "@types/find-package-json": "^1.2.7",
     "@types/semver": "^7.7.1",
     "core-js": "^3.45.1",
     "find-package-json": "^1.2.0",
