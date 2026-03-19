@@ -74,7 +74,7 @@
     "find-package-json": "^1.2.0",
     "mongodb": "^7.1.0",
     "rejoinder": "^2.1.0",
-    "semver": "^7.7.2"
+    "semver": "^7.7.4"
   },
   "devDependencies": {
     "@-xun/project-fs": "^2.0.6"
