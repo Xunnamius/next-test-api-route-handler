@@ -92,7 +92,7 @@
     "jest-resolve": "$jest-resolve"
   },
   "dependencies": {
-    "@whatwg-node/server": "^0.10.12",
+    "@whatwg-node/server": "^0.10.18",
     "cookie": "^1.0.2",
     "core-js": "^3.45.1"
   },
