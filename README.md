@@ -158,6 +158,10 @@ import { testApiHandler } from 'next-test-api-route-handler';
 ... all other imports ordered after NTARH ...
 ```
 
+Or, you can configure eslint-plugin-import to put the NTARH import above the
+others
+([example](https://github.com/Xunnamius/next-test-api-route-handler/discussions/1257)).
+
 ### Quick Start: App Router
 
 ```typescript
