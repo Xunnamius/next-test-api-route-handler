@@ -293,6 +293,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/224895?v=4",
       "profile": "http://trevorburnham.com/",
       "contributions": ["code", "research", "infra", "ideas"]
+    },
+    {
+      "login": "JoeyNovais",
+      "name": "Joey Novais",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2325059?v=4",
+      "profile": "https://github.com/JoeyNovais",
+      "contributions": ["doc", "ideas"]
     }
   ],
   "commit": false,
