@@ -99,28 +99,33 @@ const runTest = async ({
   );
 
   initialVirtualFiles[indexPath]! += importAsEsm
-    ? `import { testApiHandler } from '${packageName}';\nimport * as handler from '../${routePath}';`
-    : `const { testApiHandler } = require('${packageName}');\nconst handler = require('../${routePath}');`;
+    ? /*ts*/ `import { testApiHandler } from '${packageName}';\nimport * as handler from '../${routePath}';`
+    : /*ts*/ `const { testApiHandler } = require('${packageName}');\nconst handler = require('../${routePath}');`;
 
   if (!insertAdditionalImportsFirst && additionalImports) {
     initialVirtualFiles[indexPath]! += `${additionalImports}\n`;
   }
 
-  initialVirtualFiles[indexPath]! += `
+  initialVirtualFiles[indexPath]! += /*ts*/ `
 (async () => {
   await testApiHandler({
     ${routerType === 'app' ? 'appHandler' : 'pagesHandler'}: handler,
     test: async ({ fetch }) => ${testCode}
   });
-})();`;
+})().catch(async (err) => {
+  // ? Recent Next.js versions add an "unhandled promise rejection" handler that
+  // ? messes with these tests, so we'll "handle" our promise rejections :)
+  process.exitCode = 1;
+  throw err;
+});`;
 
   initialVirtualFiles[routePath]! +=
     routerType === 'app'
-      ? `
+      ? /*ts*/ `
 ${importAsEsm ? 'export const ' : 'module.exports.'}GET = async function(request, context) {
   ${handlerCode}
 };`
-      : `
+      : /*ts*/ `
 ${importAsEsm ? 'export default ' : 'module.exports ='} async function(req, res) {
   ${handlerCode}
 };`;
@@ -223,7 +228,7 @@ describe('<app router>', () => {
   });
 
   it(
-    'does not hang on exception in handler function (probably requires SSD)',
+    'does not hang on exception in handler function',
     async () => {
       expect.hasAssertions();
       await runTest({
@@ -248,7 +253,7 @@ describe('<app router>', () => {
   );
 
   it(
-    'does not hang on exception in test function (probably requires SSD)',
+    'does not hang on exception in test function',
     async () => {
       expect.hasAssertions();
       await runTest({
@@ -312,7 +317,7 @@ describe('<pages router>', () => {
   });
 
   it(
-    'does not hang on exception in handler function (probably requires SSD)',
+    'does not hang on exception in handler function',
     async () => {
       expect.hasAssertions();
       await runTest({
@@ -337,7 +342,7 @@ describe('<pages router>', () => {
   );
 
   it(
-    'does not hang on exception in test function (probably requires SSD)',
+    'does not hang on exception in test function',
     async () => {
       expect.hasAssertions();
       await runTest({
