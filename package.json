@@ -101,7 +101,7 @@
     "@-xun/project-fs": "^2.0.6",
     "@-xun/run": "^2.0.1",
     "@-xun/symbiote": "^4.15.4",
-    "baseline-browser-mapping": "^2.10.8",
+    "baseline-browser-mapping": "^2.10.10",
     "jest-resolve": "npm:jest-resolve-no-esm@31",
     "msw": "^2.12.13",
     "rejoinder": "^2.1.0"
