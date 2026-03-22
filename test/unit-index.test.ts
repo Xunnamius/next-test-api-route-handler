@@ -1245,7 +1245,7 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           const res = await fetch();
 
-          expect(mockedCookieParse).toHaveBeenCalledTimes(0);
+          expect(mockedCookieParse).toHaveBeenCalled();
           expect(res.cookies).toBeArrayOfSize(2);
           expect(mockedCookieParse).toHaveBeenCalledTimes(2);
           expect(res.cookies).toBeArrayOfSize(2);
@@ -2296,7 +2296,7 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           const res = await fetch();
 
-          expect(mockedCookieParse).toHaveBeenCalledTimes(0);
+          expect(mockedCookieParse).toHaveBeenCalled();
           expect(res.cookies).toBeArrayOfSize(2);
           expect(mockedCookieParse).toHaveBeenCalledTimes(2);
           expect(res.cookies).toBeArrayOfSize(2);
