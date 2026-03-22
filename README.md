@@ -1475,6 +1475,11 @@ Additionally, as of version `2.1.0`, NTARH's Pages Router support is fully
 backwards compatible with Next.js going _allll_ the way back to `next@9.0.0`
 [when API routes were first introduced][93]!
 
+> [!NOTE]
+>
+> Due to an import failure in Next.js's vendored dependencies, `node@>=25` is
+> incompatible with `next@^12`.
+
 If you're working with the Pages Router and `next@<9.0.6` (so: [before
 `next-server` was merged into `next`][94]), you might need to install
 `next-server` manually:

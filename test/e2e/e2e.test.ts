@@ -8,6 +8,7 @@
 
 import { toAbsolutePath, toDirname } from '@-xun/fs';
 import { readXPackageJsonAtRoot } from '@-xun/project-fs';
+import { cmp as semverCompare } from 'semver';
 
 import { getNextjsReactPeerDependencies } from 'multiverse+shared';
 
@@ -44,7 +45,9 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@11.0.x', 'pages'], //  ? See issue #295
   ['next@^11', 'pages'], //     ? Latest version 11 release
   ['next@12.0.x', 'pages'], //  ? See issue #487
-  ['next@^12', 'pages'], //     ? Latest version 12 release
+  ...(semverCompare(process.versions.node, '<', '25.0.0')
+    ? ([['next@^12', 'pages']] as typeof NEXT_VERSIONS_UNDER_TEST)
+    : []), //                   ? Latest version 12 release
   ['next@13.5.3', 'pages'], //  ? See issue #887
   ['next@^13', 'pages'], //     ? Latest version 13 release
   ['next@14.0.4', 'both'], //   ? Ntarh guarantees App Router support here on
