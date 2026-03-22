@@ -172,8 +172,9 @@ type AppRouteUserlandModule =
 /**
  * The parameters expected by `testApiHandler` when using `appHandler`.
  */
-export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
-  extends NtarhInit<NextResponseJsonType> {
+export interface NtarhInitAppRouter<
+  NextResponseJsonType = unknown
+> extends NtarhInit<NextResponseJsonType> {
   /**
    * The actual App Router route handler under test. It should be an object
    * containing one or more async functions named for valid HTTP methods and/or
@@ -248,8 +249,9 @@ export interface NtarhInitAppRouter<NextResponseJsonType = unknown>
 /**
  * The parameters expected by `testApiHandler` when using `pagesHandler`.
  */
-export interface NtarhInitPagesRouter<NextResponseJsonType = unknown>
-  extends NtarhInit<NextResponseJsonType> {
+export interface NtarhInitPagesRouter<
+  NextResponseJsonType = unknown
+> extends NtarhInit<NextResponseJsonType> {
   /**
    * The actual Pages Router route handler under test. It should be an async
    * function that accepts `NextApiRequest` and `NextApiResult` objects (in
