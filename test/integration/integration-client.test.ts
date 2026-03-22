@@ -86,17 +86,11 @@ const runTest = async ({
   ];
 
   const initialVirtualFiles: Record<string, string> = {
-    'package.json': /*js*/ `{"name": "dummy-pkg"}`
+    'package.json': /*js*/ `{"name": "dummy-pkg"}`,
+    [indexPath]:
+      insertAdditionalImportsFirst && additionalImports ? `${additionalImports}\n` : '',
+    ...(additionalImports ? { [routePath]: `${additionalImports}\n` } : {})
   };
-
-  Object.assign(
-    initialVirtualFiles,
-    {
-      [indexPath]:
-        insertAdditionalImportsFirst && additionalImports ? `${additionalImports}\n` : ''
-    },
-    additionalImports ? { [routePath]: `${additionalImports}\n` } : {}
-  );
 
   initialVirtualFiles[indexPath]! += importAsEsm
     ? /*ts*/ `import { testApiHandler } from '${packageName}';\nimport * as handler from '../${routePath}';`
