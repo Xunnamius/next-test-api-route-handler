@@ -19,7 +19,7 @@ AbsolutePaths as such.
 
 ## Type Declaration
 
-### isAccessible()
+### isAccessible
 
 > **isAccessible**: (...`args`) => `Promise`\<`boolean`\>
 

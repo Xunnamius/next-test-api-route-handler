@@ -18,7 +18,7 @@ Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-output/di
 
 ### passthrough?
 
-> `optional` **passthrough**: (`"log"` \| `"warn"` \| `"error"` \| `"info"` \| `"stdout"` \| `"stderr"`)[]
+> `optional` **passthrough?**: (`"log"` \| `"warn"` \| `"error"` \| `"info"` \| `"stdout"` \| `"stderr"`)[]
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-output/dist/packages/test-mock-output/src/index.d.ts:21
 
@@ -36,7 +36,7 @@ remain functional.
 
 ### passthroughOutputIfDebugging?
 
-> `optional` **passthroughOutputIfDebugging**: `boolean`
+> `optional` **passthroughOutputIfDebugging?**: `boolean`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-output/dist/packages/test-mock-output/src/index.d.ts:13
 

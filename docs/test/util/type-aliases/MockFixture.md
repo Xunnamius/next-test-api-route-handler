@@ -49,9 +49,9 @@ Including invalid characters in the fixture name will cause an error.
 
 ***
 
-### setup()?
+### setup?
 
-> `optional` **setup**: (`context`) => `Promisable`\<`unknown`\>
+> `optional` **setup?**: (`context`) => `Promisable`\<`unknown`\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/fixtures.d.ts:44
 
@@ -75,9 +75,9 @@ essentially a no-op.
 
 ***
 
-### teardown()?
+### teardown?
 
-> `optional` **teardown**: (`context`) => `Promisable`\<`unknown`\>
+> `optional` **teardown?**: (`context`) => `Promisable`\<`unknown`\>
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/fixtures.d.ts:59
 

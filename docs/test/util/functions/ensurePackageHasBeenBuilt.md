@@ -23,11 +23,11 @@ no-op.
 
 ### packageName
 
-`undefined` | `string`
+`string` \| `undefined`
 
 ### packageExports
 
-`undefined` | `Exports`
+`Exports` \| `undefined`
 
 ## Returns
 

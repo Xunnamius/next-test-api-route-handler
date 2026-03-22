@@ -18,7 +18,7 @@ Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/jest/dist/packages/
 
 ### runOnly?
 
-> `optional` **runOnly**: `number`[]
+> `optional` **runOnly?**: `number`[]
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/jest/dist/packages/jest/src/index.d.ts:237
 
@@ -35,7 +35,7 @@ undefined
 
 ### singleParameter?
 
-> `optional` **singleParameter**: `boolean`
+> `optional` **singleParameter?**: `boolean`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/jest/dist/packages/jest/src/index.d.ts:248
 

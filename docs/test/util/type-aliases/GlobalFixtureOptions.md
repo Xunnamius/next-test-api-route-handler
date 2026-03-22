@@ -16,7 +16,7 @@ The options available to every fixture.
 
 ### identifier?
 
-> `optional` **identifier**: `string`
+> `optional` **identifier?**: `string`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/options.d.ts:28
 
@@ -36,7 +36,7 @@ other character will be replaced with a hyphen.
 
 ### initialVirtualFiles?
 
-> `optional` **initialVirtualFiles**: `object`
+> `optional` **initialVirtualFiles?**: `object`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-fixture/dist/packages/test-mock-fixture/src/types/options.d.ts:57
 

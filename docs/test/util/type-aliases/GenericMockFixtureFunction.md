@@ -4,7 +4,7 @@
 
 [next-test-api-route-handler](../../../README.md) / [test/util](../README.md) / GenericMockFixtureFunction
 
-# Type Alias: GenericMockFixtureFunction()
+# Type Alias: GenericMockFixtureFunction
 
 > **GenericMockFixtureFunction** = (...`args`) => [`GenericMockFixture`](GenericMockFixture.md)
 

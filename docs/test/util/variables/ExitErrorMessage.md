@@ -22,7 +22,7 @@ A collection of possible error and warning messages.
 
 ##### code
 
-`undefined` | `null` | `string` | `number`
+`string` \| `number` \| `null` \| `undefined`
 
 #### Returns
 

@@ -28,22 +28,4 @@ duplicating configuration across [withMockedArgv](withMockedArgv.md) calls.
 
 ## Returns
 
-> (`test`, `simulatedArgv?`, `options?`): `Promise`\<`void`\>
-
-### Parameters
-
-#### test
-
-() => `Promisable`\<`void`\>
-
-#### simulatedArgv?
-
-`string`[]
-
-#### options?
-
-[`MockedArgvOptions`](../type-aliases/MockedArgvOptions.md)
-
-### Returns
-
-`Promise`\<`void`\>
+(`test`, `simulatedArgv?`, `options?`) => `Promise`\<`void`\>

@@ -195,7 +195,7 @@ This is a more powerful version of Jest's own jest.mocked function.
 
 #### args
 
-\[`object`\] | \[`T`, `object`\]
+\[`object`\] \| \[`T`, `object`\]
 
 ### Returns
 

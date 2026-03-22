@@ -32,23 +32,7 @@ specific exit code.
 
 ## Returns
 
-> \<`LocalModule`\>(`__namedParameters?`): `Promise`\<`LocalModule`\>
-
-### Type Parameters
-
-#### LocalModule
-
-`LocalModule` = `Module`
-
-### Parameters
-
-#### \_\_namedParameters?
-
-[`IsolatedImportOptions`](../type-aliases/IsolatedImportOptions.md) & `object`
-
-### Returns
-
-`Promise`\<`LocalModule`\>
+\<`LocalModule`\>(`__namedParameters?`) => `Promise`\<`LocalModule`\>
 
 ## See
 

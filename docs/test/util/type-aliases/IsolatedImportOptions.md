@@ -18,7 +18,7 @@ Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-import/di
 
 ### reduceToDefault?
 
-> `optional` **reduceToDefault**: `boolean`
+> `optional` **reduceToDefault?**: `boolean`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-import/dist/packages/test-mock-import/src/index.d.ts:21
 

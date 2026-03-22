@@ -28,22 +28,4 @@ duplicating configuration across [withMockedEnv](withMockedEnv.md) calls.
 
 ## Returns
 
-> (`test`, `simulatedEnv?`, `options?`): `Promise`\<`void`\>
-
-### Parameters
-
-#### test
-
-() => `Promisable`\<`void`\>
-
-#### simulatedEnv?
-
-`Record`\<`string`, `string`\>
-
-#### options?
-
-[`MockedEnvOptions`](../type-aliases/MockedEnvOptions.md)
-
-### Returns
-
-`Promise`\<`void`\>
+(`test`, `simulatedEnv?`, `options?`) => `Promise`\<`void`\>

@@ -18,7 +18,7 @@ Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-env/dist/
 
 ### passthroughDebugEnv?
 
-> `optional` **passthroughDebugEnv**: `boolean`
+> `optional` **passthroughDebugEnv?**: `boolean`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-env/dist/packages/test-mock-env/src/index.d.ts:31
 
@@ -36,7 +36,7 @@ true
 
 ### replaceEntireEnv?
 
-> `optional` **replaceEntireEnv**: `boolean`
+> `optional` **replaceEntireEnv?**: `boolean`
 
 Defined in: node\_modules/@-xun/symbiote/node\_modules/@-xun/test-mock-env/dist/packages/test-mock-env/src/index.d.ts:23
 
