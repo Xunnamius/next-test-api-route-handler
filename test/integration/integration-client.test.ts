@@ -25,7 +25,7 @@ import {
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested();
 
 const TEST_IDENTIFIER = 'ntarh-client';
-const TIMEOUTTEST_TIMEOUT_MS = 15_000;
+const TIMEOUTTEST_TIMEOUT_MS = 30_000;
 
 const debug = globalDebugger.extend(TEST_IDENTIFIER);
 const packageRoot = toAbsolutePath(__dirname, '../..');

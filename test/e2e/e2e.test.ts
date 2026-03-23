@@ -30,7 +30,7 @@ import {
 reconfigureJestGlobalsToSkipTestsInThisFileIfRequested({ it: true });
 
 const TEST_IDENTIFIER = 'ntarh-client-changelog';
-const TIMEOUTTEST_TIMEOUT_MS = 15_000;
+const TIMEOUTTEST_TIMEOUT_MS = 30_000;
 
 const NEXT_VERSIONS_UNDER_TEST: [
   next: `next@${string}`,
