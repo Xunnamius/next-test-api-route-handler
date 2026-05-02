@@ -103,7 +103,7 @@
     "@-xun/symbiote": "^4.15.6",
     "baseline-browser-mapping": "^2.10.25",
     "jest-resolve": "npm:jest-resolve-no-esm@31",
-    "msw": "^2.12.14",
+    "msw": "^2.14.2",
     "rejoinder": "^2.1.0"
   },
   "peerDependencies": {
