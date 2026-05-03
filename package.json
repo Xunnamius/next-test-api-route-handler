@@ -99,12 +99,11 @@
   "devDependencies": {
     "@-xun/fs": "^2.0.0",
     "@-xun/project-fs": "^2.0.7",
-    "@-xun/run": "^2.0.1",
     "@-xun/symbiote": "^4.15.10",
-    "baseline-browser-mapping": "^2.10.25",
     "jest-resolve": "npm:jest-resolve-no-esm@31",
     "msw": "^2.14.2",
-    "rejoinder": "^2.1.0"
+    "rejoinder": "^2.1.0",
+    "semver": "^7.7.4"
   },
   "peerDependencies": {
     "next": ">=9"
