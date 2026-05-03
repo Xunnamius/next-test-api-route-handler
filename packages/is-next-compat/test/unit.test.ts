@@ -228,7 +228,8 @@ it('handles compatibility test failure', async () => {
 
         mockedRun.mockImplementation(async (file: string, args?: string[]) => {
           if (file === 'npm' && args?.[0] === 'run' && args[1]?.endsWith('all')) {
-            return Promise.reject({ stderr: 'bad!' }) as unknown as RunReturnType;
+            // eslint-disable-next-line unicorn/no-useless-promise-resolve-reject
+            return Promise.reject({ stderr: 'bad!' });
           }
 
           return baseMockRunImplementation(file, args);
@@ -414,9 +415,7 @@ function pretendWereNotRunningInTestMode() {
         >;
       }
 
-      return baseMockRunImplementation(file, args) as ReturnType<
-        typeof xrun.runNoRejectOnBadExit
-      >;
+      return baseMockRunImplementation(file, args);
     }
   );
 }
