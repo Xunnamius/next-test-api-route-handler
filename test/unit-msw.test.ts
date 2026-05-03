@@ -1,27 +1,36 @@
 // * These tests ensure NTARH and MSW integrate as expected
 
-import { http, HttpResponse, passthrough } from 'msw';
-import { setupServer } from 'msw/node';
-
 import { testApiHandler } from 'universe';
 
-const server = setupServer(
-  http.all('*', async ({ request, params }) => {
-    const { method, headers } = request;
-    const body = await request.text();
+import type { SetupServer } from 'msw/node';
 
-    return HttpResponse.json(
-      { method, headers: Array.from(headers), params, body },
-      {
-        status: body.startsWith('status=')
-          ? Number.parseInt(body.split('status=').at(-1) || '200')
-          : 200
-      }
-    );
-  })
-);
+let msw: typeof import('msw');
+let server: SetupServer;
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(async () => {
+  const { setupServer } =
+    (await import('msw/node')) as unknown as typeof import('msw/node');
+
+  msw = (await import('msw')) as unknown as typeof import('msw');
+
+  server = setupServer(
+    msw.http.all('*', async ({ request, params }) => {
+      const { method, headers } = request;
+      const body = await request.text();
+
+      return msw.HttpResponse.json(
+        { method, headers: Array.from(headers), params, body },
+        {
+          status: body.startsWith('status=')
+            ? Number.parseInt(body.split('status=').at(-1) || '200')
+            : 200
+        }
+      );
+    })
+  );
+
+  server.listen({ onUnhandledRequest: 'error' });
+});
 
 afterEach(() => {
   server.resetHandlers();
@@ -64,10 +73,10 @@ describe('<app router>', () => {
       params: { shortId },
       test: async ({ fetch }) => {
         server.use(
-          http.get('*', async ({ request }) => {
+          msw.http.get('*', async ({ request }) => {
             return request.url === realUrl.href
-              ? HttpResponse.json({ it: 'worked' }, { status: 200 })
-              : passthrough();
+              ? msw.HttpResponse.json({ it: 'worked' }, { status: 200 })
+              : msw.passthrough();
           })
         );
 
@@ -115,10 +124,10 @@ describe('<pages router>', () => {
       params: { shortId },
       test: async ({ fetch }) => {
         server.use(
-          http.get('*', async ({ request }) => {
+          msw.http.get('*', async ({ request }) => {
             return request.url === realUrl.href
-              ? HttpResponse.json({ it: 'worked' }, { status: 200 })
-              : passthrough();
+              ? msw.HttpResponse.json({ it: 'worked' }, { status: 200 })
+              : msw.passthrough();
           })
         );
 
