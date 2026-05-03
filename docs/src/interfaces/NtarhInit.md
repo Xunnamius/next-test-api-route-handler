@@ -6,7 +6,7 @@
 
 # Interface: NtarhInit\<NextResponseJsonType\>
 
-Defined in: [src/index.ts:145](https://github.com/Xunnamius/next-test-api-route-handler/blob/e91acddc25208abf53a2a04ca60ffba263870578/src/index.ts#L145)
+Defined in: [src/index.ts:144](https://github.com/Xunnamius/next-test-api-route-handler/blob/5d434cf87052de7aa75040c2b2f60b27369fecfb/src/index.ts#L144)
 
 ## Extended by
 
@@ -25,7 +25,7 @@ Defined in: [src/index.ts:145](https://github.com/Xunnamius/next-test-api-route-
 
 > `optional` **rejectOnHandlerError?**: `boolean`
 
-Defined in: [src/index.ts:158](https://github.com/Xunnamius/next-test-api-route-handler/blob/e91acddc25208abf53a2a04ca60ffba263870578/src/index.ts#L158)
+Defined in: [src/index.ts:157](https://github.com/Xunnamius/next-test-api-route-handler/blob/5d434cf87052de7aa75040c2b2f60b27369fecfb/src/index.ts#L157)
 
 If `false`, errors thrown from within a handler are kicked up to Next.js's
 resolver to deal with, which is what would happen in production. If `true`,
@@ -48,7 +48,7 @@ false
 
 > **test**: (`parameters`) => `Promisable`\<`void`\>
 
-Defined in: [src/index.ts:164](https://github.com/Xunnamius/next-test-api-route-handler/blob/e91acddc25208abf53a2a04ca60ffba263870578/src/index.ts#L164)
+Defined in: [src/index.ts:163](https://github.com/Xunnamius/next-test-api-route-handler/blob/5d434cf87052de7aa75040c2b2f60b27369fecfb/src/index.ts#L163)
 
 `test` is a function that runs your test assertions. This function receives
 one destructured parameter: `fetch`, which is equivalent to
