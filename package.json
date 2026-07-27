@@ -103,7 +103,7 @@
     "jest-resolve": "npm:jest-resolve-no-esm@31",
     "msw": "^2.15.0",
     "rejoinder": "^2.1.0",
-    "semver": "^7.7.4"
+    "semver": "^7.8.5"
   },
   "peerDependencies": {
     "next": ">=9"
