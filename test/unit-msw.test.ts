@@ -2,16 +2,15 @@
 
 import { testApiHandler } from 'universe';
 
-import type { SetupServer } from 'msw/node';
+import type { SetupServer } from 'msw/node' with { 'resolution-mode': 'import' };
 
-let msw: typeof import('msw');
+let msw: typeof import('msw', { with: { 'resolution-mode': 'import' } });
 let server: SetupServer;
 
 beforeAll(async () => {
-  const { setupServer } =
-    (await import('msw/node')) as unknown as typeof import('msw/node');
+  const { setupServer } = await import('msw/node');
 
-  msw = (await import('msw')) as unknown as typeof import('msw');
+  msw = await import('msw');
 
   server = setupServer(
     msw.http.all('*', async ({ request, params }) => {

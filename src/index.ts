@@ -137,7 +137,7 @@ export type Promisable<Promised> = Promised | Promise<Promised>;
 export type FetchReturnType<NextResponseJsonType> = Promise<
   Omit<Response, 'json'> & {
     json: (...args: Parameters<Response['json']>) => Promise<NextResponseJsonType>;
-    cookies: ReturnType<typeof import('cookie').parse>[];
+    cookies: ReturnType<typeof import('cookie').parseCookie>[];
   }
 >;
 
@@ -186,10 +186,9 @@ export interface NtarhInitAppRouter<
       AppRouteUserlandModule,
       keyof import('next/dist/server/route-modules/app-route/module').AppRouteHandlers
     > & {
-      [key in keyof import('next/dist/server/route-modules/app-route/module').AppRouteHandlers]?: (
-        req: NextRequest,
-        segmentData?: any
-      ) => any;
+      [
+        key in keyof import('next/dist/server/route-modules/app-route/module').AppRouteHandlers
+      ]?: (req: NextRequest, segmentData?: any) => any;
     }
   >;
   pagesHandler?: undefined;
@@ -389,18 +388,19 @@ export async function testApiHandler<NextResponseJsonType = any>({
 
         return (
           originalGlobalFetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
-        ).then((response) => {
+        ).then(async (response) => {
+          const { parseCookie } = await import('cookie');
+
           // ? Lazy load (on demand) the contents of the `cookies` field
           Object.defineProperty(response, 'cookies', {
             configurable: true,
             enumerable: true,
             get: () => {
-              const { parse: parseCookieHeader } = require('cookie');
               // @ts-expect-error: lazy getter guarantees this will be set
               delete response.cookies;
               response.cookies = response.headers.getSetCookie().map((header) =>
                 Object.fromEntries(
-                  Object.entries(parseCookieHeader(header)).flatMap(([k, v]) => {
+                  Object.entries(parseCookie(header)).flatMap(([k, v]) => {
                     return [
                       [k, String(v)],
                       [k.toLowerCase(), String(v)]
@@ -561,7 +561,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
               // @ts-ignore: the types for renderOpts are wrong?!
               staticGenerationContext: { supportsDynamicHTML: true },
               // For next@>=15.2
-              sharedContext: { buildId: 'ntarh' }
+              sharedContext: { buildId: 'ntarh', deploymentId: 'ntarh' }
             }
           );
 

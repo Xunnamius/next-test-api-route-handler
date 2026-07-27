@@ -2,7 +2,7 @@
 
 import 'next-test-api-route-handler';
 
-import { parse, serialize } from 'cookie';
+import { parseCookie, stringifySetCookie } from 'cookie';
 import { cookies, headers } from 'next/headers';
 import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
@@ -15,14 +15,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 jest.mock('cookie');
 
-const cookie = jest.requireActual('cookie');
-const mockedCookieParse = asMocked(parse);
-const mockedCookieSerialize = asMocked(serialize);
+const cookie = jest.requireActual<typeof import('cookie')>('cookie');
+const mockedParseCookie = asMocked(parseCookie);
+const mockedStringifySetCookie = asMocked(stringifySetCookie);
 const originalGlobalFetch = fetch;
 
 beforeEach(() => {
-  mockedCookieParse.mockImplementation(cookie.parse);
-  mockedCookieSerialize.mockImplementation(cookie.serialize);
+  mockedParseCookie.mockImplementation(cookie.parseCookie);
+  mockedStringifySetCookie.mockImplementation(cookie.stringifySetCookie);
 });
 
 afterEach(() => {
@@ -1165,7 +1165,11 @@ describe('::testApiHandler', () => {
             const response = Response.json({});
             response.headers.set(
               'Set-Cookie',
-              mockedCookieSerialize('access_token', '1234', { expires: new Date() })
+              mockedStringifySetCookie({
+                name: 'access_token',
+                value: '1234',
+                expires: new Date()
+              })
             );
 
             return response;
@@ -1195,12 +1199,16 @@ describe('::testApiHandler', () => {
 
             response.headers.set(
               'Set-Cookie',
-              mockedCookieSerialize('access_token', '1234', { expires: new Date() })
+              mockedStringifySetCookie({
+                name: 'access_token',
+                value: '1234',
+                expires: new Date()
+              })
             );
 
             response.headers.append(
               'Set-Cookie',
-              mockedCookieSerialize('REFRESH_TOKEN', '5678')
+              mockedStringifySetCookie({ name: 'REFRESH_TOKEN', value: '5678' })
             );
 
             return response;
@@ -1231,12 +1239,12 @@ describe('::testApiHandler', () => {
 
             response.headers.set(
               'Set-Cookie',
-              mockedCookieSerialize('access_token', '1234')
+              mockedStringifySetCookie({ name: 'access_token', value: '1234' })
             );
 
             response.headers.append(
               'Set-Cookie',
-              mockedCookieSerialize('access_token', '1234')
+              mockedStringifySetCookie({ name: 'access_token', value: '1234' })
             );
 
             return response;
@@ -1245,11 +1253,11 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           const res = await fetch();
 
-          expect(mockedCookieParse).not.toHaveBeenCalled();
+          expect(mockedParseCookie).not.toHaveBeenCalled();
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(2);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(2);
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(2);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(2);
         }
       });
 
@@ -1260,12 +1268,12 @@ describe('::testApiHandler', () => {
 
             response.headers.set(
               'Set-Cookie',
-              mockedCookieSerialize('access_token', '1234')
+              mockedStringifySetCookie({ name: 'access_token', value: '1234' })
             );
 
             response.headers.append(
               'Set-Cookie',
-              mockedCookieSerialize('access_token', '1234')
+              mockedStringifySetCookie({ name: 'access_token', value: '1234' })
             );
 
             return response;
@@ -1274,11 +1282,11 @@ describe('::testApiHandler', () => {
         test: async ({ fetch }) => {
           const res = await fetch();
 
-          expect(mockedCookieParse).toHaveBeenCalledTimes(2);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(2);
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(4);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(4);
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(4);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(4);
         }
       });
     });
@@ -2238,7 +2246,11 @@ describe('::testApiHandler', () => {
         pagesHandler: (_, res) => {
           res.setHeader(
             'Set-Cookie',
-            mockedCookieSerialize('access_token', '1234', { expires: new Date() })
+            mockedStringifySetCookie({
+              name: 'access_token',
+              value: '1234',
+              expires: new Date()
+            })
           );
           res.status(200).send({});
         },
@@ -2262,8 +2274,12 @@ describe('::testApiHandler', () => {
       await testApiHandler({
         pagesHandler: (_, res) => {
           res.setHeader('Set-Cookie', [
-            mockedCookieSerialize('access_token', '1234', { expires: new Date() }),
-            mockedCookieSerialize('REFRESH_TOKEN', '5678')
+            mockedStringifySetCookie({
+              name: 'access_token',
+              value: '1234',
+              expires: new Date()
+            }),
+            mockedStringifySetCookie({ name: 'REFRESH_TOKEN', value: '5678' })
           ]);
           res.status(200).send({});
         },
@@ -2288,38 +2304,38 @@ describe('::testApiHandler', () => {
       await testApiHandler({
         pagesHandler: (_, res) => {
           res.setHeader('Set-Cookie', [
-            mockedCookieSerialize('access_token', '1234'),
-            mockedCookieSerialize('access_token', '1234')
+            mockedStringifySetCookie({ name: 'access_token', value: '1234' }),
+            mockedStringifySetCookie({ name: 'access_token', value: '1234' })
           ]);
           res.status(200).send({});
         },
         test: async ({ fetch }) => {
           const res = await fetch();
 
-          expect(mockedCookieParse).not.toHaveBeenCalled();
+          expect(mockedParseCookie).not.toHaveBeenCalled();
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(2);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(2);
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(2);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(2);
         }
       });
 
       await testApiHandler({
         pagesHandler: (_, res) => {
           res.setHeader('Set-Cookie', [
-            mockedCookieSerialize('access_token', '1234'),
-            mockedCookieSerialize('access_token', '1234')
+            mockedStringifySetCookie({ name: 'access_token', value: '1234' }),
+            mockedStringifySetCookie({ name: 'access_token', value: '1234' })
           ]);
           res.status(200).send({});
         },
         test: async ({ fetch }) => {
           const res = await fetch();
 
-          expect(mockedCookieParse).toHaveBeenCalledTimes(2);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(2);
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(4);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(4);
           expect(res.cookies).toBeArrayOfSize(2);
-          expect(mockedCookieParse).toHaveBeenCalledTimes(4);
+          expect(mockedParseCookie).toHaveBeenCalledTimes(4);
         }
       });
     });
