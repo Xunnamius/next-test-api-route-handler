@@ -7,7 +7,7 @@ started, [take a look at this quick and easy guide][how-to-contribute]. 💜
 
 ## Briefly: Submitting a Pull Request (Pr)
 
-> See also: [CODE_OF_CONDUCT.md][code-of-conduct]
+> See also: [CODE\_OF\_CONDUCT.md][code-of-conduct]
 
 This repository uses a [fully automated][github-actions] [continuous
 linting][husky-cl] (CL), integration testing (CI), and deployment (CD)
