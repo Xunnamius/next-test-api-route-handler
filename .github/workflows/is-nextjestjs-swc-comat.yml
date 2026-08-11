@@ -125,7 +125,7 @@ jobs:
 
 
           echo running jest:
-          npx jest
+          NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest
 
           echo done
           rm '#pipe.ignore'

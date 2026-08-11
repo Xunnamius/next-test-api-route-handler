@@ -62,4 +62,4 @@ jobs:
           echo 'module.exports={presets:["@babel/preset-env"]};' > babel.config.js
           mkdir test
           curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw
-          npx jest
+          NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest
