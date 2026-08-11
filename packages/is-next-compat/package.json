@@ -69,7 +69,7 @@
     "@black-flag/core": "^3.0.3",
     "@octokit/rest": "^22.0.1",
     "@types/find-package-json": "^1.2.7",
-    "@types/semver": "^7.7.1",
+    "@types/semver": "^7.8.0",
     "find-package-json": "^1.2.0",
     "mongodb": "^7.5.0",
     "rejoinder": "^2.1.0",
