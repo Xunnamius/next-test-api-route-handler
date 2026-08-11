@@ -973,9 +973,7 @@ it('returns isAuthed: true and a userId when authenticated', async () => {
       get GET() {
         return async function (...args: Parameters<typeof appHandler.GET>) {
           const request = args.at(0) as unknown as NextRequest;
-          const middlewareResponse = await middleware(request, {
-            /* ... */
-          });
+          const middlewareResponse = await middleware(request, {/* ... */});
 
           // Make sure we're not being redirected to the sign in page since
           // this is a publicly available endpoint
