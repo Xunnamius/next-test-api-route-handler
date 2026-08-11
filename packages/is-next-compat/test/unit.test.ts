@@ -1,7 +1,7 @@
 // * These tests ensure the exported interfaces under test function as expected.
 
 import * as xrun from '@-xun/run';
-import { Octokit } from '@octokit/rest';
+import { jest } from '@jest/globals';
 import findPackageJson from 'find-package-json';
 import { MongoClient } from 'mongodb';
 
@@ -16,9 +16,9 @@ import { asMocked, withMockedEnv, withMockedOutput } from 'testverse:util.ts';
 
 import type { RunReturnType } from '@-xun/run';
 import type { Arguments } from '@black-flag/core';
+import type { Octokit } from '@octokit/rest';
 import type { Collection, Db } from 'mongodb';
 
-jest.mock('@octokit/rest');
 jest.mock('mongodb');
 jest.mock('find-package-json');
 jest.mock('@-xun/run');
@@ -27,7 +27,7 @@ const mockedRun = asMocked(xrun.run);
 const mockedRunNoRejectOnBadExit = asMocked(xrun.runNoRejectOnBadExit);
 
 const mockedFindPackageJson = asMocked(findPackageJson);
-const mockedOctokit = jest.mocked(Octokit);
+const mockedOctokit = jest.fn();
 const mockedOctokitGetLatestRelease = asMocked<Octokit['repos']['getLatestRelease']>();
 
 // eslint-disable-next-line jest/unbound-method
@@ -36,6 +36,12 @@ const mockedMongoConnectClose = asMocked<MongoClient['close']>();
 const mockedMongoConnectDb = asMocked<MongoClient['db']>();
 const mockedMongoConnectDbCollection = asMocked<Db['collection']>();
 const mockedMongoConnectDbCollectionUpdateOne = asMocked<Collection['updateOne']>();
+
+jest.unstable_mockModule('@octokit/rest', () => {
+  return {
+    Octokit: mockedOctokit
+  };
+});
 
 let mockLatestRelease: string;
 
@@ -54,12 +60,9 @@ beforeEach(() => {
   mockedRun.mockImplementation(baseMockRunImplementation);
   mockedRunNoRejectOnBadExit.mockImplementation(baseMockRunImplementation);
 
-  mockedOctokit.mockImplementation(
-    () =>
-      ({
-        repos: { getLatestRelease: mockedOctokitGetLatestRelease }
-      }) as unknown as Octokit
-  );
+  mockedOctokit.mockImplementation(() => ({
+    repos: { getLatestRelease: mockedOctokitGetLatestRelease }
+  }));
 
   mockedOctokitGetLatestRelease.mockImplementation(() =>
     Promise.resolve({ data: { tag_name: mockLatestRelease } } as unknown as ReturnType<
@@ -101,6 +104,8 @@ it('calls invoker and installs next.js peer dependencies explicitly when importe
       'npm',
       expect.arrayContaining([
         'install',
+        '--no-save',
+        '--force',
         `next@${mockLatestRelease}`,
         'react@4.5.6',
         'react-dom@4.5.6'

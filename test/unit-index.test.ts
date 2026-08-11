@@ -2,7 +2,7 @@
 
 import 'next-test-api-route-handler';
 
-import { parseCookie, stringifySetCookie } from 'cookie';
+import { jest } from '@jest/globals';
 import { cookies, headers } from 'next/headers';
 import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
@@ -13,14 +13,22 @@ import { asMocked, withMockedOutput } from 'testverse:util.ts';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-jest.mock('cookie');
-
-const cookie = jest.requireActual<typeof import('cookie')>('cookie');
-const mockedParseCookie = asMocked(parseCookie);
-const mockedStringifySetCookie = asMocked(stringifySetCookie);
 const originalGlobalFetch = fetch;
+const mockedParseCookie = asMocked<(typeof import('cookie'))['parseCookie']>();
+const mockedStringifySetCookie =
+  asMocked<(typeof import('cookie'))['stringifySetCookie']>();
+
+jest.unstable_mockModule('cookie', () => {
+  return {
+    parseCookie: mockedParseCookie,
+    stringifySetCookie: mockedStringifySetCookie,
+    parseSetCookie: jest.fn(),
+    stringifyCookie: jest.fn()
+  } as typeof import('cookie');
+});
 
 beforeEach(() => {
+  const cookie = jest.requireActual<typeof import('cookie')>('cookie');
   mockedParseCookie.mockImplementation(cookie.parseCookie);
   mockedStringifySetCookie.mockImplementation(cookie.stringifySetCookie);
 });
@@ -2300,6 +2308,8 @@ describe('::testApiHandler', () => {
 
     it('response.cookies (from fetch) is lazily defined', async () => {
       expect.hasAssertions();
+
+      const { parseCookie: mockedParseCookie } = await import('cookie');
 
       await testApiHandler({
         pagesHandler: (_, res) => {

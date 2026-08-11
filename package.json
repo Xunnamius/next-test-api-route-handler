@@ -88,9 +88,6 @@
     "test:packages:all:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type --scope unlimited --coverage",
     "test:topological": "symbiote project topology --run test --env NODE_NO_WARNINGS=1"
   },
-  "overrides": {
-    "jest-resolve": "$jest-resolve"
-  },
   "dependencies": {
     "@whatwg-node/server": "^0.11.0",
     "cookie": "^2.0.1",
@@ -100,7 +97,7 @@
     "@-xun/fs": "^2.0.0",
     "@-xun/project-fs": "^2.0.7",
     "@-xun/symbiote": "^4.15.10",
-    "jest-resolve": "npm:jest-resolve-no-esm@31",
+    "@jest/globals": "^30.4.1",
     "msw": "^2.15.0",
     "rejoinder": "^2.1.0",
     "semver": "^7.8.5"
