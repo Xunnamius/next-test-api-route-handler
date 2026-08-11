@@ -56,6 +56,8 @@ const NEXT_VERSIONS_UNDER_TEST: [
   ['next@^14', 'both'], //      ? Latest version 14 release
   ['next@15.0.0', 'both'], //   ? Updated from 15.0.0-rc.1
   ['next@15.2.0', 'both'], //   ? See issue #1129
+  ['next@^15', 'both'], //      ? Latest version 15 release
+  ['next@^16', 'both'], //      ? Latest version 16 release
   ['next@latest', 'both'], //   ! Latest release (must always be here)
   ['next@canary', 'both'] //    ! Latest release (must always be here and last)
 ];

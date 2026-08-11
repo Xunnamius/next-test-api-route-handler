@@ -513,6 +513,11 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 throw AppRouteRouteModule[$importFailed];
               }
 
+              const userlandFunctor = Object.assign(
+                () => appHandler as AppRouteUserlandModule,
+                appHandler as AppRouteUserlandModule
+              );
+
               return new AppRouteRouteModule({
                 definition: {
                   kind: 'APP_ROUTE' as any,
@@ -523,7 +528,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
                 },
                 nextConfigOutput: undefined,
                 resolvedPagePath: 'ntarh://testApiHandler',
-                userland: appHandler as AppRouteUserlandModule,
+                userland: userlandFunctor,
                 distDir: 'ntarh://fake-dir',
                 // @ts-ignore: necessary in next@<=15.4
                 projectDir: 'ntarh://fake-dir'
