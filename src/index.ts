@@ -137,7 +137,7 @@ export type Promisable<Promised> = Promised | Promise<Promised>;
 export type FetchReturnType<NextResponseJsonType> = Promise<
   Omit<Response, 'json'> & {
     json: (...args: Parameters<Response['json']>) => Promise<NextResponseJsonType>;
-    cookies: ReturnType<typeof import('cookie').parseCookie>[];
+    cookies: ReturnType<typeof import('cookie~1').parseCookie>[];
   }
 >;
 
@@ -389,13 +389,13 @@ export async function testApiHandler<NextResponseJsonType = any>({
         return (
           originalGlobalFetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
         ).then(async (response) => {
-          const { parseCookie } = require('cookie') as typeof import('cookie');
-
           // ? Lazy load (on demand) the contents of the `cookies` field
           Object.defineProperty(response, 'cookies', {
             configurable: true,
             enumerable: true,
             get: () => {
+              const { parseCookie } = require('cookie~1') as typeof import('cookie~1');
+
               // @ts-expect-error: lazy getter guarantees this will be set
               delete response.cookies;
               response.cookies = response.headers.getSetCookie().map((header) =>

@@ -14,21 +14,21 @@ import { asMocked, withMockedOutput } from 'testverse:util.ts';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const originalGlobalFetch = fetch;
-const mockedParseCookie = asMocked<(typeof import('cookie'))['parseCookie']>();
+const mockedParseCookie = asMocked<(typeof import('cookie~1'))['parseCookie']>();
 const mockedStringifySetCookie =
-  asMocked<(typeof import('cookie'))['stringifySetCookie']>();
+  asMocked<(typeof import('cookie~1'))['stringifySetCookie']>();
 
-jest.mock<Omit<typeof import('cookie'), 'serialize' | 'parse'>>('cookie', () => {
+jest.mock<Omit<typeof import('cookie~1'), 'serialize' | 'parse'>>('cookie~1', () => {
   return {
     parseCookie: mockedParseCookie,
     stringifySetCookie: mockedStringifySetCookie,
     parseSetCookie: jest.fn(),
     stringifyCookie: jest.fn()
-  } as Omit<typeof import('cookie'), 'serialize' | 'parse'>;
+  } as Omit<typeof import('cookie~1'), 'serialize' | 'parse'>;
 });
 
 beforeEach(() => {
-  const cookie = jest.requireActual<typeof import('cookie')>('cookie');
+  const cookie = jest.requireActual<typeof import('cookie~1')>('cookie~1');
   mockedParseCookie.mockImplementation(cookie.parseCookie);
   mockedStringifySetCookie.mockImplementation(cookie.stringifySetCookie);
 });
@@ -2309,7 +2309,7 @@ describe('::testApiHandler', () => {
     it('response.cookies (from fetch) is lazily defined', async () => {
       expect.hasAssertions();
 
-      const { parseCookie: mockedParseCookie } = await import('cookie');
+      const { parseCookie: mockedParseCookie } = require('cookie~1');
 
       await testApiHandler({
         pagesHandler: (_, res) => {
