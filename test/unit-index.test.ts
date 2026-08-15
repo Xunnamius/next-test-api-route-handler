@@ -18,13 +18,13 @@ const mockedParseCookie = asMocked<(typeof import('cookie'))['parseCookie']>();
 const mockedStringifySetCookie =
   asMocked<(typeof import('cookie'))['stringifySetCookie']>();
 
-jest.unstable_mockModule('cookie', () => {
+jest.mock<Omit<typeof import('cookie'), 'serialize' | 'parse'>>('cookie', () => {
   return {
     parseCookie: mockedParseCookie,
     stringifySetCookie: mockedStringifySetCookie,
     parseSetCookie: jest.fn(),
     stringifyCookie: jest.fn()
-  } as typeof import('cookie');
+  } as Omit<typeof import('cookie'), 'serialize' | 'parse'>;
 });
 
 beforeEach(() => {
