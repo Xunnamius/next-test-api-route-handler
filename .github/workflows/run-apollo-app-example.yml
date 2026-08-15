@@ -120,6 +120,6 @@ jobs:
 
           curl -o test/integration.test.js https://raw.githubusercontent.com/Xunnamius/next-test-api-route-handler/main/apollo_test_raw_app_test
 
-          NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest
+          NODE_OPTIONS='--no-warnings' npx jest
 
           rm '#pipe.ignore'
