@@ -389,7 +389,7 @@ export async function testApiHandler<NextResponseJsonType = any>({
         return (
           originalGlobalFetch(localUrl, init) as FetchReturnType<NextResponseJsonType>
         ).then(async (response) => {
-          const { parseCookie } = await import('cookie');
+          const { parseCookie } = require('cookie') as typeof import('cookie');
 
           // ? Lazy load (on demand) the contents of the `cookies` field
           Object.defineProperty(response, 'cookies', {
